@@ -2,6 +2,11 @@
 """Report real subscription + free-lane usage from on-disk evidence (no made-up numbers)."""
 import glob, json, os, re, sqlite3, subprocess, time
 
+try:  # single source of truth for the pinned ladder lives in the shield
+    from freellm_shield import STRONG_TIER
+except Exception:
+    STRONG_TIER = []
+
 HOME = os.path.expanduser("~")
 NOW = time.time()
 
@@ -65,29 +70,37 @@ def codex_usage():
         mtime = os.path.getmtime(path)
         if NOW - mtime > 12 * 3600:
             continue
-        last_tot = 0
         model = None
+        turn_toks = []          # per-turn totals; a session's usage = sum of its turns
+        turns = 0
         try:
             with open(path) as f:
                 for line in f:
-                    if "tokens used" in line or "model" in line:
-                        try:
-                            j = json.loads(line)
-                        except Exception:
-                            continue
-                        p = j.get("payload") if isinstance(j, dict) else None
-                        if isinstance(p, dict):
-                            if p.get("type") == "turn_context" and p.get("model"):
-                                model = p["model"]
-                        if "tokens used" in line:
-                            m = re.search(r"tokens used[^0-9]*(\d+)", line)
-                            if m:
-                                last_tot = int(m.group(1))
+                    # Codex rollouts record usage as {"type":"token_usage_record",
+                    # "payload":{"usage":{"total_tokens":N,...}}} and the model in
+                    # turn_context/token_usage_record lines. The old "tokens used"
+                    # string format never appears — that's why Luna showed nothing.
+                    if '"token_usage_record"' not in line and '"turn_context"' not in line:
+                        continue
+                    try:
+                        j = json.loads(line)
+                    except Exception:
+                        continue
+                    p = j.get("payload") if isinstance(j.get("payload"), dict) else {}
+                    if p.get("model"):
+                        model = p["model"]
+                    elif j.get("model"):
+                        model = j["model"]
+                    u = p.get("usage") if isinstance(p.get("usage"), dict) else None
+                    if j.get("type") == "token_usage_record" and u:
+                        turn_toks.append(int(u.get("total_tokens") or 0))
+                        turns += 1
         except OSError:
             pass
-        if model and last_tot:
-            e = out.setdefault(model, {"tok": 0, "last": 0, "sessions": 0})
-            e["tok"] += last_tot
+        if model and turn_toks:
+            e = out.setdefault(model, {"tok": 0, "last": 0, "sessions": 0, "calls": 0})
+            e["tok"] += sum(turn_toks)
+            e["calls"] += turns
             e["last"] = max(e["last"], mtime)
             e["sessions"] += 1
     return out
