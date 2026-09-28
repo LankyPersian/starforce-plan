@@ -1,49 +1,206 @@
-<!doctype html><html><head><meta charset="utf-8">
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="60">
+<title>P1.1 · Empirium monitor</title>
 <style>
-:root { color-scheme: dark; }
-body { font: 13px/1.45 ui-monospace, monospace; padding: 10px; }
-h1 { font-size: 15px; margin: 0 0 4px; }
-h2 { font-size: 13px; margin: 18px 0 6px; color: var(--accent, #7aa2f7); }
-.note { color: var(--muted-foreground, #888); font-size: 11px; margin-bottom: 6px;
-        white-space: pre-wrap; }
-table { border-collapse: collapse; width: 100%; }
-th, td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(--border, #333);
-         vertical-align: top; }
-th { color: var(--muted-foreground, #999); font-weight: 500; font-size: 11px; }
-.dim { color: var(--muted-foreground, #777); }
-.stamp { color: var(--muted-foreground, #888); font-size: 11px; }
-#refresh { position: fixed; top: 10px; right: 10px; font: 12px ui-monospace, monospace;
-           padding: 5px 10px; cursor: pointer; background: var(--card, #1a1b26);
-           color: var(--foreground, #c0caf5); border: 1px solid var(--accent, #7aa2f7);
-           border-radius: 6px; }
-#refresh:hover { background: var(--accent, #7aa2f7); color: var(--background, #16161e); }
-#refresh[disabled] { opacity: .6; cursor: wait; }
+:root{color-scheme:dark;
+ --bg:#0b0d10;--panel:#111418;--panel2:#161a1f;--line:#22272e;--line2:#2d333b;
+ --fg:#d7dde4;--fg2:#9aa4af;--dim:#5f6b77;
+ --pass:#3fb950;--retry:#d29922;--fail:#f85149;--run:#58a6ff;--pend:#6e7681;
+ --mono:ui-monospace,SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+ --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font:13px/1.45 var(--sans);min-width:380px;padding:0 0 32px}
+.num,td,.code,.mono{font-variant-numeric:tabular-nums}
+.num,.code,.mono,table{font-family:var(--mono)}
+.dim{color:var(--dim)} .small{font-size:11px} .r{text-align:right}
+.c-pass{color:var(--pass)} .c-retry{color:var(--retry)} .c-fail{color:var(--fail)} .c-run{color:var(--run)}
+header{position:sticky;top:0;z-index:5;background:rgba(11,13,16,.94);backdrop-filter:blur(6px);
+ border-bottom:1px solid var(--line);padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-weight:600;letter-spacing:.01em;font-size:13px}
+.brand span{color:var(--dim);font-weight:400}
+.badge{font:600 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:3px;border:1px solid}
+.b-live{color:var(--pass);border-color:rgba(63,185,80,.4);background:rgba(63,185,80,.08)}
+.b-idle{color:var(--pend);border-color:var(--line2)}
+.b-live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pass);margin-right:6px;vertical-align:1px;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.stamp{font:11px var(--mono);color:var(--fg2)} .stamp .stale{color:var(--retry)}
+.spacer{flex:1}
+#refresh{font:600 11px var(--mono);letter-spacing:.06em;padding:6px 11px;cursor:pointer;background:var(--panel2);
+ color:var(--fg);border:1px solid var(--line2);border-radius:4px}
+#refresh:hover{border-color:var(--run);color:var(--run)}
+#refresh[disabled]{opacity:.6;cursor:wait}
+main{padding:14px 20px;max-width:1480px;margin:0 auto;display:grid;gap:14px}
+.health{font:12px var(--mono);color:var(--fg2);padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel);
+ display:flex;flex-wrap:wrap;gap:4px 0}
+.health>span:not(:last-child)::after{content:"·";color:var(--dim);margin:0 10px}
+.health b{color:var(--fg);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:0}
+.ph{display:flex;align-items:baseline;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ph h2{margin:0;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg2)}
+.ph .meta{font:11px var(--mono);color:var(--dim)}
+.ph .right{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.pb{padding:12px}
+/* pipeline */
+.pipe{list-style:none;margin:0;padding:12px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.step{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px 10px 9px;min-width:0}
+.step .bar{position:absolute;left:0;right:0;top:0;height:3px;border-radius:4px 4px 0 0;background:var(--pend);opacity:.35}
+.st-top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.code{font-size:15px;font-weight:600}
+.st-name{font:12px var(--mono);color:var(--fg2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-sub{font:11px var(--mono);color:var(--dim);margin-top:2px}
+.s-done .bar{background:var(--pass);opacity:1} .s-done .code{color:var(--pass)}
+.s-run .bar{background:var(--run);opacity:1} .s-run{border-color:rgba(88,166,255,.45)}
+.s-retry .bar{background:var(--retry);opacity:1} .s-retry{border-color:rgba(210,153,34,.5);background:rgba(210,153,34,.05)}
+.s-retry .st-sub{color:var(--retry)}
+.s-stall .bar{background:var(--fail);opacity:1} .s-stall{border-color:rgba(248,81,73,.5)}
+.s-pend{opacity:.62}
+.s-run .bar,.s-retry .bar{animation:pulse 2.4s infinite}
+.tag{font:600 9.5px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;padding:3px 5px;border-radius:3px;white-space:nowrap}
+.t-done,.t-pass{color:var(--pass);background:rgba(63,185,80,.12)}
+.t-run{color:var(--run);background:rgba(88,166,255,.12)}
+.t-retry{color:var(--retry);background:rgba(210,153,34,.14)}
+.t-fail,.t-stall{color:var(--fail);background:rgba(248,81,73,.12)}
+.t-pend{color:var(--pend);background:rgba(110,118,129,.14)}
+/* proofs */
+.proofs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:12px}
+.proof{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--pend);border-radius:4px;padding:8px 9px;min-width:0;cursor:default}
+.pr-top{display:flex;align-items:center;gap:8px}
+.pr-top b{font:600 13px var(--mono)} .pr-top .num{font-size:12px;color:var(--fg2)} .pr-top .tag{margin-left:auto}
+.meter{height:4px;background:var(--line);border-radius:2px;margin:7px 0 6px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--pend)}
+.pr-t{font-size:11px;color:var(--fg2);line-height:1.3;height:2.6em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pr-m{font:10.5px var(--mono);color:var(--dim);margin-top:4px}
+.p-pass{border-left-color:var(--pass)} .p-pass .meter i{background:var(--pass)}
+.p-fail{border-left-color:var(--fail)} .p-fail .meter i{background:var(--retry)}
+.p-none{opacity:.55;border-style:dashed;border-left-style:solid}
+/* tables */
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font:600 10px var(--sans);letter-spacing:.07em;text-transform:uppercase;color:var(--dim);text-align:left;padding:7px 12px;border-bottom:1px solid var(--line)}
+th.r{text-align:right}
+td{padding:7px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.d-run{background:var(--run);box-shadow:0 0 0 3px rgba(88,166,255,.15)} .d-idle{background:var(--line2)}
+.hbar,.split{height:3px;background:var(--line);border-radius:2px;margin-top:5px;overflow:hidden;display:flex;margin-left:auto;max-width:120px}
+.hbar i{background:var(--run);opacity:.7}
+.split i.ok{background:var(--pass)} .split i.bad{background:var(--fail)}
+.cmd{font-size:11.5px;color:var(--fg2);max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kind{font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--fg2)}
+.k-runner,.k-controller{color:var(--pass)} .k-claude,.k-codex{color:var(--run)} .k-commissioning{color:var(--retry)}
+.chip{font:11px var(--mono);color:var(--fg2);border:1px solid var(--line2);border-radius:3px;padding:2px 7px}
+.chip.c-retry{color:var(--retry);border-color:rgba(210,153,34,.45)} .chip.c-fail{color:var(--fail);border-color:rgba(248,81,73,.45)}
+.trend{display:flex;align-items:flex-end;gap:2px;height:44px;padding:0 12px;margin-top:12px}
+.trend span{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(255,255,255,.015)}
+.trend i{display:block;width:100%} .trend i.ok{background:var(--pass);opacity:.75} .trend i.bad{background:var(--fail)}
+.axis{display:flex;justify-content:space-between;font:10px var(--mono);color:var(--dim);padding:4px 12px 10px;border-bottom:1px solid var(--line)}
+.note{font-size:11px;color:var(--dim);padding:8px 12px;border-top:1px solid var(--line)}
+.warn{color:var(--retry)}
+@media (max-width:1100px){.pipe{grid-template-columns:repeat(4,minmax(0,1fr))}.proofs{grid-template-columns:repeat(4,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
+@media (max-width:640px){header,main{padding-left:10px;padding-right:10px}
+ .pipe{grid-template-columns:1fr 1fr}.proofs{grid-template-columns:1fr 1fr}
+ td,th{padding:6px 8px}.hide-s{display:none}}
 </style></head><body>
-<button id="refresh" title="re-collect every stat from live evidence now">&#8635; refresh</button>
-<h1>Empirium build tracker — live data, press &#8635; or reload to rebuild</h1>
-<div class="stamp">built 2026-09-28 22:33:24 UTC · this file is written by tracker_build.py, not hand-edited</div>
-<section><h2>Subscription lanes (measured from CLI session logs)</h2><div class="note">tokens are real usage; meters on the vendor dashboards lag these by minutes</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>631</td><td>claude</td><td>claude-sonnet-5</td><td>34m ago</td></tr><tr><td>149</td><td>claude</td><td>claude-opus-5</td><td>8.1h ago</td></tr><tr><td>398</td><td>claude</td><td>claude-opus-5-5</td><td>1.5h ago</td></tr><tr><td>117</td><td>codex</td><td>gpt-5.6-luna</td><td>58m ago</td></tr></table></section><section><h2>Free lane via shield (last 6 h)</h2><div class="note">pinned strong tier: 122 ok / 4 failed — failures are expected by design; the ladder falls through to the next model</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>451ok/4fail</td><td>reliable</td><td>mistral-code</td><td>RATE_LIMITED x4 · 1.0h ago</td></tr><tr><td>122ok/0fail</td><td>PINNED strong</td><td>nvidia/nemotron-3-ultra-550b-a55b:free</td><td>OK · 25s ago</td></tr><tr><td>117ok/2fail</td><td>reliable</td><td>gpt-oss-120b</td><td>RATE_LIMITED x2 · 1.2h ago</td></tr><tr><td>56ok/1fail</td><td>reliable</td><td>mimo-v2.6-flashfree</td><td>RATE_LIMITED x1 · 1.4h ago</td></tr><tr><td>30ok/5fail</td><td>reliable</td><td>codestral-2508</td><td>RATE_LIMITED x5 · 1.3h ago</td></tr><tr><td>0ok/2fail</td><td>PINNED strong</td><td>qwen/qwen3.8-27b:free</td><td>RATE_LIMITED x2 · 10m ago</td></tr><tr><td>0ok/2fail</td><td>PINNED strong</td><td>thinkingmachines/inkling:free</td><td>RATE_LIMITED x2 · 10m ago</td></tr></table></section><section><h2>Live processes / steps</h2><div class="note">182735    8125 python3 .build/commissioning/run_commissioning.py all
-249755    6683 /usr/bin/python3 /home/ash/empirium-studio-v2/.build/controller/controller.py run
-434028    3657 /usr/bin/python3 /home/ash/work/starforce-plan/freellm_shield.py
-434048    3656 /usr/bin/python3 /home/ash/work/starforce-plan/bootstrap_runner.py
-531977     591 claude -p --model sonnet --dangerously-skip-permissions --output-format json You are a disposable bootstrap worker. Read /home/ash/work/starforce</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>11</td><td>step</td><td>P1.1-commission</td><td>failing</td></tr><tr><td>2</td><td>step</td><td>P0.3-controller</td><td>failing</td></tr><tr><td>3</td><td>done</td><td>P0.1-facts, P0.2-repo, P0.3-controller</td><td></td></tr></table></section><section><h2>Recent commits</h2><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td></td><td>empirium-studio-v2</td><td>d286cd8 controller: stop sync_routes injecting the pinned tier into </td><td>35m ago</td></tr><tr><td></td><td>empirium-studio-v2</td><td>83b4274 controller: pin the owner&#x27;s strong free tier to the head of </td><td>58m ago</td></tr><tr><td></td><td>empirium-studio-v2</td><td>1c6184e P1.1: commissioning pass completed; evidence in .build/evide</td><td>1.7h ago</td></tr><tr><td></td><td>starforce-plan</td><td>14a383d chore: gitignore pycache; tracker rebuilt</td><td>4m ago</td></tr><tr><td></td><td>starforce-plan</td><td>40998bd tracker: refresh button + localhost server that rebuilds sta</td><td>4m ago</td></tr><tr><td></td><td>starforce-plan</td><td>86253f8 handover: P0.3 green, tracker+lane_report fixed, P1.1 at 64/</td><td>8m ago</td></tr></table></section>
+<header>
+  <div class="brand">Empirium Studio v2 <span>/ Star Force monitor</span></div>
+  <span class="badge b-live">live</span>
+  <div class="stamp">built <span class="num">22:44:18 UTC</span> <span class="dim">2026-09-28</span> · <span id="age" data-built="1790635459"></span></div>
+  <div class="spacer"></div>
+  <button id="refresh" title="re-collect every stat from live evidence now">&#10227; REFRESH</button>
+</header>
+<main>
+<div class="health"><span><b>P1.1</b> <span class="c-retry">retry 11</span></span><span>steps <b>3/7</b></span><span>proofs <b>2/12</b> pass <span class="dim">(6 run)</span></span><span>lanes <b>2</b> hot</span><span>workers <b>1</b></span><span>runner <b class="c-pass">up</b></span><span>controller <b class="c-pass">up</b></span></div>
+
+<section class="panel">
+  <div class="ph"><h2>Bootstrap pipeline</h2><span class="meta">bootstrap.json · 3 done</span>
+    <div class="right"><span class="chip">claude <b class="c-pass">clear</b></span><span class="chip">luna <b class="c-pass">clear</b></span></div></div>
+  <ol class="pipe"><li class="step s-done"><div class="bar"></div><div class="st-top"><span class="code">P0.1</span><span class="tag t-done">done</span></div><div class="st-name">facts</div><div class="st-sub">passed</div></li><li class="step s-done"><div class="bar"></div><div class="st-top"><span class="code">P0.2</span><span class="tag t-done">done</span></div><div class="st-name">repo</div><div class="st-sub">passed</div></li><li class="step s-done"><div class="bar"></div><div class="st-top"><span class="code">P0.3</span><span class="tag t-done">done</span></div><div class="st-name">controller</div><div class="st-sub">2 retries before pass</div></li><li class="step s-retry"><div class="bar"></div><div class="st-top"><span class="code">P1.1</span><span class="tag t-retry">retry 11</span></div><div class="st-name">commission</div><div class="st-sub">11 failed checks</div></li><li class="step s-pend"><div class="bar"></div><div class="st-top"><span class="code">P1.2</span><span class="tag t-pend">pending</span></div><div class="st-name">review</div><div class="st-sub">queued</div></li><li class="step s-pend"><div class="bar"></div><div class="st-top"><span class="code">P1.3</span><span class="tag t-pend">pending</span></div><div class="st-name">enable</div><div class="st-sub">queued</div></li><li class="step s-pend"><div class="bar"></div><div class="st-top"><span class="code">P1.4</span><span class="tag t-pend">pending</span></div><div class="st-name">seed</div><div class="st-sub">queued</div></li></ol>
+</section>
+
+<section class="panel">
+  <div class="ph"><h2>Commissioning proofs</h2>
+    <span class="meta">2 pass · 4 not passing · 6 not run · checks 51/64</span></div>
+  <div class="proofs"><div class="proof p-fail" title="restart: kill -9 the controller mid-attempt
+
+failing:
+- recovery attempt resumed from the first attempt in the SAME worktree
+- no duplicate attempt: exactly 2 attempts, never two running"><div class="pr-top"><b>C1</b><span class="num">13/15</span><span class="tag t-fail">fail</span></div><div class="meter"><i style="width:86.7%"></i></div><div class="pr-t">restart: kill -9 the controller mid-attempt</div><div class="pr-m">2.4h ago</div></div><div class="proof p-pass" title="model failure: breaker opens, next model within 60 s, other tasks unaffected"><div class="pr-top"><b>C2</b><span class="num">8/8</span><span class="tag t-pass">pass</span></div><div class="meter"><i style="width:100.0%"></i></div><div class="pr-t">model failure: breaker opens, next model within 60 s, other tasks unaffected</div><div class="pr-m">2.4h ago</div></div><div class="proof p-fail" title="timeout / no-progress: killed at budget, classified, requeued elsewhere, split after 2
+
+failing:
+- children and the parent complete (parent completes when all children are integrated)"><div class="pr-top"><b>C3</b><span class="num">12/13</span><span class="tag t-fail">fail</span></div><div class="meter"><i style="width:92.3%"></i></div><div class="pr-t">timeout / no-progress: killed at budget, classified, requeued elsewhere, split after 2</div><div class="pr-m">2.0h ago</div></div><div class="proof p-pass" title="review loop with a deliberate defect and a deliberately failing test"><div class="pr-top"><b>C4</b><span class="num">11/11</span><span class="tag t-pass">pass</span></div><div class="meter"><i style="width:100.0%"></i></div><div class="pr-t">review loop with a deliberate defect and a deliberately failing test</div><div class="pr-m">1.7h ago</div></div><div class="proof p-fail" title="subscription limit: lane cooldown, free lane keeps working, auto-resume
+
+failing:
+- the review lane (opus) hit the simulated limit too and reviews queue instead of failing
+- the sonnet lane auto-resumed after the cooldown expired (no human action)
+- resumed attempt started only after the cooldown end
+- integration of everything queued during the limit
+- resumed F-6 was a REAL Sonnet call (guard: modelUsage names claude-sonnet)"><div class="pr-top"><b>C5</b><span class="num">5/10</span><span class="tag t-fail">fail</span></div><div class="meter"><i style="width:50.0%"></i></div><div class="pr-t">subscription limit: lane cooldown, free lane keeps working, auto-resume</div><div class="pr-m">54m ago · 1 simulated</div></div><div class="proof p-fail" title="all-down: WAITING_FOR_CAPACITY, controller alive, resumes when a route returns
+
+failing:
+- controller state is WAITING_FOR_CAPACITY (visible in the heartbeat)
+- every free route has an open breaker and both subscription lanes are cooling down
+- no item is failed or lost: work waits (waiting_capacity / ready), nothing terminal
+- controller resumed automatically when a single route came back
+- everything drained after capacity returned (incl. real Sonnet/Opus lane items)"><div class="pr-top"><b>C6</b><span class="num">2/7</span><span class="tag t-fail">fail</span></div><div class="meter"><i style="width:28.6%"></i></div><div class="pr-t">all-down: WAITING_FOR_CAPACITY, controller alive, resumes when a route returns</div><div class="pr-m">9m ago · 1 simulated</div></div><div class="proof p-none" title="no evidence file"><div class="pr-top"><b>C7</b><span class="tag t-pend">not run</span></div><div class="meter"><i style="width:0"></i></div><div class="pr-t dim">no C7.json</div></div><div class="proof p-none" title="no evidence file"><div class="pr-top"><b>C8</b><span class="tag t-pend">not run</span></div><div class="meter"><i style="width:0"></i></div><div class="pr-t dim">no C8.json</div></div><div class="proof p-none" title="no evidence file"><div class="pr-top"><b>C9</b><span class="tag t-pend">not run</span></div><div class="meter"><i style="width:0"></i></div><div class="pr-t dim">no C9.json</div></div><div class="proof p-none" title="no evidence file"><div class="pr-top"><b>C10</b><span class="tag t-pend">not run</span></div><div class="meter"><i style="width:0"></i></div><div class="pr-t dim">no C10.json</div></div><div class="proof p-none" title="no evidence file"><div class="pr-top"><b>C11</b><span class="tag t-pend">not run</span></div><div class="meter"><i style="width:0"></i></div><div class="pr-t dim">no C11.json</div></div><div class="proof p-none" title="no evidence file"><div class="pr-top"><b>C12</b><span class="tag t-pend">not run</span></div><div class="meter"><i style="width:0"></i></div><div class="pr-t dim">no C12.json</div></div></div><div class="note warn">BLOCKED.md present in evidence dir — a worker recorded a blocking condition; see .build/evidence/commissioning/BLOCKED.md</div>
+</section>
+
+<div class="grid2">
+<section class="panel">
+  <div class="ph"><h2>Subscription lanes</h2><span class="meta">12 h · 1/4 hot (&lt;15 m)</span></div>
+  <table><thead><tr><th>model</th><th class="r">tokens</th><th class="r">calls</th><th class="r">last</th></tr></thead>
+  <tbody><tr class=""><td><span class="dot d-idle"></span>claude-sonnet-5<div class="dim small">claude</div></td><td class="r num">64.6M<div class="hbar"><i style="width:100.0%"></i></div></td><td class="r num">631<span class="dim"></span></td><td class="r num dim">45m ago</td></tr><tr class=""><td><span class="dot d-idle"></span>claude-opus-5<div class="dim small">claude</div></td><td class="r num">33.5M<div class="hbar"><i style="width:51.9%"></i></div></td><td class="r num">149<span class="dim"></span></td><td class="r num dim">8.3h ago</td></tr><tr class="hot"><td><span class="dot d-run"></span>claude-opus-5-5<div class="dim small">claude</div></td><td class="r num">11.7M<div class="hbar"><i style="width:18.1%"></i></div></td><td class="r num">418<span class="dim"></span></td><td class="r num c-run">22s ago</td></tr><tr class=""><td><span class="dot d-idle"></span>gpt-5.6-luna<div class="dim small">codex</div></td><td class="r num">5.9M<div class="hbar"><i style="width:9.1%"></i></div></td><td class="r num">117<span class="dim"> · 9 sess</span></td><td class="r num dim">1.1h ago</td></tr></tbody></table>
+  <div class="note">measured from CLI session logs; vendor dashboards lag by minutes</div>
+</section>
+
+<section class="panel">
+  <div class="ph"><h2>Free lane · shield</h2><span class="meta">6 h · 1 hot · pinned strong tier: 134 ok / 4 fail</span></div>
+  <div class="trend"><span title="16:44–16:59 UTC: 16 ok, 1 fail"><i class="bad" style="height:0.8%"></i><i class="ok" style="height:12.6%"></i></span><span title="16:59–17:14 UTC: 0 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:0.0%"></i></span><span title="17:14–17:29 UTC: 0 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:0.0%"></i></span><span title="17:29–17:44 UTC: 0 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:0.0%"></i></span><span title="17:44–17:59 UTC: 0 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:0.0%"></i></span><span title="17:59–18:14 UTC: 0 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:0.0%"></i></span><span title="18:14–18:29 UTC: 18 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:14.2%"></i></span><span title="18:29–18:44 UTC: 37 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:29.1%"></i></span><span title="18:44–18:59 UTC: 31 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:24.4%"></i></span><span title="18:59–19:14 UTC: 23 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:18.1%"></i></span><span title="19:14–19:29 UTC: 17 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:13.4%"></i></span><span title="19:29–19:44 UTC: 18 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:14.2%"></i></span><span title="19:44–19:59 UTC: 39 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:30.7%"></i></span><span title="19:59–20:14 UTC: 42 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:33.1%"></i></span><span title="20:14–20:29 UTC: 97 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:76.4%"></i></span><span title="20:29–20:44 UTC: 125 ok, 2 fail"><i class="bad" style="height:1.6%"></i><i class="ok" style="height:98.4%"></i></span><span title="20:44–20:59 UTC: 50 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:39.4%"></i></span><span title="20:59–21:14 UTC: 89 ok, 6 fail"><i class="bad" style="height:4.7%"></i><i class="ok" style="height:70.1%"></i></span><span title="21:14–21:29 UTC: 42 ok, 3 fail"><i class="bad" style="height:2.4%"></i><i class="ok" style="height:33.1%"></i></span><span title="21:29–21:44 UTC: 33 ok, 2 fail"><i class="bad" style="height:1.6%"></i><i class="ok" style="height:26.0%"></i></span><span title="21:44–21:59 UTC: 21 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:16.5%"></i></span><span title="21:59–22:14 UTC: 26 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:20.5%"></i></span><span title="22:14–22:29 UTC: 36 ok, 2 fail"><i class="bad" style="height:1.6%"></i><i class="ok" style="height:28.3%"></i></span><span title="22:29–22:44 UTC: 21 ok, 0 fail"><i class="bad" style="height:0.0%"></i><i class="ok" style="height:16.5%"></i></span></div><div class="axis"><span>16:44</span><span>797 tries · peak 127/15 min</span><span>22:44 UTC</span></div>
+  <table><thead><tr><th>model</th><th class="r">ok / fail</th><th class="r hide-s">avg ok</th><th>last error</th><th class="r">last</th></tr></thead>
+  <tbody><tr><td><span class="dot d-idle"></span>mistral-code<div class="small"><span class=dim>reliable</span></div></td><td class="r num"><span class="c-pass">444</span><span class="dim"> / </span><span class="c-fail">4</span><div class="split"><i class="ok" style="width:99.1%"></i><i class="bad" style="width:0.9%"></i></div></td><td class="r num">14.4s</td><td><span class="c-retry">RATE_LIMITED</span> <span class="dim">1.5h ago</span></td><td class="r num dim">1.2h ago</td></tr><tr><td><span class="dot d-run"></span>nvidia/nemotron-3-ultra-550b-a55b:free<div class="small"><span class=c-run>pinned strong</span></div></td><td class="r num"><span class="c-pass">134</span><span class="dim"> / </span><span class="dim">0</span><div class="split"><i class="ok" style="width:100.0%"></i><i class="bad" style="width:0.0%"></i></div></td><td class="r num">29.6s</td><td><span class="c-pass">ok</span></td><td class="r num c-run">31s ago</td></tr><tr><td><span class="dot d-idle"></span>gpt-oss-120b<div class="small"><span class=dim>reliable</span></div></td><td class="r num"><span class="c-pass">117</span><span class="dim"> / </span><span class="c-fail">2</span><div class="split"><i class="ok" style="width:98.3%"></i><i class="bad" style="width:1.7%"></i></div></td><td class="r num">7.5s</td><td><span class="c-retry">PROVIDER_DOWN</span> <span class="dim">1.4h ago</span></td><td class="r num dim">1.4h ago</td></tr><tr><td><span class="dot d-idle"></span>mimo-v2.6-flashfree<div class="small"><span class=dim>reliable</span></div></td><td class="r num"><span class="c-pass">56</span><span class="dim"> / </span><span class="c-fail">1</span><div class="split"><i class="ok" style="width:98.2%"></i><i class="bad" style="width:1.8%"></i></div></td><td class="r num">7.8s</td><td><span class="c-retry">RATE_LIMITED</span> <span class="dim">1.7h ago</span></td><td class="r num dim">1.6h ago</td></tr><tr><td><span class="dot d-idle"></span>codestral-2508<div class="small"><span class=dim>reliable</span></div></td><td class="r num"><span class="c-pass">30</span><span class="dim"> / </span><span class="c-fail">5</span><div class="split"><i class="ok" style="width:85.7%"></i><i class="bad" style="width:14.3%"></i></div></td><td class="r num">3.4s</td><td><span class="c-retry">PROVIDER_DOWN</span> <span class="dim">1.5h ago</span></td><td class="r num dim">1.5h ago</td></tr><tr><td><span class="dot d-idle"></span>qwen/qwen3.8-27b:free<div class="small"><span class=c-run>pinned strong</span></div></td><td class="r num"><span class="c-pass">0</span><span class="dim"> / </span><span class="c-fail">2</span><div class="split"><i class="ok" style="width:0.0%"></i><i class="bad" style="width:100.0%"></i></div></td><td class="r num">–</td><td><span class="c-retry">RATE_LIMITED</span> <span class="dim">21m ago</span></td><td class="r num dim">21m ago</td></tr><tr><td><span class="dot d-idle"></span>thinkingmachines/inkling:free<div class="small"><span class=c-run>pinned strong</span></div></td><td class="r num"><span class="c-pass">0</span><span class="dim"> / </span><span class="c-fail">2</span><div class="split"><i class="ok" style="width:0.0%"></i><i class="bad" style="width:100.0%"></i></div></td><td class="r num">–</td><td><span class="c-retry">RATE_LIMITED</span> <span class="dim">21m ago</span></td><td class="r num dim">21m ago</td></tr></tbody></table>
+  <div class="note">strong-tier failures are expected; the ladder falls through to the next model</div>
+</section>
+</div>
+
+<section class="panel">
+  <div class="ph"><h2>Processes</h2><span class="meta">5 matching ps entries</span></div>
+  <table><thead><tr><th>kind</th><th class="r">pid</th><th class="r">up</th><th>command</th></tr></thead>
+  <tbody><tr><td><span class="kind k-commissioning">commissioning</span></td><td class="r num dim">182735</td><td class="r num">2h26m</td><td class="cmd" title="python3 .build/commissioning/run_commissioning.py all">python3 .build/commissioning/run_commissioning.py all</td></tr><tr><td><span class="kind k-controller">controller</span></td><td class="r num dim">249755</td><td class="r num">2h02m</td><td class="cmd" title="/usr/bin/python3 /home/ash/empirium-studio-v2/.build/controller/controller.py run">/usr/bin/python3 /home/ash/empirium-studio-v2/.build/controller/controller.py run</td></tr><tr><td><span class="kind k-shield">shield</span></td><td class="r num dim">434028</td><td class="r num">1h11m</td><td class="cmd" title="/usr/bin/python3 /home/ash/work/starforce-plan/freellm_shield.py">/usr/bin/python3 /home/ash/work/starforce-plan/freellm_shield.py</td></tr><tr><td><span class="kind k-runner">runner</span></td><td class="r num dim">434048</td><td class="r num">1h11m</td><td class="cmd" title="/usr/bin/python3 /home/ash/work/starforce-plan/bootstrap_runner.py">/usr/bin/python3 /home/ash/work/starforce-plan/bootstrap_runner.py</td></tr><tr><td><span class="kind k-claude">claude</span></td><td class="r num dim">531977</td><td class="r num">20m45s</td><td class="cmd" title="claude -p --model sonnet --dangerously-skip-permissions --output-format json You are a disposable bootstrap worker. Read /home/ash/work/starforce">claude -p --model sonnet --dangerously-skip-permissions --output-format json You are a disposable bootstrap worker. Read /home/ash/work/starforce</td></tr></tbody></table>
+</section>
+
+<section class="panel">
+  <div class="ph"><h2>Recent commits</h2></div>
+  <table><thead><tr><th>repo</th><th>hash</th><th>subject</th><th class="r">age</th></tr></thead>
+  <tbody><tr><td class="dim">empirium-studio-v2</td><td class="num c-run">d286cd8</td><td class="cmd" title="controller: stop sync_routes injecting the pinned tier into ladders that don&#x27;t list it">controller: stop sync_routes injecting the pinned tier into ladders that don&#x27;t list it</td><td class="r num dim">46m ago</td></tr><tr><td class="dim">empirium-studio-v2</td><td class="num c-run">83b4274</td><td class="cmd" title="controller: pin the owner&#x27;s strong free tier to the head of the ladder">controller: pin the owner&#x27;s strong free tier to the head of the ladder</td><td class="r num dim">1.1h ago</td></tr><tr><td class="dim">empirium-studio-v2</td><td class="num c-run">1c6184e</td><td class="cmd" title="P1.1: commissioning pass completed; evidence in .build/evidence/commissioning/">P1.1: commissioning pass completed; evidence in .build/evidence/commissioning/</td><td class="r num dim">1.9h ago</td></tr><tr><td class="dim">starforce-plan</td><td class="num c-run">61824d6</td><td class="cmd" title="tracker_serve: bind 0.0.0.0 — Ash views the tracker from his laptop over Tailscale">tracker_serve: bind 0.0.0.0 — Ash views the tracker from his laptop over Tailscale</td><td class="r num dim">10m ago</td></tr><tr><td class="dim">starforce-plan</td><td class="num c-run">14a383d</td><td class="cmd" title="chore: gitignore pycache; tracker rebuilt">chore: gitignore pycache; tracker rebuilt</td><td class="r num dim">15m ago</td></tr><tr><td class="dim">starforce-plan</td><td class="num c-run">40998bd</td><td class="cmd" title="tracker: refresh button + localhost server that rebuilds stats from live evidence on click">tracker: refresh button + localhost server that rebuilds stats from live evidence on click</td><td class="r num dim">15m ago</td></tr></tbody></table>
+</section>
+</main>
 <script>
 const b = document.getElementById("refresh");
 b.addEventListener("click", async () => {
-  b.disabled = true; b.textContent = "refreshing\u2026";
+  b.disabled = true; b.textContent = "REFRESHING\u2026";
   try {
     const r = await fetch("/api/refresh", {method: "POST"});
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || "build failed");
     location.reload();
   } catch (e) {
-    b.disabled = false; b.textContent = "\u26a0 offline";
+    b.disabled = false; b.textContent = "OFFLINE";
     b.title = "refresh server not reachable at " + location.host +
               " \u2014 run tracker_serve.py (port 8790), or use file:// which only "
               + "updates every 3 min via the heartbeat";
-    setTimeout(() => { b.textContent = "\u21bb refresh"; }, 2500);
+    setTimeout(() => { b.textContent = "\u27f3 REFRESH"; }, 2500);
   }
 });
+// age of this snapshot, ticking client-side from the build stamp
+const el = document.getElementById("age"), built = +el.dataset.built;
+function tick() {
+  const d = Math.max(0, Date.now() / 1000 - built);
+  el.textContent = d < 60 ? Math.floor(d) + "s ago" : d < 3600 ? Math.floor(d / 60) + "m ago"
+                 : (d / 3600).toFixed(1) + "h ago";
+  el.className = d > 300 ? "stale" : "";
+}
+tick(); setInterval(tick, 1000);
 </script>
 </body></html>
