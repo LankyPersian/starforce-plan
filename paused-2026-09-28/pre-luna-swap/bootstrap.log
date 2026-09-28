@@ -1,0 +1,8 @@
+2026-09-28T14:20:07.915342+00:00 bootstrap runner start
+2026-09-28T14:22:00.964566+00:00 P0.1-facts PASS
+2026-09-28T14:25:15.419639+00:00 P0.2-repo PASS
+2026-09-28T15:09:18.901607+00:00 P0.3-controller PASS
+2026-09-28T15:49:57.634930+00:00 P1.1-commission: subscription limit; sub lane cooling until 2026-09-28 19:40:00+00:00; free lane continues
+2026-09-28T15:53:02.966384+00:00 P0.3-controller regressed; reopening
+2026-09-28T16:01:57.726870+00:00 P1.1-commission: worker finished but check not yet passing (fail #1); continuing
+2026-09-28T16:52:42.154330+00:00 P0.3-controller: worker finished but check not yet passing (fail #1); continuing

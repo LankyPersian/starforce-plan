@@ -1,0 +1,52 @@
+#!/bin/bash
+# Empirium build heartbeat — third-layer resilience.
+#
+# WHY THIS EXISTS: on 2026-09-28 19:11:32 the *systemd user session itself* was torn down
+# (exit.target activated). That stopped empirium-bootstrap, freellm-shield AND the D-Bus user
+# bus in one shot, and nothing restarted them: the units use Restart=always/on-failure but
+# systemd can only restart a service while the user manager is alive. The build sat idle
+# until someone noticed.
+#
+# This script runs from *crontab*, which is owned by the user cron daemon and is completely
+# independent of the login session and of systemd --user. It restarts the build if it dies,
+# so no future session teardown can silently stall the build.
+#
+# Idempotent: every check is a liveness probe, never a blind start, so running it every
+# 3 minutes can never double-start a healthy process.
+set -u
+
+PLAN=/home/ash/work/starforce-plan
+STATE=/home/ash/.local/state/empirium-build
+LOG="$STATE/heartbeat.log"
+mkdir -p "$STATE"
+
+export PYTHONUNBUFFERED=1
+export PATH=/home/ash/.local/bin:/usr/local/bin:/usr/bin:/bin
+export SHIELD_PORT=3102
+export SHIELD_UPSTREAM=http://127.0.0.1:3101
+
+ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+# --- 1. FreeLLMAPI upstream (:3101) — the ~90% workhorse ---------------------
+# Not self-healable: if this is down the owner must restart it (possibly Docker/root).
+if ! curl -s -m 5 -o /dev/null http://127.0.0.1:3101/v1/models; then
+  echo "$(ts) ALERT freellmapi upstream :3101 unreachable (cannot self-heal; needs owner)" >> "$LOG"
+fi
+
+# --- 2. FreeLLMAPI resilience shield (:3102) --------------------------------
+# Probe the port, not a process name, so a half-dead listener is caught too.
+if ! curl -s -m 5 -o /dev/null http://127.0.0.1:3102/v1/models; then
+  echo "$(ts) shield :3102 not answering; starting detached" >> "$LOG"
+  setsid nohup /usr/bin/python3 "$PLAN/freellm_shield.py" >> "$STATE/shield.log" 2>&1 &
+fi
+
+# --- 3. Bootstrap runner -----------------------------------------------------
+# Match the interpreter+script pair so this never matches its own shell or a grep.
+if ! pgrep -f "python3 .*bootstrap_runner\.py" >/dev/null 2>&1; then
+  echo "$(ts) bootstrap_runner not running; starting detached" >> "$LOG"
+  # The runner writes its own lines to $STATE/bootstrap.log AND inherits this redirect, so
+  # never point the redirect at the same file: that prints every log line twice.
+  setsid nohup /usr/bin/python3 "$PLAN/bootstrap_runner.py" >> "$STATE/bootstrap-dispatch.log" 2>&1 &
+fi
+
+exit 0

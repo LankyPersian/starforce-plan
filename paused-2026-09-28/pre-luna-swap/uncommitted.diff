@@ -1,0 +1,190 @@
+diff --git a/.build/commissioning/fixture_claude.py b/.build/commissioning/fixture_claude.py
+index af5366e..c541055 100755
+--- a/.build/commissioning/fixture_claude.py
++++ b/.build/commissioning/fixture_claude.py
+@@ -35,8 +35,9 @@ ITEM = mi.group(1) if mi else ("review" if "INDEPENDENT reviewer" in PACKET else
+ 
+ 
+ def log(**kw):
+-    kw.update(t=time.time(), pid=os.getpid(), ppid=os.getppid(), item=ITEM, model=MODEL, cwd=os.getcwd(), session=SESSION,
+-              base=os.environ.get("ANTHROPIC_BASE_URL"))
++    for k, v in dict(t=time.time(), pid=os.getpid(), ppid=os.getppid(), item=ITEM, model=MODEL, cwd=os.getcwd(), session=SESSION,
++                     base=os.environ.get("ANTHROPIC_BASE_URL")).items():
++        kw.setdefault(k, v)
+     with (CTL / "invocations.jsonl").open("a") as f:
+         f.write(json.dumps(kw) + "\n")
+ 
+@@ -69,7 +70,8 @@ try:
+ except Exception:
+     cfg = {}
+ route = {"mode": "ok", **(cfg.get("default") or {}), **((cfg.get("models") or {}).get(MODEL) or {})}
+-base = "http://127.0.0.1:1" if route["mode"] == "dead" else os.environ.get("ANTHROPIC_BASE_URL", "")   # "route at a dead port"
++# the URL the worker actually talks to: a dead route is pointed at 127.0.0.1:1, otherwise the shield
++base = "http://127.0.0.1:1" if route["mode"] == "dead" else os.environ.get("ANTHROPIC_BASE_URL", "")
+ try:
+     req = urllib.request.Request(base + "/v1/messages", json.dumps({"model": MODEL, "max_tokens": 8, "messages": [{"role": "user", "content": "ok"}]}).encode(),
+                                  {"content-type": "application/json", "x-claude-code-session-id": SESSION, "anthropic-version": "2023-06-01"})
+@@ -97,7 +99,9 @@ cf = cnt / (re.sub(r"\W", "_", ITEM) + ".n")
+ n = int(cf.read_text()) if cf.exists() else 0
+ cf.write_text(str(n + 1))
+ lst = scripts.get(ITEM)
+-ent = (lst[min(n, len(lst) - 1)] if lst else {"mode": "default"})
++# No scripted entry for this item (children created by a planner, e.g. F-3-power/F-3-root): act like a real worker
++# that read the packet — implement it in the scoped files and commit. The harness (pytest) is what judges the work.
++ent = (lst[min(n, len(lst) - 1)] if lst else {"mode": "commit"})
+ mode = ent.get("mode", "commit")
+ cwd = Path.cwd()
+ log(mode=mode, n=n, routed=routed, has_prior_failure="PRIOR FAILURE OUTPUT" in PACKET)
+@@ -107,6 +111,42 @@ def git(*a):
+     return subprocess.run(["git", "-c", "user.name=fixture-worker", "-c", "user.email=w@fixture", *a], cwd=cwd, check=True, capture_output=True, text=True)
+ 
+ 
++def parse_packet_files(packet: str) -> dict[str, str]:
++    """Pull the files a real worker would write out of the packet text.
++
++    A real worker reads the packet and writes the files it names. The planner packets name them in numbered
++    steps, e.g.:
++      (1) src/calc_power.py, exact content (trailing newline):
++      <block>
++      (1) Create src/calc_power.py with exactly this content (trailing newline):
++      <block>
++      1) src/calc_root.py with exactly:
++      <indented block>
++    Capture each block as everything after the numbered line up to the next numbered line, then dedent.
++    """
++    out: dict[str, str] = {}
++    lines = packet.splitlines()
++    marks = [i for i, l in enumerate(lines) if re.match(r"^\s*(\(\d+\)|\d+\))\s", l)]
++    for k, i in enumerate(marks):
++        m = re.match(r"^\s*(\(\d+\)|\d+\))\s+(.*)$", lines[i])
++        rest = m.group(2)
++        pm = re.search(r"((?:src|tests)/[^\s,]+)", rest)
++        if not pm:
++            continue
++        path = pm.group(1)
++        nxt = marks[k + 1] if k + 1 < len(marks) else len(lines)
++        block = "\n".join(lines[i + 1:nxt]).strip("\n")
++        if not block:
++            continue
++        # dedent a uniformly-indented block (e.g. 4-space indented "1) src/calc_root.py with exactly:")
++        first = block.splitlines()[0]
++        indent = len(first) - len(first.lstrip(" \t"))
++        if indent and all((l.startswith(" " * indent) or not l.strip()) for l in block.splitlines()):
++            block = "\n".join(l[indent:] if l.strip() else l for l in block.splitlines())
++        out[path] = block
++    return out
++
++
+ def commit(files, msg):
+     for p, c in files.items():
+         f = cwd / p
+@@ -143,16 +183,13 @@ elif mode == "finish_from_partial":
+ elif mode in ("commit", "claim"):
+     time.sleep(ent.get("delay", 0))
+     files = dict(ent.get("files", {}))
+-    if not files:                                          # children created by a planner: append a line to every exact file in scope
+-        scope = [l.strip() for l in (re.search(r"## ALLOWED FILE SCOPE\n(.*?)\n\n", PACKET, re.S) or [None, ""])[1].splitlines()
+-                 if l.strip() and not l.startswith("(")]
+-        exact = [s_ for s_ in scope if not re.search(r"[*?\[]", s_)]
+-        if not exact:
+-            d = next((s_.split("*")[0] for s_ in scope if "*" in s_), "src/") or "src/"
+-            exact = [d.rstrip("/") + "/" + re.sub(r"\W", "_", ITEM) + ".py"]
+-        for t in exact:
+-            f = cwd / t
+-            files[t] = (f.read_text() if f.exists() else "") + f"# work for {ITEM}\n"
++    if not files:
++        # Unscripted item (a planner's child, e.g. F-3-power/F-3-root): a real worker would read the packet and
++        # write the files it names. Parse the packet for "path ... with exactly this content:" blocks.
++        files = parse_packet_files(PACKET)
++        if not files:                                          # last resort: one file in the first scope dir
++            d = "src/"
++            files[d + re.sub(r"\W", "_", ITEM) + ".py"] = f"# work for {ITEM}\n"
+     commit(files, ent.get("msg", "work"))
+     result(("PROJECT_COMPLETE — all requirements satisfied, release ready!" if mode == "claim" else ent.get("result", f"implemented {ITEM}")))
+ else:
+diff --git a/.build/controller/classify.py b/.build/controller/classify.py
+index 7bb0750..843a640 100644
+--- a/.build/controller/classify.py
++++ b/.build/controller/classify.py
+@@ -15,8 +15,8 @@ ALL_CLASSES = (RATE_LIMITED, PROVIDER_DOWN, EMPTY, TIMEOUT, NO_PROGRESS, TEST_FA
+ # classes that reflect on the task (count toward strategy change) vs. provider/harness weather
+ TASK_FAULT = {TIMEOUT, NO_PROGRESS, TEST_FAILED, REVIEW_REJECTED, CRASH, POLICY_VIOLATION}
+ MODEL_BREAKER = {RATE_LIMITED, PROVIDER_DOWN, EMPTY}
+-SUB_LANES = ("sonnet", "opus")
+-DENY_MODEL = re.compile(r"^(claude-|gpt-6|gpt-5\.6|.*luna)", re.I)
++SUB_LANES = ("sonnet", "opus", "luna")
++DENY_MODEL = re.compile(r"^(claude-|gpt-6|gpt-5\.6)", re.I)
+ 
+ 
+ @dataclass
+@@ -42,6 +42,7 @@ class Verdict:
+ 
+ def parse_result(stdout: str) -> dict | None:
+     """Claude Code prints one JSON object (--output-format json) or JSONL (stream-json).
++    Codex prints JSONL with a final `tokens used` event and no `result` object.
+     Return the result object, or None."""
+     stdout = (stdout or "").strip()
+     if not stdout:
+@@ -62,6 +63,31 @@ def parse_result(stdout: str) -> dict | None:
+             c = next((x for x in reversed(c) if isinstance(x, dict) and x.get("type") == "result"), None)
+         if isinstance(c, dict) and (c.get("type") == "result" or "is_error" in c or "result" in c):
+             return c
++    # Codex: synthesise a Claude-shaped result object from Codex JSONL events
++    msgs, usage, err = [], None, None
++    for line in stdout.splitlines():
++        line = line.strip()
++        if not line.startswith("{"):
++            continue
++        try:
++            ev = json.loads(line)
++        except Exception:
++            continue
++        if not isinstance(ev, dict):
++            continue
++        t = ev.get("type")
++        if t == "item.completed":
++            it = ev.get("item") or {}
++            if it.get("type") == "agent_message" and it.get("text"):
++                msgs.append(it["text"])
++        elif t == "turn.completed":
++            usage = ev.get("usage") or {}
++        elif t == "turn.failed" or t == "error":
++            err = ev.get("message") or json.dumps(ev.get("error") or ev)[:400]
++    if msgs or usage is not None or err:
++        return {"result": "\n".join(msgs) if msgs else ("error" if err else "ok"),
++                "tokens_used": usage, "is_error": bool(err and not msgs),
++                "api_error_status": None, "modelUsage": {}, "error": err}
+     return None
+ 
+ 
+@@ -130,6 +156,8 @@ def family(model: str | None) -> str:
+         if key in m:
+             return {"nemotron": "nvidia", "mimo": "xiaomi", "kimi": "moonshot", "glm": "zhipu",
+                     "sonnet": "claude", "opus": "claude", "haiku": "claude"}.get(key, key)
++    if "luna" in m or "codex" in m:
++        return "codex"
+     return m.split("-")[0].split("/")[0]
+ 
+ 
+@@ -178,13 +206,20 @@ _DOWN_RE = re.compile(r"No candidate|ECONNREFUSED|Connection refused|overloaded|
+ 
+ 
+ def validate_subscription(res: dict, want_family: str) -> str | None:
+-    """§4.1 silent-failure guard. Returns None if OK, else a reason string."""
++    """§4.1 silent-failure guard. Returns None if OK, else a reason string.
++    Codex JSONL carries no modelUsage object, so the Luna lane is verified by the presence of
++    `tokens used` / `tokens used message` instead (Codex prints it on the last event)."""
+     if res is None:
+         return "no_result"
+     if res.get("is_error"):
+         return "is_error"
+     if not str(res.get("result", "")).strip():
+         return "empty_result"
++    if want_family == "luna":
++        # Codex JSONL has no modelUsage; a completed turn carries the usage block instead.
++        if not (res.get("tokens_used") or res.get("modelUsage")):
++            return "luna_no_usage"
++        return None
+     usage = res.get("modelUsage") or {}
+     if not any(want_family.lower() in str(k).lower() for k in usage):
+         return f"modelUsage_missing_{want_family}"

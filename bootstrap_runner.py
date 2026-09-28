@@ -24,6 +24,7 @@ STATE_DIR = HOME / ".local/state/empirium-build"
 STATE = STATE_DIR / "bootstrap.json"
 LOG = STATE_DIR / "bootstrap.log"
 FREE_URL = "http://127.0.0.1:3102"  # via freellm-shield
+LUNA_MODEL = "gpt-5.6-luna"        # Codex CLI, ChatGPT subscription (planning lane; NOT the API)
 FREE_LADDER = ["mistral-code", "codestral-2508", "gpt-oss-120b", "mimo-v2.6-flashfree",
                "deepseek-v4-flashfree", "nemotron-3-super-120b", "auto"]
 STEP_TIMEOUT = 90 * 60
@@ -90,7 +91,7 @@ def load():
     try:
         return json.loads(STATE.read_text())
     except Exception:
-        return {"done": [], "fails": {}, "breakers": {}, "sub_cooldown_until": 0}
+        return {"done": [], "fails": {}, "breakers": {}, "sub_cooldown_until": 0, "luna_cooldown_until": 0}
 
 
 def save(s):
@@ -112,7 +113,70 @@ def parse_reset(text):
         if t <= now:
             t += datetime.timedelta(days=1)
         return t.timestamp()
+    m = re.search(r"try again at\s+(\d{1,2})(?::(\d{2}))?\s*(AM|PM)", text, re.I)
+    if m:
+        h = int(m.group(1)) % 12 + (12 if m.group(3).lower() == "pm" else 0)
+        now = datetime.datetime.now(datetime.UTC)
+        t = now.replace(hour=h, minute=int(m.group(2) or 0), second=0, microsecond=0)
+        if t <= now:
+            t += datetime.timedelta(days=1)
+        return t.timestamp()
     return None
+
+
+def run_luna(task):
+    """Codex CLI on the ChatGPT subscription (NOT the API). Primary planning lane.
+    Own CODEX_HOME with only the subscription auth symlinked; no API key of any kind is passed,
+    so it can never fall onto paid API billing."""
+    home = STATE_DIR / "codex-sub"
+    home.mkdir(parents=True, exist_ok=True)
+    auth = home / "auth.json"
+    real = HOME / ".codex" / "auth.json"
+    if real.exists() and not auth.exists():
+        try:
+            auth.symlink_to(real)
+        except OSError:
+            pass
+    env = {k: v for k, v in os.environ.items()
+           if k not in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL",
+                        "ANTHROPIC_AUTH_TOKEN", "CODEX_API_KEY")}
+    env["CODEX_HOME"] = str(home)
+    env["RUST_LOG"] = "error"
+    prompt = (f"You are a disposable bootstrap worker. Read {PROMPT} (§0-§15). Then do exactly this step and nothing else:\n{task}\n"
+              f"The step may be partially done by a previous worker: inspect the current state first and continue; do not restart finished work. "
+              f"Commit to git after meaningful progress. Do not claim success; a deterministic check decides.")
+    cmd = ["codex", "exec", "-m", LUNA_MODEL, "--json", "--skip-git-repo-check",
+           "--dangerously-bypass-approvals-and-sandbox", prompt]
+    cwd = REPO if REPO.exists() else HOME
+    try:
+        r = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True,
+                           stdin=subprocess.DEVNULL, timeout=STEP_TIMEOUT, start_new_session=True)
+    except subprocess.TimeoutExpired:
+        return "TIMEOUT", ""
+    text = (r.stdout or "") + (r.stderr or "")[-2000:]
+    msgs, usage, err = [], None, None
+    for line in (r.stdout or "").splitlines():
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            d = json.loads(line)
+        except Exception:
+            continue
+        if d.get("type") == "item.completed" and (d.get("item") or {}).get("type") == "agent_message":
+            msgs.append((d["item"].get("text") or ""))
+        elif d.get("type") == "turn.completed":
+            usage = d.get("usage") or usage
+        elif d.get("type") == "error":
+            err = d.get("message") or d.get("error") or d
+    if not msgs and not usage:
+        return "CRASH", text[-800:]
+    limit = re.search(r"usage limit|rate limit|try again at", text, re.I)
+    if limit:
+        return "LIMIT", text[-800:]
+    if err and not msgs:
+        return "ERROR", text[-800:]
+    return "OK", "\n".join(msgs)[-4000:]
 
 
 def run_claude(task, lane, model):
@@ -204,7 +268,14 @@ def main():
                 if status != "OK":
                     s["breakers"][model] = time.time() + (parse_reset(text) and parse_reset(text) - time.time() or 300)
             else:
-                status, text = run_claude(task, "sub", "sonnet"); lane = "sub"
+                # planning lane = Codex/Luna (ChatGPT subscription); Sonnet is the fallback
+                status, text = run_luna(task); lane = "luna"
+                if status in ("CRASH", "ERROR", "TIMEOUT", "LIMIT"):
+                    log(f"{sid}: luna {status}; falling back to Claude Sonnet")
+                    if status == "LIMIT":
+                        s["luna_cooldown_until"] = (parse_reset(text) or time.time() + 1800) + 120
+                    if time.time() >= s.get("luna_cooldown_until", 0):
+                        status, text = run_claude(task, "sub", "sonnet"); lane = "sub"
         if status == "LIMIT" and lane == "sub":
             reset = parse_reset(text) or time.time() + 1800
             s["sub_cooldown_until"] = reset + 120
