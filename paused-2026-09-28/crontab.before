@@ -1,0 +1,4 @@
+*/30 * * * * /usr/bin/flock -n /home/ash/.cache/vps-backup.cron.lock /home/ash/backup-vps.sh incremental >> /home/ash/backup-logs/cron.log 2>&1
+# Course-transcription background pipeline (free Nemotron 3 Ultra + faster-whisper STT, no Claude/paid)
+30 * * * * PYTHONPATH=/home/ash/work/course-transcribe /usr/bin/python3 /home/ash/work/course-transcribe/background_pipeline.py >> /home/ash/work/course-transcribe/background_pipeline.log 2>&1
+*/2 * * * * /usr/bin/flock -n /home/ash/.local/state/empirium-chat-watchdog/watchdog.lock /home/ash/.local/bin/empirium-chat-watchdog check >> /home/ash/.local/state/empirium-chat-watchdog/cron.log 2>&1

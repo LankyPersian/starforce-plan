@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "projects": [
+    {
+      "id": "empirium-os",
+      "label": "Empirium OS",
+      "discoveryTitle": "Analyze prompts with Opus 5",
+      "chatId": "20260917_191500_df556c",
+      "sessionId": "20260917_191500_df556c",
+      "root": "/home/ash/empirium-studio",
+      "enabled": true
+    },
+    {
+      "id": "nailify",
+      "label": "Nailify",
+      "discoveryTitle": "Implement Nailed It MVP V2",
+      "chatId": "20260917_213511_887993",
+      "sessionId": "20260917_213511_887993",
+      "root": "/home/ash/Desktop/nailify/app",
+      "enabled": true
+    }
+  ]
+}
