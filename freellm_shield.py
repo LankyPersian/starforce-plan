@@ -83,7 +83,7 @@ def trip(model, detail, outcome):
             wait = int(m.group(1)) * 60 + 15
         elif outcome in ("RATE_LIMITED",):
             wait = 300
-        elif outcome in ("GARBAGE", "EMPTY", "BAD_TOOL"):
+        elif outcome in ("GARBAGE", "EMPTY", "BAD_TOOL", "LEAKED_TOOL_XML", "TOOL_NO_BLOCK"):
             wait = min(60 * n, 900)
         else:
             wait = min(30 * 2 ** (n - 1), 1800)
@@ -124,6 +124,20 @@ def release(model):
 
 CJK = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]")
 
+# Foreign tool-call markup leaked into the *text* stream. Evidence 2026-09-28: the dominant
+# free routes are non-Anthropic models (dots-3-note-preview, deepseek-v4.1-flash) behind a
+# gateway that silently swaps the serving model mid-session. A swapped-in model can emit its
+# OWN native function-call syntax as prose instead of a real tool_use block:
+#     <dots_function_call><invoke name="Bash"><parameter name="command">...
+# Claude Code cannot parse that, so the worker session dies mid-task even though the HTTP
+# reply was a perfectly valid 200. The old validate() only inspected tool_use blocks that
+# were PRESENT, so leaked markup passed as "OK" text -- the failure was invisible here and
+# surfaced only as a stuck worker. With no tool_use block and stop_reason=tool_use we must
+# also treat the reply as broken.
+FOREIGN_TOOL_XML = re.compile(
+    r"<\s*(dots_function_call|function_calls?|tool_calls?|invoke|parameter|antml:invoke|antml:parameter)\b",
+    re.I)
+
 
 def validate(resp, want_english=True):
     """Return (ok, outcome, detail)."""
@@ -132,9 +146,25 @@ def validate(resp, want_english=True):
     tools = [b for b in blocks if b.get("type") == "tool_use"]
     if not texts.strip() and not tools:
         return False, "EMPTY", f"stop={resp.get('stop_reason')}"
+    # Leaked native function-call markup in prose == the model cannot speak the tool protocol.
+    # Only a FAILURE when the reply carries no usable tool_use block: if a real block is present
+    # Claude Code will act on it, and text mentioning e.g. "<invoke>" is then just prose (a worker
+    # documenting or testing the parser). dots_function_call is unambiguous -- no legitimate
+    # code emits that name except a parser test -- so it is always a failure.
+    m = FOREIGN_TOOL_XML.search(texts)
+    if m and (not tools or m.group(1).lower().startswith("dots_function_call")):
+        return False, "LEAKED_TOOL_XML", f"emitted {m.group(0)!r} as text"
+    # Claimed a tool call but produced no parseable block: equally unusable.
+    if not tools and resp.get("stop_reason") == "tool_use":
+        return False, "TOOL_NO_BLOCK", f"stop_reason=tool_use, no tool_use block; text={texts[:120]!r}"
     for t in tools:
         if not isinstance(t.get("input"), dict) or not t.get("name"):
             return False, "BAD_TOOL", str(t)[:200]
+    if not tools and texts.strip():
+        # A plain text reply with no tool call is normal in itself, BUT in an agentic session
+        # that has already used tools, silently dropping the tool protocol is the failure mode
+        # above expressed as prose. Only flag the unambiguous markup cases (done above).
+        pass
     if len(texts) > 400:
         tail = texts[-3000:]
         for size in (20, 40, 80):
