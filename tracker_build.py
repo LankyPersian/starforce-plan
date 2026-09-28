@@ -100,10 +100,35 @@ th, td {{ text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var
 th {{ color: var(--muted-foreground, #999); font-weight: 500; font-size: 11px; }}
 .dim {{ color: var(--muted-foreground, #777); }}
 .stamp {{ color: var(--muted-foreground, #888); font-size: 11px; }}
+#refresh {{ position: fixed; top: 10px; right: 10px; font: 12px ui-monospace, monospace;
+           padding: 5px 10px; cursor: pointer; background: var(--card, #1a1b26);
+           color: var(--foreground, #c0caf5); border: 1px solid var(--accent, #7aa2f7);
+           border-radius: 6px; }}
+#refresh:hover {{ background: var(--accent, #7aa2f7); color: var(--background, #16161e); }}
+#refresh[disabled] {{ opacity: .6; cursor: wait; }}
 </style></head><body>
-<h1>Empirium build tracker — regenerated from live data every 60 s</h1>
+<button id="refresh" title="re-collect every stat from live evidence now">&#8635; refresh</button>
+<h1>Empirium build tracker — live data, press &#8635; or reload to rebuild</h1>
 <div class="stamp">built {esc(ts)} · this file is written by tracker_build.py, not hand-edited</div>
 {sub}{free}{procs}{git}
+<script>
+const b = document.getElementById("refresh");
+b.addEventListener("click", async () => {{
+  b.disabled = true; b.textContent = "refreshing\\u2026";
+  try {{
+    const r = await fetch("/api/refresh", {{method: "POST"}});
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "build failed");
+    location.reload();
+  }} catch (e) {{
+    b.disabled = false; b.textContent = "\\u26a0 offline";
+    b.title = "refresh server not reachable at " + location.host +
+              " \\u2014 run tracker_serve.py (port 8790), or use file:// which only "
+              + "updates every 3 min via the heartbeat";
+    setTimeout(() => {{ b.textContent = "\\u21bb refresh"; }}, 2500);
+  }}
+}});
+</script>
 </body></html>"""
     open(OUT, "w").write(doc)
     print(f"wrote {OUT} ({len(doc)} bytes) at {ts}")
