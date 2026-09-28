@@ -71,4 +71,6 @@ class H(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     rebuild(force=True)
-    ThreadingHTTPServer(("127.0.0.1", PORT), H).serve_forever()
+    # 0.0.0.0 so Ash's laptop can open it over Tailscale (100.69.118.112:8790);
+    # reachable by anything on his tailnet, not the public internet.
+    ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()
