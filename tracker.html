@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empirium Studio — Autonomous Build Tracker</title>
+<style>
+  :root{
+    --bg:#080b11;
+    --bg2:#0d1219;
+    --card:rgba(255,255,255,.032);
+    --card2:rgba(255,255,255,.055);
+    --bd:rgba(255,255,255,.075);
+    --bd2:rgba(255,255,255,.13);
+    --tx:#e7edf5;
+    --mut:#7d8899;
+    --mut2:#5a6473;
+    --ac:#4d9fff;
+    --ac2:#7cc4ff;
+    --ok:#3fb950;
+    --warn:#d6a12a;
+    --bad:#f0554d;
+    --pur:#bc8cff;
+    --teal:#2dd4bf;
+    --mono:'SFMono-Regular',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,'Helvetica Neue',Arial,sans-serif;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{
+    font-family:var(--sans);
+    color:var(--tx);
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1100px 700px at 12% -8%, rgba(77,159,255,.10), transparent 60%),
+      radial-gradient(900px 600px at 92% 0%, rgba(188,140,255,.075), transparent 55%),
+      linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+    background-attachment:fixed;
+    padding:0 0 56px;
+    line-height:1.5;
+  }
+  .wrap{max-width:1380px;margin:0 auto;padding:0 30px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  /* ---------- header ---------- */
+  header{
+    padding:34px 0 26px;
+    border-bottom:1px solid var(--bd);
+    margin-bottom:26px;
+    position:relative;
+  }
+  .hrow{display:flex;align-items:flex-start;justify-content:space-between;gap:26px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:15px}
+  .mark{
+    width:44px;height:44px;border-radius:12px;flex:none;
+    background:linear-gradient(140deg,#4d9fff,#bc8cff 62%,#2dd4bf);
+    display:grid;place-items:center;font-weight:800;font-size:17px;color:#06090e;
+    box-shadow:0 8px 26px -8px rgba(77,159,255,.65);
+    letter-spacing:-.5px;
+  }
+  h1{font-size:22px;font-weight:650;letter-spacing:-.35px}
+  .sub{font-size:12.5px;color:var(--mut);margin-top:2px;letter-spacing:.15px}
+  .stripe{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:16px}
+  .live{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(63,185,80,.10);border:1px solid rgba(63,185,80,.3);
+    color:#7ee787;padding:5px 12px 5px 10px;border-radius:999px;
+    font-size:11.5px;font-weight:650;letter-spacing:.5px;text-transform:uppercase;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 1.9s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(63,185,80,.5)}50%{opacity:.55;box-shadow:0 0 0 5px rgba(63,185,80,0)}}
+  .tag{
+    border:1px solid var(--bd2);background:var(--card);color:var(--mut);
+    padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:550;letter-spacing:.2px;
+  }
+  .clockbox{text-align:right;min-width:216px}
+  .clock{font-family:var(--mono);font-size:27px;font-weight:600;letter-spacing:-.8px;line-height:1.1}
+  .clocklab{font-size:11px;color:var(--mut2);letter-spacing:1.1px;text-transform:uppercase;margin-top:3px}
+
+  /* ---------- kpis ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:15px}
+  .kpi{
+    background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
+    padding:15px 16px 16px;position:relative;overflow:hidden;
+    transition:border-color .2s,transform .2s;
+  }
+  .kpi:hover{border-color:var(--bd2);transform:translateY(-1px)}
+  .kpi::after{content:'';position:absolute;inset:0 auto 0 0;width:2px;background:var(--ac);opacity:.75}
+  .kpi.ok::after{background:var(--ok)} .kpi.warn::after{background:var(--warn)}
+  .kpi.pur::after{background:var(--pur)} .kpi.teal::after{background:var(--teal)}
+  .klab{font-size:10.5px;color:var(--mut2);letter-spacing:1.05px;text-transform:uppercase;font-weight:600}
+  .kval{font-size:26px;font-weight:660;letter-spacing:-1px;margin-top:7px;line-height:1}
+  .kval small{font-size:13px;font-weight:550;color:var(--mut);letter-spacing:0}
+  .ksub{font-size:11.5px;color:var(--mut);margin-top:6px}
+  .kbar{height:3px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:9px;overflow:hidden}
+  .kbar i{display:block;height:100%;border-radius:2px;background:var(--ac)}
+
+  /* ---------- panels ---------- */
+  .panel{
+    background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
+    padding:20px 22px 22px;margin-bottom:15px;
+  }
+  .ph{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:17px;flex-wrap:wrap}
+  .ph h2{font-size:13.5px;font-weight:650;letter-spacing:.35px;text-transform:uppercase;color:#c4cedd;display:flex;align-items:center;gap:9px}
+  .ph h2 i{width:3px;height:14px;border-radius:2px;background:var(--ac);display:block}
+  .ph .note{font-size:11.5px;color:var(--mut2);font-family:var(--mono)}
+
+  /* segmented campaign bar */
+  .seg{display:flex;gap:4px;height:36px;margin-bottom:13px}
+  .seg div{
+    flex:1;border-radius:5px;position:relative;display:grid;place-items:center;
+    font-size:10.5px;font-weight:650;letter-spacing:.4px;border:1px solid var(--bd);
+    background:rgba(255,255,255,.022);color:var(--mut2);transition:all .2s;
+  }
+  .seg div.done{background:linear-gradient(180deg,rgba(63,185,80,.30),rgba(63,185,80,.14));border-color:rgba(63,185,80,.45);color:#8ee89a}
+  .seg div.act{background:linear-gradient(180deg,rgba(77,159,255,.30),rgba(77,159,255,.13));border-color:rgba(77,159,255,.5);color:#a8d0ff}
+  .seg div.act::before{content:'';position:absolute;inset:0;border-radius:5px;box-shadow:0 0 0 0 rgba(77,159,255,.5);animation:pulse 2.1s infinite}
+  .legend{display:flex;gap:18px;font-size:11.5px;color:var(--mut);flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .sw{width:9px;height:9px;border-radius:3px;display:block}
+
+  /* two col */
+  .cols{display:grid;grid-template-columns:1.06fr .94fr;gap:15px;align-items:start}
+
+  /* steps */
+  .step{
+    display:grid;grid-template-columns:26px 1fr auto;gap:13px;align-items:start;
+    padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .step:last-child{border-bottom:0;padding-bottom:0}
+  .step:first-child{padding-top:0}
+  .ico{
+    width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+    font-size:11px;font-weight:800;margin-top:1px;
+  }
+  .ico.d{background:rgba(63,185,80,.16);color:#5cd465;border:1px solid rgba(63,185,80,.42)}
+  .ico.a{background:rgba(77,159,255,.16);color:#7cc4ff;border:1px solid rgba(77,159,255,.45);animation:pulse 2.1s infinite}
+  .ico.p{background:rgba(255,255,255,.05);color:var(--mut2);border:1px solid var(--bd)}
+  .sn{font-size:13.5px;font-weight:600;letter-spacing:-.1px}
+  .sd{font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45}
+  .smeta{font-family:var(--mono);font-size:11px;color:var(--mut2);text-align:right;white-space:nowrap;line-height:1.7}
+  .pill{
+    display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;
+    letter-spacing:.45px;text-transform:uppercase;
+  }
+  .pill.d{background:rgba(63,185,80,.14);color:#6ede78;border:1px solid rgba(63,185,80,.32)}
+  .pill.a{background:rgba(77,159,255,.14);color:#8ac6ff;border:1px solid rgba(77,159,255,.35)}
+  .pill.p{background:rgba(255,255,255,.045);color:var(--mut);border:1px solid var(--bd)}
+  .pill.w{background:rgba(214,161,42,.14);color:#e8bc55;border:1px solid rgba(214,161,42,.34)}
+  .pill.b{background:rgba(240,85,77,.13);color:#ff8078;border:1px solid rgba(240,85,77,.32)}
+
+  /* roadmap */
+  table{width:100%;border-collapse:collapse}
+  th{
+    text-align:left;font-size:10.5px;color:var(--mut2);letter-spacing:1px;
+    text-transform:uppercase;font-weight:650;padding:0 10px 9px 0;
+    border-bottom:1px solid var(--bd);
+  }
+  td{padding:11px 10px 11px 0;border-bottom:1px solid rgba(255,255,255,.045);font-size:12.5px;vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .pname{font-weight:640;color:#dbe4ef;letter-spacing:-.1px}
+  .pid{font-family:var(--mono);font-size:10.5px;color:var(--mut2);display:block;margin-top:2px}
+  .owner{font-size:11px;color:var(--mut);font-family:var(--mono)}
+  .exit{color:var(--mut);font-size:11.5px;line-height:1.45}
+
+  /* commits */
+  .cmt{display:grid;grid-template-columns:56px 18px 1fr;gap:11px;align-items:start;padding:9px 0}
+  .ct{font-family:var(--mono);font-size:11px;color:var(--mut2);padding-top:1px}
+  .crail{position:relative;display:flex;justify-content:center;height:100%}
+  .crail::before{content:'';position:absolute;top:4px;bottom:-9px;width:1px;background:rgba(255,255,255,.09)}
+  .cmt:last-child .crail::before{display:none}
+  .cd{width:7px;height:7px;border-radius:50%;position:relative;z-index:1;margin-top:4px}
+  .cmsg{font-size:12.5px;color:#cfd8e4;line-height:1.4}
+  .csha{font-family:var(--mono);font-size:10.5px;color:var(--mut2);margin-right:7px}
+  .cphase{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;margin-right:7px;letter-spacing:.3px}
+  .p-p0{background:rgba(63,185,80,.13);color:#6ede78}
+  .p-p1{background:rgba(77,159,255,.13);color:#8ac6ff}
+  .p-ctl{background:rgba(188,140,255,.14);color:#c9a3ff}
+  .p-inf{background:rgba(45,212,191,.13);color:#5eead4}
+
+  /* infra */
+  .infra{display:grid;grid-template-columns:1fr;gap:14px}
+  .irow{display:grid;grid-template-columns:1fr 78px;gap:12px;align-items:center}
+  .ilab{font-family:var(--mono);font-size:11.5px;color:#b9c4d2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .itrack{height:7px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:5px}
+  .itrack i{display:block;height:100%;border-radius:4px}
+  .ict{font-family:var(--mono);font-size:12.5px;font-weight:600;text-align:right}
+  .callout{
+    border-left:2px solid var(--warn);background:rgba(214,161,42,.07);
+    padding:13px 16px;border-radius:0 10px 10px 0;margin-top:16px;
+  }
+  .callout.good{border-left-color:var(--ok);background:rgba(63,185,80,.06)}
+  .callout.info{border-left-color:var(--ac);background:rgba(77,159,255,.06)}
+  .callout h4{font-size:12px;font-weight:680;letter-spacing:.35px;text-transform:uppercase;margin-bottom:7px;color:#e2b04a}
+  .callout.good h4{color:#6ede78}
+  .callout.info h4{color:#8ac6ff}
+  .callout p{font-size:12.5px;color:#bcc7d5;line-height:1.6}
+  .callout code{font-family:var(--mono);font-size:11.5px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;color:#dbe4ef}
+
+  .risks{display:grid;gap:9px}
+  .risk{
+    display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;
+    background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;
+  }
+  .rsev{font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:3px 8px;border-radius:5px;text-transform:uppercase;margin-top:1px}
+  .sev-h{background:rgba(240,85,77,.15);color:#ff8078;border:1px solid rgba(240,85,77,.34)}
+  .sev-m{background:rgba(214,161,42,.14);color:#e8bc55;border:1px solid rgba(214,161,42,.32)}
+  .sev-l{background:rgba(255,255,255,.05);color:var(--mut);border:1px solid var(--bd)}
+  .rtxt{font-size:12.5px;color:#c8d2df;line-height:1.5}
+  .rtxt b{color:#e7edf5;font-weight:640}
+
+  footer{
+    border-top:1px solid var(--bd);margin-top:24px;padding-top:18px;
+    font-size:11.5px;color:var(--mut2);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  footer code{font-family:var(--mono);color:var(--mut)}
+  @media(max-width:1150px){.kpis{grid-template-columns:repeat(3,1fr)}.cols{grid-template-columns:1fr}}
+  @media(max-width:680px){.kpis{grid-template-columns:repeat(2,1fr)}.wrap{padding:0 16px}.seg div{font-size:8.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="hrow">
+      <div>
+        <div class="brand">
+          <div class="mark">ES</div>
+          <div>
+            <h1>Empirium Studio <span style="color:var(--mut2);font-weight:450">/ AI Star Force</span></h1>
+            <div class="sub">Autonomous build tracker &nbsp;·&nbsp; v2 repo &nbsp;·&nbsp; no further owner input required</div>
+          </div>
+        </div>
+        <div class="stripe">
+          <span class="live"><span class="dot"></span>Build running</span>
+          <span class="tag" id="tagElapsed">Elapsed —</span>
+          <span class="tag">Phase 2 of 11</span>
+          <span class="tag">3 of 7 bootstrap steps</span>
+        </div>
+      </div>
+      <div class="clockbox">
+        <div class="clock num" id="clock">--:--:--</div>
+        <div class="clocklab">UTC · live</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPI STRIP -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="klab">Elapsed</div>
+      <div class="kval num" id="kElapsed">—</div>
+      <div class="ksub">since 14:20:07 UTC</div>
+      <div class="kbar"><i id="barTime" style="width:0%"></i></div>
+    </div>
+    <div class="kpi ok">
+      <div class="klab">Bootstrap steps</div>
+      <div class="kval num">3<small> / 7</small></div>
+      <div class="ksub">P0.1 · P0.2 · P0.3 passed</div>
+      <div class="kbar"><i style="width:43%;background:var(--ok)"></i></div>
+    </div>
+    <div class="kpi pur">
+      <div class="klab">Commits</div>
+      <div class="kval num">16</div>
+      <div class="ksub">15 v2 build · 1 shield</div>
+      <div class="kbar"><i style="width:100%;background:var(--pur)"></i></div>
+    </div>
+    <div class="kpi teal">
+      <div class="klab">Tests passing</div>
+      <div class="kval num">315</div>
+      <div class="ksub">0 failures · 12 suites</div>
+      <div class="kbar"><i style="width:100%;background:var(--teal)"></i></div>
+    </div>
+    <div class="kpi">
+      <div class="klab">Model requests</div>
+      <div class="kval num">421</div>
+      <div class="ksub">419 OK · 1 rate-limited</div>
+      <div class="kbar"><i style="width:99.5%"></i></div>
+    </div>
+    <div class="kpi warn">
+      <div class="klab">Current step</div>
+      <div class="kval num" style="font-size:20px;letter-spacing:-.5px">P1.1</div>
+      <div class="ksub">4 attempts failed · retrying</div>
+      <div class="kbar"><i style="width:34%;background:var(--warn)"></i></div>
+    </div>
+  </div>
+
+  <!-- CAMPAIGN PROGRESS -->
+  <div class="panel">
+    <div class="ph">
+      <h2><i></i>Campaign progress</h2>
+      <span class="note">1 of 11 phases complete · 2nd in progress</span>
+    </div>
+    <div class="seg" id="seg"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:rgba(63,185,80,.6)"></i>Complete</span>
+      <span><i class="sw" style="background:rgba(77,159,255,.65)"></i>In progress</span>
+      <span><i class="sw" style="background:rgba(255,255,255,.09)"></i>Not started</span>
+      <span style="margin-left:auto;color:var(--mut2)">Bootstrap P0–P1 gates the campaign; F0–F8 run under the controller</span>
+    </div>
+  </div>
+
+  <div class="cols">
+
+    <!-- PHASE ROADMAP -->
+    <div class="panel">
+      <div class="ph"><h2><i></i>Phase roadmap</h2><span class="note">exit conditions per §8</span></div>
+      <table>
+        <thead><tr><th style="width:34%">Phase</th><th style="width:17%">Owner</th><th>Exit condition</th><th style="width:64px;text-align:right">State</th></tr></thead>
+        <tbody id="roadmap"></tbody>
+      </table>
+    </div>
+
+    <!-- BOOTSTRAP DETAIL -->
+    <div class="panel">
+      <div class="ph"><h2><i></i>Bootstrap detail · P0–P1</h2><span class="note">deterministic checks</span></div>
+      <div id="steps"></div>
+    </div>
+
+  </div>
+
+  <div class="cols">
+
+    <!-- COMMITS -->
+    <div class="panel">
+      <div class="ph"><h2><i></i>Commit activity</h2><span class="note">16 commits · 6h</span></div>
+      <div id="commits"></div>
+    </div>
+
+    <!-- INFRASTRUCTURE -->
+    <div class="panel">
+      <div class="ph"><h2><i></i>Model routing &amp; infrastructure</h2><span class="note">measured from shield DB</span></div>
+      <div class="infra" id="infra"></div>
+
+      <div class="callout info" style="margin-top:16px">
+        <h4>Routing is not client-controllable</h4>
+        <p>Requests naming a specific model were served by a different one in <b>301 of 305</b> cases. One backend is chosen per session and held for its duration — the 11-model fallback ladder is effectively decorative, and there is no model-level failover when a backend degrades.</p>
+      </div>
+
+      <div class="callout good">
+        <h4>Zero model-level failures</h4>
+        <p>419 of 421 requests returned OK. No 5xx, no timeout, no content rejection across the entire build. The build's stalls are engineering problems, not model or platform outages.</p>
+      </div>
+
+      <div class="callout" style="border-left-color:var(--pur);background:rgba(188,140,255,.06)">
+        <h4 style="color:#c9a3ff">Shield hardening shipped</h4>
+        <p>One real protocol leak found and fixed: <code>dots_function_call</code> markup emitted as prose (1 event in ~260 turns), which Claude Code cannot parse. The shield now classifies it as <code>LEAKED_TOOL_XML</code> and trips the breaker. Committed <code>25e25ae</code>; loaded on next shield restart.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RISKS -->
+  <div class="panel">
+    <div class="ph"><h2><i></i>Open risks &amp; blockers</h2><span class="note">3 open · 1 resolved</span></div>
+    <div class="risks" id="risks"></div>
+  </div>
+
+  <footer>
+    <div>Generated from live evidence: <code>bootstrap.json</code> · <code>shield.db</code> · <code>git log</code> · <code>pytest</code> — no estimated values</div>
+    <div id="genstamp">updated —</div>
+  </footer>
+
+</div>
+
+<script>
+const START = Date.UTC(2026,8,28,14,20,7); // 2026-09-28T14:20:07Z
+
+/* ---------- phases ---------- */
+const PHASES = [
+  ["P0","Bootstrap","bootstrap runner","env facts, v2 repo, controller + unit tests","done"],
+  ["P1","Commission","bootstrap runner","C1–C12 + independent review; units enabled; runner exits","active"],
+  ["F0","Architecture freeze","Opus task(s)","salvage audit, requirement ledger, ARCHITECTURE.md, harness","todo"],
+  ["B0","Worker benchmark","controller","frozen task × 20 attempts; ≥60% accepted → proceed","todo"],
+  ["F1","Domain + persistence","free workers","Postgres domain, migrations, backups, 5 employees seeded","todo"],
+  ["F2","Execution + scheduler","free workers","M0.2, M0.4, M0.5, M0.9–M0.12","todo"],
+  ["F3","Core UI shell","free workers","org overview, cockpit, dossier, reports, form builder","todo"],
+  ["F4","Living office","free + Opus QA","rig, skins, state machine, animations, perf budget, a11y","todo"],
+  ["F5","M0 acceptance","harness + Opus","all M0 predicates on integrated SHA","todo"],
+  ["F6","CORE completion","free workers","all CORE requirements incl. workflow builder, learning loop","todo"],
+  ["F7","Hardening","controller","security, 48 h soak, fault injection, perf, a11y, restore test","todo"],
+  ["F8","Release","release_gate + Opus","CORE predicates on frozen SHA; RELEASE_READY written","todo"]
+];
+
+/* ---------- bootstrap steps ---------- */
+const STEPS = [
+  ["d","P0.1","Record live environment facts",
+   "SHAs, ports, services, Node/pnpm, Postgres, FreeLLMAPI health, CLI auth, RAM/CPU → .build/FACTS.md",
+   "1m 53s","04:2","passed 14:22"],
+  ["d","P0.2","Create v2 repo + verify baseline",
+   "Forked hermes-studio-control, baseline install/build/test, base SHA recorded",
+   "3m 15s","04:2","passed 14:25"],
+  ["d","P0.3","Build the deterministic controller",
+   "State machine, classification, routes, review, merge, escalation, safety; gate, watchdog, janitor; 315 tests",
+   "44m 03s","4,4","passed 15:09 · regressed 15:53 · re-passed 18:26"],
+  ["a","P1.1","Commissioning proofs C1–C12",
+   "Pass 12 proofs against the fixture project with real PIDs and log excerpts, then commission_check exits 0",
+   "4h 36m","2 / 12","4 attempts failed · retrying now"],
+  ["p","P1.2","Independent review",
+   "Opus review of the frozen bootstrap output; verdict written to INDEPENDENT_REVIEW.json",
+   "—","—","blocked on P1.1"],
+  ["p","P1.3","Enable services + cron layer",
+   "empirium-build-controller unit, watchdog timer, crontab third-layer check, fresh heartbeat",
+   "—","—","not started"],
+  ["p","P1.4","Seed F0 work items",
+   "Register real project, seed F0 items and the phase plan, confirm first dispatch",
+   "—","—","not started"]
+];
+
+/* ---------- commits ---------- */
+const COMMITS = [
+  ["14:21","0d97cfc","P0.1: record live environment facts (.build/FACTS.md)","p-p0"],
+  ["14:22","405d536","chore: fork hermes-studio-control@39f9ceb as v2 base","p-p0"],
+  ["14:25","9bb098d","P0.3: verify v2 baseline; declare missing markdown deps","p-p0"],
+  ["14:42","71f3868","P0.3: build controller core (state machine, classification, routes, review, merge, escalation, safety)","p-p0"],
+  ["14:57","d6d4b4f","P0.3: controller test suite (303 tests), harness-fault retry, watchdog fixes","p-p0"],
+  ["15:05","44479bf","P0.3: non-blocking gate/janitor, per-step heartbeat, dispatch isolation","p-p0"],
+  ["15:29","358a389","P1.1: commissioning fixture, stand-ins, driver, commission_check; C1 evidence","p-p1"],
+  ["18:17","eb3fa6b","controller: pin Opus 5.5 to medium effort; maximise free-lane fan-out","p-ctl"],
+  ["18:24","82ea66d","controller tests: assert guard invariant, not the lane it retries on","p-ctl"],
+  ["18:47","d27dc18","P1.1: fix commissioning blockers — dead-port logging, planner children, driver lock","p-p1"],
+  ["19:07","5f87ed1","P1.1: configurable reviewer-fallback threshold + detached capacity waiter","p-p1"],
+  ["19:30","cd7f740","P1.1: move fixture driver lock outside reset scope; sonnet plan lane","p-p1"],
+  ["19:53","d15992d","P1.1: capacity waiter also gates on the systemd --user bus","p-p1"],
+  ["19:57","7fd0bd0","P1.1: fail the commissioning pass legibly when the systemd --user bus is dead","p-p1"],
+  ["20:12","94661d6","P1.1: record the C1–C12 commissioning block in-repo","p-p1"],
+  ["19:54","25e25ae","shield: detect leaked foreign tool-call markup as a failure","p-inf"]
+];
+
+/* ---------- infra ---------- */
+const INFRA = [
+  ["custom/deepseek-v4.1-flash:free", 263, "#4d9fff"],
+  ["openrouter/dots-studio/dots-3-note-preview:free", 151, "#bc8cff"],
+  ["mistral/codestral-2508", 3, "#3fb950"],
+  ["openrouter/liquid/lfm-2.5-2.6b:free", 2, "#2dd4bf"]
+];
+
+/* ---------- risks ---------- */
+const RISKS = [
+  ["H","Duplicate runners","The systemd user session returned at 20:16:58 and auto-started <b>empirium-bootstrap</b> alongside the crontab-detached runner — two runners, two workers, both committing to one repo. Needs de-duplication before it causes a conflicting commit."],
+  ["M","P1.1 not converging","4 failed attempts, 2 of 12 evidence files, no commit in ~10 min. The blocker is the commissioning driver, not the model — it has been patched repeatedly without reaching the gate."],
+  ["M","Routing substitutable","Because the gateway ignores the requested model, ~90% of coding runs on two non-Anthropic backends impersonating Claude's tool protocol. Tool-fidelity cannot be pinned or guaranteed."],
+  ["L","Shield fix not loaded","Committed 25e25ae but the running shield predates it. Loading requires a restart that would drop the in-flight worker's request."],
+  ["L","FreeLLMAPI not self-healable","Port 3101 is root/Docker-owned; the heartbeat can alert but cannot restart it. A death there needs one manual action."]
+];
+
+/* ---------- render ---------- */
+const $ = id => document.getElementById(id);
+
+$("seg").innerHTML = PHASES.map(p =>
+  `<div class="${p[4]}">${p[0]}</div>`).join("");
+
+$("roadmap").innerHTML = PHASES.map(p => {
+  const st = p[4]==="done" ? '<span class="pill d">Done</span>'
+          : p[4]==="active" ? '<span class="pill a">Active</span>'
+          : '<span class="pill p">Queued</span>';
+  return `<tr>
+    <td><span class="pname">${p[1]}</span><span class="pid">${p[0]}</span></td>
+    <td><span class="owner">${p[2]}</span></td>
+    <td><span class="exit">${p[3]}</span></td>
+    <td style="text-align:right">${st}</td>
+  </tr>`;
+}).join("");
+
+$("steps").innerHTML = STEPS.map(s => {
+  const cls = s[0]==="d" ? "d" : s[0]==="a" ? "a" : "p";
+  const gl  = s[0]==="d" ? "✓" : s[0]==="a" ? "◐" : "·";
+  const st  = s[0]==="d" ? '<span class="pill d">Passed</span>'
+           : s[0]==="a" ? '<span class="pill w">Failing</span>'
+           : '<span class="pill p">Queued</span>';
+  return `<div class="step">
+    <div class="ico ${cls}">${gl}</div>
+    <div>
+      <div class="sn">${s[1]} · ${s[2]}</div>
+      <div class="sd">${s[3]}</div>
+      <div style="margin-top:6px">${st}</div>
+    </div>
+    <div class="smeta">${s[4]}<br>${s[5]}<br>${s[6]}</div>
+  </div>`;
+}).join("");
+
+$("commits").innerHTML = COMMITS.map(c =>
+  `<div class="cmt">
+    <div class="ct">${c[0]}</div>
+    <div class="crail"><div class="cd" style="background:${c[3]==="p-p0"?"#3fb950":c[3]==="p-p1"?"#4d9fff":c[3]==="p-ctl"?"#bc8cff":"#2dd4bf"}"></div></div>
+    <div class="cmsg"><span class="csha">${c[1]}</span>${c[2]}</div>
+  </div>`).join("");
+
+const maxN = Math.max(...INFRA.map(i=>i[1]));
+$("infra").innerHTML = INFRA.map(i =>
+  `<div class="irow">
+    <div>
+      <div class="ilab">${i[0]}</div>
+      <div class="itrack"><i style="width:${(i[1]/maxN*100).toFixed(1)}%;background:${i[2]}"></i></div>
+    </div>
+    <div class="ict" style="color:${i[2]}">${i[1]}</div>
+  </div>`).join("");
+
+$("risks").innerHTML = RISKS.map(r =>
+  `<div class="risk">
+    <span class="rsev ${r[0]==="H"?"sev-h":r[0]==="M"?"sev-m":"sev-l"}">${r[0]==="H"?"High":r[0]==="M"?"Med":"Low"}</span>
+    <div><div class="rtxt"><b>${r[1]}</b> — ${r[2]}</div></div>
+  </div>`).join("");
+
+/* ---------- live clock ---------- */
+function two(n){return String(n).padStart(2,"0")}
+function fmt(ms){
+  const s = Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor(s%3600/60);
+  return `${h}h ${two(m)}m ${two(s%60)}s`;
+}
+function tick(){
+  const now = new Date();
+  $("clock").textContent = `${two(now.getUTCHours())}:${two(now.getUTCMinutes())}:${two(now.getUTCSeconds())}`;
+  const el = now.getTime() - START;
+  $("kElapsed").textContent = fmt(el);
+  $("tagElapsed").textContent = "Elapsed " + fmt(el);
+  $("barTime").style.width = Math.min(100,(el/(14*86400000))*100).toFixed(2) + "%";
+  $("genstamp").textContent = "updated " + now.toISOString().slice(11,19) + " UTC";
+}
+tick(); setInterval(tick,1000);
+</script>
+</body>
+</html>

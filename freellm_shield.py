@@ -33,13 +33,29 @@ STATE = pathlib.Path(os.environ.get("SHIELD_STATE", HOME / ".local/state/freellm
 STATE.mkdir(parents=True, exist_ok=True)
 DB = STATE / "shield.db"
 LADDER_FILE = STATE / "ladder.json"   # editable at runtime; controller re-ranks it
-DEFAULT_LADDER = ["mistral-code", "codestral-2508", "gpt-oss-120b", "mimo-v2.6-flashfree",
-                  "deepseek-v4-flashfree", "nemotron-3-super-120b", "glm-5.3", "kimi-k3-fast",
-                  "qwen3.6-27b", "devstral-2", "auto"]
+# Owner directive 2026-09-28: maximise use of these OpenRouter free models. They fail far more
+# often than the workhorses - that is their nature - so they sit at the HEAD of the ladder
+# (the strongest coders when they do answer) and the reliable tier below is the fallback.
+STRONG_TIER = ["qwen/qwen3.8-27b:free",
+               "thinkingmachines/inkling:free",
+               "nvidia/nemotron-3-ultra-550b-a55b:free",
+               "nvidia/nemotron-3.5-lightning:free",
+               "nvidia/nemotron-3-super-120b-a12b:free"]
+RELIABLE_TIER = ["mistral-code", "codestral-2508", "gpt-oss-120b", "mimo-v2.6-flashfree",
+                 "deepseek-v4-flashfree", "auto"]
+DEFAULT_LADDER = STRONG_TIER + RELIABLE_TIER
 DENY = re.compile(r"^(claude-|gpt-6|gpt-5\.6|.*luna)", re.I)   # never route to subscription look-alikes
 REQUEST_BUDGET_S = int(os.environ.get("SHIELD_BUDGET_S", 45 * 60))
 TRY_CAP_S = int(os.environ.get("SHIELD_TRY_CAP_S", 240))
-MAX_CONCURRENT_PER_MODEL = 2
+# Owner wants the strong tier hammered as hard as it will take: allow it more in-flight requests
+# than the workhorses. The gateway's own global window is still respected via gateway_until.
+MAX_CONC_STRONG = int(os.environ.get("SHIELD_MAX_CONC_STRONG", 3))
+MAX_CONC_RELIABLE = int(os.environ.get("SHIELD_MAX_CONC_RELIABLE", 2))
+# A model the gateway says does not exist / is disabled will never recover on its own; parking it
+# for minutes would waste one request per recovery window forever, so park it for hours and let
+# only the prober re-admit it.
+DISABLED_S = int(os.environ.get("SHIELD_DISABLED_S", 4 * 3600))
+DISABLED_RE = re.compile(r"is disabled|model_not_found|no such model|invalid model|unknown model", re.I)
 KEY = next((l.split("=", 1)[1].strip() for l in open(HOME / ".hermes/.env") if l.startswith("FREELLMAPI_API_KEY=")), "")
 
 lock = threading.Lock()
@@ -74,20 +90,38 @@ def ladder():
     return [m for m in lst if not DENY.match(m)]
 
 
+def _wait_for(model, detail, outcome, n):
+    """How long to park a model after a failure. The strong tier fails often BY DESIGN (owner
+    directive 2026-09-28), so it is parked SHORTER, not longer: a pinned model that is put to sleep
+    for 30 minutes on every 429 stops being used at all, which is the opposite of what was asked."""
+    text = detail or ""
+    # The gateway tells us exactly when the route frees up; honour it instead of guessing.
+    m = re.search(r'"retryAtMs"\s*:\s*(\d+)', text)
+    if m:
+        return max(5.0, int(m.group(1)) / 1000.0 - time.time()) + 5
+    m = re.search(r"reset\S*\s*~\s*(\d+)\s*m", text)
+    if m:
+        return int(m.group(1)) * 60 + 15
+    m = re.search(r"reset\S*\s*~\s*(\d+)\s*s", text)
+    if m:
+        return int(m.group(1)) + 10
+    if DISABLED_RE.search(text):
+        return float(DISABLED_S)          # never recovers by waiting; park for hours
+    strong = model in STRONG_TIER
+    if outcome == "RATE_LIMITED":
+        return 90 if strong else 300      # flaky-by-nature: retry the route soon
+    if outcome in ("GARBAGE", "EMPTY", "BAD_TOOL", "LEAKED_TOOL_XML", "TOOL_NO_BLOCK"):
+        return min(30 * n, 300) if strong else min(60 * n, 900)
+    if outcome in ("PROVIDER_DOWN", "TIMEOUT", "NETWORK"):
+        return min(20 * 2 ** (n - 1), 600) if strong else min(30 * 2 ** (n - 1), 1800)
+    return min(30 * 2 ** (n - 1), 1800) if not strong else min(20 * n, 240)
+
+
 def trip(model, detail, outcome):
-    m = re.search(r"reset\S*\s*~\s*(\d+)\s*m", detail or "")
     with lock:
-        until, n = breakers.get(model, (0, 0))
+        _, n = breakers.get(model, (0, 0))
         n += 1
-        if m:
-            wait = int(m.group(1)) * 60 + 15
-        elif outcome in ("RATE_LIMITED",):
-            wait = 300
-        elif outcome in ("GARBAGE", "EMPTY", "BAD_TOOL", "LEAKED_TOOL_XML", "TOOL_NO_BLOCK"):
-            wait = min(60 * n, 900)
-        else:
-            wait = min(30 * 2 ** (n - 1), 1800)
-        breakers[model] = (time.time() + wait, n)
+        breakers[model] = (time.time() + _wait_for(model, detail, outcome, n), n)
 
 
 def set_gateway_until(t):
@@ -100,17 +134,25 @@ def heal(model):
         breakers[model] = (0, 0)
 
 
+def cap_for(model):
+    return MAX_CONC_STRONG if model in STRONG_TIER else MAX_CONC_RELIABLE
+
+
 def pick(session, hint):
     now = time.time()
     order = ladder()
     with lock:
         pref = []
-        if hint and hint in order:
-            pref.append(hint)
+        # Coherence first: a session already talking to a model stays on it (it must read its own
+        # tool-call history). Only NEW sessions get the owner-pinned strong tier pushed to the head
+        # of the queue (directive 2026-09-28: maximise use of the OpenRouter strong models).
         if session in sticky:
             pref.append(sticky[session])
+        pref.extend([m for m in order if m in STRONG_TIER])
+        if hint and hint in order and hint not in pref:
+            pref.append(hint)
         for m in pref + order:
-            if breakers.get(m, (0, 0))[0] <= now and inflight.get(m, 0) < MAX_CONCURRENT_PER_MODEL:
+            if breakers.get(m, (0, 0))[0] <= now and inflight.get(m, 0) < cap_for(m):
                 inflight[m] = inflight.get(m, 0) + 1
                 return m, 0
         soonest = min([breakers.get(m, (0, 0))[0] for m in order] or [now + 30])

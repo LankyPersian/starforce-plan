@@ -25,9 +25,17 @@ STATE = STATE_DIR / "bootstrap.json"
 LOG = STATE_DIR / "bootstrap.log"
 FREE_URL = "http://127.0.0.1:3102"  # via freellm-shield
 LUNA_MODEL = "gpt-5.6-luna"        # Codex CLI, ChatGPT subscription (planning lane; NOT the API)
-FREE_LADDER = ["mistral-code", "codestral-2508", "gpt-oss-120b", "mimo-v2.6-flashfree",
+# Owner directive 2026-09-28: maximise use of these OpenRouter free models (they fail often by
+# nature; the shield's ladder + breakers absorb that). Kept in sync with the shield ladder file.
+FREE_LADDER = ["qwen/qwen3.8-27b:free", "thinkingmachines/inkling:free",
+               "nvidia/nemotron-3-ultra-550b-a55b:free", "nvidia/nemotron-3.5-lightning:free",
+               "nvidia/nemotron-3-super-120b-a12b:free",
+               "mistral-code", "codestral-2508", "gpt-oss-120b", "mimo-v2.6-flashfree",
                "deepseek-v4-flashfree", "nemotron-3-super-120b", "auto"]
 STEP_TIMEOUT = 90 * 60
+# Re-try the subscription lane every Nth attempt once a step is in budget backoff. Bounded so a
+# step can never be starved of Luna/Sonnet forever (see the routing fix below).
+SUB_RETRY_EVERY = 4
 
 
 def sh(cmd, cwd=None, timeout=1800):
@@ -61,6 +69,33 @@ STEPS = [
     ("P1.4-seed", "Execute §14 step 7: seed F0 work items and the phase plan into the controller and confirm the first F0 attempt was dispatched (controller.py status).",
      lambda: _attempts_total() > 0),
 ]
+
+
+# Self-lock: only one runner may run at a time. Uses flock, NOT a marker file: a marker file is
+# left behind whenever the process is killed (SIGKILL, session teardown), and every later start
+# then exits instantly - the build would stay dead with a healthy-looking log. flock is released
+# by the kernel even on SIGKILL.
+LOCK = STATE_DIR / "bootstrap.lock"
+STATE_DIR.mkdir(parents=True, exist_ok=True)
+_lock_fh = None
+
+
+def acquire_lock():
+    global _lock_fh
+    try:
+        import fcntl
+        _lock_fh = open(LOCK, "a+")
+        fcntl.flock(_lock_fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        _lock_fh.seek(0); _lock_fh.truncate(); _lock_fh.write(str(os.getpid())); _lock_fh.flush()
+        return True
+    except (OSError, BlockingIOError):
+        return False
+
+
+if not acquire_lock():
+    print(f"{datetime.datetime.now(datetime.UTC).isoformat()} bootstrap runner: another instance holds the lock; exiting",
+          file=sys.stderr)
+    sys.exit(0)
 
 
 def _attempts_total():
@@ -256,12 +291,22 @@ def main():
             status, text = independent_review(); lane = "sub"
         else:
             n = s["fails"].get(sid, 0)
-            if time.time() < s["sub_cooldown_until"] or n >= 3:
-                # subscription cooling down or repeatedly failing -> free lane keeps the step moving
-                now = time.time()
+            now = time.time()
+            # Cooldowns are PER PROVIDER: Claude's limit must not block Luna, and vice versa.
+            luna_free = now >= s.get("luna_cooldown_until", 0)
+            claude_free = now >= s.get("sub_cooldown_until", 0)
+            # Budget guard: a step that keeps failing should stop eating subscription quota, but the
+            # guard MUST be bounded. The original `n >= 3` was an unconditional OR with the cooldown
+            # test, so once a step hit 3 failures it never saw Luna or Sonnet again - observed
+            # 2026-09-28, P1.1 sat on 10 fails and both subscription meters froze for hours.
+            # Now: after 3 fails the cheap lane gets the intermediate attempts and the subscription
+            # lane is re-tried on every SUB_RETRY_EVERY'th attempt.
+            sub_backoff = n >= 3 and (n % SUB_RETRY_EVERY) != 0
+            if not (luna_free or claude_free) or sub_backoff:
                 model = next((m for m in FREE_LADDER if s["breakers"].get(m, 0) < now), None)
                 if model is None:
-                    wake = min([s["sub_cooldown_until"]] + list(s["breakers"].values()))
+                    wake = min([s["sub_cooldown_until"], s.get("luna_cooldown_until", 0)]
+                               + list(s["breakers"].values()))
                     nap = max(30, min(600, wake - now)) + random.uniform(0, 15)
                     log(f"all lanes cooling; sleeping {int(nap)}s"); time.sleep(nap); continue
                 status, text = run_claude(task, "free", model); lane = "free"
@@ -269,13 +314,16 @@ def main():
                     s["breakers"][model] = time.time() + (parse_reset(text) and parse_reset(text) - time.time() or 300)
             else:
                 # planning lane = Codex/Luna (ChatGPT subscription); Sonnet is the fallback
-                status, text = run_luna(task); lane = "luna"
-                if status in ("CRASH", "ERROR", "TIMEOUT", "LIMIT"):
-                    log(f"{sid}: luna {status}; falling back to Claude Sonnet")
-                    if status == "LIMIT":
-                        s["luna_cooldown_until"] = (parse_reset(text) or time.time() + 1800) + 120
-                    if time.time() >= s.get("luna_cooldown_until", 0):
-                        status, text = run_claude(task, "sub", "sonnet"); lane = "sub"
+                if luna_free:
+                    status, text = run_luna(task); lane = "luna"
+                    if status in ("CRASH", "ERROR", "TIMEOUT", "LIMIT"):
+                        log(f"{sid}: luna {status}; falling back to Claude Sonnet")
+                        if status == "LIMIT":
+                            s["luna_cooldown_until"] = (parse_reset(text) or time.time() + 1800) + 120
+                        if claude_free:
+                            status, text = run_claude(task, "sub", "sonnet"); lane = "sub"
+                else:
+                    status, text = run_claude(task, "sub", "sonnet"); lane = "sub"
         if status == "LIMIT" and lane == "sub":
             reset = parse_reset(text) or time.time() + 1800
             s["sub_cooldown_until"] = reset + 120
