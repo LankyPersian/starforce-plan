@@ -13,12 +13,37 @@ th, td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(
 th { color: var(--muted-foreground, #999); font-weight: 500; font-size: 11px; }
 .dim { color: var(--muted-foreground, #777); }
 .stamp { color: var(--muted-foreground, #888); font-size: 11px; }
+#refresh { position: fixed; top: 10px; right: 10px; font: 12px ui-monospace, monospace;
+           padding: 5px 10px; cursor: pointer; background: var(--card, #1a1b26);
+           color: var(--foreground, #c0caf5); border: 1px solid var(--accent, #7aa2f7);
+           border-radius: 6px; }
+#refresh:hover { background: var(--accent, #7aa2f7); color: var(--background, #16161e); }
+#refresh[disabled] { opacity: .6; cursor: wait; }
 </style></head><body>
-<h1>Empirium build tracker — regenerated from live data every 60 s</h1>
-<div class="stamp">built 2026-09-28 22:24:01 UTC · this file is written by tracker_build.py, not hand-edited</div>
-<section><h2>Subscription lanes (measured from CLI session logs)</h2><div class="note">tokens are real usage; meters on the vendor dashboards lag these by minutes</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>631</td><td>claude</td><td>claude-sonnet-5</td><td>24m ago</td></tr><tr><td>149</td><td>claude</td><td>claude-opus-5</td><td>8.0h ago</td></tr><tr><td>398</td><td>claude</td><td>claude-opus-5-5</td><td>1.4h ago</td></tr><tr><td>117</td><td>codex</td><td>gpt-5.6-luna</td><td>49m ago</td></tr></table></section><section><h2>Free lane via shield (last 6 h)</h2><div class="note">pinned strong tier: 94 ok / 4 failed — failures are expected by design; the ladder falls through to the next model</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>477ok/4fail</td><td>reliable</td><td>mistral-code</td><td>RATE_LIMITED x4 · 53m ago</td></tr><tr><td>117ok/2fail</td><td>reliable</td><td>gpt-oss-120b</td><td>RATE_LIMITED x2 · 1.1h ago</td></tr><tr><td>94ok/0fail</td><td>PINNED strong</td><td>nvidia/nemotron-3-ultra-550b-a55b:free</td><td>OK · 3s ago</td></tr><tr><td>56ok/1fail</td><td>reliable</td><td>mimo-v2.6-flashfree</td><td>RATE_LIMITED x1 · 1.2h ago</td></tr><tr><td>30ok/5fail</td><td>reliable</td><td>codestral-2508</td><td>RATE_LIMITED x5 · 1.1h ago</td></tr><tr><td>0ok/2fail</td><td>PINNED strong</td><td>qwen/qwen3.8-27b:free</td><td>RATE_LIMITED x2 · 27s ago</td></tr><tr><td>0ok/2fail</td><td>PINNED strong</td><td>thinkingmachines/inkling:free</td><td>RATE_LIMITED x2 · 24s ago</td></tr></table></section><section><h2>Live processes / steps</h2><div class="note">182735    7562 python3 .build/commissioning/run_commissioning.py all
-249755    6120 /usr/bin/python3 /home/ash/empirium-studio-v2/.build/controller/controller.py run
-434028    3095 /usr/bin/python3 /home/ash/work/starforce-plan/freellm_shield.py
-434048    3094 /usr/bin/python3 /home/ash/work/starforce-plan/bootstrap_runner.py
-531977      28 claude -p --model sonnet --dangerously-skip-permissions --output-format json You are a disposable bootstrap worker. Read /home/ash/work/starforce</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>11</td><td>step</td><td>P1.1-commission</td><td>failing</td></tr><tr><td>2</td><td>step</td><td>P0.3-controller</td><td>failing</td></tr><tr><td>3</td><td>done</td><td>P0.1-facts, P0.2-repo, P0.3-controller</td><td></td></tr></table></section><section><h2>Recent commits</h2><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td></td><td>empirium-studio-v2</td><td>d286cd8 controller: stop sync_routes injecting the pinned tier into </td><td>26m ago</td></tr><tr><td></td><td>empirium-studio-v2</td><td>83b4274 controller: pin the owner&#x27;s strong free tier to the head of </td><td>48m ago</td></tr><tr><td></td><td>empirium-studio-v2</td><td>1c6184e P1.1: commissioning pass completed; evidence in .build/evide</td><td>1.5h ago</td></tr><tr><td></td><td>starforce-plan</td><td>32660fd lane_report: parse Codex token_usage_record + STRONG_TIER fr</td><td>17s ago</td></tr><tr><td></td><td>starforce-plan</td><td>6499d8f handover: live-state snapshot for the next chat session</td><td>29m ago</td></tr><tr><td></td><td>starforce-plan</td><td>bbd5c8d tracker: build tracker.html from live evidence only</td><td>37m ago</td></tr></table></section>
+<button id="refresh" title="re-collect every stat from live evidence now">&#8635; refresh</button>
+<h1>Empirium build tracker — live data, press &#8635; or reload to rebuild</h1>
+<div class="stamp">built 2026-09-28 22:29:13 UTC · this file is written by tracker_build.py, not hand-edited</div>
+<section><h2>Subscription lanes (measured from CLI session logs)</h2><div class="note">tokens are real usage; meters on the vendor dashboards lag these by minutes</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>631</td><td>claude</td><td>claude-sonnet-5</td><td>29m ago</td></tr><tr><td>149</td><td>claude</td><td>claude-opus-5</td><td>8.1h ago</td></tr><tr><td>398</td><td>claude</td><td>claude-opus-5-5</td><td>1.5h ago</td></tr><tr><td>117</td><td>codex</td><td>gpt-5.6-luna</td><td>54m ago</td></tr></table></section><section><h2>Free lane via shield (last 6 h)</h2><div class="note">pinned strong tier: 113 ok / 4 failed — failures are expected by design; the ladder falls through to the next model</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>468ok/4fail</td><td>reliable</td><td>mistral-code</td><td>RATE_LIMITED x4 · 58m ago</td></tr><tr><td>117ok/2fail</td><td>reliable</td><td>gpt-oss-120b</td><td>RATE_LIMITED x2 · 1.2h ago</td></tr><tr><td>113ok/0fail</td><td>PINNED strong</td><td>nvidia/nemotron-3-ultra-550b-a55b:free</td><td>OK · 16s ago</td></tr><tr><td>56ok/1fail</td><td>reliable</td><td>mimo-v2.6-flashfree</td><td>RATE_LIMITED x1 · 1.3h ago</td></tr><tr><td>30ok/5fail</td><td>reliable</td><td>codestral-2508</td><td>RATE_LIMITED x5 · 1.2h ago</td></tr><tr><td>0ok/2fail</td><td>PINNED strong</td><td>qwen/qwen3.8-27b:free</td><td>RATE_LIMITED x2 · 6m ago</td></tr><tr><td>0ok/2fail</td><td>PINNED strong</td><td>thinkingmachines/inkling:free</td><td>RATE_LIMITED x2 · 6m ago</td></tr></table></section><section><h2>Live processes / steps</h2><div class="note">182735    7874 python3 .build/commissioning/run_commissioning.py all
+249755    6432 /usr/bin/python3 /home/ash/empirium-studio-v2/.build/controller/controller.py run
+434028    3406 /usr/bin/python3 /home/ash/work/starforce-plan/freellm_shield.py
+434048    3405 /usr/bin/python3 /home/ash/work/starforce-plan/bootstrap_runner.py
+531977     340 claude -p --model sonnet --dangerously-skip-permissions --output-format json You are a disposable bootstrap worker. Read /home/ash/work/starforce</div><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td>11</td><td>step</td><td>P1.1-commission</td><td>failing</td></tr><tr><td>2</td><td>step</td><td>P0.3-controller</td><td>failing</td></tr><tr><td>3</td><td>done</td><td>P0.1-facts, P0.2-repo, P0.3-controller</td><td></td></tr></table></section><section><h2>Recent commits</h2><table><tr><th>count</th><th>state</th><th>model / lane</th><th>last</th></tr><tr><td></td><td>empirium-studio-v2</td><td>d286cd8 controller: stop sync_routes injecting the pinned tier into </td><td>31m ago</td></tr><tr><td></td><td>empirium-studio-v2</td><td>83b4274 controller: pin the owner&#x27;s strong free tier to the head of </td><td>54m ago</td></tr><tr><td></td><td>empirium-studio-v2</td><td>1c6184e P1.1: commissioning pass completed; evidence in .build/evide</td><td>1.6h ago</td></tr><tr><td></td><td>starforce-plan</td><td>86253f8 handover: P0.3 green, tracker+lane_report fixed, P1.1 at 64/</td><td>4m ago</td></tr><tr><td></td><td>starforce-plan</td><td>32660fd lane_report: parse Codex token_usage_record + STRONG_TIER fr</td><td>5m ago</td></tr><tr><td></td><td>starforce-plan</td><td>6499d8f handover: live-state snapshot for the next chat session</td><td>34m ago</td></tr></table></section>
+<script>
+const b = document.getElementById("refresh");
+b.addEventListener("click", async () => {
+  b.disabled = true; b.textContent = "refreshing\u2026";
+  try {
+    const r = await fetch("/api/refresh", {method: "POST"});
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "build failed");
+    location.reload();
+  } catch (e) {
+    b.disabled = false; b.textContent = "\u26a0 offline";
+    b.title = "refresh server not reachable at " + location.host +
+              " \u2014 run tracker_serve.py (port 8790), or use file:// which only "
+              + "updates every 3 min via the heartbeat";
+    setTimeout(() => { b.textContent = "\u21bb refresh"; }, 2500);
+  }
+});
+</script>
 </body></html>
