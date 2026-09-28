@@ -1,0 +1,315 @@
+TASK: Correct the Git commit identity on LankyPersian/empirium-durable-supervisor and permanently prevent this specific attribution mistake.
+
+We have completed the investigation. The repository and code are legitimate and belong to me. There is no evidence of unauthorized access.
+
+The problem is solely that you previously set the repository-local Git identity to:
+
+Ash <ash@users.noreply.github.com>
+
+That was incorrect. ash@users.noreply.github.com belongs to the existing GitHub username ash, which GitHub maps to Andrew Shitov.
+
+The GitHub account actually authenticated and owning the repository is:
+
+LankyPersian
+
+I want you to fix the incorrect attribution now.
+
+CRITICAL SAFETY RULES
+
+This is an identity-metadata repair only.
+
+Do not:
+
+alter any source code
+alter README content
+alter scripts
+alter the archived supervisor
+delete/recreate the repository
+create additional commits unnecessarily
+change branches
+modify repository visibility
+modify collaborators
+modify deploy keys
+modify GitHub authentication
+expose credentials, tokens, passwords or private keys
+guess an email address
+
+The only intended changes are:
+
+Correct the repository-local Git author identity.
+Amend the existing single commit so its author/committer identity belongs to my LankyPersian GitHub account.
+Replace the incorrect commit on GitHub using --force-with-lease.
+Verify the correction.
+Add a safe Git identity rule for future Hermes-created repositories so this does not happen again, but only after confirming the correct identity.
+PHASE 1 — Verify current state before changing anything
+
+Repository:
+
+/home/ash/work/empirium-durable-supervisor
+
+Run:
+
+cd /home/ash/work/empirium-durable-supervisor
+git status
+git remote -v
+git branch --show-current
+git log -1 --format='SHA=%H%nAUTHOR=%an <%ae>%nCOMMITTER=%cn <%ce>%nSUBJECT=%s'
+gh auth status
+gh api user --jq '{login: .login, id: .id, name: .name, email: .email}'
+
+Confirm all of the following before proceeding:
+
+repository owner = LankyPersian
+authenticated GitHub login = LankyPersian
+branch = main
+working tree = clean
+current commit SHA = 7eb2f68e681c9f3903be83f8cb4ccb4d1ad6ff29
+incorrect current email = ash@users.noreply.github.com
+
+If any of those materially differ, STOP and report the discrepancy instead of making changes.
+
+PHASE 2 — Determine the CORRECT GitHub-owned commit email
+
+Do not use:
+
+ash@users.noreply.github.com
+
+Do not construct an email from:
+
+whoami
+hostname
+Linux username
+local username
+
+The GitHub identity must correspond specifically to the authenticated account:
+
+LankyPersian
+
+First obtain:
+
+GH_LOGIN="$(gh api user --jq '.login')"
+GH_ID="$(gh api user --jq '.id')"
+
+Confirm:
+
+GH_LOGIN=LankyPersian
+
+For a GitHub private noreply identity, use the canonical account-specific form based on the authenticated GitHub account:
+
+<GitHub-account-ID>+LankyPersian@users.noreply.github.com
+
+In other words:
+
+CORRECT_EMAIL="${GH_ID}+${GH_LOGIN}@users.noreply.github.com"
+
+Print the resulting email for verification.
+
+Important: this must be derived from the authenticated GitHub account LankyPersian, not from Linux user ash.
+
+If for any reason the authenticated account cannot be verified as LankyPersian, STOP.
+
+PHASE 3 — Set repository-local identity
+
+Set:
+
+git config --local user.name "Ash"
+git config --local user.email "$CORRECT_EMAIL"
+
+Then verify:
+
+git config --local --get user.name
+git config --local --get user.email
+git var GIT_AUTHOR_IDENT
+git var GIT_COMMITTER_IDENT
+
+Expected conceptually:
+
+Ash <ACCOUNT_ID+LankyPersian@users.noreply.github.com>
+
+It must not contain:
+
+ash@users.noreply.github.com
+PHASE 4 — Amend ONLY the existing commit
+
+Preserve the commit message and repository contents exactly.
+
+Before amending, record:
+
+git rev-parse HEAD
+git status --short
+git diff
+git diff --cached
+
+The working tree and index should contain no unintended modifications.
+
+Now run:
+
+git commit --amend --reset-author --no-edit
+
+Do not change the commit message.
+
+Do not add files.
+
+Do not remove files.
+
+Do not modify source content.
+
+PHASE 5 — Verify locally BEFORE pushing
+
+Run:
+
+git log -1 --format=fuller
+
+And:
+
+git log -1 --format='SHA=%H%nAUTHOR_NAME=%an%nAUTHOR_EMAIL=%ae%nCOMMITTER_NAME=%cn%nCOMMITTER_EMAIL=%ce%nSUBJECT=%s'
+
+Verify:
+
+Author name = Ash
+Author email = account-specific LankyPersian noreply email
+Committer name = Ash
+Committer email = account-specific LankyPersian noreply email
+
+Also verify:
+
+git status
+
+It must remain clean.
+
+Then prove that the amended commit contains the same repository tree as the old commit:
+
+git rev-parse HEAD^{tree}
+git rev-parse 7eb2f68e681c9f3903be83f8cb4ccb4d1ad6ff29^{tree}
+
+The two tree hashes must be identical.
+
+This is critical: it demonstrates that we changed commit metadata only and did not change the archived supervisor files.
+
+If the tree hashes differ, STOP — DO NOT PUSH.
+
+PHASE 6 — Replace the incorrect GitHub commit
+
+Only after all previous checks pass:
+
+git push --force-with-lease origin main
+
+Use --force-with-lease, not unrestricted --force.
+
+PHASE 7 — Verify GitHub attribution
+
+After the push, obtain the new SHA:
+
+NEW_SHA="$(git rev-parse HEAD)"
+echo "$NEW_SHA"
+
+Then query GitHub:
+
+gh api "repos/LankyPersian/empirium-durable-supervisor/commits/$NEW_SHA" \
+  --jq '{
+    sha: .sha,
+    git_author_name: .commit.author.name,
+    git_author_email: .commit.author.email,
+    git_committer_name: .commit.committer.name,
+    git_committer_email: .commit.committer.email,
+    github_author_login: .author.login,
+    github_committer_login: .committer.login
+  }'
+
+The important successful result is:
+
+github_author_login = LankyPersian
+github_committer_login = LankyPersian
+
+It must not resolve to:
+
+ash
+Andrew Shitov
+
+Also verify:
+
+gh api repos/LankyPersian/empirium-durable-supervisor/collaborators \
+  --jq '.[] | [.login,.permissions.admin] | @tsv'
+
+Do not modify collaborators.
+
+PHASE 8 — Prevent this mistake in future Hermes-created repositories
+
+Once the repair is confirmed, configure the Linux user ash with a correct Git identity based on the authenticated GitHub account, so future repositories do not fall back to an invented identity.
+
+Set:
+
+git config --global user.name "Ash"
+git config --global user.email "$CORRECT_EMAIL"
+
+Then verify:
+
+git config --global --get user.name
+git config --global --get user.email
+
+Do not ever generate a GitHub noreply email from the Linux username again.
+
+The permanent rule for Hermes is:
+
+Before making commits for a GitHub repository, determine the authenticated GitHub account first. Git identity must correspond to that GitHub account. Never assume the Linux username is the GitHub username, and never fabricate <linux-user>@users.noreply.github.com.
+
+For this machine:
+
+Linux account: ash
+GitHub account: LankyPersian
+
+These are distinct identities and must never be conflated.
+
+PHASE 9 — Final verification
+
+Run:
+
+git status
+git remote -v
+git log -1 --format=fuller
+git config --local --get-regexp '^user\.'
+git config --global --get-regexp '^user\.'
+gh auth status
+
+Query the final GitHub commit one last time and confirm its GitHub author association.
+
+FINAL REPORT
+
+Return:
+
+EMPIRIUM GIT IDENTITY REPAIR
+
+Repository:
+GitHub owner:
+Authenticated GitHub account:
+
+Old commit SHA:
+New commit SHA:
+
+Old author:
+New author:
+
+Old author email:
+New author email:
+
+GitHub account associated with old commit:
+GitHub account associated with new commit:
+
+Old tree SHA:
+New tree SHA:
+Tree hashes identical: YES/NO
+
+Repository files changed: YES/NO
+Commit message changed: YES/NO
+
+Local repository identity:
+Global default identity:
+
+Push completed:
+Working tree clean:
+
+Andrew Shitov still associated with current main commit: YES/NO
+
+Final conclusion:
+
+The job is only complete if the current main commit is attributed by GitHub to LankyPersian, the old Andrew/ash attribution is no longer attached to the current commit, and the repository tree is byte-for-byte the same as before the metadata correction.

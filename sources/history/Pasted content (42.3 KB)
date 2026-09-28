@@ -1,0 +1,1940 @@
+# AUTONOMOUS SOFTWARE PRODUCTION
+
+## Canonical Source of Truth
+
+### Current revision
+
+This document consolidates the lessons learned from the Empirium, AI Staff Force and Hermes autonomous-software experiments, including the later discovery that **building an autonomy system is not the same thing as actually putting that autonomy system in control of the project**.
+
+Where earlier ideas conflict with later findings, the later hardened methodology in this document takes precedence.
+
+---
+
+# 1. THE CENTRAL THESIS
+
+The original ambition remains valid:
+
+> Give an AI system a sufficiently detailed software objective, leave it running, and have it continue making useful progress until the software is genuinely finished.
+
+But the architecture required to achieve that is very different from simply giving an LLM a huge prompt.
+
+The first permanent lesson is:
+
+> **You cannot turn an LLM into a reliable autonomous software company merely by giving it a sufficiently enormous prompt.**
+
+The second, newer lesson is equally important:
+
+> **Building the autonomy system is not the same as putting the autonomy system in control.**
+
+An autonomy kernel can exist.
+
+It can have a database.
+
+It can implement WorkItems, Attempts, leases, retries and QA.
+
+It can pass tests.
+
+It can survive simulated worker death.
+
+It can produce a commissioning report saying PASS.
+
+And the real software project can still secretly depend on the Hermes or LLM session that launched everything.
+
+If that session disappears and nothing independent continues the project, the system is not operationally autonomous.
+
+The correct model is therefore:
+
+```text
+USER SPECIFICATION
+        ↓
+IMMUTABLE PRODUCT CHARTER
+        ↓
+REQUIREMENTS + DEPENDENCY GRAPH
+        ↓
+DURABLE PROJECT STATE
+        ↓
+LIVE DETERMINISTIC CONTROL PLANE
+        ↓
+INTELLIGENT PLANNERS / SPECIALISTS / WORKERS
+        ↓
+TESTING + REVIEW + REWORK + INTEGRATION
+        ↓
+DETERMINISTIC ACCEPTANCE / RELEASE GATES
+        ↓
+SHIPPED
+```
+
+The critical word is **LIVE**.
+
+The control plane must not merely exist in the repository.
+
+It must actually own execution.
+
+---
+
+# 2. THE MASTER PROMPT IS THE CONSTITUTION, NOT THE RUNTIME
+
+Huge detailed prompts remain extremely valuable.
+
+They should define the product mission, functional requirements, architecture constraints, quality expectations, security boundaries, cost boundaries, authority granted to the autonomous system and the Definition of Done.
+
+What they should not be expected to provide is persistence, scheduling, process supervision, retry timers, project-state storage, provider enforcement, worker leasing or release management.
+
+Statements such as:
+
+> continue until finished
+
+> never stop
+
+> keep working autonomously
+
+> do not return until everything is complete
+
+express intent.
+
+They do not create runtime guarantees.
+
+The right analogy remains:
+
+```text
+Master specification     = Constitution
+Requirements ledger      = Law derived from the constitution
+Architecture decisions   = Interpretation
+Work graph               = Operating plan
+Control plane            = Civil service
+LLM agents               = Employees / specialists
+Git + database           = Institutional memory
+QA                       = Independent judiciary
+Release gate             = Authority that decides SHIPPED
+```
+
+---
+
+# 3. PRESERVE THE ORIGINAL SPECIFICATION
+
+The original product specification should remain available throughout the entire project.
+
+Do not read it once, summarize it and then throw it away.
+
+Preserve the original prompt, supporting documents, visual references, architecture material, previous audits and authoritative decisions.
+
+For sufficiently large source specifications, preserve versions and integrity information.
+
+The product must eventually be reconcilable against the source that originally defined it.
+
+---
+
+# 4. SCOPE COMPRESSION IS A CORE FAILURE MODE
+
+One of the most consistent failures was specification compression.
+
+A large prompt would effectively become:
+
+> I understand what the user wants. I will build the main idea.
+
+That interpretation is dangerous.
+
+Small requirements disappear.
+
+Specific workflows disappear.
+
+Visual expectations disappear.
+
+Architectural distinctions disappear.
+
+Existing Hermes capabilities get mistaken for requested Empirium capabilities.
+
+A partial implementation begins to look psychologically complete.
+
+The cure is not merely a longer prompt.
+
+The cure is to **compile the specification into durable obligations**.
+
+---
+
+# 5. REQUIREMENT EXTRACTION COMES BEFORE IMPLEMENTATION
+
+Large projects should create a canonical requirements representation before significant coding begins.
+
+A requirement needs a stable identity.
+
+For example:
+
+```text
+EMP-UI-043
+```
+
+rather than merely:
+
+```text
+Make the employee inspector good.
+```
+
+A useful requirement record contains its source, description, mandatory status, dependencies, acceptance criteria, verification expectations, implementation mapping and current state.
+
+The requirement survives every LLM session.
+
+The worker does not own the requirement.
+
+The project does.
+
+---
+
+# 6. USE MULTIPLE REQUIREMENT PASSES
+
+One extraction pass can miss things.
+
+For major projects, perform at least two independent requirement-extraction passes and reconcile them.
+
+The reconciliation should account for every meaningful part of the authoritative source.
+
+A source element should eventually become a requirement, constraint, deliberate non-requirement, reference or documented exclusion.
+
+Nothing important should simply vanish.
+
+---
+
+# 7. RESOLVE HISTORICAL CONTRADICTIONS DELIBERATELY
+
+Projects evolve.
+
+Later requirements may supersede earlier ones.
+
+Do not let individual workers silently choose whichever instruction is easiest.
+
+Record the currently authoritative position and preserve enough provenance to understand what it replaced.
+
+This applies to architecture, UI direction, provider policy, retry policy, cost policy and every other evolving constraint.
+
+---
+
+# 8. TRACEABILITY IS THE ANTIDOTE TO FALSE COMPLETION
+
+The desired chain is:
+
+```text
+SOURCE
+  ↓
+REQUIREMENT
+  ↓
+ARCHITECTURE / DECISION
+  ↓
+WORKITEM
+  ↓
+ATTEMPT
+  ↓
+IMPLEMENTATION
+  ↓
+EVIDENCE
+  ↓
+REVIEW
+  ↓
+INTEGRATION
+  ↓
+RELEASE VERIFICATION
+```
+
+This chain lets the system answer concrete questions.
+
+Why does this code exist?
+
+Which requirement does it satisfy?
+
+Which test proves it?
+
+What release contains it?
+
+What is still missing?
+
+Without traceability, “done” becomes a feeling.
+
+---
+
+# 9. THE PROJECT IS PERMANENT; AGENTS ARE DISPOSABLE
+
+This is one of the foundational principles.
+
+Persistent entities should include things such as the Project, Requirement, WorkItem, Dependency, Attempt history, Artifact, Lease, Review, Event, architectural decisions, evidence, provider/cost history and release state.
+
+Disposable entities include individual coding sessions, reviewer sessions, Director sessions and provider sessions.
+
+A particular worker may exist for fifteen minutes.
+
+The Project may exist for months.
+
+Nothing fundamental about the Project should depend on the worker staying alive.
+
+---
+
+# 10. WORKITEM AND ATTEMPT ARE DIFFERENT OBJECTS
+
+Suppose:
+
+```text
+W-2187
+Implement employee model/cost inspector
+```
+
+Worker A attempts it and crashes.
+
+The WorkItem did not crash.
+
+Attempt A failed.
+
+Worker B creates Attempt B against the same WorkItem.
+
+If QA rejects B, the WorkItem remains.
+
+Attempt C performs rework.
+
+This prevents business/project state from being coupled to transient model sessions.
+
+---
+
+# 11. USE LEASES RATHER THAN TRUSTING WORKERS TO EXIT CLEANLY
+
+A worker claims work using a time-bounded lease.
+
+If the worker disappears, the system does not need the worker to report its own death.
+
+The control plane detects the expired lease.
+
+It can inspect durable state, preserve useful artifacts, classify the failure and create another Attempt.
+
+Worker death becomes an ordinary state transition.
+
+---
+
+# 12. THE DETERMINISTIC SUPERVISOR IS NOT OPTIONAL
+
+The supervisor should generally be ordinary software.
+
+Its role is not architectural intelligence.
+
+Its role is enforcing invariants.
+
+Questions such as the following should have deterministic answers:
+
+```text
+Is the worker alive?
+Has the heartbeat expired?
+Has the lease expired?
+Are dependencies complete?
+Did the tests pass?
+Is retry 7 due?
+Is this provider authorized?
+Is the budget available?
+Is another worker editing this region?
+Is the project complete?
+```
+
+Do not spend LLM reasoning on facts ordinary software can establish.
+
+The permanent maxim is:
+
+> **LLMs think. Software governs.**
+
+---
+
+# 13. NEW HARD RULE: THE SUPERVISOR MUST ACTUALLY OWN EXECUTION
+
+This is the newest major lesson.
+
+Earlier versions of the architecture correctly designed a deterministic autonomy kernel.
+
+But a dangerous gap remained between:
+
+```text
+AUTONOMY IMPLEMENTED
+```
+
+and:
+
+```text
+AUTONOMY AUTHORITATIVE
+```
+
+A repository can contain a perfect supervisor without the supervisor actually controlling the project.
+
+The kernel can become nothing more than a library being called by the real orchestrator.
+
+That does not solve the fundamental problem.
+
+The decisive operational question is:
+
+> **If the LLM session that started this project disappears right now, what independent process remains alive and responsible for making the next project state transition?**
+
+There must be a concrete answer.
+
+For example:
+
+```text
+empirium-controller.service
+PID 28491
+managed by systemd
+connected to PostgreSQL
+owns project reconciliation
+```
+
+If the answer is:
+
+```text
+Nothing
+```
+
+then the system is not autonomous regardless of how sophisticated its kernel code is.
+
+---
+
+# 14. PROJECT LIFETIME MUST BE INDEPENDENT FROM CHAT LIFETIME
+
+We had already separated WorkItems from worker sessions.
+
+The newer failure showed that this was not enough.
+
+We also have to separate:
+
+```text
+PROJECT LIFETIME
+```
+
+from:
+
+```text
+ORCHESTRATOR / CHAT LIFETIME
+```
+
+This becomes a hard invariant:
+
+> **A chat ending must have zero relationship to whether the Project ends.**
+
+A Hermes session can finish.
+
+A Director can disappear.
+
+A worker can finish.
+
+A commissioning script can return.
+
+An LLM can send a final response.
+
+None of those events mean the Project is complete.
+
+Only the Project's deterministic completion predicate can establish completion.
+
+---
+
+# 15. AN LLM FINAL ANSWER MUST HAVE NO CONTROL SEMANTICS
+
+This distinction is important enough to state explicitly.
+
+LLM conversation state must not be treated as project state.
+
+A model saying:
+
+> Done.
+
+has no control-plane authority.
+
+A model returning its final message has no control-plane authority.
+
+A session closing has no control-plane authority.
+
+The Project continues according to durable state.
+
+---
+
+# 16. THE SUPERVISOR ITSELF MUST BE KEPT ALIVE BY NON-LLM INFRASTRUCTURE
+
+Another important architectural distinction now becomes explicit.
+
+There are two forms of orchestration.
+
+```text
+INTELLIGENT ORCHESTRATION
+
+planning
+architecture
+decomposition
+diagnosis
+research
+judgment
+review
+```
+
+and:
+
+```text
+DETERMINISTIC CONTROL
+
+process lifecycle
+heartbeats
+leases
+queues
+timers
+retries
+dependency release
+dispatch
+state transitions
+restart recovery
+completion predicates
+```
+
+The intelligent layer can disappear.
+
+The deterministic layer cannot be allowed to depend on an LLM remembering to restart it.
+
+Therefore the control plane should run like ordinary production infrastructure.
+
+Possible examples include:
+
+```text
+systemd
+Docker restart policies
+Kubernetes
+PM2
+Supervisor
+Windows Service Manager
+another equivalent process manager
+```
+
+This gives us a new permanent rule:
+
+> **Anything whose disappearance would halt project continuation must not depend on an LLM remembering to run it.**
+
+---
+
+# 17. THE CONTROL PLANE SHOULD RECONCILE, NOT MERELY WATCH
+
+A useful model is a reconciliation loop.
+
+Repeatedly compare:
+
+```text
+DESIRED STATE
+```
+
+with:
+
+```text
+OBSERVED STATE
+```
+
+Example:
+
+```text
+Desired:
+W-2187 is ACTIVE with valid lease.
+
+Observed:
+worker missing
+heartbeat expired
+
+Reconciliation:
+mark Attempt failed
+record event
+release lease
+schedule retry
+create new Attempt
+dispatch replacement
+```
+
+The system does not wait for every component to behave politely.
+
+It repairs divergence.
+
+---
+
+# 18. ACCEPTANCE FAILURE IS WORK, NOT A REPORT
+
+This is another major hardening rule introduced by the latest failure.
+
+The bad autonomous loop is:
+
+```text
+run acceptance gate
+      ↓
+FAIL
+      ↓
+list unfinished conditions
+      ↓
+stop
+```
+
+The correct loop is:
+
+```text
+run acceptance gate
+      ↓
+FAIL
+      ↓
+identify failed predicates
+      ↓
+map predicates to durable requirements / WorkItems
+      ↓
+schedule eligible work
+      ↓
+dispatch
+      ↓
+test
+      ↓
+review
+      ↓
+rework if needed
+      ↓
+rerun gate
+      ↓
+repeat
+```
+
+Therefore:
+
+> **FAIL means continue execution.**
+
+It does not mean:
+
+> explain to the user why we failed.
+
+A final acceptance failure is itself an input to the work-generation system.
+
+---
+
+# 19. TERMINATION CONDITIONS MUST BE EXPLICIT
+
+Normal autonomous progression may terminate only through something structurally equivalent to:
+
+```text
+PASS
+
+or
+
+CANCELLED
+
+or
+
+HUMAN_BLOCKED
+```
+
+`HUMAN_BLOCKED` must represent a genuine human-only condition such as unavailable credentials, external authorization, an irreversible consequential decision or an irreconcilable product choice.
+
+It must not be a convenient escape hatch for:
+
+```text
+test failed
+worker crashed
+provider rate-limited
+QA rejected
+task unclear but diagnosable
+merge conflict
+```
+
+Those are autonomous engineering problems.
+
+---
+
+# 20. NO RUNNABLE WORK DOES NOT MEAN COMPLETE
+
+This is another subtle but critical control-plane principle.
+
+At any moment, no task may be immediately runnable.
+
+The project could nevertheless be unfinished.
+
+Examples include legitimate waiting on a provider cooldown, dependency completion, retry timer, lease expiry, QA, integration, replacement worker or diagnosis.
+
+The Project therefore needs a global state model.
+
+For example:
+
+```text
+RUNNING
+
+WAITING_PROVIDER
+
+WAITING_DEPENDENCY
+
+WAITING_RETRY
+
+WAITING_REVIEW
+
+WAITING_INTEGRATION
+
+WAITING_WORKER
+
+DIAGNOSING
+
+HUMAN_BLOCKED
+
+COMPLETE
+
+CANCELLED
+```
+
+`COMPLETE` must be derived explicitly.
+
+Never infer:
+
+```text
+No obvious runnable task
+```
+
+therefore:
+
+```text
+Project complete
+```
+
+---
+
+# 21. PROCESS LIVENESS, WORK LIVENESS AND PROJECT PROGRESS ARE DIFFERENT
+
+We learned to distinguish three things.
+
+```text
+PROCESS LIVENESS
+Is an agent running?
+
+WORK LIVENESS
+Is something being attempted?
+
+PROJECT PROGRESS
+Is measurable distance to the goal decreasing?
+```
+
+A Director being alive is not progress.
+
+A worker being alive is not progress.
+
+Generation 73 is not progress.
+
+A million consumed tokens are not progress.
+
+A WorkItem moving through externally verified state transitions is progress.
+
+---
+
+# 22. MEASURE PRODUCT VELOCITY
+
+Useful control-plane metrics include accepted WorkItems, integrated features, remaining eligible work, blocked work, rework ratio, first-attempt acceptance, regression count, verified runtime journeys, verified screenshots, human interventions and unrecovered failures.
+
+For example:
+
+```text
+last six hours
+
+accepted WorkItems        +11
+integrated features        +3
+remaining ready work       47 → 34
+blocked WorkItems           6 → 2
+QA rejection rate           18%
+unrecovered task deaths      0
+human interventions          0
+```
+
+That says more than:
+
+```text
+Director healthy
+uptime 6h 12m
+```
+
+---
+
+# 23. FRESH CONTEXT IS OFTEN A FEATURE
+
+Long contexts accumulate irrelevant material.
+
+Project continuity is essential.
+
+LLM conversational continuity is not.
+
+The rule is:
+
+> **Store everything; inject almost nothing by default. Retrieve only what this role needs for this WorkItem.**
+
+A fresh worker can receive a clean bounded packet.
+
+That worker may perform better than a long-running session burdened by the entire history.
+
+---
+
+# 24. WORKERS RECEIVE TASK PACKETS, NOT THE WHOLE COMPANY HISTORY
+
+A worker packet should contain approximately:
+
+```text
+WORKITEM
+
+WHY IT EXISTS
+
+REQUIREMENT IDS
+
+ACCEPTANCE CRITERIA
+
+ARCHITECTURAL CONSTRAINTS
+
+RELEVANT FILES
+
+DEPENDENCIES
+
+TEST COMMANDS
+
+PROHIBITED CHANGES
+
+EXPECTED OUTPUT
+```
+
+The planner receives broader context.
+
+The reviewer receives the requirement, diff and evidence.
+
+The recovery worker receives the previous Attempt, last good commit, current state and next actionable step.
+
+Context is deliberately designed per role.
+
+---
+
+# 25. “BUILD THE APP” IS NOT A WORKER TASK
+
+High-level product objectives must be decomposed.
+
+Weak assignment:
+
+```text
+Build Empirium Studio.
+```
+
+Better assignment:
+
+```text
+Implement heartbeat persistence for Attempt records
+against interface X.
+
+Modify modules A and B only.
+
+Do not alter authentication.
+
+Unit suite Y and integration journey Z must pass.
+```
+
+Cheap and free models become far more capable when tasks are bounded properly.
+
+---
+
+# 26. DEPENDENCIES MUST BE MACHINE-REPRESENTED
+
+Do not expect models to merely remember sequencing.
+
+Represent dependencies explicitly.
+
+Examples:
+
+```text
+database schema
+      ↓
+service/API contract
+      ↓
+backend implementation
+      ↓
+UI integration
+```
+
+The eligibility engine should only release work when prerequisites are satisfied.
+
+---
+
+# 27. PARALLELISM WITHOUT ISOLATION PRODUCES CHAOS
+
+Multiple workers should not directly edit the same checkout.
+
+Use isolated branches, Git worktrees, containers or dedicated environments.
+
+A worker generates a commit or patch.
+
+Controlled integration happens separately.
+
+This prevents correct individual changes from collectively destroying the repository.
+
+---
+
+# 28. SEPARATE CONTROL PLANE, INTEGRATION REPOSITORY AND WORKER ENVIRONMENTS
+
+A useful architecture is:
+
+```text
+CONTROL PLANE
+
+/home/.../control
+```
+
+```text
+CANONICAL PRODUCT REPOSITORY
+
+/home/.../product
+```
+
+```text
+WORKER ENVIRONMENTS
+
+/worktrees/W-2187
+/worktrees/W-2188
+/worktrees/W-2189
+```
+
+Product workers should not casually modify the code responsible for:
+
+```text
+authorization
+budgets
+provider enforcement
+leases
+release gates
+security
+```
+
+The system controlling the autonomous build should not casually rewrite itself while building the target.
+
+---
+
+# 29. MORE AGENTS DOES NOT AUTOMATICALLY MEAN MORE PRODUCTIVITY
+
+Concurrency produces coordination cost.
+
+Too many workers can cause duplicate implementation, inconsistent contracts, merge conflicts, reviewer overload and repository instability.
+
+Start conservatively.
+
+Measure throughput.
+
+Increase concurrency only when the measured system benefits.
+
+---
+
+# 30. DO NOT SOLVE EVERY FAILURE BY ADDING ANOTHER MANAGER
+
+An uncontrolled hierarchy can become:
+
+```text
+manager
+  ↓
+manager
+  ↓
+manager
+  ↓
+worker
+```
+
+without increasing useful output.
+
+Agent hierarchy should exist only where a demonstrated coordination problem justifies it.
+
+The deterministic control plane should remove much of the need for constant management agents.
+
+---
+
+# 31. ORGANIZATION, EMPLOYEE AND RUNTIME AGENT ARE DIFFERENT CONCEPTS
+
+For an AI workforce product, distinguish entities such as:
+
+```text
+Organization
+Department
+Persistent Employee
+Execution Profile
+Crew
+Project
+WorkItem
+Attempt
+Review
+Conductor Mission
+```
+
+Do not collapse everything into “agent.”
+
+Persistent organizational identity should survive runtime-session replacement.
+
+---
+
+# 32. PROVIDER FAILURE AND BAD ENGINEERING ARE DIFFERENT FAILURE CLASSES
+
+Infrastructure failure includes things such as:
+
+```text
+429
+403
+timeout
+503
+quota exhaustion
+malformed provider response
+gateway disconnect
+```
+
+Engineering/output failure includes:
+
+```text
+wrong implementation
+incorrect architecture
+failed acceptance
+QA rejection
+regression
+```
+
+Different classes require different responses.
+
+Provider failure may mean retry, cooldown, fresh request or alternate authorized provider.
+
+Bad engineering may mean rework, better decomposition, more context or stronger technical review.
+
+---
+
+# 33. PROVIDER POLICY MUST BE TECHNICALLY ENFORCED
+
+If a provider is forbidden, remove it from authorized routing.
+
+Do not merely tell the agent:
+
+> Never use OpenRouter.
+
+If the runtime still has access to OpenRouter, the policy is weak.
+
+The same principle applies to:
+
+* spending;
+* privileged APIs;
+* destructive tools;
+* production access;
+* security controls.
+
+If something absolutely must not happen, capability restriction is stronger than prose.
+
+---
+
+# 34. RETRY POLICY BELONGS IN CONFIGURATION
+
+Different historical prompts used different retry counts.
+
+The exact number is not sacred.
+
+A useful conceptual structure is:
+
+```text
+normal free retry
+      ↓
+fresh request / smaller context
+      ↓
+alternate authorized free route
+      ↓
+strong subscription diagnosis
+      ↓
+human only when genuinely required
+```
+
+Configuration can inherit:
+
+```text
+GLOBAL
+  ↓
+PROFILE
+  ↓
+PROJECT
+  ↓
+ATTEMPT
+```
+
+---
+
+# 35. STRONG MODELS SHOULD BE USED WHERE ERRORS COMPOUND
+
+Frontier intelligence is most valuable for architecture, decomposition, difficult debugging, contradiction resolution, security review, integration review and visual judgment.
+
+Bounded implementation can often be delegated to cheaper/free workers.
+
+The objective is not:
+
+> use the cheapest model everywhere.
+
+It is:
+
+> spend intelligence where intelligence has the highest leverage.
+
+---
+
+# 36. BUDGET IS DETERMINISTIC STATE
+
+The system should know actual model usage and remaining budget.
+
+Do not tell an LLM:
+
+> Please remember not to spend more than £5.
+
+The control plane should enforce that condition.
+
+Unauthorized paid inference should be mechanically impossible where practical.
+
+---
+
+# 37. IMPLEMENTERS CANNOT BE THEIR OWN SOLE JUDGES
+
+The normal lifecycle should resemble:
+
+```text
+IMPLEMENT
+   ↓
+DETERMINISTIC TESTING
+   ↓
+INDEPENDENT REVIEW
+   ↓
+ACCEPT
+
+or
+
+REJECT → REWORK
+```
+
+QA rejection is not project failure.
+
+It is a normal state transition.
+
+---
+
+# 38. VERIFICATION SHOULD MATCH THE REQUIREMENT
+
+Code existence is not enough.
+
+Appropriate evidence may include:
+
+```text
+compiler/build results
+unit tests
+integration tests
+browser journeys
+database inspection
+restart behaviour
+HTTP responses
+screenshots
+provider telemetry
+Git SHA
+independent review
+```
+
+Different requirements require different combinations.
+
+---
+
+# 39. VISUAL SOFTWARE NEEDS VISUAL QA
+
+Unit tests cannot establish that a product looks like the requested design.
+
+Browser automation should render real screens.
+
+Capture screenshots.
+
+Use them as evidence.
+
+A technically functioning but visually awful UI is still a failed visual requirement.
+
+---
+
+# 40. OPERATIONAL VISUALIZATION MUST BE TRUTHFUL
+
+If the workforce UI says:
+
+```text
+12 workers active
+```
+
+there should actually be twelve relevant active entities.
+
+If an avatar says:
+
+```text
+CODING
+```
+
+real work state should support that display.
+
+If:
+
+```text
+QA PASSED
+```
+
+there should be a real QA result.
+
+The visible office should be a projection of canonical backend truth.
+
+Not theatre.
+
+---
+
+# 41. OBSERVABILITY IS PART OF THE PRODUCT
+
+The human should be able to understand:
+
+```text
+what is running
+why it is running
+what task is active
+which Attempt owns it
+what model/provider is used
+what failed
+what will happen next
+how much it cost
+what QA said
+what evidence exists
+```
+
+This makes autonomous execution inspectable without requiring constant terminal babysitting.
+
+---
+
+# 42. ASSETS ARE DEPENDENCIES
+
+Visual assets, animation sheets, office backgrounds, icons and generated media should be planned like code dependencies.
+
+Record source, required format, generation/extraction mechanism, authorized tool and fallback strategy.
+
+Do not assume another worker magically possesses an unavailable image-generation or graphics tool.
+
+---
+
+# 43. MAINTAIN A CAPABILITY REGISTRY
+
+Workers should have explicit capabilities.
+
+Examples include:
+
+```text
+shell
+filesystem
+browser
+computer control
+image generation
+deployment
+database
+Blender
+Ghidra
+external APIs
+specific MCP servers
+```
+
+Route work to agents that possess the required capabilities.
+
+---
+
+# 44. GUARD AGAINST DESTRUCTIVE CLEVERNESS
+
+Agents may attempt to solve problems by:
+
+```text
+disabling security
+removing validation
+deleting configuration
+exposing services publicly
+weakening tests
+spending money
+rewriting architecture
+```
+
+Hard technical boundaries should protect secrets, production environments, provider policy, budgets, security mechanisms and the control plane.
+
+---
+
+# 45. CHECKPOINTS SHOULD DESCRIBE ENGINEERING STATE
+
+Useful checkpoints contain:
+
+```text
+WorkItem
+Attempt
+latest coherent commit
+modified files
+passing tests
+failing tests
+current blocker
+pending review
+next exact action
+```
+
+The objective is not to recreate the dead model's personality or private reasoning.
+
+It is to recreate resumable engineering state.
+
+---
+
+# 46. GIT IS INSTITUTIONAL MEMORY
+
+Git is part of the autonomy architecture.
+
+Small coherent commits help replacement workers understand:
+
+```text
+what changed
+which Attempt changed it
+why
+what can be reverted
+```
+
+Hours of useful progress should never live solely in an LLM's context window.
+
+---
+
+# 47. NEW HARD RULE: COMMISSIONING MUST TEST THE REAL PRODUCTION PATH
+
+This is one of the most important lessons from the newest failure.
+
+A test of recovery logic is not necessarily a test of real recovery.
+
+The actual deployed path must be exercised.
+
+A valid reconciler restart test looks more like:
+
+```text
+start real reconciler process
+      ↓
+connect to real project database
+      ↓
+claim a real commissioning WorkItem
+      ↓
+persist real Attempt / lease
+      ↓
+kill the reconciler process
+      ↓
+observe database state externally
+      ↓
+allow process manager to restart or start replacement
+      ↓
+fresh reconciler reloads state
+      ↓
+lease / Attempt recovered correctly
+      ↓
+work continues
+```
+
+A weak test looks like:
+
+```text
+restartRecovery()
+assert(true)
+```
+
+An even weaker test looks like:
+
+```text
+"reconciler_restart": true
+```
+
+followed by another script reading that same field.
+
+The thing being tested must be the thing that will actually run in production.
+
+---
+
+# 48. EVIDENCE MUST NOT BE CIRCULAR
+
+The system being evaluated should not simply write its own proof.
+
+Bad evidence flow:
+
+```text
+commissioning script
+      ↓
+writes PASS
+      ↓
+acceptance gate
+      ↓
+checks whether commissioning script wrote PASS
+```
+
+That proves very little.
+
+The desired flow is:
+
+```text
+REALITY
+  ↓
+INDEPENDENTLY OBSERVABLE FACT
+  ↓
+EVIDENCE COLLECTOR
+  ↓
+ACCEPTANCE PREDICATE
+```
+
+Useful independently observable evidence includes:
+
+```text
+database rows
+process IDs
+timestamps
+Git SHAs
+real exit codes
+HTTP responses
+browser screenshots
+immutable events
+provider logs
+externally observed restart
+separate QA output
+```
+
+The stronger principle is:
+
+> **Evidence should be derived from reality rather than authored by the component trying to prove itself.**
+
+---
+
+# 49. COMMISSIONING HAS TO TEST THE ORCHESTRATOR'S DEATH
+
+Earlier failure testing concentrated heavily on worker death.
+
+That is necessary but insufficient.
+
+The more dangerous failure is the death of whatever originally coordinated those workers.
+
+A mandatory commissioning scenario now becomes:
+
+```text
+1. LLM Director starts a real project.
+2. Deterministic controller begins managing real durable work.
+3. Real worker work starts.
+4. Director / Hermes session is deliberately terminated.
+5. Deterministic controller remains alive.
+6. Work continues.
+7. Results persist.
+8. QA occurs.
+9. Rejected work creates rework.
+10. Further work is dispatched.
+11. Acceptance gate reruns.
+12. Project eventually reaches its legitimate terminal state.
+13. A later LLM session connects only as observer / planner when needed.
+```
+
+If this has never succeeded, the system has not proved real autonomous project continuation.
+
+---
+
+# 50. AUTONOMY MUST SURVIVE THE DEATH OF ITS CREATOR SESSION
+
+This becomes the operational definition.
+
+Imagine the initial user interaction vanishes entirely immediately after the first project is submitted.
+
+Ask:
+
+> What still exists?
+
+A genuinely autonomous system should still have:
+
+```text
+durable Project
+durable WorkItems
+live controller
+persistent database
+process manager
+retry timers
+review queues
+worker launcher
+acceptance state
+```
+
+It should not require the original chat to remain open.
+
+---
+
+# 51. FAILURE TESTING SHOULD BE DELIBERATE
+
+Commissioning should deliberately create:
+
+```text
+worker death
+Director death
+controller restart
+provider 429
+provider outage
+failed test
+QA rejection
+lease expiration
+merge conflict
+gateway disconnection
+machine/service restart
+```
+
+Observe recovery.
+
+A system that has only survived the happy path has not demonstrated unattended reliability.
+
+---
+
+# 52. THE AUTONOMY KERNEL MUST BE BOOTSTRAPPED BEFORE THE FULL PRODUCT
+
+A previous architectural mistake was asking the unfinished autonomous factory to autonomously finish the autonomous factory.
+
+Break that recursive dependency.
+
+First build and closely supervise the minimal reliable execution kernel.
+
+Only once the basic loop is boringly reliable should the factory be trusted with increasingly ambitious construction.
+
+---
+
+# 53. MINIMUM AUTONOMY KERNEL
+
+The minimum durable model is approximately:
+
+```text
+Project
+Requirement
+WorkItem
+Dependency
+Attempt
+Artifact
+Lease
+Review
+Event
+```
+
+The minimum control infrastructure is approximately:
+
+```text
+eligibility engine
+lease manager
+provider/error classifier
+worker launcher
+isolated workspace manager
+test runner
+review launcher
+merge queue
+planner wake mechanism
+runtime event stream
+acceptance evaluator
+```
+
+And after the newest lesson, one more requirement must be explicit:
+
+```text
+LIVE LONG-RUNNING RECONCILER
+MANAGED OUTSIDE THE LLM
+```
+
+Without that, the kernel is merely a toolkit.
+
+---
+
+# 54. THE CORE AUTONOMOUS EXECUTION LOOP
+
+The canonical loop is:
+
+```text
+read durable project state
+      ↓
+evaluate terminal condition
+      ↓
+if COMPLETE/CANCELLED → stop
+      ↓
+if HUMAN_BLOCKED → wait / escalate
+      ↓
+identify eligible WorkItem
+      ↓
+create / validate lease
+      ↓
+launch fresh bounded worker
+      ↓
+worker operates in isolated environment
+      ↓
+persist result / commit / artifacts
+      ↓
+run deterministic verification
+      ↓
+independent review
+      ↓
+REJECT → create rework WorkItem/Attempt
+      ↓
+ACCEPT → controlled integration
+      ↓
+update durable project state
+      ↓
+evaluate broader acceptance predicates
+      ↓
+FAIL → generate/schedule remaining work
+      ↓
+repeat
+```
+
+The loop belongs to deterministic software.
+
+Not to the lifespan of one LLM conversation.
+
+---
+
+# 55. PROVE TEN REAL TASKS BEFORE SCALING
+
+The Autonomy Kernel should first demonstrate reliable completion of a small number of genuine product tasks.
+
+The benchmark should include successful implementation, QA rejection, worker death, orchestrator death, restart recovery, real browser/runtime validation and automatic continuation after a failed acceptance predicate.
+
+Success should mean things such as:
+
+```text
+all submitted tasks eventually accepted
+zero false completions
+zero unrecovered WorkItem deaths
+zero unauthorized paid inference
+zero manual "continue" messages
+full event history preserved
+fresh workers can take over
+controller survives original chat termination
+failed gate produces new work automatically
+```
+
+Then scale.
+
+---
+
+# 56. AUTONOMY MATURITY SHOULD BE EARNED
+
+A useful progression is:
+
+```text
+LEVEL 0
+Human-assisted coding
+
+LEVEL 1
+One bounded autonomous task
+
+LEVEL 2
+Recoverable autonomous task
+
+LEVEL 3
+Automatic QA rejection and rework
+
+LEVEL 4
+Autonomous dependency-aware feature
+
+LEVEL 5
+Parallel isolated workers
+
+LEVEL 6
+Autonomous workstream
+
+LEVEL 7
+Autonomous project
+
+LEVEL 8
+Persistent multi-department organization
+```
+
+The new lesson adds a mandatory condition throughout:
+
+> The live control path at each autonomous level must be outside the initiating LLM session.
+
+---
+
+# 57. HUMAN INTERRUPTION SHOULD BE RARE
+
+Do not ask the user to approve routine retries, debugging, restarts or rework.
+
+Legitimate human blockers include things such as missing credentials, consequential irreversible external actions, required spending authorization and genuinely ambiguous product decisions with materially different outcomes.
+
+Everything else belongs inside the control loop.
+
+---
+
+# 58. SHIPPED MUST BE DERIVED
+
+`SHIPPED` should be produced only when deterministic release conditions pass.
+
+The gate might require current evidence for mandatory requirements, automated tests, runtime journeys, required visual verification, independent reviews, no blocking defects and provenance tying evidence to the current release commit.
+
+An LLM cannot override this by saying:
+
+> Looks finished.
+
+---
+
+# 59. RELEASE EVIDENCE HAS PROVENANCE
+
+Evidence should identify:
+
+```text
+Requirement
+WorkItem
+Attempt
+commit/version
+time
+result
+artifact/source
+reviewer where relevant
+```
+
+A screenshot from an old build does not prove the new build.
+
+A passing test before a large refactor does not automatically prove the final release.
+
+---
+
+# 60. FINAL RECONCILIATION RETURNS TO THE ORIGINAL SOURCE
+
+Before final release, a fresh reviewer should reread the authoritative original specification and compare it against the actual current product.
+
+This protects against an earlier requirement-extraction mistake becoming permanently invisible.
+
+---
+
+# 61. WHAT DOES NOT COUNT AS SUCCESS
+
+Do not confuse the following with real autonomous software production:
+
+```text
+lots of active agents
+lots of messages
+huge token consumption
+many generated files
+manager restarts
+a COMPLETE.md file
+a Kanban board
+an autonomy kernel sitting unused in the repo
+passing mocked recovery tests
+a commissioning JSON saying true
+a chat that reports unfinished work and exits
+a visually impressive dashboard using fake state
+workers that require repeated manual "continue"
+```
+
+The product has to work.
+
+The control system has to continue.
+
+And the control system must actually be the thing in control.
+
+---
+
+# 62. PERMANENT ANTI-PATTERNS
+
+Stop designing systems where a giant prompt is expected to provide runtime persistence.
+
+Stop equating session continuity with project continuity.
+
+Stop restarting an orchestrator with “continue the whole project” as the main recovery strategy.
+
+Stop treating process uptime as product progress.
+
+Stop letting implementers certify themselves.
+
+Stop using file existence as runtime evidence.
+
+Stop letting parallel workers freely share one checkout.
+
+Stop relying on prompt wording for provider bans or budgets.
+
+Stop scaling agent hierarchy before the core loop is reliable.
+
+Stop treating `FAIL` as the end of autonomous execution.
+
+Stop interpreting “nothing runnable this second” as COMPLETE.
+
+Stop testing recovery through fixtures when production recovery uses a different pathway.
+
+Stop accepting evidence written by the component trying to prove itself.
+
+Stop considering an autonomy kernel finished until it has become the live execution authority.
+
+---
+
+# 63. THE FINAL CANONICAL ARCHITECTURE
+
+```text
+AUTHORITATIVE PRODUCT SPECIFICATION
+                ↓
+MULTI-PASS REQUIREMENT EXTRACTION
+                ↓
+RECONCILED REQUIREMENT LEDGER
+                ↓
+ARCHITECTURE + DECISION RECORD
+                ↓
+DEPENDENCY-AWARE WORK GRAPH
+                ↓
+DURABLE PROJECT DATABASE
+                ↓
+──────────────────────────────────
+LIVE DETERMINISTIC CONTROL PLANE
+──────────────────────────────────
+                ↓
+managed by ordinary process manager
+                ↓
+continuously reconciles reality
+                ↓
+owns project continuation
+                ↓
+evaluates project global state
+                ↓
+dispatches / retries / waits / recovers
+                ↓
+wakes intelligent planners only when needed
+                ↓
+creates bounded worker Attempts
+                ↓
+ISOLATED WORKSPACES
+                ↓
+IMPLEMENTATION
+                ↓
+REAL DETERMINISTIC VERIFICATION
+                ↓
+INDEPENDENT QA
+           ↙          ↘
+       REJECT        ACCEPT
+          ↓             ↓
+       REWORK      INTEGRATION
+           ↘          ↙
+          UPDATE DURABLE STATE
+                  ↓
+         ACCEPTANCE PREDICATES
+           ↙              ↘
+        FAIL              PASS
+          ↓                 ↓
+     CREATE WORK          SHIPPED
+          ↓
+        REPEAT
+```
+
+The initiating LLM can disappear at any point after project submission.
+
+The architecture should continue functioning.
+
+---
+
+# 64. CANONICAL OPERATING PROCEDURE FOR FUTURE PROJECTS
+
+The standard methodology is now:
+
+```text
+Preserve the original specification.
+
+Inspect the actual repository and environment.
+
+Perform independent requirement extraction passes.
+
+Reconcile requirements and contradictions.
+
+Create stable requirement IDs.
+
+Define architecture and foundational contracts.
+
+Create dependency-aware WorkItems.
+
+Deploy the deterministic controller as a real persistent service.
+
+Verify that the controller—not the initiating chat—is the authoritative execution path.
+
+Commission the real production execution pathway.
+
+Deliberately kill workers.
+
+Deliberately kill the Director.
+
+Deliberately restart the controller.
+
+Verify state recovery against the real durable database.
+
+Verify that failed acceptance predicates generate new WorkItems.
+
+Verify QA rejection produces rework.
+
+Verify provider failures create correct waiting/retry behaviour.
+
+Verify "nothing runnable" does not become COMPLETE.
+
+Verify evidence comes from independently observable facts.
+
+Run bounded workers in isolated environments.
+
+Continuously test implementation.
+
+Perform independent QA.
+
+Integrate accepted work.
+
+Measure accepted product progress.
+
+Perform milestone visual/runtime QA.
+
+Reread the original source against the real product.
+
+Run deterministic final acceptance.
+
+Only PASS may produce SHIPPED.
+```
+
+---
+
+# 65. THE HARD DEFINITION OF “AUTONOMOUS”
+
+From now on, we should not describe a software-building system as genuinely autonomous unless this statement is true:
+
+> **After the initiating LLM session has been deliberately terminated, a non-LLM-managed persistent control process can independently reconstruct project state, identify the correct next action or legitimate wait condition, dispatch further work when appropriate, recover failures, process QA and rework, rerun acceptance, and eventually reach a legitimate terminal state without the user typing “continue.”**
+
+That is now the commissioning standard.
+
+---
+
+# 66. CANONICAL PRINCIPLES
+
+**Principle 1 — The specification is persistent; the LLM is disposable.**
+
+**Principle 2 — The Project survives every chat, worker, planner and reviewer.**
+
+**Principle 3 — LLMs think; software governs.**
+
+**Principle 4 — Building the controller does not mean the controller is in control.**
+
+**Principle 5 — The live execution authority must exist outside the initiating LLM.**
+
+**Principle 6 — Anything whose disappearance would halt the Project must not depend on an LLM remembering to keep it alive.**
+
+**Principle 7 — A final chat response has no relationship to Project completion.**
+
+**Principle 8 — FAIL creates work; it does not conclude the Project.**
+
+**Principle 9 — No runnable task is a scheduling state, not a completion predicate.**
+
+**Principle 10 — Evidence must come from observable reality rather than self-authored claims.**
+
+**Principle 11 — Commissioning must exercise the exact production pathway.**
+
+**Principle 12 — Kill the orchestrator during commissioning.**
+
+**Principle 13 — WorkItems persist; Attempts are replaceable.**
+
+**Principle 14 — Store everything; inject only the context needed for the current job.**
+
+**Principle 15 — Explicit dependencies outperform assumed sequencing.**
+
+**Principle 16 — Parallelism requires isolation.**
+
+**Principle 17 — Implementers cannot be their own sole reviewers.**
+
+**Principle 18 — Provider restrictions, budgets and safety rules must be technical controls.**
+
+**Principle 19 — Runtime and visual evidence matter as much as static code.**
+
+**Principle 20 — Process liveness is not project progress.**
+
+**Principle 21 — Measure accepted product outcomes rather than agent activity.**
+
+**Principle 22 — Recovery must be proven through destructive commissioning tests.**
+
+**Principle 23 — Complexity is earned only after the simpler autonomous loop works.**
+
+**Principle 24 — SHIPPED is a derived state, never an opinion.**
+
+---
+
+# 67. THE TWO SENTENCES TO PRESERVE ABOVE EVERYTHING ELSE
+
+The first lesson from the earlier experiments was:
+
+> **Do not try to make the agent persistent enough to finish the software. Make the software project persistent enough that disposable agents can finish it.**
+
+The new failure adds its necessary companion:
+
+> **Do not merely build the system that could autonomously run the project. Make that system the actual live authority running the project, then prove the project continues after the LLM that created it is gone.**
+
+Together, those two statements capture the architecture we have been trying to discover.

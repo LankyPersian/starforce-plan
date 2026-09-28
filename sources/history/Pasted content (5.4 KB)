@@ -1,0 +1,54 @@
+Here's how I'd run it, with the retrospective's lessons applied. The honest headline first: **V4 is much better than the history it came from, but it still contains the one mistake the retrospective identified as the most expensive — it front-loads the entire factory (Phase A, 22 commissioning tests, full controller) before a single worker has proven it can complete one bounded task.** I would invert that.
+
+## Stage 0 — Split the constitution (half a day, not a week)
+
+The 26k-token prompt is a charter masquerading as a runtime. Split it into three artifacts:
+
+- **Product charter** — kept verbatim, hashed, immutable (§§0–5, 9–67 — the product spec is genuinely good).
+- **Machine-readable requirement ledger** — compiled from §67's 10-minute user story and §68's DoD checklist. This product has a gift most projects don't: the acceptance story is already written as 27 concrete steps. That decomposes into roughly **30–40 mandatory requirements, not 710**. The 710-item ledger was a progress object that measured nothing; this one stays small enough that every item maps to real evidence.
+- **Operator rulebook** — ~20 lines: project survives every session death; worker "done" is data not state; only the gate sets SHIPPED; empty queue ≠ done; failed predicate creates a work item.
+
+Everything in V4's §7 about the controller gets **deferred until Stage 3 earns it**.
+
+## Stage 1 — Define acceptance before any orchestration
+
+The failure that killed four generations was undefined acceptance, not weak orchestration. So the first engineering artifact is **predicates, not a controller**:
+
+- `expo-doctor` + lint + jest on migration/placement math (deterministic)
+- app boots to Home, screenshot captured at 2 widths (deterministic)
+- the 27-step user story decomposed per requirement, each with a named check
+- visual items → structured screenshot checklist against the charter's token spec, reviewed by a fresh vision-capable session, tied to the SHA
+
+No SQLite schema, no leases, no merge queue yet. A `checks/` directory and a `verify.sh`.
+
+## Stage 2 — The experiment that was never run
+
+**One worker. One bounded task. One pre-written predicate. Twenty times.**
+
+First task: something real and small from Phase 1 (e.g., "implement the French tip control"). Fresh Hermes session, bounded packet, `verify.sh` decides. Measure: accept rate, timeout rate, no-change rate, rework rate. Record all of it in a flat JSONL.
+
+This costs one afternoon and produces the number that every architecture decision in the entire history was made without. If accept rate is ~50%, orchestration stays almost unnecessary. If it's 20%, the fix is the packet and decomposition — **not another supervisor**. That single measurement would have compressed four architecture generations into one experiment.
+
+## Stage 3 — Earn each component
+
+Grow the kernel only where Stage 2's numbers demand it, in this order:
+
+1. **Task/Attempt table in SQLite** (already justified — sessions die)
+2. **Failed predicate → creates a rework work item** (the one control-loop behavior that was genuinely missing — the reconciler logged FAIL 2,245 times and diagnosed nothing)
+3. **Second worker + worktrees** — only after single-worker accept rate is known and above threshold
+4. **Independent review as a binding gate** — implementer never runs its own final check; visual QA is a fresh vision session against current-SHA screenshots
+5. **systemd unit + cron heartbeat** — but its job is *restart the dead and log*, never *spawn director generations*. The watchdog in the history fired 60+ relaunches that changed nothing; this one fires on exactly one condition: independently accepted changes per day = flat.
+6. **Recovery drills** (kill worker, kill controller, simulate 429) — now, because the happy path has actually shipped accepted work, so the drills test a real machine instead of a speculative one.
+
+## What I'd deliberately *not* do from V4
+
+- **Not Phase A as written.** 22 commissioning tests before any product work is the "perfect recovery before happy-path proof" trap. Commission destructively only what you've exercised.
+- **Not the 22-state project state machine.** Most of those WAITING states never earned their existence; a task table with statuses covers it.
+- **Not the provider-routing subsystem on day one.** Freeze the provider roster at experiment start (the history showed model/provider churn as a standing confounder). Change it only on a classified provider failure, one variable at a time.
+- **Not 5 concurrent products or the org metaphor.** One repo, no Directors, no Meta-Directors. Planning happens when a wake event fires (repeated failure, exhausted queue, ambiguity), not as a standing persona.
+
+## The one metric
+
+**Independently accepted changes per day, verified against the requirement ledger at the current SHA.** Workers alive, sessions running, commits landing — none of that counts. In the entire history that line was flat while every liveness metric was green; it's the only number that would have said "stop changing architecture, fix the worker contract" in week one instead of generation four.
+
+The short version: **V4's instinct (deterministic control, disposable workers, evidence-based gate) is the lesson the retrospective says is right — but its sequencing repeats the original sin. Build the predicate first, measure one worker, and let the numbers — not the anticipation of failure — assemble the machinery.**

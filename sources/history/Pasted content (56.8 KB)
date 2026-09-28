@@ -1,0 +1,2162 @@
+################################################################################
+# EMPIRIUM DETERMINISTIC HEARTBEAT SUPERVISOR
+# INSTALLATION, HARDENING, VERIFICATION AND RECOVERY-PROOF PROTOCOL
+#
+# PHASE 0 — MUST BE COMPLETED BEFORE THE EMPIRIUM STUDIO BUILD PROMPT
+#
+# THIS IS NOT THE EMPIRIUM STUDIO BUILD.
+# THIS INSTALLS THE RELIABILITY LAYER THAT WILL KEEP THAT BUILD ALIVE.
+################################################################################
+
+
+===============================================================================
+0. EXECUTIVE COMMAND
+===============================================================================
+
+You are responsible for installing, hardening and proving the deterministic
+heartbeat/liveness supervisor that will later keep the Empirium Studio
+Meta-Orchestrator alive.
+
+THIS TASK COMES BEFORE THE EMPIRIUM STUDIO BUILD.
+
+The large Empirium Studio build specification will be supplied separately after
+this supervisor has been independently demonstrated to work.
+
+Do NOT begin building Empirium Studio.
+
+Do NOT create the AI Workforce product.
+
+Do NOT begin the large requirements extraction.
+
+Do NOT redesign Hermes Studio.
+
+Do NOT create the future workforce departments.
+
+Do NOT launch dozens of agents.
+
+Do NOT infer that the later product specification has already been authorized.
+
+Your entire responsibility in this phase is:
+
+    1. locate the attached supervisor package;
+    2. preserve the original;
+    3. inspect every supplied file;
+    4. install the supervisor into a stable global location;
+    5. harden several weaknesses in the starter before production use;
+    6. establish a verified subscription-backed GPT-5.6 Luna launch path;
+    7. prevent paid API credentials from being used by that path;
+    8. configure ZERO paid inference;
+    9. install the supervisor as an always-on service;
+    10. prove process-death recovery;
+    11. prove heartbeat/stale-process handling;
+    12. prove state survives supervisor restart;
+    13. prove VPS/boot persistence as far as safely possible;
+    14. prove child lease expiry/recovery directives;
+    15. prove pause/resume;
+    16. prove duplicate-supervisor and duplicate-director prevention;
+    17. prove crash-loop backoff;
+    18. prove no paid provider is invoked;
+    19. leave the supervisor installed, idle and ready for the later project;
+    20. produce a precise installation certificate.
+
+DO NOT report success because:
+
+    the ZIP extracted;
+
+    unit tests passed;
+
+    a systemd file exists;
+
+    a Node process is running;
+
+    a Luna command worked once.
+
+The objective is an actually demonstrated, restart-safe reliability system.
+
+
+===============================================================================
+1. NON-NEGOTIABLE INTELLIGENCE AND COST POLICY FOR THIS INSTALLATION
+===============================================================================
+
+1.1 TOP-LEVEL INSTALLER
+
+Use the currently authorized subscription-backed ChatGPT/Codex intelligence for
+planning/orchestration.
+
+Prefer GPT-5.6 Luna for ordinary orchestration.
+
+If a difficult reliability/security design issue genuinely benefits from a
+stronger subscription model and it is already available through the user's
+monthly subscription, subscription-backed Sol, Astra, Sonnet or Opus may be used
+for analysis/review.
+
+DO NOT use a pay-as-you-go API to solve this installation.
+
+-------------------------------------------------------------------------------
+1.2 CODE CHANGES
+
+The supplied supervisor is real code.
+
+If it requires implementation changes, those code changes should be authored
+through an already available VERIFIED ZERO-COST implementation route where
+possible.
+
+The current broader project policy is:
+
+    subscription models = planning/review/reasoning
+
+    free LLM routes = code-writing workforce
+
+Preserve that policy here where practical.
+
+A small deterministic manual configuration substitution is not the same as
+authoring a new software subsystem.
+
+However, substantial changes to:
+
+    supervisor.mjs
+    tests
+    launch wrappers
+    helper scripts
+
+must receive proper implementation and review rather than being improvised
+carelessly.
+
+-------------------------------------------------------------------------------
+1.3 PAID INFERENCE
+
+NEW PAY-AS-YOU-GO AI SPEND AUTHORIZED FOR THIS INSTALLATION:
+
+    $0.00
+
+Forbidden:
+
+    paid OpenRouter model
+    OpenRouter balance consumption
+    OpenAI API billing
+    Anthropic API billing
+    emergency paid fallback
+    paid image model
+    purchasing credits
+
+Existing monthly ChatGPT/Codex and Claude subscription routes are not considered
+new pay-as-you-go inference for this policy.
+
+-------------------------------------------------------------------------------
+1.4 EXISTING API KEYS
+
+The VPS may already contain:
+
+    OPENROUTER_API_KEY
+    OPENAI_API_KEY
+    ANTHROPIC_API_KEY
+
+or other secrets used by unrelated systems.
+
+DO NOT DELETE THEM GLOBALLY.
+
+DO NOT overwrite unrelated services.
+
+Instead, ensure that the supervisor's Luna launcher does not inherit or use paid
+API credentials.
+
+This requirement must be technically enforced rather than depending only on a
+sentence in a prompt.
+
+
+===============================================================================
+2. ATTACHED PACKAGE — EXPECTED CONTENTS AND INTEGRITY
+===============================================================================
+
+An archive has been supplied with this task.
+
+Expected filename resembles:
+
+    empirium-supervisor-starter(1).zip
+
+or:
+
+    empirium-supervisor-starter.zip
+
+The archive supplied when this protocol was authored had SHA-256:
+
+    d2902dde1ed1a64fb768724379ca84a997ca7b5e0f7c0363a1cf3bde44884645
+
+If the transport mechanism preserves exact archive bytes, verify that hash.
+
+If the attachment system repackages or renames the ZIP and the ZIP hash differs,
+do NOT immediately fail.
+
+Instead verify the extracted critical files and inspect them.
+
+Expected archive layout contains:
+
+    empirium-supervisor-repo-layout/
+        AI_WORKFORCE_BUILD/
+            controller/
+                README.md
+                director-supervisor-contract.md
+                supervisor.mjs
+                supervisor.config.example.json
+                empirium-luna-director.example.sh
+                test/
+                    supervisor.test.mjs
+
+        empirium-workforce-supervisor.service
+
+Reference hashes from the originally supplied archive:
+
+    README.md
+    f6838e2c0ba2ef2f4bb093f33ca1cf4f68d3f84e6ba03ab10ed01c884d4f3592
+
+    director-supervisor-contract.md
+    a2e395f44cf6df1af8068a6bbb8c5a313733a94afc455e63ac3d2588481cedcc
+
+    empirium-luna-director.example.sh
+    3e5b916e127983e78ecff80a15e8edcd96e9c3fbf8b725abb25ea27e5ea2b7c7
+
+    supervisor.config.example.json
+    1f7f836c34d0a31fa4ebd5553c314c7b6657f0792d3781aca132d06810ef2754
+
+    supervisor.mjs
+    e0fb49ec488fc6ab5bf9f0dc76f637887b60416094a0d42fbff3e28639bcabd7
+
+    supervisor.test.mjs
+    698cdb436554235f4dc2ff384e069c8fb2f0cd7cec276d1bec36a1e40fffbec1
+
+    empirium-workforce-supervisor.service
+    a2ad3b4ce181d7a56e0a3121f7bd06aaa9b32fc0d5beda7ae7621db56c41b1dd
+
+Record the actual hashes you observe.
+
+Do not mutate the original attachment.
+
+Create a preserved source copy or leave the original attachment intact.
+
+All production modifications belong in the installed copy.
+
+
+===============================================================================
+3. KNOWN STARTER CHARACTERISTICS — DO NOT MISS THESE
+===============================================================================
+
+I am explicitly telling you several characteristics of the attached starter so
+that they cannot be overlooked during installation.
+
+You must independently inspect and confirm them.
+
+-------------------------------------------------------------------------------
+3.1 THE SUPERVISOR IS NON-LLM
+
+`supervisor.mjs` is deliberately a deterministic Node.js watchdog/state machine.
+
+It must remain non-LLM.
+
+Do not "improve" it by adding an LLM call inside its tick loop.
+
+-------------------------------------------------------------------------------
+3.2 THE LUNA WRAPPER IS INTENTIONALLY UNFINISHED
+
+The supplied:
+
+    empirium-luna-director.example.sh
+
+prepares a prompt and then deliberately exits with:
+
+    exit 78
+
+because the actual subscription-backed Codex/Luna invocation was intentionally
+not guessed.
+
+This MUST be completed before the real director can be supervised.
+
+Do not merely remove `exit 78`.
+
+First prove the actual subscription-backed invocation available on THIS VPS.
+
+-------------------------------------------------------------------------------
+3.3 EXAMPLE PATHS ARE PLACEHOLDERS
+
+The supplied configuration and systemd unit contain examples such as:
+
+    /opt/empirium-studio
+
+Do not assume these are the user's real paths.
+
+This installation should preferably be GLOBAL and project-independent because
+the supervisor is intended to supervise multiple projects in the future.
+
+Do not unnecessarily bind the watchdog itself to the future Empirium Studio
+repository.
+
+-------------------------------------------------------------------------------
+3.4 OLD OPENROUTER EMERGENCY STAGE EXISTS IN THE EXAMPLE
+
+The starter configuration contains a disabled stage resembling:
+
+    OPENROUTER_EMERGENCY
+
+and:
+
+    maxUsdPerProject: 2.0
+
+The user's current policy supersedes that design.
+
+For the production configuration installed in this phase:
+
+    paid emergency inference = forbidden
+
+There should be no executable paid OpenRouter fallback.
+
+Set any monetary limit to:
+
+    0
+
+Prefer removing the paid stage from the active production failure ladder
+entirely.
+
+Do not delete the original example file.
+
+-------------------------------------------------------------------------------
+3.5 THE EXAMPLE DIRECTOR PROMPT MENTIONS CONDITIONAL OPENROUTER USE
+
+The example launcher currently contains language approximately equivalent to:
+
+    "Do not use OpenRouter unless deterministic paid-emergency policy permits."
+
+That is no longer the desired production policy.
+
+The production launcher/runtime prompt must instead make clear:
+
+    PAID ROUTES ARE NOT AUTHORIZED.
+
+OpenRouter may later be used only through explicitly verified $0 free endpoints
+under the later model-routing system.
+
+It may not consume balance.
+
+-------------------------------------------------------------------------------
+3.6 THE DIRECTOR PROCESS CURRENTLY INHERITS PROCESS ENVIRONMENT
+
+Inspect `launchDirector()`.
+
+The supplied source currently constructs the child environment from the
+supervisor process environment.
+
+That means environment inheritance must be treated as a security/billing
+boundary.
+
+It is NOT sufficient to write:
+
+    "Luna, please do not use the API key."
+
+Prevent unwanted provider credentials from entering the director process.
+
+Preferred solution:
+
+    explicit environment allowlist
+
+or another comparably robust mechanism.
+
+At minimum ensure the resulting Luna process does NOT receive:
+
+    OPENAI_API_KEY
+    ANTHROPIC_API_KEY
+    paid OpenRouter credentials
+
+unless a future explicitly authorized component genuinely requires an allowed
+free route.
+
+The Meta-Luna launcher itself must not need them.
+
+-------------------------------------------------------------------------------
+3.7 CURRENT UNIT TESTS ARE ONLY A START
+
+The supplied test file checks several useful things:
+
+- helper behavior;
+- completion requires all checks;
+- provider failure stage progression;
+- paid escalation refusal;
+- expired child lease directive.
+
+Those are useful.
+
+They are nowhere near sufficient for production confidence.
+
+This installation requires additional integration/recovery testing described
+below.
+
+-------------------------------------------------------------------------------
+3.8 SHARED STATE WRITES REQUIRE A CONCURRENCY AUDIT
+
+The long-running supervisor and short-lived CLI commands can both update
+supervisor state.
+
+Inspect carefully whether a sequence like:
+
+    supervisor daemon tick
+    +
+    external `heartbeat` command
+    +
+    external `report-failure`
+
+can load different snapshots and overwrite one another's updates even though
+the final rename is atomic.
+
+Atomic rename prevents partially written JSON.
+
+It does NOT automatically prevent lost-update races.
+
+Before production activation, prove that concurrent mutation is safe.
+
+If it is not safe, repair it.
+
+Acceptable approaches include a robust transient cross-process transaction lock,
+separation of independently written state, or another deterministic solution.
+
+Requirements for any locking solution:
+
+- no permanent deadlock after process crash;
+- stale-lock recovery;
+- bounded wait;
+- state read occurs inside the transaction boundary;
+- mutation and save are serialized;
+- test concurrent commands;
+- document behavior.
+
+Do not confuse the existing lifetime "one supervisor daemon" lock with a
+transaction lock protecting state mutations.
+
+-------------------------------------------------------------------------------
+3.9 PID REUSE REQUIRES CONSIDERATION
+
+The current liveness helper checks whether the stored PID exists.
+
+On Linux, a PID can eventually be reused.
+
+A multi-day supervisor should not accidentally decide that an unrelated process
+with a recycled PID is the Luna director.
+
+Inspect this.
+
+Prefer recording enough process identity to distinguish:
+
+    same PID, same launched process
+
+from:
+
+    same PID, different later process.
+
+For example, Linux `/proc` process start-time identity or another deterministic
+fingerprint may be appropriate.
+
+Do not make the solution needlessly elaborate, but do not ignore the issue.
+
+-------------------------------------------------------------------------------
+3.10 HEARTBEAT SEMANTICS MUST BE EXPLICIT
+
+A process being alive is not identical to an orchestrator making progress.
+
+A model being silent for ten seconds is certainly not completion.
+
+Define clearly:
+
+    PROCESS ALIVE
+    DIRECTOR HEARTBEAT FRESH
+    DIRECTOR HEARTBEAT STALE
+    DIRECTOR PROCESS EXITED
+    PROJECT COMPLETE
+
+Do not collapse them.
+
+Use a heartbeat timeout that is appropriate for long-running agent work.
+
+Do not reproduce the previous ten-second false-completion mistake.
+
+-------------------------------------------------------------------------------
+3.11 STALE PROCESS POLICY MUST BE SAFE
+
+The example config defaults:
+
+    restartOnStaleHeartbeat: false
+
+because automatically killing an apparently stale process can itself be
+dangerous.
+
+For production, design a deliberate policy.
+
+A good pattern is:
+
+    heartbeat becomes stale
+        -> first mark STALE / emit directive
+        -> allow grace period / inspect
+        -> if still stale beyond a larger hard threshold,
+           gracefully terminate and relaunch
+
+Do not kill a legitimate long-running command merely because it generated no
+chat output.
+
+Conversely, do not allow a genuinely wedged director to remain forever.
+
+If code changes are required to achieve a reliable two-stage stale policy,
+implement and test them before activation.
+
+-------------------------------------------------------------------------------
+3.12 DIRECTOR RESTART IS NOT PROJECT RESTART
+
+When the supervisor relaunches Luna, Luna must later resume durable state.
+
+The installation phase need not know the full future project prompt yet.
+
+It must nevertheless prove that the supervisor can relaunch a process without
+duplicating its project registration or destroying persisted state.
+
+
+===============================================================================
+4. CHOOSE A STABLE GLOBAL INSTALLATION TOPOLOGY
+===============================================================================
+
+Do NOT require the future Empirium Studio repository to exist before the
+supervisor itself can run.
+
+Prefer a project-independent installation.
+
+Suggested topology:
+
+    CODE:
+    /home/ash/.local/lib/empirium-supervisor/
+
+    CONFIG:
+    /home/ash/.config/empirium-supervisor/config.json
+
+    RUNTIME STATE:
+    /home/ash/.local/state/empirium-supervisor/
+
+    LOGS:
+    /home/ash/.local/state/empirium-supervisor/logs/
+
+    DIRECTOR LAUNCHER:
+    /home/ash/.local/bin/empirium-luna-director
+
+These are preferred semantics, not blind hard-coded commands.
+
+Inspect the existing machine first.
+
+If there is already an established project-independent directory convention,
+use it if superior.
+
+Do NOT install active mutable controller code inside:
+
+    "/home/ash/Desktop/AI Taskforce"
+
+That directory is user source/input material.
+
+-------------------------------------------------------------------------------
+4.1 PERMISSIONS
+
+Controller code:
+
+    readable by ash
+    writable only by appropriate user/admin
+
+Configuration:
+
+    not world-writable
+
+Runtime state:
+
+    private to ash/service where practical
+
+Logs:
+
+    no secrets
+
+Do not chmod 777 anything.
+
+-------------------------------------------------------------------------------
+4.2 MULTI-PROJECT DESIGN
+
+The global supervisor must remain capable of supervising future projects such
+as:
+
+    Empirium Studio
+    another coding project
+    research project
+
+without installing another supervisor process per project.
+
+One global supervisor.
+
+Multiple project records.
+
+This installation initially uses only a SELF-TEST project.
+
+Do not launch the real Empirium Studio project yet.
+
+
+===============================================================================
+5. PRESERVE AND STAGE THE SUPPLIED SOURCE
+===============================================================================
+
+Create an installation source/audit area.
+
+For example:
+
+    /home/ash/.local/lib/empirium-supervisor/source-original/
+
+Preserve original extracted files there unchanged.
+
+Create working/production copies separately.
+
+Record:
+
+    archive hash
+    extracted file hashes
+    installation timestamp
+    installer identity
+    Node version
+    OS/kernel
+    systemd version
+    installed supervisor version/commit-like hash
+
+Create:
+
+    INSTALL_SOURCE_MANIFEST.json
+
+and:
+
+    INSTALL_NOTES.md
+
+Do not put secrets in either.
+
+
+===============================================================================
+6. PRE-INSTALL RUNTIME INVENTORY
+===============================================================================
+
+Before changing the machine, inspect:
+
+    uname / OS release
+    Node executable path
+    Node version
+    npm presence if relevant
+    systemd version
+    current user
+    ash UID/GID
+    sudo capability
+    user-systemd capability
+    loginctl linger state
+    available disk
+    current relevant services
+    Codex CLI path/version
+    Claude CLI path/version if present
+    current supervisor-like services
+    existing process using intended names
+
+Record observations.
+
+Do not modify unrelated services.
+
+Check Node requirement from source:
+
+    Node.js >= 20
+
+If installed Node is too old:
+
+do not randomly replace system Node.
+
+Choose a safe installation/runtime path after inspecting what the rest of the
+VPS uses.
+
+
+===============================================================================
+7. RUN THE ORIGINAL TESTS BEFORE MODIFYING SOURCE
+===============================================================================
+
+Run the starter's original unit tests against the preserved extracted copy.
+
+Use the appropriate Node test command.
+
+Capture:
+
+    command
+    Node version
+    stdout
+    stderr
+    exit code
+    duration
+
+Store evidence.
+
+If original tests do not pass on a compatible Node version:
+
+investigate before installation.
+
+Do not dismiss the failure.
+
+
+===============================================================================
+8. HARDENING REVIEW — REQUIRED BEFORE PRODUCTION SERVICE
+===============================================================================
+
+Perform an explicit source audit of:
+
+    supervisor.mjs
+    supervisor.config.example.json
+    director-supervisor-contract.md
+    empirium-luna-director.example.sh
+    systemd unit
+    tests
+
+Create a table:
+
+    ISSUE
+    SEVERITY
+    PRESENT?
+    REPAIR REQUIRED?
+    REPAIR
+    TEST
+    RESULT
+
+The following issues MUST appear in the table:
+
+1. pay-as-you-go fallback remnants;
+2. hard-coded `/opt/empirium-studio`;
+3. unfinished director launcher;
+4. paid credential inheritance;
+5. shared-state concurrent-write safety;
+6. PID reuse/process identity;
+7. heartbeat semantics;
+8. stale-heartbeat recovery;
+9. crash-loop control;
+10. duplicate supervisor prevention;
+11. duplicate director prevention;
+12. state corruption recovery;
+13. invalid config behavior;
+14. service restart behavior;
+15. log sensitivity;
+16. runtime directory permissions;
+17. clean shutdown;
+18. project pause/resume;
+19. completion-gate regression;
+20. lease expiry deduplication.
+
+Do not activate the production service until all HIGH severity findings are
+resolved or conclusively shown not to apply.
+
+
+===============================================================================
+9. HARDEN THE SUPERVISOR WHERE REQUIRED
+===============================================================================
+
+Where hardening requires code changes:
+
+    use a bounded implementation task;
+    keep changes minimal;
+    add tests;
+    do not redesign the watchdog into an agent platform.
+
+At minimum the resulting production supervisor must satisfy the following.
+
+-------------------------------------------------------------------------------
+9.1 SAFE STATE MUTATION
+
+Concurrent:
+
+    daemon tick
+    heartbeat CLI
+    failure-report CLI
+    pause/resume CLI
+    lease operation
+
+must not silently erase another process's state update.
+
+Add deterministic concurrency tests.
+
+Example test:
+
+    start supervisor
+    run many heartbeat/report commands concurrently
+    force ticks concurrently
+    inspect final counters/heartbeat/state
+    verify valid JSON
+    verify no missing expected events
+    verify no lost critical update
+
+Repeat enough times to catch race conditions.
+
+-------------------------------------------------------------------------------
+9.2 DIRECTOR PROCESS IDENTITY
+
+Record process identity robustly enough that PID reuse cannot silently make an
+unrelated process count as the current director.
+
+Test with a mocked/staged process identity scenario where practical.
+
+-------------------------------------------------------------------------------
+9.3 ZERO-PAID CHILD ENVIRONMENT
+
+The child director environment must be constructed deliberately.
+
+It must retain whatever is required for subscription CLI operation, such as
+appropriate:
+
+    HOME
+    USER
+    LOGNAME
+    PATH
+    SHELL
+    LANG
+    LC_*
+    TERM where useful
+    XDG_* paths where required by authenticated CLI
+
+while excluding forbidden provider keys.
+
+Never log secret environment values.
+
+Add a deterministic test launcher that prints only whether certain variable
+NAMES are present, not their secret contents.
+
+Expected for Luna director:
+
+    OPENAI_API_KEY       absent
+    ANTHROPIC_API_KEY    absent
+    paid OpenRouter key  absent
+
+If future free worker infrastructure needs an OpenRouter free key, that is a
+different process boundary and belongs to Prompt A/B later.
+
+-------------------------------------------------------------------------------
+9.4 CONFIG VALIDATION
+
+The existing config validation is deliberately basic.
+
+Strengthen enough that dangerous malformed production configuration fails closed.
+
+Validate at least:
+
+    version
+    tick interval sensible
+    runtime path
+    unique project IDs
+    profile exists
+    project root type
+    launch command non-empty
+    heartbeat/restart values non-negative
+    restart limit sane
+    completion check structure
+    failure policy structure
+    monetary emergency disabled/zero for current policy
+
+Do not create a huge dependency stack solely to validate JSON if deterministic
+local validation is straightforward.
+
+-------------------------------------------------------------------------------
+9.5 SAFE CRASH LOOP CONTROL
+
+Repeated director crash must not create unbounded processes.
+
+Test restart rate limiting.
+
+After limit:
+
+    project enters deterministic backoff
+    directive exists
+    CPU is not saturated
+    no fork bomb
+    state remains recoverable
+
+-------------------------------------------------------------------------------
+9.6 LOG ROTATION / BOUNDING
+
+The supervisor can run for months.
+
+Do not create unbounded director log files forever without policy.
+
+Use an existing safe journald/logrotate strategy or implement simple retention.
+
+Do not delete the newest evidence needed for debugging.
+
+Document:
+
+    retention policy
+    location
+    maximum practical storage
+
+
+===============================================================================
+10. BUILD AN ISOLATED NON-LLM SELF-TEST PROJECT
+===============================================================================
+
+Do NOT use the real Empirium Studio project to test the watchdog.
+
+Create a self-test project under a temporary/dedicated private location such as:
+
+    /home/ash/.local/state/empirium-supervisor/selftest-project/
+
+Create test artifacts:
+
+    BUILD_STATE.json
+    FINAL_RELEASE_GATE.json
+    checkpoint.json
+    dummy launcher
+    dummy lease directory
+
+Initial values must indicate:
+
+    project unfinished
+
+The dummy director must be deterministic shell/Node code, NOT an LLM.
+
+It should support controlled modes such as:
+
+    heartbeat and remain alive
+    heartbeat then exit
+    fail immediately
+    stop heartbeating
+    clean checkpoint then exit
+
+This allows rigorous testing without consuming subscription capacity.
+
+
+===============================================================================
+11. CREATE PRODUCTION CONFIG — INITIAL STATE
+===============================================================================
+
+Create the global production config.
+
+For this installation phase:
+
+    real Empirium Studio project = NOT REGISTERED/NOT ENABLED YET
+
+Register only:
+
+    supervisor-selftest
+
+or leave the live projects array empty after all self-tests finish.
+
+The supervisor should ultimately remain running and idle, ready for Prompt A/B.
+
+Production configuration MUST NOT contain an active paid emergency route.
+
+Example conceptual rule:
+
+    "paidEmergency": {
+        "enabled": false,
+        "maxUsdPerProject": 0
+    }
+
+Better still:
+
+the production failure policy contains no actionable paid stage.
+
+Keep the example starter config separately for provenance.
+
+Do not overwrite it and pretend the original never existed.
+
+
+===============================================================================
+12. INSTALLATION SERVICE STRATEGY
+===============================================================================
+
+Choose the most reliable service strategy on this machine after inspection.
+
+PREFERRED OPTION IF SUDO IS AVAILABLE SAFELY:
+
+    system-level systemd service
+    running as User=ash
+
+Advantages:
+
+    starts at boot independent of login
+    no dependence on user linger
+
+Alternative:
+
+    user-level systemd service
+
+ONLY if:
+
+    user services are reliable on this VPS
+    lingering is enabled/proven where required
+
+Do not blindly choose user systemd because it requires fewer permissions.
+
+The goal is boot persistence.
+
+-------------------------------------------------------------------------------
+12.1 SYSTEM SERVICE REQUIREMENTS
+
+If using a system service:
+
+    User=ash
+
+    stable WorkingDirectory
+
+    explicit config path
+
+    Restart=always
+
+    bounded RestartSec
+
+    no paid API environment
+
+    hardening compatible with required state/auth paths
+
+    readable code path
+
+    writable state path
+
+Do not hard-code future Empirium Studio paths.
+
+-------------------------------------------------------------------------------
+12.2 SYSTEMD CREDENTIAL ISOLATION
+
+Ensure forbidden API variables are absent from the supervisor/director service
+environment.
+
+If supported/appropriate use explicit environment controls such as:
+
+    UnsetEnvironment=
+
+or a clean environment construction in the launcher/supervisor.
+
+Verify by test.
+
+Do not assume systemd magically omits every secret.
+
+
+===============================================================================
+13. VERIFY SUBSCRIPTION-BACKED CODEX / GPT-5.6 LUNA
+===============================================================================
+
+This is one of the most important parts.
+
+Do not guess the Codex command.
+
+Inspect locally.
+
+Determine:
+
+    `which codex`
+    codex version
+    codex help
+    login/auth status
+    model selection syntax
+    noninteractive execution syntax
+    prompt-file/stdin behavior
+    working-directory behavior
+    exit codes
+    logging
+    subscription account behavior
+
+You are looking for a mechanism that genuinely uses the user's existing
+subscription-backed Codex access.
+
+It must NOT depend on:
+
+    OPENAI_API_KEY
+    OPENROUTER_API_KEY
+
+Prove this.
+
+-------------------------------------------------------------------------------
+13.1 SAFE SUBSCRIPTION TEST
+
+Run a tiny one-shot test in a disposable empty directory.
+
+Prompt should request a fixed harmless sentinel, for example:
+
+    Return exactly:
+    EMPIRIUM_LUNA_SUBSCRIPTION_TEST_OK
+
+Do not give it source code.
+
+Do not let it edit anything.
+
+Run it with API billing variables explicitly absent.
+
+Record:
+
+    executable
+    CLI version
+    model requested
+    model actually reported if available
+    auth method classification
+    exit code
+    sentinel result
+
+Do not record credentials.
+
+-------------------------------------------------------------------------------
+13.2 FAILURE CONDITION
+
+If the only discovered unattended Codex route requires pay-as-you-go API billing:
+
+STOP.
+
+Do not substitute it.
+
+Report:
+
+    SUBSCRIPTION_LUNA_AUTOMATION_BLOCKED
+
+with precise evidence.
+
+Continue all non-Luna supervisor tests.
+
+Do not spend money.
+
+-------------------------------------------------------------------------------
+13.3 DO NOT ASSUME MODEL LABEL
+
+Verify whether the installed Codex environment actually exposes GPT-5.6 Luna
+under the expected model identifier.
+
+If the exact local identifier differs:
+
+record it.
+
+Do not silently choose a different model.
+
+If subscription-backed Codex works but Luna cannot be selected:
+
+record that as an explicit configuration issue rather than pretending success.
+
+
+===============================================================================
+14. BUILD THE FINAL LUNA DIRECTOR LAUNCHER
+===============================================================================
+
+Once the subscription invocation has been proven, create:
+
+    /home/ash/.local/bin/empirium-luna-director
+
+or the equivalent selected stable path.
+
+Base it on the supplied wrapper.
+
+Do not overwrite the preserved original.
+
+The final launcher must:
+
+1. use strict shell behavior where shell is used;
+2. parse required arguments safely;
+3. reject missing project/root/config arguments;
+4. validate the project root exists;
+5. not follow obviously unsafe empty paths;
+6. change directory explicitly;
+7. emit initial heartbeat;
+8. construct the runtime prompt deterministically;
+9. point Luna to durable state;
+10. tell Luna this is a resumed logical role;
+11. invoke only the VERIFIED subscription-backed Codex mechanism;
+12. explicitly exclude paid API environment variables;
+13. capture stdout/stderr via supervisor logging;
+14. propagate meaningful exit code;
+15. avoid embedding credentials;
+16. avoid putting secret values into process arguments;
+17. not call OpenRouter;
+18. not call OpenAI pay-as-you-go API;
+19. not call Anthropic pay-as-you-go API.
+
+The later Prompt A/B will supply the full Meta-Orchestrator runtime contract.
+
+For now the launcher may point to a placeholder project prompt path which does
+NOT yet exist, provided the real project is not enabled.
+
+Do not launch the future project prematurely.
+
+
+===============================================================================
+15. HEARTBEAT SEMANTICS FOR FUTURE LUNA
+===============================================================================
+
+Define now the heartbeat contract that Prompt A/B will later obey.
+
+The future Meta Luna should call something equivalent to:
+
+    supervisor heartbeat
+        --project <project>
+        --actor director
+        --actor-id luna-master
+
+at:
+
+    startup
+
+    after recovery/reconciliation
+
+    after meaningful orchestration actions
+
+    before/after long orchestration transitions where practical
+
+    before voluntary exit
+
+Do NOT require heartbeats every few seconds.
+
+The heartbeat is a liveness/progress signal.
+
+It is not a token-stream signal.
+
+Use a generous timeout suitable for autonomous coding orchestration.
+
+Initial recommended conceptual timing:
+
+    ordinary heartbeat target:
+        every few minutes during active orchestration
+
+    stale-warning threshold:
+        significantly longer, e.g. 15–20 minutes
+
+    hard recovery threshold:
+        longer again, e.g. 30–45 minutes
+
+Do not blindly use these exact values if local Codex behavior proves different.
+
+The critical invariant is:
+
+    short silence != failure
+
+and:
+
+    indefinite stale process != acceptable.
+
+
+===============================================================================
+16. RUN ORIGINAL + NEW AUTOMATED TESTS
+===============================================================================
+
+After hardening:
+
+run all original tests.
+
+Run all new tests.
+
+At minimum add coverage for:
+
+TEST-A01
+configuration rejects duplicate project IDs.
+
+TEST-A02
+configuration rejects missing profile.
+
+TEST-A03
+zero-paid production policy cannot select paid emergency route.
+
+TEST-A04
+all configured completion checks required.
+
+TEST-A05
+completion regression reopens project state.
+
+TEST-A06
+director launch interpolation correct.
+
+TEST-A07
+forbidden API environment variables do not reach test child.
+
+TEST-A08
+restart-rate limit activates.
+
+TEST-A09
+pause prevents relaunch.
+
+TEST-A10
+resume restores relaunch eligibility.
+
+TEST-A11
+lease expiry generates exactly the intended recovery class without endless
+duplicate spam.
+
+TEST-A12
+lease completion prevents expiry recovery.
+
+TEST-A13
+supervisor state survives process restart.
+
+TEST-A14
+invalid/corrupt state produces controlled failure/recovery behavior rather than
+silent false completion.
+
+TEST-A15
+concurrent state mutations do not lose critical updates.
+
+TEST-A16
+atomic writes never leave partial JSON after interrupted test where simulated.
+
+TEST-A17
+PID/process identity check rejects a mismatched process identity where supported.
+
+TEST-A18
+one supervisor lock prevents a second daemon.
+
+TEST-A19
+one active director is not duplicated on repeated ticks.
+
+TEST-A20
+dead director becomes relaunch-eligible.
+
+Every test result must capture more than the word PASS.
+
+
+===============================================================================
+17. LIVE INTEGRATION TEST MATRIX
+===============================================================================
+
+Now test the installed SERVICE itself, not merely imported Node functions.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-001 — SERVICE START
+-------------------------------------------------------------------------------
+
+Procedure:
+
+1. stop service;
+2. confirm supervisor process absent;
+3. start service;
+4. wait multiple tick cycles;
+5. inspect process;
+6. inspect state;
+7. inspect journal.
+
+Pass requires:
+
+- service active;
+- exactly one supervisor daemon;
+- no restart loop;
+- valid state JSON;
+- correct config loaded;
+- no permission error;
+- no paid credential warning;
+- no unexplained exception.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-002 — DUPLICATE DAEMON
+-------------------------------------------------------------------------------
+
+While service is running, attempt a second manual `run`.
+
+Pass requires:
+
+- second instance refuses safely;
+- original remains healthy;
+- state remains intact.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-003 — SELF-TEST DIRECTOR LAUNCH
+-------------------------------------------------------------------------------
+
+Enable unfinished dummy self-test project.
+
+Pass requires:
+
+- supervisor launches exactly one dummy director;
+- PID/process identity recorded;
+- event recorded;
+- logs created.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-004 — HEARTBEAT
+-------------------------------------------------------------------------------
+
+Dummy director emits heartbeat.
+
+Pass requires:
+
+- supervisor sees fresh heartbeat;
+- state timestamp advances;
+- no duplicate director;
+- no stale directive.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-005 — CLEAN DIRECTOR EXIT
+-------------------------------------------------------------------------------
+
+Make dummy director exit while project incomplete.
+
+Pass requires:
+
+- exit detected;
+- project remains incomplete;
+- cooldown observed;
+- exactly one replacement launches.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-006 — CRASH LOOP
+-------------------------------------------------------------------------------
+
+Configure dummy director to fail immediately.
+
+Pass requires:
+
+- restart occurs according to configured policy;
+- restart rate limit eventually activates;
+- no unbounded process spawn;
+- service itself remains alive;
+- backoff/directive visible.
+
+Then restore test mode.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-007 — PAUSE / RESUME
+-------------------------------------------------------------------------------
+
+Pause self-test project.
+
+Kill director.
+
+Wait longer than restart interval.
+
+Pass requires:
+
+- no relaunch while paused.
+
+Resume.
+
+Pass requires:
+
+- relaunch resumes.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-008 — STALE HEARTBEAT WARNING
+-------------------------------------------------------------------------------
+
+Run a dummy process that remains alive but stops heartbeating.
+
+Pass requires:
+
+- process is not called "complete";
+- stale condition is detected after configured threshold;
+- intended warning/directive occurs.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-009 — HARD STALE RECOVERY
+-------------------------------------------------------------------------------
+
+If production design includes hard stale recovery:
+
+allow process to remain stale past hard threshold.
+
+Pass requires:
+
+- graceful termination attempted;
+- replacement launched only after correct safety condition;
+- no duplicate surviving director.
+
+If the design intentionally uses alert-only stale handling at this stage,
+document why and demonstrate another deterministic mechanism that prevents an
+alive-but-wedged director from blocking forever before approving production.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-010 — LEASE RECOVERY
+-------------------------------------------------------------------------------
+
+Create a self-test child/project-manager lease.
+
+Heartbeat once.
+
+Stop heartbeating.
+
+Pass requires:
+
+- lease expiry detected;
+- recovery directive generated;
+- supervisor does NOT itself perform child's engineering work.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-011 — LEASE DIRECTIVE DEDUPLICATION
+-------------------------------------------------------------------------------
+
+Leave same stale lease untouched for several ticks.
+
+Pass requires:
+
+- no uncontrolled duplicate directive flood for unchanged stale fingerprint.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-012 — SUPERVISOR SERVICE RESTART
+-------------------------------------------------------------------------------
+
+Create meaningful self-test state.
+
+Restart systemd supervisor service.
+
+Pass requires:
+
+- state survives;
+- project remains registered;
+- retry counters/state are coherent;
+- no duplicate director caused solely by restart;
+- supervisor resumes normally.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-013 — RUNTIME STATE PERMISSIONS
+-------------------------------------------------------------------------------
+
+Verify:
+
+- ash/service can write required runtime;
+- unrelated ordinary users do not have inappropriate write access where
+  relevant;
+- source attachment remains unmodified.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-014 — DIRECTOR ENVIRONMENT
+-------------------------------------------------------------------------------
+
+Use harmless test child that reports presence/absence of variable names.
+
+Pass requires forbidden paid API credentials absent.
+
+Do NOT print their values.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-015 — COMPLETION FALSE
+-------------------------------------------------------------------------------
+
+Stop all child processes.
+
+Leave completion gate false.
+
+Pass requires:
+
+- project is NOT considered complete merely because nothing is active.
+
+This is a critical test.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-016 — COMPLETION TRUE ON FIXTURE
+-------------------------------------------------------------------------------
+
+For self-test project only:
+
+set all deterministic completion fixture conditions true.
+
+Pass requires:
+
+- project reaches completed state;
+- director no longer relaunched;
+- supervisor itself continues serving other projects.
+
+Then remove/disable the self-test project.
+
+Do NOT create fake SHIPPED state for the future real project.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-017 — COMPLETION REGRESSION
+-------------------------------------------------------------------------------
+
+In fixture:
+
+after completion, deliberately change one completion artifact back to failing.
+
+Pass requires:
+
+- supervisor detects regression;
+- state returns from completed to running/recovery state;
+- completion is not sticky when evidence no longer holds.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-018 — CONCURRENT COMMAND STRESS
+-------------------------------------------------------------------------------
+
+With service active, issue a controlled batch of concurrent:
+
+    heartbeat
+    status
+    failure/success report
+    lease heartbeat
+
+operations.
+
+Pass requires:
+
+- valid state;
+- no corrupted JSON;
+- no lost critical state;
+- no daemon crash;
+- no lock deadlock.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-019 — LOG RETENTION
+-------------------------------------------------------------------------------
+
+Generate enough test launches to create multiple logs.
+
+Pass requires:
+
+- logs are usable;
+- retention policy documented;
+- no secrets;
+- old logs can be bounded without deleting current critical evidence.
+
+-------------------------------------------------------------------------------
+SUP-LIVE-020 — BOOT PERSISTENCE
+-------------------------------------------------------------------------------
+
+If safely permissible:
+
+perform actual controlled VPS reboot only if this is within existing authority
+and will not disrupt unrelated important work.
+
+Otherwise perform the closest safe systemd boot-target/service-enable
+verification.
+
+For an actual reboot:
+
+before reboot:
+    checkpoint all relevant unrelated state
+
+after reboot:
+    verify supervisor automatically returns
+
+Pass requires:
+
+- no manual login needed for service activation;
+- supervisor state preserved;
+- service healthy.
+
+Do not reboot recklessly simply to satisfy a checkbox.
+
+
+===============================================================================
+18. REAL SUBSCRIPTION LUNA LAUNCH TEST
+===============================================================================
+
+Only after deterministic self-tests pass:
+
+register a SECOND temporary test project whose "director" is the verified
+subscription-backed Luna launcher.
+
+This is NOT the Empirium Studio build.
+
+Use a tiny test root.
+
+Give Luna an extremely small prompt:
+
+    1. read a test checkpoint containing a known nonce;
+    2. send supervisor heartbeat;
+    3. write a permitted text-only receipt containing that nonce;
+    4. checkpoint;
+    5. exit normally.
+
+No application code.
+
+No repositories.
+
+No free workers.
+
+No paid APIs.
+
+-------------------------------------------------------------------------------
+18.1 FIRST LUNA RUN
+
+Pass requires:
+
+- supervisor launches Luna;
+- Luna uses verified subscription auth;
+- heartbeat received;
+- nonce read correctly;
+- receipt written;
+- process exits;
+- project remains incomplete.
+
+-------------------------------------------------------------------------------
+18.2 LUNA RELAUNCH / RESUME
+
+Because fixture completion is still false:
+
+supervisor should relaunch Luna.
+
+Second prompt/run must see durable receipt/checkpoint and recognize this as a
+resume rather than a new project.
+
+It writes:
+
+    RESUME_SEQUENCE = 2
+
+or equivalent deterministic evidence.
+
+Pass requires:
+
+- same project ID;
+- no duplicate project;
+- state reused;
+- previous checkpoint recognized.
+
+-------------------------------------------------------------------------------
+18.3 COMPLETE TEST PROJECT
+
+Now set test completion gate truthfully using the test fixture procedure.
+
+Pass requires:
+
+- supervisor stops relaunching Luna for that test project.
+
+Then disable/remove the temporary project registration while retaining evidence.
+
+This proves the future pattern:
+
+    Luna exits
+        !=
+    project disappears.
+
+
+===============================================================================
+19. OPTIONAL CLAUDE SUBSCRIPTION VERIFICATION — PREPARE BUT DO NOT BLOCK CORE
+===============================================================================
+
+Because later Prompt A/B will use Claude subscription-backed review, inspect it
+now if practical.
+
+Determine:
+
+    Claude CLI/Claude Code available?
+    authenticated through subscription?
+    Sonnet/Opus selectable?
+    ANTHROPIC_API_KEY absent from test environment?
+
+Run only a harmless sentinel if necessary.
+
+Do not use paid Anthropic API.
+
+Record result:
+
+    VERIFIED_SUBSCRIPTION
+
+or:
+
+    NOT_YET_VERIFIED
+
+The heartbeat supervisor itself does not depend on Claude.
+
+Therefore inability to verify Claude today must NOT stop the deterministic
+supervisor installation.
+
+It becomes a Prompt-A prerequisite later.
+
+
+===============================================================================
+20. FINAL INSTALLED STATE BEFORE PROMPT A/B
+===============================================================================
+
+When this phase is finished, the desired machine state is:
+
+    supervisor code installed globally;
+
+    production supervisor config installed;
+
+    systemd service enabled;
+
+    systemd service running;
+
+    supervisor contains zero LLM reasoning;
+
+    no real Empirium Studio build project enabled;
+
+    self-test projects disabled/removed from active configuration;
+
+    their evidence retained;
+
+    subscription-backed Luna invocation verified;
+
+    Luna launcher installed and ready;
+
+    paid API credentials excluded;
+
+    no active paid fallback;
+
+    runtime/state directory healthy;
+
+    supervisor awaiting future project registration;
+
+    Prompt A and Prompt B NOT yet executed.
+
+
+===============================================================================
+21. DO NOT INSTALL THE LATER PRODUCT PROMPT YET
+===============================================================================
+
+This matters.
+
+Do not search old chat transcripts and attempt to reconstruct the full Empirium
+build on your own during this phase.
+
+Do not launch implementation because you know roughly what the user wants.
+
+The later master specification is intentionally being provided only after this
+reliability layer passes.
+
+Your job ends at:
+
+    SUPERVISOR_READY
+
+not:
+
+    EMPIRIUM_STUDIO_BUILD_STARTED.
+
+
+===============================================================================
+22. FINAL VALIDATION COMMAND SET
+===============================================================================
+
+Create a human-readable cheat sheet containing the exact commands valid on THIS
+machine for:
+
+    supervisor status
+
+    systemd status
+
+    journal tail
+
+    list projects
+
+    inspect project state
+
+    pause project
+
+    resume project
+
+    manual heartbeat
+
+    create child lease
+
+    heartbeat lease
+
+    complete lease
+
+    fail lease
+
+    inspect directives
+
+    inspect failure route
+
+    safe supervisor restart
+
+    check Luna launcher version/path
+
+Do not copy example paths if installation selected different real paths.
+
+Store it somewhere such as:
+
+    /home/ash/.local/share/empirium-supervisor/SUPERVISOR_COMMANDS.md
+
+
+===============================================================================
+23. REQUIRED FINAL EVIDENCE PACKAGE
+===============================================================================
+
+Create an installation evidence directory, for example:
+
+    /home/ash/.local/state/empirium-supervisor/install-evidence/
+
+It should contain or reference:
+
+    source-manifest.json
+    source-audit.md
+    original-unit-tests.txt
+    hardened-unit-tests.txt
+    integration-test-results.json
+    integration-test-report.md
+    luna-subscription-verification.md
+    environment-isolation-test.txt
+    service-status.txt
+    service-unit.txt
+    production-config-redacted.json
+    restart-recovery-evidence/
+    lease-recovery-evidence/
+    completion-fixture-evidence/
+    concurrency-test-evidence/
+    installation-certificate.json
+
+Do not place secrets in the evidence package.
+
+
+===============================================================================
+24. INSTALLATION CERTIFICATE
+===============================================================================
+
+At the end, create:
+
+    /home/ash/.local/state/empirium-supervisor/
+        SUPERVISOR_INSTALLATION_CERTIFICATE.json
+
+Use a structure conceptually equivalent to:
+
+{
+  "supervisor_ready": true,
+  "installed_at": "...",
+  "code_path": "...",
+  "config_path": "...",
+  "runtime_path": "...",
+  "service_name": "...",
+  "service_scope": "system|user",
+  "service_enabled": true,
+  "service_active": true,
+
+  "source": {
+    "archive_sha256": "...",
+    "supervisor_original_sha256": "...",
+    "supervisor_installed_sha256": "..."
+  },
+
+  "hardening": {
+    "shared_state_race_addressed": true,
+    "process_identity_addressed": true,
+    "paid_credentials_excluded": true,
+    "paid_fallback_removed": true,
+    "stale_heartbeat_policy_proven": true,
+    "crash_loop_backoff_proven": true
+  },
+
+  "luna": {
+    "subscription_route_verified": true,
+    "api_key_route_used": false,
+    "launcher_path": "...",
+    "relaunch_resume_test_passed": true
+  },
+
+  "tests": {
+    "starter_unit_tests_pass": true,
+    "hardened_unit_tests_pass": true,
+    "live_service_tests_pass": true,
+    "concurrency_test_pass": true,
+    "lease_recovery_pass": true,
+    "pause_resume_pass": true,
+    "completion_regression_pass": true,
+    "boot_persistence_pass_or_explained": true
+  },
+
+  "real_project": {
+    "empirium_studio_registered": false,
+    "build_started": false
+  },
+
+  "paid_inference": {
+    "authorized_usd": 0,
+    "observed_usd": 0,
+    "openrouter_paid_used": false,
+    "openai_api_used": false,
+    "anthropic_api_used": false
+  }
+}
+
+Adapt the schema if necessary.
+
+Do NOT write `supervisor_ready: true` unless every mandatory prerequisite has
+actually passed.
+
+If not ready:
+
+    "supervisor_ready": false
+
+and include exact blocking conditions.
+
+
+===============================================================================
+25. FINAL USER-FACING REPORT
+===============================================================================
+
+When the work is genuinely finished, return a concise but precise report.
+
+It MUST begin with exactly one of:
+
+    SUPERVISOR_READY = TRUE
+
+or:
+
+    SUPERVISOR_READY = FALSE
+
+If TRUE, report:
+
+    Service:
+    <actual service>
+
+    Code:
+    <actual path>
+
+    Config:
+    <actual path>
+
+    Runtime:
+    <actual path>
+
+    Luna subscription route:
+    VERIFIED
+
+    Luna relaunch/resume:
+    PASS
+
+    Concurrent state safety:
+    PASS
+
+    Child lease recovery:
+    PASS
+
+    Pause/resume:
+    PASS
+
+    Crash-loop protection:
+    PASS
+
+    Paid API isolation:
+    PASS
+
+    Paid inference observed:
+    $0.00
+
+    Boot persistence:
+    PASS or exact tested equivalent
+
+    Real Empirium build started:
+    NO
+
+    Ready for Prompt A + Prompt B:
+    YES
+
+Then identify any non-blocking notes.
+
+Do not bury a failed mandatory test under a cheerful summary.
+
+If FALSE:
+
+report the exact failed prerequisite and the smallest human action required, if
+one truly exists.
+
+
+===============================================================================
+26. HUMAN INTERRUPTION POLICY
+===============================================================================
+
+Do not stop and ask Ash questions for ordinary engineering problems.
+
+Autonomously handle:
+
+    paths
+    file copying
+    service files
+    Node commands
+    test debugging
+    safe local configuration
+    non-destructive permissions
+    retry
+    logs
+    source audit
+    self-test fixture creation
+    supervisor code repair through allowed free coding route
+    review/retest
+
+Only stop for a genuine human-only blocker, such as:
+
+    subscription login requiring interactive user action;
+
+    sudo password/policy that cannot be satisfied by existing authorization;
+
+    attached archive genuinely inaccessible;
+
+    an irreversible/destructive decision not authorized here;
+
+    evidence that the only possible unattended Luna route would incur
+    pay-as-you-go billing.
+
+If a blocker exists:
+
+continue every independent step first.
+
+Then report:
+
+    blocker
+    evidence
+    attempts made
+    why automation cannot solve it
+    one smallest action Ash must perform
+
+Do not simply say:
+
+    "I need your help."
+
+
+===============================================================================
+27. NO FALSE COMPLETION
+===============================================================================
+
+The following are NOT sufficient:
+
+    ZIP extracted
+    Node tests passed
+    service file copied
+    systemctl says active
+    heartbeat command returned OK
+    Codex CLI exists
+    one Luna call worked
+    supervisor restarted once
+
+Installation is complete only when the full required chain has been proven:
+
+    source verified
+        ->
+    supervisor audited
+        ->
+    hardening complete
+        ->
+    automated tests pass
+        ->
+    service installed
+        ->
+    duplicate protection proven
+        ->
+    heartbeat proven
+        ->
+    exit recovery proven
+        ->
+    stale handling proven
+        ->
+    lease recovery proven
+        ->
+    state restart proven
+        ->
+    pause/resume proven
+        ->
+    crash-loop backoff proven
+        ->
+    paid credentials excluded
+        ->
+    subscription Luna verified
+        ->
+    Luna restart/resume fixture proven
+        ->
+    service left active and idle
+        ->
+    installation certificate says TRUE
+
+
+===============================================================================
+28. EXECUTE NOW
+===============================================================================
+
+Begin with the attached ZIP.
+
+Do NOT begin Empirium Studio.
+
+Do NOT wait for Prompt A.
+
+Do NOT invent Prompt A.
+
+Do NOT install Prompt B.
+
+Complete this Phase-0 reliability layer first.
+
+The desired final state is:
+
+    AN ALWAYS-ON, NON-LLM, DETERMINISTIC SUPERVISOR
+    THAT IS PROVEN TO RESTART THE LOGICAL LUNA DIRECTOR,
+    PRESERVE DURABLE PROJECT STATE,
+    DETECT FAILED CHILD LEASES,
+    RESIST DUPLICATE/CRASH-LOOP FAILURE,
+    USE ZERO PAY-AS-YOU-GO INFERENCE,
+    AND WAIT SAFELY FOR THE REAL PROJECT TO BE REGISTERED.
+
+START NOW.

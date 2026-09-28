@@ -1,0 +1,1603 @@
+# =====================================================================
+# EMPIRIUM META-ORCHESTRATOR CONTINUITY PROBLEM
+# FORENSIC ARCHITECTURE REVIEW REQUEST
+#
+# QUESTION:
+# HOW DO I MAKE THIS SYSTEM KEEP WORKING UNTIL THE PROJECT IS ACTUALLY
+# FINISHED INSTEAD OF REPEATEDLY STOPPING AND RETURNING CONTROL TO ME?
+# =====================================================================
+
+I need you to act as a senior autonomous-agent systems architect,
+distributed-systems engineer, reliability engineer, and orchestration designer.
+
+I do NOT primarily need another coding prompt.
+
+I need you to diagnose a persistent architectural failure in an autonomous AI
+development system and tell me exactly how to eliminate it.
+
+The central problem is:
+
+    THE AI KEEPS STOPPING.
+
+It often stops at completely recoverable intermediate failures and reports them
+to me instead of autonomously diagnosing them, repairing them, delegating
+analysis to another available model, retrying, replanning, or continuing with
+other runnable work.
+
+I want an architecture where:
+
+    PROJECT INCOMPLETE
+        +
+    NO GENUINE HUMAN-ONLY BLOCKER
+
+always implies:
+
+    TAKE ANOTHER ACTION.
+
+The system should be capable of running for hours or days, across many
+individual LLM processes and sessions, until deterministic completion.
+
+Do not interpret "run indefinitely" to mean keeping one LLM context alive
+forever.
+
+Individual AI sessions SHOULD be disposable.
+
+What must persist indefinitely is:
+
+    the logical Meta-Orchestrator role
+    +
+    project state
+    +
+    queue
+    +
+    checkpoints
+    +
+    recovery logic
+    +
+    deterministic supervisor.
+
+=====================================================================
+1. SYSTEM CONTEXT
+=====================================================================
+
+The project is Empirium Studio.
+
+It is being developed using a hierarchical AI workforce.
+
+Intended architecture:
+
+DETERMINISTIC SUPERVISOR
+    ↓
+META-ORCHESTRATOR / META-DIRECTOR
+    ↓
+PROJECT MANAGERS / SUB-ORCHESTRATORS
+    ↓
+IMPLEMENTATION WORKERS
+    ↓
+TEST / REVIEW / REWORK
+    ↓
+INTEGRATION
+    ↓
+FINAL RELEASE GATE
+
+Available intelligence/resources include:
+
+1. ChatGPT/Codex subscription
+   - current verified Codex subscription route
+   - effective model observed on VPS: gpt-6-astra
+   - no direct OpenAI API billing required.
+
+2. ChatGPT itself
+   - GPT-5.6 Sol can be used for difficult diagnosis/planning where available
+     through the user's existing subscription/workflow.
+
+3. Claude subscription
+   - Opus available for independent architecture analysis, review and QA.
+   - should NOT use paid Anthropic API.
+
+4. FreeLLMAPI
+   - free models intended to perform most implementation work.
+
+New pay-as-you-go inference spend must remain:
+
+    $0.
+
+=====================================================================
+2. WHAT I EXPECT
+=====================================================================
+
+I want this experience:
+
+I start the project once.
+
+Then I can leave.
+
+The system should continue through:
+
+- implementation;
+- failed workers;
+- bad code;
+- tests failing;
+- reviewer rejection;
+- session limits;
+- context exhaustion;
+- model/provider outages;
+- worker timeouts;
+- merge conflicts;
+- stale evidence;
+- Meta-Orchestrator process exits;
+- gateway restarts;
+- supervisor restarts;
+- rework cycles;
+
+without needing me to keep typing:
+
+    continue
+    try again
+    fix it
+    what next?
+    carry on
+
+If the system encounters something it does not understand, it should use the
+other available intelligence resources.
+
+For example:
+
+    Meta-Director encounters strange supervisor behaviour
+        ↓
+    create diagnostic task
+        ↓
+    ask GPT-5.6 Sol and/or Opus to analyze evidence
+        ↓
+    reconcile diagnosis
+        ↓
+    create repair task
+        ↓
+    implement
+        ↓
+    test again
+        ↓
+    continue
+
+It should NOT say:
+
+    "Proof D failed. The next action is to repair it."
+
+and then terminate.
+
+The act of identifying "the next action" means it should EXECUTE that next
+action.
+
+=====================================================================
+3. HISTORY OF THE PROBLEM
+=====================================================================
+
+This has happened repeatedly in different forms.
+
+---------------------------------------------------------------------
+PROBLEM A — ONE-SHOT ORCHESTRATION
+---------------------------------------------------------------------
+
+The original Hermes/Conductor behaviour was fundamentally one-shot.
+
+Workers were launched and the parent orchestration process would eventually
+report a result and finish.
+
+This is useful for:
+
+    "perform this task"
+
+but not sufficient for:
+
+    "own this project until release."
+
+We need a persistent project-management loop rather than a single request →
+response lifecycle.
+
+---------------------------------------------------------------------
+PROBLEM B — CHAT/SESSION BECAME THE REAL CONTROLLER
+---------------------------------------------------------------------
+
+Previous builds were effectively controlled by:
+
+    Hermes session
+    Claude session
+    Codex session
+    Conductor invocation
+
+rather than durable infrastructure.
+
+When the session ended:
+
+    project intelligence disappeared.
+
+The system had files, but no guaranteed controller woke up to continue them.
+
+---------------------------------------------------------------------
+PROBLEM C — SUPERVISOR EXISTED BUT REAL PROJECT BYPASSED IT
+---------------------------------------------------------------------
+
+A deterministic supervisor was successfully installed.
+
+It passed extensive testing.
+
+However a forensic incident audit found:
+
+    RC-01 — REAL PROJECT NEVER REGISTERED WITH SUPERVISOR.
+
+The supervisor was supervising only:
+
+    supervisor-selftest
+
+while the actual Empirium build was running separately through Hermes/Claude
+execution paths.
+
+Therefore the heartbeat did NOT fail.
+
+The real build simply was not connected to it.
+
+---------------------------------------------------------------------
+PROBLEM D — META-DIRECTOR WAS NOT SUPERVISOR-LAUNCHED
+---------------------------------------------------------------------
+
+The real Meta-Director was not launched as a durable supervised project.
+
+Therefore when its external session ended there was no canonical supervisor
+project available to relaunch it from checkpoint.
+
+---------------------------------------------------------------------
+PROBLEM E — CHILD WORKERS HAD NO DURABLE LEASES
+---------------------------------------------------------------------
+
+Example:
+
+    ESB-RUNTIME-001-R3
+
+was an implementation worker.
+
+It timed out.
+
+But it had:
+
+    no supervisor child lease.
+
+Therefore there was no deterministic:
+
+    timeout
+    → LEASE_EXPIRED
+    → recovery directive
+    → replacement worker.
+
+The logical task remained, but recovery was not wired.
+
+---------------------------------------------------------------------
+PROBLEM F — REVIEWER SESSION BECAME PART OF THE CONTROL PATH
+---------------------------------------------------------------------
+
+After R3 failed, an existing commit was submitted to Opus.
+
+Eventually the Claude session produced:
+
+    "You've hit your session limit"
+
+and execution stopped.
+
+This is architecturally wrong.
+
+Opus should be:
+
+    reviewer/advisor
+
+not:
+
+    persistent project controller.
+
+A reviewer becoming temporarily unavailable should create:
+
+    WAITING_REVIEW_CAPACITY
+
+while the Meta-Director remains alive or is relaunched later.
+
+---------------------------------------------------------------------
+PROBLEM G — INTERMEDIATE FAILURE IS TREATED AS A LEGITIMATE END
+---------------------------------------------------------------------
+
+This is the most important recurring behavioural problem.
+
+The system keeps doing things like:
+
+    test fails
+    → report failure
+    → stop
+
+or:
+
+    proof fails
+    → explain next action
+    → stop
+
+or:
+
+    worker times out
+    → report timeout
+    → stop
+
+or:
+
+    reviewer rejects
+    → report rejection
+    → stop
+
+But the intended semantic is:
+
+    failure
+    → new information
+    → choose next action
+    → continue.
+
+Failure is a transition.
+
+It is NOT a terminal state.
+
+---------------------------------------------------------------------
+PROBLEM H — "DO NOT PROCEED UNTIL X PASSES" IS MISINTERPRETED
+---------------------------------------------------------------------
+
+Prompts contain sensible safety gates such as:
+
+    "Do not resume application coding until Proof A-D pass."
+
+An LLM sometimes interprets:
+
+    Proof D failed
+
+as:
+
+    "I am forbidden from proceeding."
+
+But the actual meaning is:
+
+    "I am forbidden from application coding,
+     therefore I must keep repairing and rerunning Proof D until it passes."
+
+The distinction between:
+
+    DO NOT PROCEED TO NEXT PHASE
+
+and:
+
+    STOP WORKING
+
+needs to become explicit and structural.
+
+---------------------------------------------------------------------
+PROBLEM I — NEXT ACTION IS REPORTED RATHER THAN EXECUTED
+---------------------------------------------------------------------
+
+Example output:
+
+    "The next required action is to repair and rerun the disposable Proof A/D
+     harness."
+
+That itself demonstrates the next action was known.
+
+Yet the agent returned the information to the user rather than doing it.
+
+This behaviour must be eliminated.
+
+If:
+
+    nextAction != null
+
+then the orchestrator should execute:
+
+    nextAction
+
+unless it requires genuine human input.
+
+---------------------------------------------------------------------
+PROBLEM J — RECOVERABLE UNCERTAINTY IS TREATED LIKE A HUMAN BLOCKER
+---------------------------------------------------------------------
+
+Examples of things the orchestrator should solve itself:
+
+- test race;
+- fixture race;
+- unclear source behaviour;
+- failed process;
+- unexpected result;
+- difficult architecture question;
+- uncertainty over how best to implement something;
+- reviewer disagreement.
+
+These should trigger:
+
+    research
+    deeper analysis
+    independent model consultation
+    source inspection
+    experiment
+    retry
+
+not:
+
+    return to user.
+
+---------------------------------------------------------------------
+PROBLEM K — AVAILABLE HIGH-INTELLIGENCE MODELS ARE NOT USED AS
+AUTONOMOUS ESCALATION
+---------------------------------------------------------------------
+
+This is particularly frustrating.
+
+The system already has access to high-intelligence reasoning through existing
+subscriptions.
+
+When an unusual problem appears, such as the Proof D race:
+
+    fixture rotated before SUBSCRIPTION_LIMIT classification was persisted
+
+the Meta-Director could have:
+
+1. collected the relevant source and logs;
+2. created a diagnosis package;
+3. asked GPT-5.6 Sol;
+4. asked Opus independently;
+5. compared answers;
+6. inspected source itself;
+7. selected a safe repair;
+8. implemented through a free worker;
+9. rerun proof.
+
+Instead it produced a status report and stopped.
+
+I need the architecture to make "ask another expert model" an ordinary
+autonomous recovery action.
+
+---------------------------------------------------------------------
+PROBLEM L — MODEL CONTEXT IS STILL BEING CONFUSED WITH PROJECT LIFE
+---------------------------------------------------------------------
+
+I do NOT need one model process to think forever.
+
+That is impossible/unreliable.
+
+Desired behaviour:
+
+    META-DIRECTOR PROCESS #17
+        ↓ checkpoint
+        ↓ exits
+
+    SUPERVISOR
+        ↓ sees project incomplete
+
+    META-DIRECTOR PROCESS #18
+        ↓ reconstructs state
+        ↓ continues
+
+Therefore project continuation must depend on:
+
+    durable state
+
+not:
+
+    preserving a specific model context.
+
+---------------------------------------------------------------------
+PROBLEM M — CLEAN EXIT CAN BE AS DANGEROUS AS A CRASH
+---------------------------------------------------------------------
+
+The system must recover not only when an LLM crashes.
+
+An LLM may simply:
+
+    provide a final response
+    exit code 0
+
+while the project is incomplete.
+
+From the project's perspective that is still:
+
+    CONTROLLER DISAPPEARED WHILE WORK REMAINS.
+
+The supervisor/orchestration layer must treat:
+
+    director process exited
+    AND
+    release gate != PASS
+    AND
+    project != paused/human-blocked/waiting-capacity
+
+as:
+
+    RELAUNCH DIRECTOR.
+
+A clean exit must not imply project completion.
+
+---------------------------------------------------------------------
+PROBLEM N — QUIESCENCE IS NOT BEING TREATED AS A FAULT
+---------------------------------------------------------------------
+
+Another dangerous state is:
+
+    project incomplete
+    no worker running
+    no review running
+    no human blocker
+    Meta-Director alive or recently exited
+
+This state should NEVER persist indefinitely.
+
+It should become:
+
+    PROJECT_QUIESCENT
+
+and trigger:
+
+    determine next runnable work.
+
+---------------------------------------------------------------------
+PROBLEM O — HEARTBEAT ALONE IS NOT ENOUGH
+---------------------------------------------------------------------
+
+Heartbeat answers:
+
+    "is the process alive?"
+
+It does not answer:
+
+    "is useful work happening?"
+
+A model could continue heartbeating while stuck.
+
+Therefore we need:
+
+    HEARTBEAT
+        and separately
+    PROGRESS.
+
+If heartbeat fresh but progress stale:
+
+    diagnose
+    → replan
+    → if necessary recycle Meta-Director context.
+
+---------------------------------------------------------------------
+PROBLEM P — REVIEW REJECTION IS NOT ALWAYS DURABLY TRANSITIONED
+---------------------------------------------------------------------
+
+Correct lifecycle:
+
+    candidate
+    → review
+    → REJECT
+    → durable CHANGES_REQUESTED
+    → repair task
+    → implementation
+    → test
+    → review again
+
+Incorrect lifecycle:
+
+    candidate
+    → review
+    → REJECT
+    → output text to user
+    → stop.
+
+Review verdict needs to cause state transition, not merely produce prose.
+
+---------------------------------------------------------------------
+PROBLEM Q — PROVIDER / SUBSCRIPTION LIMITS NEED STATE MACHINES
+---------------------------------------------------------------------
+
+Temporary model/provider conditions should become durable states such as:
+
+    WAITING_SUBSCRIPTION_CAPACITY
+    WAITING_PROVIDER
+    BLOCKED_HUMAN_AUTH
+
+They should not simply cause an AI invocation to terminate.
+
+The project should preserve retry times and resume automatically.
+
+---------------------------------------------------------------------
+PROBLEM R — THE SYSTEM DOES NOT YET HAVE A HARD TERMINATION INVARIANT
+---------------------------------------------------------------------
+
+The Meta-Orchestrator needs a rule stronger than ordinary prompting:
+
+    IT IS FORBIDDEN TO TERMINATE AN INVOCATION WHILE THE PROJECT IS
+    INCOMPLETE UNLESS IT HAS FIRST PERSISTED A VALID REASON THAT MAKES
+    RELAUNCH/WAITING SAFE.
+
+And the deterministic layer should independently enforce this.
+
+An LLM promising:
+
+    "I will keep going"
+
+is not enough.
+
+=====================================================================
+4. MOST RECENT EXAMPLE
+=====================================================================
+
+The real project was finally registered with the supervisor.
+
+The system correctly refused to resume application coding until four disposable
+orchestration proofs passed.
+
+Results:
+
+    Proof A — partial pass
+    Proof B — pass
+    Proof C — pass
+    Proof D — fail
+
+Proof D failed because:
+
+    the fixture launch rotated before injected SUBSCRIPTION_LIMIT
+    classification became authoritative;
+
+therefore the outcome was classified as a generic crash rather than temporary
+subscription-capacity exhaustion.
+
+No paid fallback occurred.
+
+This was recoverable.
+
+At that moment the agent already knew the next action:
+
+    repair Proof A/D harness
+    rerun
+    continue once A+B+C+D pass.
+
+Yet it stopped and told the user:
+
+    "The next required action is to repair and rerun..."
+
+THIS IS THE BEHAVIOUR I NEED TO ELIMINATE.
+
+The correct autonomous response should have been:
+
+    investigate why classification lost the race
+    ↓
+    inspect source
+    ↓
+    if necessary ask Sol/Opus
+    ↓
+    repair disposable harness or production ordering
+    ↓
+    rerun Proof D
+    ↓
+    rerun Proof A
+    ↓
+    continue.
+
+=====================================================================
+5. CORE DESIGN QUESTION
+=====================================================================
+
+Please answer:
+
+HOW SHOULD I ARCHITECT THE META-ORCHESTRATOR SO THAT:
+
+    PROJECT INCOMPLETE
+    +
+    NO HUMAN-ONLY BLOCKER
+
+MATHEMATICALLY / DETERMINISTICALLY IMPLIES:
+
+    MORE WORK WILL OCCUR
+
+even if:
+
+- the current AI decides to return a final answer;
+- the AI process exits 0;
+- context fills;
+- the model gives up;
+- a child fails;
+- a reviewer rejects;
+- provider capacity disappears;
+- a test fails;
+- a proof fails;
+- the orchestration process crashes?
+
+I want this property guaranteed outside the model itself.
+
+=====================================================================
+6. I SUSPECT WE NEED AN EXPLICIT ORCHESTRATOR STATE MACHINE
+=====================================================================
+
+Evaluate a state machine roughly like:
+
+    BOOTSTRAPPING
+    RECONCILING
+    READY
+    DISPATCHING
+    RUNNING
+    REVIEWING
+    REWORK
+    WAITING_PROVIDER
+    WAITING_SUBSCRIPTION
+    WAITING_HUMAN
+    RECOVERING
+    QUIESCENT
+    RELEASE_VALIDATION
+    SHIPPED
+
+with:
+
+    SHIPPED
+
+as the only ordinary terminal state.
+
+Potential invariant:
+
+    status != SHIPPED
+    AND
+    status != WAITING_HUMAN
+    AND
+    now >= retryNotBefore
+    AND
+    activeActionCount == 0
+
+must force:
+
+    wake Meta-Director.
+
+Would this solve the core problem?
+
+Design the exact version you recommend.
+
+=====================================================================
+7. I SUSPECT WE NEED AN "ACTION DEBT" / NEXT-ACTION INVARIANT
+=====================================================================
+
+Consider requiring every Meta-Director checkpoint to contain:
+
+    projectStatus
+    currentPhase
+    activeActions[]
+    pendingReviews[]
+    pendingRework[]
+    blockers[]
+    retryNotBefore
+    nextActions[]
+
+Invariant:
+
+If project incomplete:
+
+    at least one of these MUST be true:
+
+A.
+    activeActions.length > 0
+
+B.
+    nextActions.length > 0
+
+C.
+    retryNotBefore != null
+
+D.
+    genuineHumanBlocker != null
+
+Anything else is invalid:
+
+    ORCHESTRATOR_QUIESCENT_WITH_UNFINISHED_PROJECT
+
+and should cause recovery.
+
+Evaluate and improve this idea.
+
+=====================================================================
+8. I SUSPECT WE NEED AN EXTERNAL WAKE LOOP
+=====================================================================
+
+Should the deterministic supervisor periodically evaluate something like:
+
+    if releaseGate != PASS:
+
+        if directorDead:
+            launch director
+
+        else if heartbeatStale:
+            recover director
+
+        else if progressStale:
+            issue diagnosis/recycle
+
+        else if no active work and no waiting condition:
+            issue PROJECT_QUIESCENT
+
+        else if retryNotBefore elapsed:
+            wake director
+
+and guarantee there is always another opportunity for intelligence to run?
+
+Explain exactly how this should work without turning the supervisor into a
+second project scheduler.
+
+=====================================================================
+9. CLEAN EXIT SEMANTICS
+=====================================================================
+
+This requires particular attention.
+
+Suppose Meta-Director writes:
+
+    "Proof D failed. Next action is X."
+
+and then exits normally.
+
+The deterministic supervisor should see:
+
+    director exited
+    project incomplete
+    release gate false
+    not paused
+    not human blocked
+    not waiting until future retry
+
+and therefore launch a fresh Meta-Director.
+
+That next Meta-Director reads:
+
+    nextAction = X
+
+and EXECUTES X.
+
+Is this sufficient to overcome the tendency of LLMs to stop?
+
+If not, what else is needed?
+
+=====================================================================
+10. MODEL ESCALATION POLICY
+=====================================================================
+
+Design an autonomous "I don't know / unusual failure" escalation ladder.
+
+For example:
+
+LEVEL 0
+Meta-Director reasons locally.
+
+LEVEL 1
+Inspect source/logs/tests.
+
+LEVEL 2
+Launch focused diagnostic FreeLLM worker(s).
+
+LEVEL 3
+Ask GPT-5.6 Sol for independent diagnosis.
+
+LEVEL 4
+Ask Opus independently.
+
+LEVEL 5
+Compare/reconcile analyses.
+
+LEVEL 6
+Run controlled experiment.
+
+LEVEL 7
+Create repair task.
+
+The orchestrator must not ask the human simply because:
+
+    "this is difficult."
+
+Only genuine human authority/input should interrupt autonomy.
+
+Design exact escalation triggers.
+
+=====================================================================
+11. TOOL / MODEL DELEGATION QUESTION
+=====================================================================
+
+I need you to examine this behaviour:
+
+The agent repeatedly knows:
+
+    "This needs further analysis."
+
+But instead of using available models, it reports that fact to me.
+
+How do I make:
+
+    NEEDS_ANALYSIS
+
+produce:
+
+    SPAWN_ANALYST
+
+rather than:
+
+    RETURN_TO_USER?
+
+Should this be represented as a deterministic task transition rather than left
+to prompt interpretation?
+
+I strongly suspect yes.
+
+Design it.
+
+=====================================================================
+12. FINAL RESPONSE MUST NOT BE A TERMINATION SIGNAL
+=====================================================================
+
+How should user-facing status reporting work?
+
+I want the Meta-Director to be able to produce logs/status updates WITHOUT
+those status messages meaning:
+
+    stop processing.
+
+For example it may write:
+
+    "Proof D failed; diagnosing race."
+
+but then immediately continue internally.
+
+Should reporting be decoupled from process lifecycle entirely?
+
+Could status reports become durable events while the process continues?
+
+Or should the supervisor always assume a final response is non-terminal unless
+release state says otherwise?
+
+Give the best architecture.
+
+=====================================================================
+13. REVIEWER AVAILABILITY
+=====================================================================
+
+Design how Opus should be used.
+
+It should be:
+
+    asynchronous/subordinate reviewer.
+
+It should NOT own continuation.
+
+If Opus is unavailable:
+
+    review stays pending
+    other work continues
+    retry is scheduled.
+
+If review is on the critical path and no other work exists:
+
+    Meta-Director may exit safely
+    supervisor later wakes it after retryNotBefore.
+
+It should NOT end the project.
+
+Explain the exact state transition.
+
+=====================================================================
+14. WORKER FAILURE
+=====================================================================
+
+Same principle.
+
+A child worker process dying should mean:
+
+    run failed
+
+NOT:
+
+    logical task failed forever
+
+and certainly not:
+
+    project stopped.
+
+Expected:
+
+    TASK
+       ├── Run R1 failed
+       ├── Run R2 rejected
+       ├── Run R3 timeout
+       └── Run R4 succeeds
+
+Define task/run semantics so retries are natural.
+
+=====================================================================
+15. HUMAN BLOCKER DEFINITION
+=====================================================================
+
+This needs to be extremely narrow.
+
+Things that ARE NOT human blockers:
+
+- test failure;
+- architecture uncertainty;
+- worker timeout;
+- model failure;
+- reviewer rejection;
+- subscription capacity with known reset;
+- provider outage;
+- merge conflict;
+- source ambiguity resolvable through inspection;
+- unfamiliar bug;
+- needing another opinion.
+
+Potential true blockers:
+
+- interactive login requiring user;
+- required secret not available;
+- destructive irreversible user decision;
+- legal/business decision only user can make;
+- missing private asset that cannot be reconstructed.
+
+Design a formal blocker classification mechanism.
+
+=====================================================================
+16. FAILURE OF THE META-DIRECTOR ITSELF
+=====================================================================
+
+Assume models are unreliable executors.
+
+The Meta-Director might:
+
+- hallucinate completion;
+- fail to perform next action;
+- return a summary instead;
+- get context saturated;
+- exit inexplicably;
+- loop;
+- get stuck;
+- forget to heartbeat.
+
+How does the deterministic infrastructure compensate?
+
+Do NOT propose "write a stronger prompt" as the main answer.
+
+I want system-level enforcement.
+
+=====================================================================
+17. DESIRED PROJECT LIVENESS INVARIANT
+=====================================================================
+
+I want something similar to:
+
+For every non-terminal project P:
+
+Eventually one of these must occur:
+
+    1. a durable state transition;
+    2. a runnable action starts;
+    3. a bounded retry timer is established;
+    4. a genuine human blocker is recorded;
+    5. the project reaches SHIPPED.
+
+It must never remain silently inert forever.
+
+Please formalize this invariant.
+
+How should we test it?
+
+=====================================================================
+18. DESIRED META-DIRECTOR CONTRACT
+=====================================================================
+
+I am considering this rule:
+
+ON EVERY INVOCATION:
+
+1. reconstruct state;
+2. reconcile inconsistencies;
+3. consume recovery directives;
+4. inspect failed/rejected work;
+5. determine next executable action;
+6. execute actions until:
+       a) context recycle useful;
+       b) waiting timer needed;
+       c) genuine human blocker;
+       d) SHIPPED.
+7. before exit:
+       persist state and exact wake condition.
+
+An invocation may NOT exit merely because:
+
+    "I have completed the current subtask."
+
+Critique and strengthen this.
+
+=====================================================================
+19. DESIRED SUPERVISOR CONTRACT
+=====================================================================
+
+I am considering:
+
+The supervisor may allow a director process to remain absent ONLY if:
+
+    SHIPPED
+
+or:
+
+    PAUSED_BY_USER
+
+or:
+
+    WAITING_HUMAN
+
+or:
+
+    retryNotBefore > now.
+
+Otherwise:
+
+    director must exist.
+
+If director exits 0 while project incomplete:
+
+    relaunch.
+
+If director crashes:
+
+    relaunch.
+
+If director heartbeats but progress stalls:
+
+    diagnosis/recycle.
+
+If retry time arrives:
+
+    relaunch/wake.
+
+If project becomes quiescent:
+
+    wake.
+
+Critique this.
+
+What exact edge cases are missing?
+
+=====================================================================
+20. SHOULD META-DIRECTOR ITSELF BE A PERMANENT SERVICE?
+=====================================================================
+
+Compare:
+
+OPTION A
+
+    one long-running Codex process kept alive indefinitely
+
+versus
+
+OPTION B
+
+    disposable Codex executions relaunched repeatedly by deterministic
+    supervisor from durable checkpoint.
+
+I strongly favour B.
+
+Confirm whether this is the correct approach and explain implementation
+implications.
+
+=====================================================================
+21. HOW SHOULD TASK QUEUE OWNERSHIP WORK?
+=====================================================================
+
+There must not be two schedulers racing.
+
+I need:
+
+Supervisor:
+    liveness only.
+
+Meta-Director:
+    intelligent planning.
+
+Hermes/Kanban:
+    durable build-task queue.
+
+How should "project is quiescent" be detected without the supervisor becoming a
+task scheduler?
+
+Could supervisor simply emit:
+
+    PROJECT_QUIESCENT
+
+and wake/relaunch Meta-Director, while Meta-Director alone decides which task
+to schedule?
+
+Design exact ownership.
+
+=====================================================================
+22. SHOULD EVERY META-DIRECTOR INVOCATION HAVE A BUDGETED LOOP?
+=====================================================================
+
+Rather than expecting one invocation to run forever, perhaps each invocation
+should perform:
+
+    N actions
+or
+    M minutes
+or
+    context threshold
+
+then checkpoint and voluntarily exit.
+
+Supervisor launches the next one immediately if work remains.
+
+This could make continuity more predictable.
+
+Evaluate.
+
+For example:
+
+    max invocation wall-clock = 30–60 min
+    max context utilization = threshold
+    checkpoint every meaningful transition
+    controlled recycle
+
+Would this be safer than indefinite sessions?
+
+=====================================================================
+23. HIGH-INTELLIGENCE CONSULTATION
+=====================================================================
+
+I specifically want the final architecture to exploit existing subscriptions.
+
+If the Meta-Director encounters a hard systems problem, it should be permitted
+to create something like:
+
+    DIAGNOSTIC_CASE-2026-09-17-001
+
+containing:
+
+    question
+    relevant source
+    logs
+    expected behavior
+    observed behavior
+    hypotheses
+
+Then request:
+
+    Sol analysis
+    Opus analysis
+
+and wait/reconcile them.
+
+I do not want it returning the diagnostic question to me when expert AI
+resources are available.
+
+Design this mechanism.
+
+=====================================================================
+24. NO PSEUDO-AUTONOMY
+=====================================================================
+
+I want you to identify every architectural pattern that LOOKS autonomous but
+is not.
+
+Examples might include:
+
+- prompts saying "continue until done";
+- heartbeat without wake/relaunch;
+- worker spawning without durable tasks;
+- retry instructions without retry timers;
+- checkpoints nobody reads;
+- review results only stored in chat;
+- supervisor watching only process death;
+- next-action fields nobody enforces;
+- status messages being mistaken for terminal output;
+- one-shot Conductor calls;
+- a queue with no guaranteed consumer.
+
+Identify all such pseudo-autonomy patterns relevant here.
+
+=====================================================================
+25. ANALYZE THE CURRENT FAILURE AS A STATE MACHINE
+=====================================================================
+
+Most recent state:
+
+    real project registered
+    not yet launched
+    release gate NOT_READY
+    Proof A partial
+    Proof B pass
+    Proof C pass
+    Proof D fail
+    next action known
+
+The agent returned control to user.
+
+In your proposed architecture, show exactly what should have happened next.
+
+I want the transition table.
+
+For example:
+
+    state = ORCHESTRATION_VALIDATION
+    event = PROOF_D_FAILED
+
+should transition to something like:
+
+    state = DIAGNOSING_VALIDATION_FAILURE
+
+not:
+
+    terminal response.
+
+Then show subsequent possible transitions.
+
+=====================================================================
+26. AUTOMATED "WHY DID YOU STOP?" CHECK
+=====================================================================
+
+Could every Meta-Director process be required before exit to write:
+
+    EXIT_INTENT.json
+
+containing:
+
+    reason
+    projectComplete
+    humanBlocker
+    retryNotBefore
+    checkpoint
+    nextAction
+
+Then supervisor validates it.
+
+Example:
+
+If:
+
+    projectComplete=false
+    humanBlocker=null
+    retryNotBefore=null
+    nextAction exists
+
+and process exits:
+
+supervisor immediately relaunches.
+
+If no valid EXIT_INTENT exists:
+
+treat as unexpected exit and relaunch.
+
+Would this help?
+
+Improve the concept.
+
+=====================================================================
+27. WATCHDOG AGAINST "I HAVE GIVEN MY ANSWER"
+=====================================================================
+
+LLMs have a natural conversational tendency to assume that producing a useful
+answer completes their job.
+
+Our project semantics are different.
+
+How do we make external state override conversational completion semantics?
+
+I want:
+
+    assistant response completed
+
+NOT EQUAL TO:
+
+    project work completed.
+
+Only:
+
+    release gate PASS
+
+means project complete.
+
+Design enforcement around that principle.
+
+=====================================================================
+28. EXPECTED ANSWER
+=====================================================================
+
+I want a comprehensive architecture review.
+
+Do NOT merely give me another giant "continue until done" prompt.
+
+I want:
+
+A. ROOT CAUSE ANALYSIS
+
+Why do the agents keep stopping even though prompts tell them not to?
+
+Separate:
+
+- LLM behavioural causes;
+- process lifecycle causes;
+- Hermes architecture causes;
+- orchestration-state causes;
+- supervisor wiring causes;
+- reviewer/provider causes.
+
+B. THE TARGET ARCHITECTURE
+
+Show the exact durable architecture required.
+
+C. STATE MACHINE
+
+Define canonical project/orchestrator states and transitions.
+
+D. LIVENESS INVARIANTS
+
+Define deterministic conditions guaranteeing unfinished work gets another
+opportunity to execute.
+
+E. META-DIRECTOR INVOCATION CONTRACT
+
+What every fresh invocation must do.
+
+F. SUPERVISOR CONTRACT
+
+Exactly when it launches/relaunches/wakes/recycles.
+
+G. CHILD TASK/RUN CONTRACT
+
+How worker failures recover.
+
+H. REVIEW CONTRACT
+
+How REJECT becomes rework.
+
+I. MODEL-ESCALATION CONTRACT
+
+When Sol/Opus/free diagnostic workers are invoked autonomously.
+
+J. PROVIDER/SUBSCRIPTION CONTRACT
+
+How temporary unavailability is retried.
+
+K. QUIESCENCE DETECTION
+
+How unfinished + idle becomes a recovery event.
+
+L. EXIT PROTOCOL
+
+How clean exits are made safe.
+
+M. IMPLEMENTATION PLAN
+
+The minimum changes needed to our current system.
+
+N. TEST PLAN
+
+How to prove it genuinely keeps running without human "continue".
+
+O. FAILURE INJECTION PLAN
+
+Kill director.
+Kill worker.
+Reject review.
+Hit provider fixture.
+Cause test failure.
+Cause proof failure.
+Make Meta-Director deliberately return a summary.
+Verify project nevertheless continues.
+
+P. RED-TEAM THE DESIGN
+
+Try to find circumstances where it can still silently stop.
+
+=====================================================================
+29. THE MOST IMPORTANT QUESTION
+=====================================================================
+
+Answer this as explicitly as possible:
+
+WHAT MECHANICAL / DETERMINISTIC COMPONENT MUST EXIST OUTSIDE THE LLM SO THAT
+EVEN IF THE LLM DECIDES:
+
+    "I AM DONE RESPONDING"
+
+THE PROJECT STILL GETS ANOTHER META-DIRECTOR INVOCATION IF IT IS NOT ACTUALLY
+DONE?
+
+This is the heart of the problem.
+
+=====================================================================
+30. CONSTRAINT
+=====================================================================
+
+Do not solve this by proposing unlimited paid API usage.
+
+Available subscription-backed and free resources should be used.
+
+Do not make the supervisor an intelligent scheduler.
+
+Do not build an unnecessarily huge distributed platform.
+
+Prefer:
+
+    simple
+    deterministic
+    inspectable
+    restart-safe
+    idempotent
+    durable
+
+over sophisticated infrastructure.
+
+=====================================================================
+31. FINAL DESIGN STANDARD
+=====================================================================
+
+The finished architecture must pass this thought experiment:
+
+At 2:00 AM:
+
+    worker fails.
+
+No human present.
+
+System recovers.
+
+At 2:30 AM:
+
+    reviewer rejects.
+
+No human present.
+
+System creates rework.
+
+At 3:00 AM:
+
+    Meta-Director decides to finish its response and exits.
+
+Supervisor sees project incomplete.
+
+Fresh Meta-Director starts.
+
+At 3:20 AM:
+
+    hard technical problem appears.
+
+Meta-Director creates diagnostic case.
+
+Sol and/or Opus analyze it.
+
+Repair work follows.
+
+At 4:00 AM:
+
+    Claude subscription hits temporary session limit.
+
+Review waits.
+
+Other work continues.
+
+At reset:
+
+review automatically resumes.
+
+At 5:00 AM:
+
+    no work is running but project is incomplete.
+
+Quiescence detector wakes Meta-Director.
+
+It finds next work.
+
+At 7:00 AM:
+
+    project is still incomplete.
+
+It is still working.
+
+Eventually:
+
+    deterministic release gate PASS.
+
+Only then does the project stop.
+
+Design me THAT system.
+
+# BEGIN THE ARCHITECTURE REVIEW.

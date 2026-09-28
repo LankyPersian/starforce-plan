@@ -1,0 +1,175 @@
+STOP ALL FEATURE AND UI DEVELOPMENT.
+
+The previous run has demonstrated a critical orchestration failure.
+
+Although `autonomy-kernel-v1` exists and its commissioning tests pass, the production deterministic reconciler is not actually wired as the authoritative continuously operating project controller. The previous session terminated with the Initial Product Acceptance Gate still FAILING and with no autonomy kernel, reconciler, Director, or worker process running.
+
+This is prohibited.
+
+Your only objective now is to repair and commission the production autonomy control plane.
+
+Do NOT work on the remaining Empirium product backlog until this control plane passes real end-to-end commissioning.
+
+CRITICAL DISTINCTION:
+
+A unit test, fixture, mock, generated JSON report, manually populated boolean, simulated event, policy string, or in-memory KernelRepository test is NOT acceptable evidence of autonomous operation.
+
+You must implement and demonstrate the real production execution path.
+
+The required operating architecture is:
+
+PostgreSQL durable project state
+→ deterministic reconciler running independently of any Hermes/LLM conversation
+→ atomic WorkItem eligibility/lease acquisition
+→ worker dispatch
+→ Attempt lifecycle
+→ evidence collection
+→ independent QA
+→ ACCEPTED or REWORK_REQUIRED
+→ automatic requeue/retry/diagnosis
+→ dependency release
+→ next WorkItem
+→ deterministic project completion gate
+
+The reconciler must continue running after the initiating Hermes conversation/session disappears.
+
+A Hermes Director may be invoked only for bounded planning ambiguity, decomposition or architectural diagnosis. It must never be required for routine continuation.
+
+MANDATORY REQUIREMENTS:
+
+1. Wire the deterministic reconciler into the real production execution path.
+
+2. Run it as a durable process independent of the initiating Hermes chat/session. Use an appropriate Linux process/service mechanism so accidental terminal/session closure does not terminate project execution.
+
+3. On startup, reconstruct all execution state from PostgreSQL. Process memory must never be authoritative.
+
+4. A project whose acceptance gate is FAIL must automatically remain active.
+
+5. Every failed acceptance predicate must become, or map to, one or more durable WorkItems.
+
+6. When a worker finishes, fails, crashes, times out or becomes rate-limited, the reconciler must determine the next deterministic transition without requiring the original Director conversation.
+
+7. When QA rejects work, durable rework must automatically be created/requeued.
+
+8. When dependencies become ACCEPTED, newly eligible WorkItems must automatically become dispatchable.
+
+9. The controller must never terminate merely because there are temporarily no READY items. It must distinguish:
+
+   * complete;
+   * waiting dependency;
+   * waiting provider;
+   * waiting worker;
+   * blocked;
+   * human blocked;
+   * retry scheduled;
+   * genuinely complete.
+
+10. The controller may stop a project only when its deterministic completion predicate is satisfied or when the project is explicitly cancelled.
+
+11. No paid inference fallback is permitted. New pay-as-you-go inference budget remains $0.00.
+
+12. Provider failure must never be converted into false project completion.
+
+13. Remove or replace any commissioning assertion that merely writes expected values into reports.
+
+For example, evidence such as:
+
+`reconciler_restart: true`
+
+written directly into a JSON object is invalid.
+
+The test must actually:
+
+* start the production reconciler;
+* create durable work;
+* allow processing to begin;
+* kill the reconciler process;
+* verify PostgreSQL retains correct state;
+* restart a fresh reconciler process;
+* verify work resumes;
+* verify no duplicate ownership or duplicate execution occurs;
+* verify completion/rework continues from durable state.
+
+Likewise, worker death must involve an actual worker/process interruption against the production path rather than merely invoking an in-memory state-transition helper.
+
+Provider failure testing must actually inject or emulate failure at the provider boundary and demonstrate the production reconciler entering the appropriate durable waiting/retry state without paid fallback.
+
+MANDATORY COMMISSIONING TEST:
+
+Create a disposable commissioning project containing at least 10 dependency-aware WorkItems.
+
+It must include deliberate injections of:
+
+* worker death;
+* reconciler process death;
+* initiating Hermes/Director session disappearance;
+* provider timeout;
+* provider rate limit;
+* failed automated test;
+* independent QA rejection;
+* rework;
+* stale evidence;
+* dependency blocking;
+* application/reconciler restart.
+
+At least one WorkItem must require rework before acceptance.
+
+At least one worker must die while holding a lease.
+
+The reconciler itself must be killed and restarted.
+
+The initiating intelligent controller must be absent during part of the run.
+
+Afterward, the same project must continue from PostgreSQL state and reach ACCEPTED without manual repair.
+
+The test must provide externally observable evidence including:
+
+* process IDs/start-stop evidence;
+* PostgreSQL WorkItem records;
+* Attempt records;
+* leases;
+* events;
+* exact revisions;
+* QA/rework records;
+* timestamps;
+* provider/model records;
+* restart boundaries;
+* final acceptance predicates.
+
+Do not derive PASS from values placed into the report by the test itself.
+
+The report must be generated from independently observable runtime facts.
+
+After the commissioning project reaches ACCEPTED, deliberately close/terminate the initiating Hermes execution context and prove the control plane remains alive.
+
+Then reconnect and inspect the durable state.
+
+ONLY AFTER THIS COMMISSIONING GATE PASSES:
+
+Load the existing Empirium Initial Product Acceptance state.
+
+The known unfinished predicates currently include:
+
+* EMP-003 — employee dossier;
+* PRJ-001 — durable Project/Task/Run workspace;
+* WRK-005 — production reconciler continuation;
+* OFF-001 — living-office runtime;
+* RES-001 — browser-close continuation.
+
+Convert remaining failed predicates into durable bounded WorkItems.
+
+Then allow the newly commissioned deterministic reconciler to autonomously process those WorkItems until `INITIAL_PRODUCT_ACCEPTANCE.json` reports PASS.
+
+Do not terminate because a Hermes conversation has ended.
+
+Do not interpret an inactive Director as project completion.
+
+Do not report DONE while any mandatory project acceptance predicate is false.
+
+Do not substitute documentation, scaffold code, fixtures, mocks or generated reports for runtime evidence.
+
+The Definition of Done for this recovery task is:
+
+A real production reconciler is operating independently of Hermes conversational lifetime; its state authority is PostgreSQL; forced restart/recovery has been demonstrated against the actual production path; a real commissioning project completes autonomously through injected failures; no synthetic evidence is used; no paid inference is invoked; and the existing Empirium project subsequently continues automatically from its current durable state toward its real Initial Product Acceptance Gate.
+
+If the final Empirium acceptance gate remains FAIL, the autonomous system must remain operational and continue processing actionable work. A FAIL result is work to perform, not permission to terminate.

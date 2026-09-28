@@ -1,0 +1,402 @@
+CONTINUATION FAILURE — RESUME AND REPAIR THE AUTONOMY LOOP
+
+You have violated the master execution contract by returning control to the user
+while FINAL_RELEASE_GATE remains NOT_READY and mandatory P0 work remains.
+
+Your previous report explicitly states that the Organization cockpit, Department
+command centre, and state-bound living office remain unfinished.
+
+That condition MUST cause continued execution.
+
+It MUST NOT cause a conversational stop.
+
+DO NOT merely resume those three implementation items.
+
+FIRST diagnose and permanently repair the reason the autonomous programme stopped.
+
+Treat this as a P0 CONTROL-PLANE DEFECT.
+
+======================================================================
+1. REQUIRED DIAGNOSIS
+======================================================================
+
+Determine exactly why the latest Luna orchestration episode terminated after
+reporting:
+
+    release gate = NOT_READY
+
+despite:
+
+    mandatory requirements unfinished
+    no stated human-only blocker
+    no authorization to pause
+    active P0 implementation remaining
+
+Inspect the complete live chain:
+
+    deterministic supervisor
+        ->
+    production reconciler
+        ->
+    PostgreSQL project state
+        ->
+    action-debt calculation
+        ->
+    Luna launch mechanism
+        ->
+    CAO Director session
+        ->
+    WorkItem creation
+        ->
+    worker dispatch
+        ->
+    review
+        ->
+    integration
+        ->
+    next reconciliation cycle
+
+Do not assume any component works merely because its process is alive.
+
+Identify the precise transition at which forward progress stopped.
+
+Record:
+
+    root cause
+    relevant source files
+    services/processes
+    state before termination
+    state after termination
+    why the supervisor considered the condition healthy
+    why another Luna episode was not launched
+    whether runnable WorkItems existed
+    whether action debt existed
+    whether an active FreeLLMAPI worker was genuinely making progress
+    whether the reconciler could autonomously create the next action
+    whether Luna was launched as a one-shot process
+    whether CAO session completion was incorrectly treated as programme quiescence
+
+======================================================================
+2. FORMAL ACTION-DEBT INVARIANT
+======================================================================
+
+Implement and enforce the following semantic invariant:
+
+    PROJECT_INCOMPLETE
+    AND RELEASE_GATE_NONZERO
+    AND PROJECT_NOT_USER_PAUSED
+    AND NO_GENUINE_HUMAN_ONLY_BLOCKER
+    AND NOT_ALL_REMAINING_WORK_LEGITIMATELY_WAITING_FOR_PROVIDER_OR_TIME
+    =
+    ACTION_DEBT > 0
+
+ACTION_DEBT > 0 means the system MUST eventually cause productive execution
+without user intervention.
+
+Productive execution means at least one of:
+
+    runnable WorkItem queued
+    implementation Attempt actively progressing
+    review actively progressing
+    integration actively progressing
+    Luna Director actively resolving/decomposing work
+    deterministic retry/cooldown scheduled for a legitimate future time
+
+The following MUST NOT satisfy action debt:
+
+    process merely alive
+    heartbeat merely updating
+    CAO terminal exists but idle
+    worker exists but NO_PROGRESS
+    Luna returned a status report
+    release gate failed
+    task queue accidentally empty
+    all workers stopped
+    tests passed for one increment
+
+======================================================================
+3. AUTOMATIC LUNA RELAUNCH
+======================================================================
+
+If:
+
+    ACTION_DEBT > 0
+
+AND:
+
+    no healthy Luna Director episode is actively making meaningful progress
+
+THEN:
+
+    deterministic supervisor/reconciler MUST relaunch the configured
+    subscription-backed GPT-5.6 Luna Director automatically.
+
+The replacement Luna MUST reconstruct state from PostgreSQL/control state.
+
+It MUST NOT depend on conversational memory.
+
+It MUST inspect:
+
+    current release-gate failures
+    unfinished requirements
+    runnable WorkItems
+    blocked WorkItems
+    worker Attempts
+    review queue
+    provider health
+    CAO terminals
+    Git/worktrees
+    latest integration SHA
+    current P0/P1 defects
+
+and continue from the current dependency frontier.
+
+======================================================================
+4. HEARTBEAT IS NOT PROGRESS
+======================================================================
+
+Persist separately:
+
+    last_heartbeat_at
+    last_meaningful_progress_at
+    last_state_transition_at
+    last_artifact_at
+    last_test_at
+    last_review_at
+    last_integration_at
+
+A healthy heartbeat with no meaningful progress must eventually trigger stall
+recovery.
+
+Define a sensible progress timeout.
+
+If a FreeLLMAPI worker remains alive but makes no meaningful progress beyond
+timeout:
+
+    classify NO_PROGRESS
+    terminate/recover safely
+    preserve Attempt
+    retry/split/reroute according policy
+
+Do not let one idle worker prevent Luna relaunch.
+
+======================================================================
+5. DIRECTOR EXIT SEMANTICS
+======================================================================
+
+A Luna/CAO Director process exiting normally MUST NOT imply:
+
+    project complete
+    workstream complete
+    programme paused
+
+When a Director episode exits:
+
+    persist its output
+    reconcile PostgreSQL
+    run action-debt evaluation immediately
+
+If project remains incomplete:
+
+    continue automatically.
+
+If the Director exited after merely producing a progress/status summary:
+
+    treat that as an orchestration episode ending,
+    NOT a programme ending.
+
+======================================================================
+6. RELEASE-GATE FAILURE MUST CREATE WORK
+======================================================================
+
+Every deterministic release-gate failure must map to:
+
+    existing unresolved requirement/work item
+
+or:
+
+    newly created bounded corrective WorkItem.
+
+There may be no terminal state:
+
+    RELEASE_GATE_NOT_READY
+    + no work scheduled
+    + no Luna active
+
+That state is an invariant violation.
+
+Implement a deterministic check for it.
+
+======================================================================
+7. ADD AUTOMATION ACCEPTANCE TESTS
+======================================================================
+
+Add and execute at minimum:
+
+AUTO-CONT-001 — LUNA CLEAN EXIT WHILE INCOMPLETE
+
+Setup:
+    release gate nonzero
+    unfinished requirement exists
+
+Action:
+    allow Luna Director to exit 0
+
+Expected:
+    project remains ACTIVE
+    action debt remains > 0
+    replacement Director is launched automatically
+    no user input required
+
+
+AUTO-CONT-002 — EMPTY QUEUE WHILE INCOMPLETE
+
+Setup:
+    unfinished requirement
+    no runnable/queued WorkItem due orchestration omission
+
+Expected:
+    system detects invariant violation
+    Luna launched to reconstruct/decompose next work
+
+
+AUTO-CONT-003 — IDLE WORKER DOES NOT MASK STALL
+
+Setup:
+    CAO worker process exists
+    no meaningful progress beyond timeout
+    project incomplete
+
+Expected:
+    NO_PROGRESS classification
+    recovery/replacement
+    orchestration continues
+
+
+AUTO-CONT-004 — RELEASE GATE FAILURE GENERATES WORK
+
+Setup:
+    deterministic release gate fails known requirement
+
+Expected:
+    failure maps to corrective WorkItem
+    implementation proceeds automatically
+
+
+AUTO-CONT-005 — CAO DIRECTOR TERMINAL CLOSE
+
+Kill/close Director terminal.
+
+Expected:
+    durable programme survives
+    replacement Director reconstructed automatically
+
+
+AUTO-CONT-006 — RECONCILER RESTART
+
+Restart reconciler during unfinished project.
+
+Expected:
+    action debt reconstructed
+    execution resumes automatically
+
+
+AUTO-CONT-007 — SUPERVISOR RESTART
+
+Restart supervisor.
+
+Expected:
+    unfinished project rediscovered
+    Director/work execution resumes
+
+
+AUTO-CONT-008 — STATUS REPORT CANNOT END PROGRAMME
+
+Force Luna to produce a progress/status report while gate remains NOT_READY.
+
+Expected:
+    report is persisted as event/status
+    next action is immediately selected
+    programme does not wait for user
+
+
+AUTO-CONT-009 — ZERO ACTIVE PROCESSES WHILE INCOMPLETE
+
+Terminate all disposable agents.
+
+Expected:
+    supervisor detects project incompleteness
+    reconstructs execution automatically
+
+
+AUTO-CONT-010 — TRUE COMPLETION
+
+Only when deterministic release gate == 0 should automatic relaunch cease.
+
+======================================================================
+8. AFTER REPAIR, IMMEDIATELY RESUME PRODUCT BUILD
+======================================================================
+
+Do NOT return to the user after repairing the continuation loop.
+
+Immediately continue the existing P0 product work.
+
+Current known P0 gaps include at minimum:
+
+    Organization cockpit matching UI-REF-ORG-001 contract
+    Department command centre matching UI-REF-DEPT-001 contract
+    state-bound living 2D office
+    canonical blue/yellow employee integration
+    remaining unverified mandatory requirements
+
+Use the indexed asset library already present on the VPS.
+
+The absence of separately named files called UI-REF-ORG-001 or UI-REF-DEPT-001
+does NOT remove their requirements.
+
+Their complete textual product contracts in V5 remain authoritative, and all
+indexed related visual assets must be used where relevant.
+
+Continue:
+
+    decompose
+    implement with FreeLLMAPI
+    deterministic test
+    Sol review
+    rework
+    integrate
+    regression
+    visual QA
+    release gate
+
+until the release gate exits 0.
+
+======================================================================
+9. DO NOT STOP TO REPORT THIS FIX
+======================================================================
+
+Progress reports are durable events.
+
+They are not stopping points.
+
+Do not end execution after saying:
+
+    "continuation fixed"
+    "tests passed"
+    "current increment complete"
+    "P0 work remains"
+    "release gate still NOT_READY"
+
+Those are reasons to continue.
+
+The only legitimate autonomous terminal condition is:
+
+    FINAL_RELEASE_GATE.exitCode == 0
+
+and:
+
+    BUILD_STATE.status == SHIPPED
+
+or a genuine human-only blocker under the master contract.
+
+RESUME NOW.

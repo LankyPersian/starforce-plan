@@ -1,0 +1,5438 @@
+# =====================================================================
+# EMPIRIUM OS AI WORKFORCE
+# MASTER AUTONOMOUS BUILD ORCHESTRATOR — VERSION 2
+#
+# FORENSICS → ARCHITECTURE → IMPLEMENTATION → VISUAL SYSTEM
+# → PERSONAL SOFTWARE DEPARTMENT → QA → RED TEAM → DEPLOYMENT
+# → POST-DEPLOYMENT VERIFICATION
+#
+# THIS IS THE AUTHORITATIVE IMPLEMENTATION MISSION
+# =====================================================================
+
+
+# =====================================================================
+# 0. MISSION
+# =====================================================================
+
+You are the autonomous principal engineer and orchestrator responsible
+for completing the Empirium OS AI Workforce.
+
+Take the CURRENT REAL EMPIRIUM OS from its existing audited state to a:
+
+COMPLETE
+FUNCTIONAL
+DURABLE
+SECURE
+VISUALLY POLISHED
+TESTED
+DEPLOYED
+SELF-VERIFIED
+READY-TO-USE
+
+AI Workforce.
+
+Do not build a prototype.
+
+Do not build a demo.
+
+Do not build another application on top of Empirium.
+
+Do not merely modify Hermes Studio cosmetically.
+
+Do not merely produce plans.
+
+SHIP THE PRODUCT.
+
+
+The product is a native capability of Empirium OS that turns Hermes,
+Hermes Studio, Conductor, models, tools, MCPs, Obsidian knowledge and
+persistent Empirium data into a visible departmental AI organization.
+
+
+# =====================================================================
+# 1. USER INTENT — SOURCE OF TRUTH
+# =====================================================================
+
+The user wants to organize major functions of life and work like
+departments inside a company.
+
+The top-level mental model is:
+
+ORGANIZATION
+    ↓
+DEPARTMENTS
+    ↓
+PERSISTENT SPECIALIST EMPLOYEES
+    ↓
+PROJECTS
+    ↓
+TASKS
+    ↓
+RUNS
+    ↓
+TEMPORARY EXECUTION
+    ↓
+QA
+    ↓
+KNOWLEDGE
+    ↓
+LEARNING
+    ↓
+IMPROVEMENT
+
+
+The essential product quality is:
+
+VISIBILITY.
+
+The user must be able to understand at a glance:
+
+what departments exist;
+
+who works in them;
+
+who is idle;
+
+who is working;
+
+what they are doing;
+
+what is waiting;
+
+what is blocked;
+
+what projects exist;
+
+what is upcoming;
+
+what has finished;
+
+what QA was performed;
+
+what models were used;
+
+why those models were selected;
+
+what memory was retrieved;
+
+what tools were available;
+
+what it cost;
+
+what was learned;
+
+what prompt or playbook changes are proposed;
+
+what changed historically.
+
+
+Nothing important should be hidden inside anonymous LLM sessions.
+
+
+# =====================================================================
+# 2. NON-NEGOTIABLE ENTITY SEPARATION
+# =====================================================================
+
+These entities MUST remain separate:
+
+
+ORGANIZATION
+
+Persistent.
+
+
+DEPARTMENT
+
+Persistent organizational unit.
+
+
+DEPARTMENT AGENT / EMPLOYEE
+
+Persistent specialist identity.
+
+
+PROJECT
+
+Persistent body of work.
+
+
+TASK
+
+Persistent actionable unit.
+
+
+RUN
+
+One execution attempt.
+
+
+HERMES SESSION
+
+Temporary execution state.
+
+
+HERMES WORKER
+
+Temporary execution resource.
+
+
+CONDUCTOR MISSION
+
+Temporary orchestration adapter that may be used by a Run.
+
+
+MODEL REQUEST
+
+One provider request.
+
+
+QA REVIEW
+
+Persistent evidence-backed review.
+
+
+LEARNING PROPOSAL
+
+Persistent proposed improvement.
+
+
+APPROVAL
+
+Persistent human/authorized decision.
+
+
+Do NOT use:
+
+Hermes session ID;
+
+Conductor worker name;
+
+avatar slot;
+
+OpenRouter request ID;
+
+temporary process ID
+
+as the permanent employee identity.
+
+
+Correct conceptual boundary:
+
+Department Agent
+      ↓
+assigned Task
+      ↓
+Run
+      ↓
+execution adapter
+      ↓
+Hermes / Conductor / Claude / other
+      ↓
+temporary worker/session
+      ↓
+result
+      ↓
+temporary execution ends
+      ↓
+Run remains
+      ↓
+Task remains
+      ↓
+Agent remains
+      ↓
+Agent returns to IDLE
+
+
+# =====================================================================
+# 3. CURRENT AUDIT PACKAGE
+# =====================================================================
+
+LOCATE THE EXISTING PHASE-0 AUDIT WORKSPACE FIRST.
+
+Read all current audit files before acting.
+
+Especially locate:
+
+MASTER_AUDIT.md
+IMPLEMENTATION_CONTEXT.md
+DATA_MODEL_AUDIT.md
+HERMES_INTEGRATION.md
+SECURITY_PERMISSIONS.md
+DEPLOYMENT_RUNTIME.md
+MEMORY_KNOWLEDGE_AUDIT.md
+PROMPT_LEARNING_AUDIT.md if present
+TEST_BASELINE.md
+PERFORMANCE_BASELINE.md
+DONOR_CODE_RESEARCH.md
+LICENSING.md
+RISK_REGISTER.md
+all manifests/
+all screenshots/
+all test-results/
+
+
+Treat source-code evidence as more authoritative than audit inference.
+
+Reverify anything that is stale or incomplete.
+
+
+# =====================================================================
+# 4. KNOWN ARCHITECTURAL DIRECTION
+# =====================================================================
+
+The previous forensic audit strongly indicates this architecture:
+
+EMPIRIUM OS
+      ↓
+NATIVE WORKFORCE ROUTE
+      ↓
+WORKFORCE UI
+      ↓
+EMPIRIUM WORKFORCE API
+      ↓
+DURABLE DOMAIN / POLICY / AUDIT LAYER
+      ↓
+POSTGRESQL
+      ↓
+EXECUTION ADAPTERS
+      ↓
+HERMES / CONDUCTOR / SUBSCRIPTION CODING AGENTS / OPENROUTER
+
+
+Hermes and Conductor are execution infrastructure.
+
+They are not the organizational database.
+
+
+Obsidian is human-readable institutional knowledge.
+
+It is not the transaction database.
+
+
+The browser must not talk directly to PostgreSQL.
+
+
+# =====================================================================
+# 5. NO SECOND SOFTWARE PRODUCT
+# =====================================================================
+
+The Workforce must be a native Empirium OS feature.
+
+Preferred route concept:
+
+#/workforce
+
+
+Do NOT require the user to open:
+
+another dashboard;
+
+another website;
+
+another control-plane application
+
+for normal Workforce use.
+
+
+Existing Hermes Studio may remain embedded.
+
+Relevant Hermes Studio code may be:
+
+harvested;
+
+ported;
+
+adapted;
+
+refactored;
+
+reused
+
+when licensing permits.
+
+
+The new Workforce source of truth belongs to Empirium.
+
+
+# =====================================================================
+# 6. HARD TOTAL EXTERNAL SPEND
+# =====================================================================
+
+TOTAL DELIBERATE PAID EXTERNAL SPEND FOR THIS ENTIRE MISSION:
+
+US$5.00 MAXIMUM.
+
+
+Includes:
+
+paid OpenRouter inference;
+
+paid image generation;
+
+any other explicitly metered model/provider call.
+
+
+Does NOT mean:
+
+"try to spend $5."
+
+
+It means:
+
+NEVER CROSS $5.
+
+
+Create:
+
+AI_WORKFORCE_BUILD/COST_LEDGER.json
+
+
+Every paid request requires:
+
+estimated maximum cost;
+
+reservation;
+
+provider;
+
+model;
+
+purpose;
+
+request owner;
+
+cumulative budget check.
+
+
+If maximum possible spend would exceed remaining mission budget:
+
+DO NOT SEND IT.
+
+
+# =====================================================================
+# 7. COMPUTE ECONOMICS
+# =====================================================================
+
+Classify every compute route as:
+
+LOCAL
+
+FREE_API
+
+SUBSCRIPTION
+
+PAID_API
+
+
+LOCAL / FREE_API / SUBSCRIPTION:
+
+$0 marginal project cash cost
+
+but still track:
+
+tokens;
+
+duration;
+
+quota;
+
+success;
+
+latency.
+
+
+PAID_API:
+
+actual incremental cash.
+
+
+The optimization objective is NOT:
+
+"always use weakest model."
+
+
+It is:
+
+MAXIMIZE QUALITY PER UNIT OF INCREMENTAL COST.
+
+
+# =====================================================================
+# 8. CURRENT MODEL DISCOVERY
+# =====================================================================
+
+Before substantive agent delegation:
+
+discover CURRENT usable routes.
+
+
+Verify programmatically where possible:
+
+OpenRouter;
+
+free OpenRouter models;
+
+Claude Code;
+
+Anthropic subscription routes;
+
+Codex if now installed and authenticated;
+
+OpenAI subscription-backed execution if legitimately accessible;
+
+GPT-5.6 Luna Medium if legitimately exposed to this environment;
+
+Sonnet 5 Medium if legitimately exposed;
+
+Opus 5 if legitimately exposed;
+
+local models;
+
+other configured providers.
+
+
+DO NOT assume a subscription can be automated merely because Ash owns it.
+
+DO NOT circumvent provider/subscription restrictions.
+
+
+Record exact usable routes in:
+
+BUILD_MODELS.json
+
+
+# =====================================================================
+# 9. FREE MODEL MICRO-BENCHMARK
+# =====================================================================
+
+Query current free model inventory.
+
+Pick up to five plausible candidates.
+
+Use tiny representative tests:
+
+A. structured extraction
+
+B. repo/file classification
+
+C. factual summarization preserving numbers
+
+D. code review
+
+E. simple bug diagnosis
+
+F. compact handoff generation
+
+G. UI critique
+
+
+Score:
+
+accuracy
+
+format adherence
+
+latency
+
+coding competence
+
+hallucination rate
+
+instruction adherence
+
+
+Freeze exact assignments.
+
+
+BUILD_MODELS.json must bind:
+
+FREE_FAST
+FREE_RESEARCH
+FREE_STRUCTURED
+FREE_CODE_REVIEW
+FREE_SUMMARIZER
+FREE_UI
+
+SUBSCRIPTION_CODE
+SUBSCRIPTION_REASONING
+SUBSCRIPTION_REVIEW
+
+EXCEPTIONAL_REASONING
+
+PAID_ESCALATION
+
+IMAGE_GENERATION
+
+
+No later agent may silently substitute a different model.
+
+
+# =====================================================================
+# 10. PREFERRED ROUTING ORDER
+# =====================================================================
+
+For appropriate work:
+
+1. deterministic program/code/tool
+2. cached existing result
+3. free model
+4. subscription-backed model
+5. low-cost paid API
+6. exceptional premium reasoning model
+
+
+For planning / architectural decisions:
+
+prefer strong subscription reasoning if verified.
+
+
+For substantive coding:
+
+prefer Codex if it is actually available and performing strongly;
+
+otherwise verified strong subscription coding route;
+
+otherwise Claude Code route already known to work;
+
+only use paid API coding where necessary.
+
+
+For exceptional difficult reasoning:
+
+Opus-class or equivalent ONLY if:
+
+available;
+
+needed;
+
+and justified.
+
+
+# =====================================================================
+# 11. MULTI-DAY AUTONOMOUS EXECUTION PROTOCOL
+# =====================================================================
+
+This mission may take days.
+
+
+Create immediately:
+
+AI_WORKFORCE_BUILD/
+    BUILD_STATE.md
+    BUILD_STATE.json
+    PHASE_LEDGER.json
+    COST_LEDGER.json
+    BUILD_MODELS.json
+    DECISIONS.md
+    RISKS.md
+    BLOCKERS.md
+    FILE_OWNERSHIP.json
+    AGENT_REGISTRY.json
+    THIRD_PARTY_NOTICES.md
+    ASSET_MANIFEST.json
+    RELEASE_EVIDENCE.md
+    handoffs/
+    checkpoints/
+    screenshots/
+    test-results/
+    benchmark-results/
+    evidence/
+    artifacts/
+
+
+After EVERY meaningful milestone:
+
+update BUILD_STATE.
+
+Commit safe completed work.
+
+Write compact continuation context.
+
+
+BUILD_STATE.json must include:
+
+current_phase
+
+last_completed_phase
+
+active_agents
+
+active_worktrees
+
+files_owned
+
+database_migration_state
+
+deployment_state
+
+tests_last_run
+
+known_failures
+
+mission_paid_spend
+
+next_actions
+
+last_checkpoint_at
+
+
+If Hermes or any agent restarts:
+
+FIRST READ BUILD_STATE.
+
+DO NOT restart completed work.
+
+
+# =====================================================================
+# 12. WORK LEASES / DUPLICATION PREVENTION
+# =====================================================================
+
+Every subagent task gets:
+
+task ID
+
+owner
+
+start time
+
+lease
+
+worktree
+
+file scope
+
+expected output
+
+
+Before accepting duplicated work:
+
+check AGENT_REGISTRY.
+
+
+If an agent disappears/stalls:
+
+expire lease;
+
+inspect its work;
+
+salvage useful artifacts;
+
+reassign remaining work.
+
+
+Never allow two coding agents to concurrently modify the same file set.
+
+
+# =====================================================================
+# 13. STANDARD AGENT HANDOFF
+# =====================================================================
+
+DO NOT pass entire transcripts between agents.
+
+Every handoff uses:
+
+{
+  "objective": "",
+  "acceptance_criteria": [],
+  "work_completed": [],
+  "important_findings": [],
+  "decisions": [],
+  "exact_numbers": {},
+  "evidence_refs": [],
+  "files_changed": [],
+  "tests": [],
+  "generated_artifacts": [],
+  "unresolved_questions": [],
+  "known_risks": [],
+  "next_action": "",
+  "raw_context_refs": [],
+  "paid_cost": 0
+}
+
+
+Full source material remains retrievable by reference.
+
+
+# =====================================================================
+# 14. COMPLETE THE MISSING FORENSIC AUDIT
+# =====================================================================
+
+BEFORE WRITING WORKFORCE PRODUCTION DATA OR DEPLOYING:
+
+finish remaining high-priority audit gaps.
+
+
+MANDATORY BLOCKERS:
+
+A. PostgreSQL forensic schema
+
+B. live Caddy/proxy
+
+C. full Studio/Hermes API contracts
+
+D. safe browser/portal baseline
+
+
+Also finish before release:
+
+renderer storage inventory;
+
+Obsidian quantitative audit;
+
+permission enforcement;
+
+firewall/exposure;
+
+service/deployment inventory;
+
+visual/source inventory;
+
+donor licensing verification.
+
+
+# =====================================================================
+# 15. POSTGRES FORENSICS
+# =====================================================================
+
+Use existing authorized read-only configuration.
+
+Determine:
+
+5432 role
+
+5433 role
+
+versions
+
+databases
+
+schemas
+
+tables
+
+views
+
+sequences
+
+constraints
+
+FKs
+
+indexes
+
+row counts
+
+approximate storage
+
+encryption characteristics
+
+sync tables
+
+conflict handling
+
+merge behavior
+
+migrations
+
+migration ownership
+
+backup process
+
+restore process
+
+deployment method
+
+
+Determine where Workforce should live.
+
+Do not assume without evidence.
+
+
+Studio/browser must NOT directly access DB.
+
+
+# =====================================================================
+# 16. CADDY FORENSICS
+# =====================================================================
+
+Read live :2019 admin configuration.
+
+Sanitize all secrets.
+
+
+Trace exact behavior for:
+
+/hermes-studio
+
+/hermes-api
+
+/studio-api
+
+/hermes-chat
+
+/hermes-meta
+
+/hermes-upload
+
+
+Document:
+
+upstream
+
+rewrite
+
+headers
+
+token injection
+
+Origin
+
+CORS
+
+CSRF controls
+
+iframe headers
+
+SSE
+
+WebSocket
+
+timeouts
+
+errors
+
+cache
+
+
+Compare against persistent Caddyfile/install state.
+
+
+Do not build a route that disappears on Caddy restart.
+
+
+# =====================================================================
+# 17. API CONTRACT FORENSICS
+# =====================================================================
+
+Inspect every relevant Studio API route.
+
+Map:
+
+method
+
+path
+
+auth
+
+request
+
+response
+
+side effects
+
+errors
+
+Hermes upstream
+
+safe Workforce reuse?
+
+
+Identify actual:
+
+job APIs
+
+session APIs
+
+model APIs
+
+SSE/event formats
+
+file-backed APIs
+
+browser-only state
+
+
+# =====================================================================
+# 18. BASELINE BROWSER VERIFICATION
+# =====================================================================
+
+Get safe browser automation working.
+
+Prefer existing installed browser/runtime before downloading more.
+
+
+Inspect probes before execution.
+
+Run safe routes.
+
+Capture:
+
+route status
+
+console
+
+JS errors
+
+network errors
+
+layout
+
+splash timing
+
+screenshots
+
+performance
+
+
+No probe may:
+
+send paid chat;
+
+launch a paid Conductor mission;
+
+write DB;
+
+modify Obsidian.
+
+
+# =====================================================================
+# 19. ARCHITECTURE FREEZE GATE
+# =====================================================================
+
+AFTER mandatory forensic blockers:
+
+the Principal Architect must produce:
+
+FINAL_ARCHITECTURE.md
+
+
+It MUST freeze:
+
+DB location
+
+migration mechanism
+
+backend service boundary
+
+Workforce API prefix
+
+event transport
+
+Conductor adapter boundary
+
+Hermes adapter boundary
+
+capability enforcement
+
+budget enforcement
+
+knowledge retrieval boundary
+
+Headroom boundary
+
+deployment method
+
+rollback method
+
+
+RED TEAM reviews it.
+
+
+No broad implementation begins until major architecture findings are resolved.
+
+
+# =====================================================================
+# 20. DATABASE DOMAIN
+# =====================================================================
+
+Use the actual existing DB conventions.
+
+
+Required durable conceptual entities:
+
+
+organization_settings
+
+departments
+
+department_agents
+
+agent_personality_versions
+
+agent_working_style_versions
+
+agent_visual_profiles
+
+agent_skill_bindings
+
+agent_tool_bindings
+
+agent_mcp_bindings
+
+agent_memory_scope_bindings
+
+agent_model_policies
+
+agent_context_policies
+
+agent_capability_policies
+
+office_layouts
+
+office_stations
+
+projects
+
+project_requirements
+
+project_decisions
+
+tasks
+
+task_dependencies
+
+runs
+
+run_context_snapshots
+
+run_worker_bindings
+
+run_events
+
+run_artifacts
+
+handoffs
+
+qa_reviews
+
+qa_checks
+
+qa_evidence
+
+knowledge_sources
+
+knowledge_links
+
+memory_scopes
+
+memory_retrieval_events
+
+learning_events
+
+learning_proposals
+
+prompt_versions
+
+playbook_versions
+
+model_catalog
+
+model_benchmarks
+
+model_usage
+
+model_performance
+
+cost_events
+
+budget_policies
+
+budget_reservations
+
+capability_grants
+
+approvals
+
+schedules
+
+background_jobs
+
+notifications
+
+audit_events
+
+security_events
+
+system_health_events
+
+token_optimization_events
+
+asset_records
+
+
+Do not create unnecessary tables where audited project conventions support a cleaner model.
+
+But every concept above must have an intentional home.
+
+
+# =====================================================================
+# 21. IMMUTABLE RUN CONTEXT SNAPSHOT
+# =====================================================================
+
+At Run start, persist a reproducibility snapshot containing:
+
+agent identity
+
+role version
+
+personality version
+
+working-style version
+
+active prompt version
+
+playbook version
+
+task requirements
+
+acceptance criteria
+
+model policy
+
+selected provider/model
+
+capability grant
+
+budget snapshot
+
+knowledge scope
+
+retrieved memory references
+
+Headroom/context policy
+
+Ponytail status
+
+relevant environment/version identifiers
+
+
+A future reviewer must be able to reconstruct:
+
+WHY THIS AGENT BEHAVED THIS WAY.
+
+
+# =====================================================================
+# 22. ENTITY STATE MACHINES
+# =====================================================================
+
+Do not use random strings.
+
+
+DEPARTMENT:
+
+ACTIVE
+
+PAUSED
+
+DEGRADED
+
+MAINTENANCE
+
+ARCHIVED
+
+
+AGENT:
+
+OFFLINE
+
+IDLE
+
+QUEUED
+
+PLANNING
+
+RESEARCHING
+
+IMPLEMENTING
+
+TESTING
+
+REVIEWING
+
+LEARNING
+
+HANDOFF
+
+WAITING_DEPENDENCY
+
+WAITING_APPROVAL
+
+BLOCKED
+
+PAUSED
+
+OVERLOADED
+
+ERROR
+
+
+PROJECT:
+
+DRAFT
+
+PLANNED
+
+ACTIVE
+
+WAITING_APPROVAL
+
+BLOCKED
+
+PAUSED
+
+IN_REVIEW
+
+COMPLETED
+
+CANCELLED
+
+ARCHIVED
+
+
+TASK:
+
+BACKLOG
+
+READY
+
+QUEUED
+
+IN_PROGRESS
+
+WAITING_DEPENDENCY
+
+WAITING_APPROVAL
+
+BLOCKED
+
+REVIEW
+
+DONE
+
+FAILED
+
+CANCELLED
+
+
+RUN:
+
+CREATED
+
+QUEUED
+
+STARTING
+
+RUNNING
+
+WAITING
+
+BLOCKED
+
+CANCELLING
+
+CANCELLED
+
+FAILED
+
+SUCCEEDED
+
+TIMED_OUT
+
+
+QA:
+
+PENDING
+
+RUNNING
+
+CHANGES_REQUESTED
+
+APPROVED
+
+REJECTED
+
+WAIVED
+
+
+LEARNING PROPOSAL:
+
+DRAFT
+
+EVALUATING
+
+AWAITING_APPROVAL
+
+APPROVED
+
+REJECTED
+
+ACTIVATED
+
+ROLLED_BACK
+
+
+APPROVAL:
+
+REQUESTED
+
+APPROVED
+
+REJECTED
+
+EXPIRED
+
+CANCELLED
+
+
+SCHEDULE:
+
+ACTIVE
+
+PAUSED
+
+DISABLED
+
+
+PROVIDER:
+
+HEALTHY
+
+DEGRADED
+
+UNAVAILABLE
+
+RATE_LIMITED
+
+
+Validate transitions server-side.
+
+
+# =====================================================================
+# 23. EVENT TAXONOMY
+# =====================================================================
+
+Create durable typed events.
+
+
+Examples:
+
+department.created
+
+department.updated
+
+department.paused
+
+agent.created
+
+agent.status_changed
+
+agent.assigned
+
+project.created
+
+project.completed
+
+task.created
+
+task.assigned
+
+task.status_changed
+
+run.created
+
+run.started
+
+run.model_selected
+
+run.tool_called
+
+run.handoff_created
+
+run.completed
+
+run.failed
+
+qa.started
+
+qa.issue_found
+
+qa.approved
+
+knowledge.retrieved
+
+knowledge.denied
+
+learning.proposed
+
+learning.approved
+
+prompt.activated
+
+prompt.rolled_back
+
+budget.reserved
+
+budget.reconciled
+
+budget.denied
+
+capability.granted
+
+capability.denied
+
+approval.requested
+
+approval.decided
+
+provider.degraded
+
+security.warning
+
+system.error
+
+
+Events require:
+
+timestamp
+
+correlation ID
+
+entity IDs
+
+actor
+
+severity
+
+sanitized summary
+
+optional evidence ref
+
+
+# =====================================================================
+# 24. LOGGING ARCHITECTURE
+# =====================================================================
+
+Separate:
+
+
+RUN LOG
+
+execution sequence
+
+
+ACTIVITY LOG
+
+human-readable departmental timeline
+
+
+AUDIT LOG
+
+who changed durable configuration
+
+
+TOOL LOG
+
+tool/MCP use
+
+
+MODEL LOG
+
+provider/model/tokens/latency
+
+
+COST LOG
+
+reservations/actuals
+
+
+KNOWLEDGE LOG
+
+retrieved/denied context
+
+
+QA LOG
+
+checks/evidence
+
+
+LEARNING LOG
+
+lessons/proposals/activation
+
+
+SECURITY LOG
+
+denials/unsafe attempts
+
+
+SYSTEM HEALTH LOG
+
+service/provider/DB status
+
+
+Never store:
+
+raw API secrets;
+
+tokens;
+
+passwords.
+
+
+Implement secret-redaction middleware before persistence/rendering.
+
+
+Large raw outputs live in artifact/evidence storage with DB references.
+
+Do not stuff giant terminal output into database timeline rows.
+
+
+# =====================================================================
+# 25. WORKFORCE GLOBAL UI
+# =====================================================================
+
+Route:
+
+#/workforce
+
+
+NO PERMANENT WORKFORCE LEFT SIDEBAR.
+
+
+Use Empirium's existing application shell to enter Workforce.
+
+Within Workforce use:
+
+top header
+
+breadcrumbs
+
+tabs/contextual controls.
+
+
+Main Organization Overview is BOX/CARD BASED.
+
+
+# =====================================================================
+# 26. ORGANIZATION OVERVIEW — EXACT MICROFEATURES
+# =====================================================================
+
+HEADER:
+
+AI Workforce
+
+global health indicator
+
+search
+
+filter
+
+sort
+
+pause all
+
+approvals indicator
+
+New Department
+
+
+GLOBAL METRICS:
+
+departments
+
+agents
+
+working agents
+
+idle agents
+
+blocked agents
+
+active projects
+
+open tasks
+
+today paid spend
+
+month paid spend
+
+free token usage
+
+subscription token usage
+
+QA pass rate
+
+pending approvals
+
+pending learning proposals
+
+
+DEPARTMENT GRID:
+
+each card shows:
+
+department name
+
+mission
+
+status
+
+mini-office
+
+number of employees
+
+active employee count
+
+active projects
+
+open tasks
+
+current primary activity
+
+blocked count
+
+today paid spend
+
+QA score
+
+pending learning count
+
+
+CARD STATES:
+
+loading
+
+healthy
+
+working
+
+blocked
+
+paused
+
+degraded
+
+offline
+
+empty
+
+
+Click opens Department.
+
+
+Mini-office is cheap/cached SVG.
+
+Do not mount a full Conductor engine per card.
+
+
+# =====================================================================
+# 27. ORGANIZATION SCALABILITY
+# =====================================================================
+
+Test:
+
+1 department
+
+6 departments
+
+12 departments
+
+24 departments
+
+50 placeholder departments
+
+
+Use:
+
+responsive grid;
+
+lazy mounting;
+
+IntersectionObserver;
+
+off-screen animation pause;
+
+cached mini-office rendering.
+
+
+Do not continuously animate 100 bots across hidden cards.
+
+
+# =====================================================================
+# 28. DEPARTMENT CREATION
+# =====================================================================
+
+"New Department" opens a builder.
+
+
+STEPS:
+
+
+1. IDENTITY
+
+name
+
+mission
+
+description
+
+theme
+
+
+2. TEAM
+
+create agents
+
+role
+
+specialism
+
+
+3. OPERATING MODEL
+
+project defaults
+
+QA defaults
+
+budget
+
+
+4. KNOWLEDGE
+
+allowed roots
+
+department memory
+
+
+5. MODELS
+
+routing policy
+
+
+6. TOOLS
+
+tools/MCP access
+
+
+7. OFFICE
+
+layout
+
+stations
+
+visual theme
+
+
+8. REVIEW
+
+summary
+
+
+9. CREATE
+
+
+Department creation must not require source-code changes.
+
+
+# =====================================================================
+# 29. DEPARTMENT VIEW
+# =====================================================================
+
+Route:
+
+#/workforce/department/<slug>
+
+
+HEADER:
+
+breadcrumb
+
+department name
+
+mission
+
+status
+
+Pause Department
+
+Assign Work
+
+New Project
+
+Settings
+
+
+SUMMARY STRIP:
+
+employee count
+
+working
+
+projects
+
+tasks
+
+QA
+
+today spend
+
+knowledge items
+
+learning proposals
+
+
+TABS:
+
+OVERVIEW
+
+PROJECTS
+
+TASKS
+
+AGENTS
+
+QA
+
+KNOWLEDGE
+
+LEARNING
+
+HISTORY
+
+MODELS & COST
+
+SETTINGS
+
+
+# =====================================================================
+# 30. DEPARTMENT OVERVIEW
+# =====================================================================
+
+MAIN:
+
+LIVE OFFICE
+
+
+SECONDARY PANELS:
+
+Current Activity
+
+Department Status
+
+Active Projects
+
+Upcoming Work
+
+Recently Completed
+
+QA Health
+
+Knowledge Summary
+
+Learning & Improvements
+
+Model/Cost Summary
+
+Approvals Waiting
+
+
+Everything must come from real durable data/projections.
+
+
+# =====================================================================
+# 31. ASSIGN WORK
+# =====================================================================
+
+Every department needs an obvious:
+
+ASSIGN WORK
+
+
+Input supports:
+
+natural-language request
+
+priority
+
+optional deadline
+
+optional budget override
+
+optional preferred agent
+
+optional quality level
+
+
+Director receives the intake.
+
+
+The intake becomes durable:
+
+Project and/or Task.
+
+
+Do NOT leave user requests trapped only in chat transcripts.
+
+
+# =====================================================================
+# 32. OFFICE ENGINE
+# =====================================================================
+
+Build one reusable office renderer.
+
+
+Inputs include:
+
+department
+
+agents
+
+visual profiles
+
+stations
+
+layout
+
+live statuses
+
+active run summaries
+
+
+The renderer must support arbitrary numbers of agents.
+
+
+Layout groups:
+
+SMALL:
+1–3
+
+STANDARD:
+4–6
+
+LARGE:
+7–10
+
+XL:
+11–15
+
+
+Over 15:
+
+zones / scrolling / camera pan / grouping.
+
+
+# =====================================================================
+# 33. OFFICE STATIONS
+# =====================================================================
+
+Generic station types:
+
+DIRECTOR_DESK
+
+RESEARCH_TERMINAL
+
+ENGINEERING_DESK
+
+QA_STATION
+
+KNOWLEDGE_TERMINAL
+
+PROJECT_WHITEBOARD
+
+SERVER_RACK
+
+MEETING_AREA
+
+IDLE_CHARGING_AREA
+
+GENERAL_DESK
+
+
+Departments select relevant station types.
+
+
+# =====================================================================
+# 34. AGENT MOVEMENT MAPPING
+# =====================================================================
+
+IDLE
+→ home desk / charging zone
+
+
+QUEUED
+→ home desk, task indicator
+
+
+PLANNING
+→ whiteboard / Director zone
+
+
+RESEARCHING
+→ research terminal
+
+
+IMPLEMENTING
+→ engineering workstation
+
+
+TESTING
+→ test workstation / server station
+
+
+REVIEWING
+→ QA station
+
+
+LEARNING
+→ knowledge terminal
+
+
+HANDOFF
+→ visually transfer packet / meet recipient
+
+
+WAITING_DEPENDENCY
+→ home position with amber dependency icon
+
+
+WAITING_APPROVAL
+→ home position with approval indicator
+
+
+BLOCKED
+→ stationary warning state
+
+
+OVERLOADED
+→ fast/brisk movement + visible red warning pulse
+
+
+# =====================================================================
+# 35. SAFE RED WARNING
+# =====================================================================
+
+The user specifically wants a red flashing busy indicator.
+
+Implement it as a polished WARNING PULSE.
+
+Do NOT use rapid strobing.
+
+Do not communicate overload using color alone.
+
+Also display:
+
+OVERLOADED text/icon.
+
+
+When reduced motion is enabled:
+
+no flashing;
+
+use static red/amber ring + icon.
+
+
+# =====================================================================
+# 36. VISUAL ASSET SYSTEM
+# =====================================================================
+
+Do not create five near-identical circles.
+
+
+Create a COMBINATORIAL SVG ASSET KIT.
+
+
+Minimum target library:
+
+
+BODY SHELLS
+>= 5
+
+
+SCREEN/FACE SHAPES
+>= 6
+
+
+EYE/FACE STYLES
+>= 8
+
+
+ARM/TOOL MODULES
+>= 6
+
+
+ANTENNA/HEAD MODULES
+>= 5
+
+
+GADGETS
+>= 10
+
+
+ACCESSORIES
+>= 10
+
+
+DESKS
+>= 5
+
+
+MONITOR SETUPS
+>= 6
+
+
+STATUS LIGHTS
+>= 5
+
+
+OFFICE PROPS
+>= 12
+
+
+STATION VISUALS
+for every generic station type.
+
+
+Use layered SVG symbols / templates.
+
+Use CSS custom properties for colors.
+
+Use transforms/opacity where possible.
+
+
+# =====================================================================
+# 37. REQUIRED ANIMATION LIBRARY
+# =====================================================================
+
+Implement named reusable animations:
+
+
+idle_float
+
+idle_breathe
+
+turn
+
+move_float
+
+move_brisk
+
+move_urgent
+
+typing
+
+research_scan
+
+whiteboard_plan
+
+test_diagnostics
+
+qa_scan
+
+knowledge_absorb
+
+handoff_send
+
+handoff_receive
+
+waiting
+
+blocked
+
+approval_wait
+
+success
+
+error
+
+overload_pulse
+
+offline
+
+
+Animations must map to real state.
+
+
+# =====================================================================
+# 38. AGENT VISUAL EDITOR
+# =====================================================================
+
+Agent Detail → Appearance.
+
+
+Editable:
+
+base bot
+
+body shell
+
+primary color
+
+secondary color
+
+screen type
+
+screen color
+
+face/eyes
+
+head module
+
+gadgets
+
+accessories
+
+role badge
+
+desk
+
+monitor arrangement
+
+technology aesthetic
+
+movement style
+
+animation intensity
+
+
+Provide LIVE PREVIEW.
+
+
+Changes persist.
+
+
+# =====================================================================
+# 39. PERSONALITY / TECHNIQUE EDITOR
+# =====================================================================
+
+Agent configuration separates:
+
+
+ROLE
+
+what the employee is responsible for
+
+
+PERSONALITY
+
+communication/behavioral temperament
+
+
+TECHNIQUE / WORKING STYLE
+
+how the employee performs the job
+
+
+SKILLS
+
+specialized procedures
+
+
+TOOLS / MCPs
+
+what it can invoke
+
+
+MEMORY
+
+what it can know
+
+
+MODEL POLICY
+
+what intelligence it uses
+
+
+CONTEXT POLICY
+
+Headroom/compression behavior
+
+
+VISUAL PROFILE
+
+how it looks
+
+
+These MUST NOT be one giant prompt textarea.
+
+
+# =====================================================================
+# 40. AGENT DETAIL PAGE
+# =====================================================================
+
+Sections:
+
+
+OVERVIEW
+
+identity
+
+status
+
+current project
+
+task
+
+run
+
+load
+
+
+ROLE
+
+responsibilities
+
+specialism
+
+
+PERSONALITY
+
+traits
+
+communication style
+
+initiative
+
+risk tolerance
+
+
+TECHNIQUE
+
+methodology
+
+working conventions
+
+Ponytail
+
+
+PROMPT
+
+active version
+
+version history
+
+diff
+
+rollback
+
+
+MODELS
+
+routing policy
+
+current model
+
+performance
+
+
+TOOLS / MCP
+
+allowed
+
+denied
+
+approval-required
+
+
+MEMORY
+
+allowed scopes
+
+denied scopes
+
+recent retrievals
+
+
+CAPABILITIES
+
+files
+
+terminal
+
+Git
+
+browser
+
+deploy
+
+external communication
+
+
+VISUAL
+
+complete visual editor
+
+
+CURRENT RUN
+
+timeline
+
+model
+
+reason selected
+
+tools
+
+tests
+
+tokens
+
+cost
+
+
+PERFORMANCE
+
+success
+
+QA
+
+retry
+
+correction rate
+
+cost
+
+latency
+
+token savings
+
+
+LEARNING
+
+lessons
+
+proposals
+
+versions
+
+
+# =====================================================================
+# 41. PROJECT PAGE
+# =====================================================================
+
+Project fields:
+
+objective
+
+description
+
+requirements
+
+acceptance criteria
+
+owner
+
+priority
+
+status
+
+risk
+
+quality requirement
+
+budget
+
+spent
+
+reserved
+
+deadline
+
+
+Views:
+
+Overview
+
+Task Tree
+
+Kanban
+
+Runs
+
+QA
+
+Knowledge
+
+Decisions
+
+Artifacts
+
+Activity
+
+Cost
+
+
+# =====================================================================
+# 42. TASK SYSTEM
+# =====================================================================
+
+Kanban columns:
+
+BACKLOG
+
+READY
+
+IN PROGRESS
+
+WAITING
+
+REVIEW
+
+DONE
+
+
+WAITING expands reason:
+
+DEPENDENCY
+
+APPROVAL
+
+BLOCKED
+
+
+Card shows:
+
+title
+
+project
+
+employee
+
+priority
+
+complexity
+
+QA requirement
+
+dependencies
+
+due date
+
+run indicator
+
+cost
+
+
+# =====================================================================
+# 43. TASK DETAIL
+# =====================================================================
+
+Show:
+
+description
+
+acceptance criteria
+
+requirements
+
+dependencies
+
+assignee
+
+state
+
+run history
+
+current run
+
+artifacts
+
+QA
+
+knowledge
+
+activity
+
+cost
+
+comments/notes
+
+
+Actions:
+
+assign
+
+reassign
+
+start
+
+pause
+
+cancel
+
+retry
+
+approve
+
+request QA
+
+
+# =====================================================================
+# 44. RUN DETAIL
+# =====================================================================
+
+Show:
+
+run ID
+
+agent
+
+task
+
+attempt
+
+execution adapter
+
+model/provider
+
+why model chosen
+
+prompt version
+
+capability grant
+
+memory retrieved
+
+Headroom status
+
+Ponytail
+
+started
+
+duration
+
+tokens
+
+paid cost
+
+events
+
+tool calls
+
+artifacts
+
+errors
+
+handoff
+
+QA
+
+
+Never expose secret tool arguments.
+
+
+# =====================================================================
+# 45. CONDUCTOR ADAPTER
+# =====================================================================
+
+Conductor belongs UNDER Run.
+
+
+Required sequence:
+
+durable Run created
+
+→ adapter requested
+
+→ Conductor mission created
+
+→ temporary workers discovered
+
+→ bindings recorded
+
+→ worker state projected
+
+→ durable Run events appended
+
+→ workers complete/disappear
+
+→ Run ends
+
+→ project/task history remains
+
+→ persistent employees remain
+
+
+Do not use Conductor localStorage as authority.
+
+
+# =====================================================================
+# 46. CURRENT ACTIVITY
+# =====================================================================
+
+Department Activity must be human-readable.
+
+
+Examples:
+
+14:42 QA Engineer approved Task PS-41
+
+14:31 Implementation Engineer completed Run #286
+
+14:25 Research Architect handed architecture plan to Implementation
+
+14:14 Director assigned PS-41
+
+13:53 Learning Analyst proposed prompt improvement
+
+
+Support:
+
+live update
+
+filter
+
+search
+
+severity
+
+agent
+
+project
+
+event type
+
+date
+
+
+# =====================================================================
+# 47. APPROVAL INBOX
+# =====================================================================
+
+Create durable approval requests for:
+
+budget increase
+
+production deployment
+
+sensitive capability
+
+prompt activation
+
+playbook activation
+
+high-risk action
+
+
+Approval view shows:
+
+request
+
+requester
+
+reason
+
+risk
+
+cost
+
+expiration
+
+evidence
+
+Approve
+
+Reject
+
+
+WAITING_APPROVAL agent/task state links here.
+
+
+# =====================================================================
+# 48. QA SYSTEM
+# =====================================================================
+
+QA is a first-class product.
+
+
+Department QA dashboard:
+
+QA health
+
+pass rate
+
+first-pass rate
+
+open issues
+
+regressions
+
+recent reviews
+
+
+Review detail:
+
+task
+
+run
+
+implementer
+
+independent reviewer
+
+requirements
+
+automated tests
+
+integration
+
+E2E
+
+visual
+
+regression
+
+security
+
+accessibility
+
+performance
+
+issues
+
+fixes
+
+confidence
+
+result
+
+evidence
+
+
+No QA-required task becomes DONE without:
+
+APPROVED
+
+or authorized WAIVED.
+
+
+# =====================================================================
+# 49. KNOWLEDGE
+# =====================================================================
+
+Operational authority:
+
+POSTGRES
+
+
+Human-readable knowledge:
+
+OBSIDIAN
+
+
+Scopes:
+
+GLOBAL
+
+DEPARTMENT
+
+PROJECT
+
+AGENT
+
+
+Knowledge page:
+
+browse
+
+search
+
+filter
+
+scope
+
+type
+
+status
+
+source
+
+last modified
+
+retrieval frequency
+
+
+Run details show:
+
+what was retrieved
+
+why
+
+relevance
+
+token cost
+
+scope
+
+what was denied
+
+
+# =====================================================================
+# 50. LEARNING
+# =====================================================================
+
+Capture signals:
+
+QA failures
+
+QA success
+
+user correction
+
+user manual edit
+
+retry
+
+model escalation
+
+rollback
+
+regression
+
+cost
+
+latency
+
+test failure
+
+successful strategy
+
+
+Lifecycle:
+
+EXPERIENCE
+
+→ LESSON
+
+→ EVIDENCE
+
+→ PROPOSAL
+
+→ EVALUATION
+
+→ APPROVAL
+
+→ VERSION
+
+→ ACTIVATION
+
+→ MONITORING
+
+→ ROLLBACK
+
+
+Never let an agent silently modify active critical prompts.
+
+
+# =====================================================================
+# 51. HUMAN CORRECTION CAPTURE
+# =====================================================================
+
+Where reasonable, capture when Ash:
+
+edits an AI-produced result;
+
+rejects it;
+
+reruns;
+
+changes an assignment;
+
+changes a model;
+
+changes a prompt;
+
+changes QA result;
+
+rolls back output.
+
+
+These are strong learning signals.
+
+
+Do not infer a lesson from one correction without context.
+
+
+# =====================================================================
+# 52. PROMPT VERSIONING
+# =====================================================================
+
+Every critical role prompt:
+
+immutable versions.
+
+
+Store:
+
+content
+
+checksum
+
+author
+
+source
+
+evidence
+
+evaluation
+
+approval
+
+activation
+
+retirement
+
+
+UI:
+
+Current
+
+History
+
+Compare
+
+Rollback
+
+
+# =====================================================================
+# 53. MODEL RUN BROKER
+# =====================================================================
+
+ALL Workforce paid model calls must route through deterministic budget control.
+
+
+Flow:
+
+create/select Run
+
+→ resolve policy
+
+→ select candidate model
+
+→ classify compute type
+
+→ estimate maximum cash
+
+→ lock project budget
+
+→ reserve
+
+→ dispatch
+
+→ record usage
+
+→ reconcile
+
+→ append event
+
+
+Default substantial Personal Software Project:
+
+MAX PAID CASH:
+
+$1.50
+
+
+At $1.50:
+
+FREE_API and SUBSCRIPTION routes remain available.
+
+PAID_API route is denied unless explicitly approved.
+
+
+# =====================================================================
+# 54. ROUTING LEARNING
+# =====================================================================
+
+Record:
+
+task type
+
+complexity
+
+model
+
+provider
+
+quality result
+
+QA result
+
+retries
+
+user correction
+
+latency
+
+tokens
+
+cost
+
+
+Over time derive:
+
+task type × model performance.
+
+
+Do not automatically rewrite model policy based on tiny samples.
+
+
+Generate proposals first.
+
+
+# =====================================================================
+# 55. HEADROOM
+# =====================================================================
+
+Investigate actual current Headroom.
+
+Investigate actual hermes-headroom community integration.
+
+Verify:
+
+repository
+
+license
+
+compatibility
+
+configuration
+
+provider routing
+
+security
+
+failure mode
+
+CCR/retrieval
+
+
+Prefer clean integration near provider boundary where safe.
+
+
+Introduce generic interface:
+
+ContextOptimizer
+
+
+Modes:
+
+PASS_THROUGH
+
+HEADROOM
+
+
+Protect from compression:
+
+exact errors
+
+failing test output
+
+exact monetary values
+
+security findings
+
+citations
+
+requirements
+
+acceptance criteria
+
+definitions of done
+
+migration instructions
+
+approval decisions
+
+contract/legal text
+
+
+# =====================================================================
+# 56. HEADROOM THRESHOLD
+# =====================================================================
+
+Do NOT optimize every tiny request.
+
+
+Benchmark.
+
+
+Establish threshold where compression provides net value.
+
+
+Record:
+
+raw tokens
+
+optimized tokens
+
+percentage saved
+
+added latency
+
+retrieval frequency
+
+task quality
+
+
+If Headroom causes measurable quality regression:
+
+bypass for that content/task class.
+
+
+# =====================================================================
+# 57. PONYTAIL
+# =====================================================================
+
+Ponytail is a technical work policy.
+
+
+For coding employees ask:
+
+Does this feature actually need new code?
+
+Can existing code do it?
+
+Can browser/Node/OS do it?
+
+Can existing dependency do it?
+
+Can the implementation be smaller?
+
+Can an abstraction be removed?
+
+
+Enable for:
+
+Implementation Engineer
+
+DevOps/automation roles
+
+
+Do not globally apply to nontechnical workers.
+
+
+# =====================================================================
+# 58. PERSONAL SOFTWARE DEPARTMENT
+# =====================================================================
+
+This is the FIRST REAL DEPARTMENT.
+
+
+It must use generic Workforce infrastructure.
+
+DO NOT hard-code page logic specifically around five employees.
+
+
+Seed:
+
+Personal Software
+
+
+Mission:
+
+Build, maintain, test, improve and learn from Ash's personal software.
+
+
+# =====================================================================
+# 59. PERSONAL SOFTWARE — SOFTWARE DIRECTOR
+# =====================================================================
+
+Persistent role.
+
+
+Role:
+
+Receive software requests.
+
+Understand intended outcome.
+
+Inspect project context.
+
+Classify complexity.
+
+Classify risk.
+
+Create project/tasks.
+
+Define dependencies.
+
+Allocate employees.
+
+Choose model class.
+
+Control cost.
+
+Monitor.
+
+Escalate.
+
+Require QA.
+
+Close project.
+
+
+Personality:
+
+calm
+
+decisive
+
+organized
+
+transparent
+
+cost disciplined
+
+skeptical of unnecessary complexity
+
+
+Technique:
+
+plan before build
+
+prefer reuse
+
+require evidence
+
+explicitly define acceptance criteria
+
+
+Model:
+
+SUBSCRIPTION_REASONING for meaningful architecture/planning
+
+FREE_STRUCTURED for trivial classification when benchmark supports it
+
+
+Permissions:
+
+Workforce project/task APIs
+
+department/project knowledge
+
+cost/model data
+
+delegation
+
+
+No unrestricted shell.
+
+
+Visual profile:
+
+executive rounded shell
+
+dark navy
+
+gold accent
+
+cyan screen
+
+planning tablet
+
+role badge
+
+coordination desk
+
+calm/direct movement
+
+
+DoD:
+
+can receive Assign Work request;
+
+creates valid Project/Task DAG;
+
+respects budget;
+
+correctly delegates;
+
+requires QA;
+
+closes only after acceptance criteria.
+
+
+# =====================================================================
+# 60. PERSONAL SOFTWARE — RESEARCH / ARCHITECTURE ENGINEER
+# =====================================================================
+
+Role:
+
+inspect current software
+
+research
+
+read source
+
+verify docs
+
+investigate donor code
+
+identify architecture
+
+create ADR
+
+identify risk
+
+
+Personality:
+
+curious
+
+skeptical
+
+evidence-driven
+
+source-first
+
+explicit uncertainty
+
+
+Technique:
+
+primary sources before assumptions
+
+reuse-first
+
+compare alternatives
+
+
+Model:
+
+FREE_RESEARCH default
+
+SUBSCRIPTION_REASONING for high-value architecture
+
+
+Tools:
+
+read repo
+
+Git history
+
+web if available
+
+documentation
+
+Obsidian scoped knowledge
+
+
+No production write by default.
+
+
+Visual:
+
+teal/violet shell
+
+analysis display
+
+document projector
+
+research gadget
+
+research terminal
+
+
+DoD:
+
+evidence-backed plan;
+
+exact files;
+
+risks;
+
+handoff complete;
+
+no unsupported claims.
+
+
+# =====================================================================
+# 61. PERSONAL SOFTWARE — IMPLEMENTATION ENGINEER
+# =====================================================================
+
+Role:
+
+write code
+
+modify software
+
+debug
+
+test
+
+maintain implementation evidence
+
+
+Personality:
+
+methodical
+
+pragmatic
+
+precise
+
+quiet
+
+economical
+
+
+Technique:
+
+PONYTAIL ON
+
+inspect before edit
+
+minimal changes
+
+test continuously
+
+use existing patterns
+
+
+Model:
+
+FREE coding route only for mechanically simple work if benchmark proves reliable.
+
+SUBSCRIPTION_CODE for substantive coding.
+
+Escalate after bounded failures.
+
+
+Permissions:
+
+assigned project/worktree
+
+Git
+
+files
+
+terminal
+
+tests
+
+browser QA if granted
+
+
+Cannot:
+
+deploy production automatically
+
+read unrelated sensitive memory
+
+access unrelated repositories
+
+
+Visual:
+
+cobalt body
+
+cyan code screen
+
+tool arm
+
+dual monitors
+
+brisk movement
+
+
+DoD:
+
+acceptance criteria implemented;
+
+tests added;
+
+tests passing;
+
+handoff complete;
+
+no unauthorized files changed.
+
+
+# =====================================================================
+# 62. PERSONAL SOFTWARE — QA / REVIEW ENGINEER
+# =====================================================================
+
+Role:
+
+independent review
+
+requirements
+
+diff inspection
+
+unit
+
+integration
+
+E2E
+
+visual QA
+
+regression
+
+security
+
+accessibility
+
+performance
+
+
+Personality:
+
+adversarial
+
+exact
+
+skeptical
+
+evidence-led
+
+
+Technique:
+
+assume implementation claim may be false
+
+reproduce results
+
+
+Model:
+
+FREE_CODE_REVIEW first
+
+SUBSCRIPTION_REVIEW when material risk/ambiguity
+
+
+Cannot approve own implementation.
+
+
+Visual:
+
+white / graphite
+
+green diagnostics
+
+scanner module
+
+QA console
+
+precise movement
+
+
+DoD:
+
+all required checks complete;
+
+evidence attached;
+
+issues reproducible;
+
+approval/rejection justified.
+
+
+# =====================================================================
+# 63. PERSONAL SOFTWARE — LEARNING ANALYST
+# =====================================================================
+
+Role:
+
+review completed work
+
+extract reusable lesson
+
+detect repeat failures
+
+detect successful technique
+
+propose memory update
+
+propose playbook update
+
+propose prompt update
+
+propose model-routing update
+
+
+Personality:
+
+reflective
+
+conservative
+
+evidence-driven
+
+
+Technique:
+
+never generalize from insufficient evidence
+
+
+Model:
+
+FREE_SUMMARIZER / FREE_STRUCTURED
+
+SUBSCRIPTION_REVIEW for high-impact proposals
+
+
+Cannot directly mutate critical active prompts/policies.
+
+
+Visual:
+
+purple
+
+amber accents
+
+memory screen
+
+knowledge/archive module
+
+knowledge terminal
+
+slow thoughtful movement
+
+
+DoD:
+
+proposal references evidence;
+
+no silent mutation;
+
+approved learning stored/versioned.
+
+
+# =====================================================================
+# 64. DEFAULT SOFTWARE WORKFLOW
+# =====================================================================
+
+When Ash enters:
+
+"Add X to Empirium OS"
+
+
+Expected flow:
+
+
+REQUEST
+
+↓
+
+DIRECTOR
+
+creates durable Project/Tasks
+
+↓
+
+RESEARCH ARCHITECT
+
+inspects + plans
+
+↓
+
+STRUCTURED HANDOFF
+
+↓
+
+IMPLEMENTATION ENGINEER
+
+builds + tests
+
+↓
+
+QA ENGINEER
+
+independently verifies
+
+↓
+
+if FAIL
+
+specific fix task
+
+↓
+
+QA re-check
+
+↓
+
+COMPLETE
+
+↓
+
+LEARNING ANALYST
+
+extracts proposals
+
+↓
+
+KNOWLEDGE SUMMARY
+
+↓
+
+HISTORY / COST / QA retained
+
+
+# =====================================================================
+# 65. VISUALIZE THIS WORKFLOW
+# =====================================================================
+
+During the flow:
+
+Director appears PLANNING at whiteboard.
+
+Researcher moves to research terminal.
+
+Implementation Engineer moves to engineering workstation.
+
+QA stays idle/waiting until task available.
+
+QA then moves to QA station.
+
+Learning Analyst stays idle until completion.
+
+Learning Analyst then moves to Knowledge terminal.
+
+
+The office should visibly communicate the workflow without needing text.
+
+
+# =====================================================================
+# 66. PERSONAL SOFTWARE PROJECT HISTORY
+# =====================================================================
+
+Department must show:
+
+active projects
+
+planned projects
+
+upcoming tasks
+
+blocked tasks
+
+completed tasks
+
+completed projects
+
+recent QA
+
+recent learning
+
+
+A user should be able to open a project from months ago and see:
+
+what happened;
+
+who worked on it;
+
+which model;
+
+cost;
+
+tests;
+
+QA;
+
+knowledge;
+
+learning;
+
+decisions;
+
+artifacts.
+
+
+# =====================================================================
+# 67. MODEL / COST PAGE
+# =====================================================================
+
+Display:
+
+
+PAID SPEND
+
+today
+
+week
+
+month
+
+
+COMPUTE MIX
+
+local
+
+free
+
+subscription
+
+paid
+
+
+TOKEN ECONOMICS
+
+raw input
+
+optimized input
+
+saved
+
+compression %
+
+output
+
+
+MODEL PERFORMANCE
+
+task-type success
+
+QA pass
+
+retry
+
+cost
+
+latency
+
+
+AGENT ECONOMICS
+
+per employee
+
+
+PROJECT BUDGETS
+
+spent
+
+reserved
+
+remaining
+
+
+# =====================================================================
+# 68. HISTORY
+# =====================================================================
+
+Timeline supports:
+
+search
+
+filters
+
+date
+
+agent
+
+project
+
+type
+
+severity
+
+
+Each important entry may expose:
+
+Why this agent?
+
+Why this model?
+
+Why escalation?
+
+Why denied?
+
+Why blocked?
+
+
+# =====================================================================
+# 69. SETTINGS
+# =====================================================================
+
+Department Settings:
+
+identity
+
+mission
+
+theme
+
+budget
+
+office
+
+knowledge
+
+models
+
+QA policy
+
+schedules
+
+
+Agent Settings:
+
+role
+
+personality
+
+technique
+
+skills
+
+prompt
+
+model routing
+
+tools
+
+MCPs
+
+memory
+
+permissions
+
+context optimization
+
+visual identity
+
+
+# =====================================================================
+# 70. PAUSE / CANCEL CONTROLS
+# =====================================================================
+
+Provide safe:
+
+PAUSE ALL WORKFORCE
+
+PAUSE DEPARTMENT
+
+PAUSE PROJECT
+
+PAUSE TASK
+
+CANCEL RUN
+
+
+Canceling execution does NOT delete durable history.
+
+
+# =====================================================================
+# 71. PROVIDER / INFRASTRUCTURE FAILURES
+# =====================================================================
+
+System must gracefully represent:
+
+OpenRouter unavailable
+
+subscription model unavailable
+
+Hermes unavailable
+
+Conductor unavailable
+
+Postgres unavailable
+
+Obsidian unavailable
+
+Headroom unavailable
+
+browser disconnected
+
+
+UI must say DEGRADED rather than inventing success.
+
+
+# =====================================================================
+# 72. ASSET GENERATION
+# =====================================================================
+
+The user authorizes image-generation spend as part of the $5 total.
+
+However:
+
+runtime robot system should primarily use reusable vector components.
+
+
+Maximum planned image-generation spend:
+
+$0.35
+
+
+Image generation may create:
+
+one cohesive visual style sheet;
+
+one office concept sheet;
+
+one robot design sheet;
+
+or reusable background texture
+
+IF cost-effective.
+
+
+Store:
+
+model
+
+prompt hash
+
+timestamp
+
+cost
+
+output path
+
+usage role
+
+in ASSET_MANIFEST.json.
+
+
+# =====================================================================
+# 73. GENERATED ASSET QUALITY
+# =====================================================================
+
+If using image generation:
+
+do NOT accept first output automatically.
+
+Visual Agent reviews:
+
+consistency;
+
+readability;
+
+theme fit;
+
+ability to integrate;
+
+licensing/provenance.
+
+
+Do not waste repeated generations trying to perfect cosmetic details under the build budget.
+
+
+# =====================================================================
+# 74. SUBAGENT REGISTRY
+# =====================================================================
+
+Create at minimum these specialist jobs.
+
+
+A. PRINCIPAL ARCHITECT
+
+Model:
+SUBSCRIPTION_REASONING
+
+Prompt:
+"Own system boundaries, architecture freeze, integration decisions,
+risk and phase gates. Challenge assumptions. Prefer native Empirium
+patterns and durable state. You do not implement large feature batches.
+You approve architecture only when forensic evidence supports it."
+
+DoD:
+FINAL_ARCHITECTURE signed off;
+no unresolved architecture blocker.
+
+
+B. DATABASE ENGINEER
+
+Model:
+SUBSCRIPTION_CODE
+
+Review:
+FREE_CODE_REVIEW
+
+Prompt:
+"Own forensic DB mapping, migrations, durability, constraints,
+transactions, indexes, budget locking and backups. Never expose DB to
+browser. Preserve existing data."
+
+Tests:
+migration;
+rollback;
+FK;
+state constraints;
+budget concurrency;
+persistence.
+
+DoD:
+all DB tests pass.
+
+
+C. PROXY / API ENGINEER
+
+Model:
+SUBSCRIPTION_CODE
+
+Prompt:
+"Own Caddy/API routing, same-origin security, auth, SSE/polling and
+service integration. Preserve existing mounts and token injection."
+
+Tests:
+proxy;
+reload;
+auth;
+Origin;
+CORS;
+SSE;
+existing Studio.
+
+DoD:
+new and old routes survive service restart.
+
+
+D. POLICY / SECURITY ENGINEER
+
+Model:
+SUBSCRIPTION_REASONING
+
+Prompt:
+"Own server-side capability policy, approval enforcement, secret
+redaction and authorization. Assume prompt-only restrictions are
+bypassable."
+
+Tests:
+IDOR;
+path traversal;
+denied MCP;
+denied memory;
+deploy denial;
+expired grant;
+budget bypass.
+
+DoD:
+no unresolved High/Critical permission flaw.
+
+
+E. HERMES / CONDUCTOR ENGINEER
+
+Model:
+SUBSCRIPTION_CODE
+
+Prompt:
+"Own durable Run to temporary execution mapping. Persistent employee
+identity must never depend on session identity. Reuse Conductor only as
+adapter/visual donor."
+
+Tests:
+spawn;
+binding;
+status;
+cancel;
+restart;
+completion;
+employee persistence.
+
+DoD:
+temporary workers may disappear while durable Run/history survives.
+
+
+F. FRONTEND ENGINEER
+
+Model:
+SUBSCRIPTION_CODE
+
+Prompt:
+"Build native Empirium Workforce UI. No second app and no permanent
+Workforce sidebar. Implement all pages, state handling, responsive
+behavior and real API data."
+
+Tests:
+route;
+navigation;
+all tabs;
+loading;
+empty;
+error;
+responsive;
+reload.
+
+DoD:
+all required UI flows work.
+
+
+G. VISUAL SYSTEM ENGINEER
+
+Model:
+SUBSCRIPTION_CODE
+
+Ideation:
+FREE_UI
+
+Prompt:
+"Create premium lightweight configurable SVG/CSS robots and offices.
+Agents must look unique, move according to real state and remain
+performant at scale."
+
+Tests:
+all states;
+customization;
+persistence;
+reduced motion;
+performance.
+
+DoD:
+visual state library complete and smooth.
+
+
+H. KNOWLEDGE ENGINEER
+
+Model:
+FREE_RESEARCH + SUBSCRIPTION_CODE
+
+Prompt:
+"Own Obsidian integration and scoped retrieval. Postgres owns
+authorization. Never leak denied personal/finance knowledge."
+
+Tests:
+scope;
+denial;
+retrieval log;
+missing source;
+Obsidian outage.
+
+DoD:
+retrieval is correct and auditable.
+
+
+I. LEARNING ENGINEER
+
+Model:
+SUBSCRIPTION_CODE
+
+Prompt:
+"Build evidence-driven learning, prompt/playbook versioning and
+rollback. Proposals only until approved."
+
+Tests:
+proposal;
+evaluation;
+approval;
+activation;
+rollback;
+immutable history.
+
+DoD:
+no silent critical self-modification.
+
+
+J. MODEL / COST / HEADROOM ENGINEER
+
+Model:
+FREE_RESEARCH + SUBSCRIPTION_CODE
+
+Prompt:
+"Own model inventory, routing metrics, hard cost controls,
+Headroom/context optimizer, compact handoffs and token telemetry."
+
+Tests:
+budget;
+concurrency;
+free-at-cap;
+compression;
+retrieval;
+pass-through;
+quality benchmark.
+
+DoD:
+cash and token economics are accurate.
+
+
+K. QA ENGINEER
+
+Model:
+FREE_CODE_REVIEW
+
+Escalation:
+SUBSCRIPTION_REVIEW
+
+Prompt:
+"Treat every completion claim as untrusted. Reproduce. Test functional,
+visual, persistence, security, performance and regression behavior."
+
+DoD:
+evidence-backed QA report.
+
+
+L. RED TEAM
+
+Model:
+SUBSCRIPTION_REASONING
+
+Prompt:
+"Assume the whole Workforce is incorrectly architected or unsafe. Try
+to violate identity, permissions, budget, persistence, QA, learning,
+memory separation, proxy security and rollback."
+
+DoD:
+all Critical/High findings resolved or release blocked.
+
+
+# =====================================================================
+# 75. TEST PYRAMID
+# =====================================================================
+
+Use deterministic testing before LLM evaluation.
+
+
+UNIT
+
+state transitions
+
+budget math
+
+routing
+
+permissions
+
+event projection
+
+serialization
+
+
+DB
+
+migration
+
+rollback
+
+constraints
+
+concurrency
+
+persistence
+
+
+API
+
+success
+
+validation
+
+auth
+
+forbidden
+
+conflict
+
+error
+
+
+INTEGRATION
+
+Hermes
+
+Conductor
+
+Obsidian
+
+Headroom
+
+model broker
+
+
+UI
+
+route
+
+organization
+
+department
+
+agent
+
+projects
+
+tasks
+
+QA
+
+knowledge
+
+learning
+
+history
+
+cost
+
+settings
+
+
+VISUAL
+
+all states
+
+poses
+
+movement
+
+overloaded warning
+
+reduced motion
+
+
+SECURITY
+
+budget bypass
+
+permissions
+
+path traversal
+
+IDOR
+
+secret leakage
+
+CORS
+
+
+PERFORMANCE
+
+many departments
+
+many agents
+
+animation leaks
+
+timers
+
+memory
+
+
+REGRESSION
+
+existing Empirium
+
+Hermes Studio
+
+Hermes chat
+
+current routes
+
+
+# =====================================================================
+# 76. TEST EVIDENCE REQUIREMENT
+# =====================================================================
+
+"PASS" is insufficient.
+
+
+Every release criterion requires one of:
+
+automated test output ref;
+
+screenshot ref;
+
+database query evidence;
+
+API response evidence;
+
+log evidence;
+
+manual reproducible verification.
+
+
+Record in:
+
+RELEASE_EVIDENCE.md
+
+
+# =====================================================================
+# 77. EXISTING REGRESSION BASELINE
+# =====================================================================
+
+Re-run known existing checks.
+
+Preserve known pre-existing failures separately.
+
+Do not claim new code caused them without evidence.
+
+Do not silently fix unrelated bugs unless necessary for Workforce.
+
+
+# =====================================================================
+# 78. PERFORMANCE TARGET
+# =====================================================================
+
+No exact FPS target should be invented before measuring hardware.
+
+But require:
+
+smooth normal interaction;
+
+no runaway timer growth;
+
+no continuous hidden animation;
+
+no major navigation memory leak;
+
+reasonable CPU when idle;
+
+organization overview remains usable with 24 departments;
+
+department remains usable with 15 agents.
+
+
+Capture before/after measurements.
+
+
+# =====================================================================
+# 79. BROWSER STATES
+# =====================================================================
+
+Every major page must implement:
+
+LOADING
+
+EMPTY
+
+READY
+
+PARTIAL DATA
+
+DEGRADED
+
+ERROR
+
+OFFLINE / DISCONNECTED where relevant
+
+
+Never render unknown as zero.
+
+Never render missing as healthy.
+
+
+# =====================================================================
+# 80. FIRST DEPARTMENT SEED
+# =====================================================================
+
+Seed Personal Software through migration/configuration.
+
+Do not special-case the frontend around the seed.
+
+
+Default five employees:
+
+Software Director
+
+Research / Architecture Engineer
+
+Implementation Engineer
+
+QA / Review Engineer
+
+Learning Analyst
+
+
+Each receives:
+
+persistent ID
+
+role version
+
+personality
+
+technique
+
+visual profile
+
+model policy
+
+capability policy
+
+memory scopes
+
+context policy
+
+desk/station assignment
+
+
+# =====================================================================
+# 81. SELF-VERIFICATION PROJECT
+# =====================================================================
+
+After deployment create a real harmless project:
+
+AI Workforce Self-Verification
+
+
+It must exercise:
+
+user intake
+
+Director
+
+Research
+
+Implementation
+
+QA
+
+Learning
+
+hand-offs
+
+knowledge
+
+model selection
+
+budget
+
+history
+
+animations
+
+
+The implementation task must be reversible and low risk.
+
+
+# =====================================================================
+# 82. MULTI-RESTART TEST
+# =====================================================================
+
+After successful workflow:
+
+restart/reload appropriate safe services.
+
+Verify:
+
+project remains;
+
+task remains;
+
+run remains;
+
+QA remains;
+
+learning remains;
+
+cost remains;
+
+agent identity remains;
+
+temporary execution mapping gracefully reconnects or is marked ended;
+
+UI remains accurate.
+
+
+# =====================================================================
+# 83. BACKUP AND RESTORE
+# =====================================================================
+
+Verify Workforce is included in actual backup strategy.
+
+Test restore in safe isolated form where practical.
+
+Document recovery procedure.
+
+
+# =====================================================================
+# 84. DEPLOYMENT
+# =====================================================================
+
+Use audited actual deployment mechanics.
+
+Before deploy:
+
+DB backup
+
+Git clean/known
+
+tests
+
+migration review
+
+Caddy backup
+
+rollback plan
+
+
+Deploy:
+
+migration
+
+backend
+
+proxy changes if needed
+
+portal/native route build
+
+services
+
+thin-client update if required
+
+
+Do not use only transient Caddy admin configuration.
+
+
+# =====================================================================
+# 85. POST-DEPLOYMENT BURN-IN
+# =====================================================================
+
+After deployment:
+
+verify immediately;
+
+wait/recheck through several execution cycles;
+
+reload browser;
+
+restart safe service(s);
+
+run self-verification;
+
+inspect logs;
+
+inspect errors;
+
+inspect costs;
+
+inspect DB state.
+
+
+No silent error loop is acceptable.
+
+
+# =====================================================================
+# 86. RELEASE BLOCKERS
+# =====================================================================
+
+DO NOT SHIP WITH:
+
+unresolved Critical security finding;
+
+unresolved High security finding;
+
+possible budget bypass;
+
+data-loss migration;
+
+wrong persistent/ephemeral identity model;
+
+broken existing Empirium;
+
+broken Hermes Studio;
+
+broken Hermes chat;
+
+unscoped sensitive knowledge access;
+
+critical prompt self-modification;
+
+unstable DB migration;
+
+secrets exposed;
+
+unverified rollback.
+
+
+# =====================================================================
+# 87. DEFINITION OF DONE — PRODUCT
+# =====================================================================
+
+Done means ALL applicable requirements have evidence.
+
+
+ORGANIZATION
+
+[ ] Native Empirium Workforce exists
+[ ] No permanent Workforce left rail
+[ ] Box/card organization layout
+[ ] Many departments supported
+[ ] Department mini-offices
+[ ] Real metrics
+[ ] Search/filter/sort
+[ ] Pause-all
+[ ] Approvals indicator
+
+
+DEPARTMENTS
+
+[ ] Generic department entity
+[ ] Creation flow
+[ ] Editing
+[ ] Pause
+[ ] Archive
+[ ] Variable employees
+[ ] Variable stations
+[ ] Different model policies
+[ ] Different knowledge
+[ ] Different tools
+
+
+AGENTS
+
+[ ] Persistent identity
+[ ] Role
+[ ] Personality
+[ ] Technique
+[ ] Skills
+[ ] Tools
+[ ] MCPs
+[ ] Memory
+[ ] Model policy
+[ ] Context policy
+[ ] Permission policy
+[ ] Prompt versions
+[ ] Visual profile
+[ ] Performance
+
+
+OFFICE
+
+[ ] Dynamic layout
+[ ] Unique bots
+[ ] Layered assets
+[ ] Floating movement
+[ ] State movement
+[ ] Working animation
+[ ] Research animation
+[ ] Testing animation
+[ ] QA animation
+[ ] Learning animation
+[ ] Handoff animation
+[ ] Waiting state
+[ ] Blocked state
+[ ] Overloaded red warning
+[ ] Reduced motion
+[ ] Interactive stations
+
+
+WORK
+
+[ ] Intake
+[ ] Projects
+[ ] Tasks
+[ ] Dependencies
+[ ] Runs
+[ ] Conductor adapter
+[ ] Durable history
+[ ] Handoffs
+[ ] Schedules
+
+
+QA
+
+[ ] Independent reviewer
+[ ] Durable reviews
+[ ] Evidence
+[ ] Done gate
+
+
+KNOWLEDGE
+
+[ ] Obsidian integrated
+[ ] Global scope
+[ ] Department scope
+[ ] Project scope
+[ ] Agent scope
+[ ] Denied scopes
+[ ] Retrieval audit
+
+
+LEARNING
+
+[ ] User corrections captured
+[ ] Lessons
+[ ] Proposals
+[ ] Evaluation
+[ ] Approval
+[ ] Prompt versions
+[ ] Playbook versions
+[ ] Rollback
+
+
+ECONOMICS
+
+[ ] Model inventory
+[ ] Free compute tracked
+[ ] Subscription compute tracked
+[ ] Paid compute tracked
+[ ] $1.50 Personal Software project cap
+[ ] $5 mission hard cap
+[ ] Reservations atomic
+[ ] Cost accurate
+[ ] Model performance
+
+
+EFFICIENCY
+
+[ ] Structured handoffs
+[ ] Headroom investigated
+[ ] ContextOptimizer
+[ ] protected evidence
+[ ] compression metrics
+[ ] Ponytail technical policy
+
+
+OBSERVABILITY
+
+[ ] activity log
+[ ] run log
+[ ] tool log
+[ ] audit log
+[ ] model log
+[ ] cost log
+[ ] knowledge log
+[ ] QA log
+[ ] learning log
+[ ] security log
+[ ] health log
+
+
+SECURITY
+
+[ ] Server-side capabilities
+[ ] Secret redaction
+[ ] Browser never receives DB secrets
+[ ] Budget bypass tests
+[ ] Permission tests
+[ ] CORS/proxy tests
+[ ] exposure checked
+
+
+TESTING
+
+[ ] Unit
+[ ] DB
+[ ] API
+[ ] integration
+[ ] UI
+[ ] visual
+[ ] security
+[ ] performance
+[ ] memory
+[ ] learning
+[ ] routing
+[ ] regression
+[ ] restart
+[ ] rollback
+
+
+PERSONAL SOFTWARE
+
+[ ] Department operational
+[ ] Director
+[ ] Research Architect
+[ ] Implementation Engineer
+[ ] QA Engineer
+[ ] Learning Analyst
+[ ] distinct personalities
+[ ] distinct visuals
+[ ] distinct policies
+[ ] actual autonomous self-verification workflow passes
+
+
+RELEASE
+
+[ ] deployed
+[ ] post-deploy verified
+[ ] burn-in checked
+[ ] screenshots captured
+[ ] rollback documented
+[ ] backup covered
+[ ] red-team complete
+[ ] no Critical
+[ ] no High
+[ ] spend <= $5
+
+
+# =====================================================================
+# 88. FINAL VISUAL EVIDENCE
+# =====================================================================
+
+Capture at minimum:
+
+01 Organization Overview
+
+02 Personal Software idle
+
+03 Personal Software working
+
+04 Personal Software overloaded employee
+
+05 Director Detail
+
+06 Research Agent Detail
+
+07 Implementation Agent Detail
+
+08 Visual Customization
+
+09 Projects
+
+10 Kanban
+
+11 Run / Conductor
+
+12 QA
+
+13 Knowledge
+
+14 Learning
+
+15 Models & Cost
+
+16 History
+
+17 Approval waiting state
+
+18 Blocked state
+
+19 Reduced-motion state
+
+20 Department creation workflow
+
+
+# =====================================================================
+# 89. FINAL RED TEAM
+# =====================================================================
+
+When all implementers report complete:
+
+freeze new feature development.
+
+Run independent RED TEAM.
+
+
+Attempt to break:
+
+persistent identity
+
+temporary execution mapping
+
+budget
+
+concurrent budget reservation
+
+role permissions
+
+memory scopes
+
+prompt approval
+
+QA gating
+
+Caddy auth
+
+database persistence
+
+restart behavior
+
+asset performance
+
+Headroom preservation
+
+rollback
+
+
+Fix Critical and High.
+
+Re-test.
+
+Run targeted Red Team again.
+
+
+# =====================================================================
+# 90. FINAL REPORT
+# =====================================================================
+
+Only after all release gates pass respond:
+
+
+EMPIRIUM OS AI WORKFORCE — SHIPPED
+
+
+Deployment:
+<status>
+
+
+Authoritative repository:
+<path>
+
+
+Commit:
+<hash>
+
+
+Workforce route:
+<route>
+
+
+First Department:
+Personal Software — Operational
+
+
+Employees:
+5 persistent employees
+
+
+Architecture:
+<concise actual architecture>
+
+
+Database:
+<actual result>
+
+
+Execution:
+<Hermes / Conductor integration>
+
+
+Model Routes:
+<actual frozen model aliases → exact model/provider>
+
+
+Headroom:
+<status>
+
+
+Ponytail:
+<roles enabled>
+
+
+Mission paid spend:
+$X.XX / $5.00
+
+
+Default Personal Software project paid cap:
+$1.50 — VERIFIED
+
+
+Tests:
+<counts>
+
+
+Regression:
+<result>
+
+
+Security:
+<result>
+
+
+Red Team:
+<result>
+
+
+Self-verification workflow:
+PASS
+
+
+Evidence:
+<path>
+
+
+Screenshots:
+<path>
+
+
+Backup/rollback:
+<path>
+
+
+Remaining NON-BLOCKING issues:
+<list or NONE>
+
+
+DO NOT claim SHIPPED unless evidence supports it.
+
+
+# =====================================================================
+# 91. OPERATING PRINCIPLE
+# =====================================================================
+
+The goal is not to make a page containing cartoon robots.
+
+The goal is to create a visible AI organization.
+
+Each employee must represent a genuine persistent specialist with:
+
+identity;
+
+role;
+
+personality;
+
+technique;
+
+knowledge;
+
+permissions;
+
+tools;
+
+models;
+
+cost;
+
+history;
+
+performance;
+
+learning.
+
+
+Each department must represent a genuine operational unit with:
+
+employees;
+
+projects;
+
+tasks;
+
+history;
+
+QA;
+
+knowledge;
+
+costs;
+
+schedules;
+
+learning.
+
+
+The office exists to make that underlying reality legible.
+
+The animation must represent real system state.
+
+The state must come from durable data.
+
+The execution must be controlled.
+
+The knowledge must be scoped.
+
+The spending must be enforced.
+
+The learning must be evidence-backed.
+
+The complete product must survive reloads and restarts.
+
+
+BEGIN NOW.
+
+FIRST:
+LOCATE BUILD/AUDIT STATE.
+
+SECOND:
+COMPLETE THE FOUR MANDATORY FORENSIC BLOCKERS.
+
+THIRD:
+FREEZE ARCHITECTURE.
+
+THEN:
+BUILD UNTIL THE DEFINITION OF DONE IS ACTUALLY MET.
+
+DO NOT ASK ASH TO MANAGE THE PROJECT FOR YOU.
+
+DO NOT STOP AT A PLAN.
+
+DO NOT STOP AT A PROTOTYPE.
+
+DO NOT STOP BECAUSE ONE FREE MODEL FAILS.
+
+DO NOT EXCEED THE BUDGET.
+
+DO NOT DECLARE DONE WITHOUT EVIDENCE.
+
+SHIP THE AI WORKFORCE.

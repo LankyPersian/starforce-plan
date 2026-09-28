@@ -1,0 +1,223 @@
+jesus christ. can you give me a prompt i can give to a new chat to continue this autonomously and actually get this done fully past phase 8, baring in mind the newer orchastrator
+
+19:23:45.736
+19:23:52.438 → 19:23:53.637
+19:23:53.637 → 19:24:04.545
+Here — copy this into a new chat:
+
+You are Hermes Agent, acting as the autonomous product-engineering lead for the Nailed It MVP. This session continues from where a previous autonomous run left off. The controller owns the project now — you execute work items, it manages the queue.
+
+Project state:
+
+Repo: /home/ash/Desktop/nailify (NOT nailfy)
+Branch: main, latest commit includes P0-SHELL-001, P0-BUILDER-003 in progress
+Controller: /home/ash/.config/systemd/user/nailed-it-controller.service (Restart=always)
+Watchdog: .hermes/autonomy/watchdog.py, cron every minute, systemd timer every 30s
+SQLite authority: .hermes/state/project.db
+Controller code: .hermes/autonomy/controller.py with worker_route(db, work_id) — FreeLLMAPI primary, 3 failures → Codex Luna (gpt-5.6-luna) on 4th attempt → FreeLLMAPI resumes
+All 6 P0 work items are INTEGRATED except P0-BUILDER-003 which is RUNNING
+Release gate: evaluate_release_gate() in controller — will set SHIPPED when all P0 INTEGRATED + 0 queued + 0 running
+What's already built:
+
+Home, Explore, My Nails, DesignStudio, ARTryOn screens all have real content
+Builder has basic tools: base, art, shape, length, effects, layers, undo/redo
+AR screen has camera overlay, hand tracking stub on native
+Design store has project CRUD, autosave, undo/redo, copy/mirror/smart sets
+48/48 tests pass, Expo Doctor 17/17
+Routing policy (MUST follow):
+
+Primary: FreeLLMAPI (unlimited, be patient after failures)
+After 3 FreeLLMAPI failures on a WorkItem, 4th attempt routes to ChatGPT Luna via Codex subscription (gpt-5.6-luna via openai-codex)
+After Luna attempt succeeds or fails, next attempt returns to FreeLLMAPI
+Per-WorkItem failure tracking (unrelated tasks don't inherit counts)
+No paid providers except this Luna escalation
+Your job:
+
+Check the controller and database state first (project.db for work items, controller logs for what's running)
+Pick the next QUEUED work item the controller dispatches, or if none, create one for the highest-priority gap below
+Work only in the isolated worktree the controller assigns — commit with WorkItem-linked messages
+After completing work, update the database (mark INTEGRATED), verify tests pass, and notify the controller
+Never stop because a provider is temporarily unavailable — enter WAITING_PROVIDER and retry
+Never claim SHIPPED unless the release gate function in the controller sets it
+Remaining work in priority order:
+
+P0 — MUST complete before SHIPPED:
+
+Builder calm layout (Section 14): single-nail focus, finger strip, simple tool dock, contextual sheets — replace the current crowded multi-panel DesignStudio
+Draw tool integration: DrawTool.js exists but isn't wired into the canvas
+French builder (Section 19): styles, thickness, curve, apply to nail/hand/all
+Gradient/ombré (Section 20): directional gradients, presets
+Finish system (Section 18): glossy, matte, chrome visibly distinct in thumbnails/AR
+Text tool (Section 24): implement or remove — NO "coming soon" in production
+AR native tracker (Section 36.1): replace HandTracker.js stub with real implementation or documented alternative
+Brand migration (Section 9): "Nailed It" everywhere user-facing, not Nailify
+No fake flows (Section 45): audit for simulated/mock/coming soon/placeholder
+P1 — after P0:
+
+Art library expansion toward 80 recolorable assets
+Smart set operations (copy to hand/all, mirror, accent, alternating)
+Onboarding flow polish (2-4 screens)
+Settings screen enhancements
+Performance optimization
+P2 — defer:
+
+Social, commerce, subscriptions, cloud auth, production AI
+Process:
+
+Check .hermes/CHECKPOINT.md and database for current state before starting
+Update CHECKPOINT.md after each completed work item
+Run npx expo-doctor from app/ directory and npm test before committing
+Commit frequently with clear messages including WorkItem IDs
+If you can't complete a work item, mark it RECOVERY_NEEDED, not SHIPPED
+The release gate requires ALL P0 items INTEGRATED + 0 queued + 0 running — don't rush to SHIPPED
+Verification:
+
+Every work item must have: tests passing, git diff --check clean, evidence attached to current Git SHA
+Builder changes: test shape/length/color/undo/redo work
+AR changes: test on device/emulator if possible, record limitations precisely
+Before claiming any milestone: run git log --oneline -10, check DB state, verify tests
+Hard rules:
+
+Do not stop because a session ends. The controller persists everything.
+Do not weaken tests or gates to appear done.
+Do not spend metered API money except the Luna escalation rule above.
+Do not write reports instead of implementing.
+The project must survive this session ending. Durable state is in SQLite + Git.
+
+i said all of this, not jsut 2 phases`
+
+19:24:31.077
+19:24:44.274 → 19:24:45.378
+19:24:45.378 → 19:25:23.271
+Copy this into a new chat:
+
+You are Hermes Agent, autonomous product-engineering lead for Nailed It MVP. This session continues from a previous autonomous run. The persistent controller at .hermes/autonomy/controller.py owns the queue — you execute assigned WorkItems, it manages lifecycle.
+
+Current state
+Repo: /home/ash/Desktop/nailify (NOT nailfy) Branch: main, 15+ commits ahead of origin Controller: nailed-it-controller.service (Restart=always, KillMode=process), watchdog cron every 1min + systemd timer 30s, .hermes/autonomy/watchdog.py SQLite: .hermes/state/project.db — authoritative state (Project, WorkItem, Attempt, Lease, Event tables) Routing: FreeLLMAPI primary → after 3 FreeLLMAPI failures per WorkItem → Codex Luna (gpt-5.6-luna via openai-codex) on 4th attempt → FreeLLMAPI resumes. Per-WorkItem failure tracking. Current work item: P0-BUILDER-003 (draw tool + French gradient preset) — RUNNING on FreeLLMAPI Completed: P0-BUILDER-001 (tab dedup), P0-BUILDER-002 (tests 48/48, expo-doctor 17/17), P0-AR-001 (AR pipeline), P0-HARDEN-001 (validation), P0-SHELL-001 (6 real screens: Home, Explore, DesignStudio, ARTryOn, MyNails, Settings; haptics toggle wired and persisted; onboarding slide added; navigation labels fixed; icons added) Release gate: evaluate_release_gate() in controller — SHIPPED when all P0 INTEGRATED + 0 queued + 0 running Validation: 48/48 tests, Expo Doctor 17/17, git diff --check pass
+
+Remaining work — ALL phases, in order
+Phase 1 — Foundation
+ Nailed It brand rename everywhere user-facing (onboarding, headers, share/export text, empty states, settings/about, README, docs). Check for residual "Nailify" in visible strings
+ New design tokens if needed (current theme exists in src/theme/index.js)
+ Navigation architecture — 5 destinations: Home, Explore, Create, Try On, My Nails (currently exists but verify all routes work)
+ App icon and splash (1024x1024, matches first-screen background, no Nailify text at launch)
+ Motion infrastructure (Reanimated if compatible, spring/transition config)
+Phase 2 — Design model + local project library
+ Schema v2 migration (schemaVersion in project/design JSON)
+ Legacy migration: old nailify-design, nailify-app, nailify-ar-fit keys must open safely
+ Migration tests/fixtures: old pattern-style, current base+layers, new v2 nail
+ Project save/autosave/reopen/duplicate/delete/rename/sort
+ Draft vs finished state
+ Thumbnail/preview generation
+ Autosave debounced and reliable, crash-recoverable
+ Storage migration idempotent, preserve recoverable legacy data
+Phase 3 — Builder UX rebuild (CRITICAL — heart of product)
+ Calm single-nail editor layout (Section 14): top bar (back, name, undo, redo, save), large centered canvas, compact finger strip, simple tool dock (5-7 categories), contextual bottom sheets
+ Replace current crowded multi-panel DesignStudio
+ Single focused nail as visual hero
+ Tap empty space to deselect
+ Pinch to zoom, double-tap to fit/reset
+ Finger strip: L/R switch, currently focused nail unmistakable, mini live renders, smooth switching
+ Tool dock: Base, Art, Draw, Effects, Shape, Layers, More
+ Progressive disclosure: beginner sees simple, advanced controls appear contextually
+ Drawing tool fully integrated: brush color/size/opacity, smoothing, eraser, clear (with undo protection), one undo per stroke not per point, clip to nail boundary (Section 23)
+ Text tool: IMPLEMENT or remove — NO "coming soon" (Section 24). Short text input, 4-8 fonts, size/color/rotation/opacity/move/scale
+Phase 4 — Builder depth/content
+ French builder (Section 19): Classic, Micro French, Deep French, V French, Diagonal — tip color, base color, thickness, curve, apply to nail/hand/all, editable after application
+ Gradient/ombré (Section 20): two-color linear, direction/angle, tip-to-base, base-to-tip, classic ombré/baby-boomer presets
+ Finish system (Section 18): Gloss, Matte, Jelly/Sheer, Pearl/Shimmer, Chrome/Metallic, Glitter — visibly distinct in editor thumbnails, final render, AND AR
+ Art library expansion toward 80 recolorable assets (Section 21): Florals, Hearts/Bows, Celestial, Lines, French/Tip, Geometric, Abstract, Chrome, Gems, Animal, Fruit, Texture — real search, categories, recent, favorites, clean preview tiles, NO emoji icons
+ Art transforms (Section 22): tap select, drag move, pinch scale, rotate, opacity, recolor, duplicate, delete, reorder, layer forward/back, bounding box handles, smart alignment
+ Patterns (Section 25): dots, stripes, checker, leopard, zebra, marble — with controls
+ Glitter/foil/chrome quality (Section 26): deterministic, performant
+ Gems/pearls/charms (Section 27): 2.5D, dimensional look, as art layers
+ Layers sheet (Section 28): preview, name, select, reorder, show/hide, lock, duplicate, delete, opacity, meaningful names
+ Smart set operations (Section 30): copy focused to hand, copy to all, mirror L/R, duplicate to fingers, Same on All, Accent, Alternating, Ombré across hand, French across hand — all remain editable per finger
+ Saved nail presets (Section 31): save focused nail, apply to one/hand/all, deep clone
+ Templates (Section 32): curate 24-50 looks from nail presets, create thumbnails, attach metadata, open builder as copy
+Phase 5 — AR
+ Native tracker (Section 36.1): replace HandTracker.js stub. Research current maintained on-device hand-landmark stack for Expo/React Native. VisionCamera/frame processors or equivalent. Clean platform-independent interface: handedness, confidence, 21 landmarks, timestamp
+ Finger anchors (Section 36.2): anatomically correct pairs, verify coordinate conventions
+ Handedness and mirroring (Section 36.3): L/R, front camera mirror, rear orientation, device rotation
+ Smoothing (Section 36.4): exponential moving average or One Euro filter
+ Confidence/lost tracking (Section 36.5): hold/interpolate, fade gracefully, subtle hint, NO giant error pills
+ One/two hands (Section 36.6): one hand excellent minimum, L/R selector
+ Per-finger design (Section 36.7): AR reads same hands.L/R state as builder
+ Fit/calibration (Section 36.8): size, position, offset, rotation, persist, Reset, non-intrusive
+ AR visual rendering (Section 36.9): contact shadow, highlight, scale, rotation, depth, clipping — nails look attached not stickered
+ AR performance (Section 36.10): smooth preview, 15-30fps, no full rerender per frame, worklets where possible
+ AR UI (Section 36.11): camera-first, current design name, hand detection status, design carousel, capture button, Edit action — NO debug coordinates
+ Camera permissions (Section 36.12): ask on Try On only, clear reason, denial with Retry/Settings, no infinite loops
+ Privacy (Section 36.13): on-device tracking, state in Help/Privacy
+ AR capture (Section 36.14): verify react-native-view-shot with camera overlay, implement fallback if needed — NO fake capture
+ Native build verification: compile real dev build, run on emulator/device
+ Deterministic prerecorded hand-sequence tests
+Phase 6 — App shell completion
+ Home (Section 12.1): brand header, Continue editing, Create CTA, Try On shortcut, trending, style shortcuts, recently saved — NOT an admin dashboard
+ Explore (Section 12.2): REAL search (text/color/shape/occasion/finish), curated collections, polished grid, detail page with preview/metadata/Apply/Edit/Try On/Save/Share — NO Pro lock
+ My Nails (Section 12.5): Drafts, Finished Sets, Saved Inspiration, actions: open/rename/duplicate/share/delete — no fake social identity
+ Settings (Section 12.6): appearance, haptics toggle, reduced motion, camera permissions link, clear local data (confirmed), Help/About, version, Privacy/Terms — NO "Manage Subscription" without live subscription
+ Help/About (Section 12.7): what Nailed It does, gestures, AR privacy, version, support link
+ All screens: designed empty/loading/error states (Section 44)
+ Responsive layout at 320, 390, 430, tablet widths (Section 42)
+ Accessibility (Section 43): labels, roles, contrast, 44pt targets, dynamic text, reduced motion, screen reader ordering
+ Onboarding (Section 13): 2-4 screens, sell product not scaffolding, no forced account, no camera permission here
+Phase 7 — Assets/polish/performance/accessibility
+ Curate 24-50 looks from nail presets/ (Section 38): inspect, crop, optimize, deduplicate, balanced style representation
+ Pair editable designData with preview images, label inspiration-only accurately
+ Asset pipeline (Section 39): assets/brand/, assets/onboarding/, assets/inspiration/, optimize for mobile, no CDN dependency, app icon/splash
+ No 300MB asset bundle
+ Cohesive motion language (Section 40): tap feedback 80-150ms, transitions 160-240ms, routes 220-350ms, spring for tactile, reduced motion respected
+ Performance budget (Section 52): 60fps builder, smooth camera, throttled inference, memoized thumbnails, no expensive per-frame parsing
+ No emoji UI icons (use Icon set or create custom SVGs)
+ Independent screenshot/vision review at representative sizes
+Phase 8 — Hardening and release reconciliation
+ Clean install/validation from scratch (Section 57)
+ Full Definition of Done checklist (Section 68) — every item, tied to current Git SHA
+ Mandatory 10-minute user story (Section 67): install → create set → design → save → My Nails → reopen → Try On → capture → close → reopen — ALL REAL, NO fakes
+ Final autonomous review (Section 69): 20 steps including release evidence, migration tests, native build, runtime journeys, visual QA, code review, charter reconciliation
+ No unresolved P0 defects
+ Release evidence tied to exact release-candidate SHA
+ Search for TODO/FIXME/stub/simulated/coming soon/placeholder (Sections 6, 45)
+ Search visible strings for "Nailify" — classify safe legacy or fix
+ Search for fake Pro/purchase/subscription/login/AI behavior
+ .hermes/QA_MATRIX.md records final validation
+ .hermes/KNOWN_ISSUES.md only genuine non-blocking limitations
+ All deliverable docs current: README, AGENTS.md, CHECKPOINT.md, ARCHITECTURE.md, DECISIONS.md, REQUIREMENTS.md, CHANGELOG.md, FINAL_RELEASE.md
+Final handoff (Section 70):
+ What changed
+ Major architecture decisions
+ Exact run/build commands
+ What was tested
+ Builder status
+ Native AR status by platform
+ Non-P0 environmental limitations
+ Provider strategy used
+ Confirmation no unauthorized metered inference
+ QA/release evidence locations
+ Final Git commit hash
+ Controller/release record location
+Routing policy (MUST follow)
+Primary: FreeLLMAPI (unlimited — be patient after failures)
+3 FreeLLMAPI failures on a WorkItem → 4th attempt → ChatGPT Luna via Codex subscription (gpt-5.6-luna via openai-codex)
+After Luna attempt → FreeLLMAPI resumes
+Per-WorkItem failure tracking (unrelated tasks don't inherit counts)
+No paid providers except Luna escalation above
+Process
+Check database + controller state before starting
+Pick next QUEUED work item, or create one for the highest-priority gap
+Work in assigned isolated worktree, commit with WorkItem-linked messages
+Update project.db: mark INTEGRATED after verification
+Run npx expo-doctor from app/, npm test, git diff --check before committing
+If provider fails: retry, then escalate per routing policy. Enter WAITING_PROVIDER if both tiers exhausted.
+If work item fails: create rework item — never stop
+Never claim SHIPPED — release gate function decides
+Hard rules
+Do not stop when a session ends. State is in SQLite + Git.
+Never weaken tests or gates to appear done.
+Never silently spend metered API money.
+Never write a report instead of implementing.
+No fake flows, simulated behavior, or "coming soon" in production paths.
+Builder is the highest priority — it's the product's heart.
+AR second. Premium app quality everywhere. Everything else subordinate.

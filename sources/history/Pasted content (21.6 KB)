@@ -1,0 +1,1011 @@
+EMPIRIUM V5 — FINAL AUTONOMY RECOVERY DIRECTIVE
+FIX THE SUPERVISOR, DISCOVER THE REAL LUNA ROUTE, THEN RESUME V5 WITHOUT RETURNING
+
+This directive supplements and overrides conflicting execution details in the V5 Master Autonomous Completion Protocol.
+
+You have now stopped the autonomous programme twice while the deterministic release gate remained NOT_READY.
+
+That is a P0 control-plane failure.
+
+Your latest diagnosis identified useful root causes, but you again returned control to the user before exhausting the authorized recovery paths.
+
+You must now repair the autonomous continuation mechanism itself and immediately resume the V5 product build.
+
+Do not produce another status-only response.
+
+Do not stop after diagnosing this directive.
+
+Do not stop after fixing the supervisor.
+
+Do not stop after enabling a service.
+
+Do not stop after passing control-plane tests.
+
+After the control plane is repaired, resume the existing V5 product programme automatically.
+
+1. CURRENT KNOWN FAILURE STATE
+
+The latest verified observations are:
+
+empirium-workforce-supervisor.service
+    disabled
+    inactive
+
+production reconciler
+    active
+
+supervisor Director configuration
+    incorrectly launches empirium-freellmapi-director
+
+required Director
+    GPT-5.6 Luna
+    verified subscription-backed route
+
+supervisor persistent state
+    entered restart BACKOFF
+
+release completion condition
+    incomplete
+    does not require BUILD_STATE.status == SHIPPED
+
+active FreeLLMAPI worker
+    alive
+    but assigned a contradictory file-scope contract
+
+worker task required
+    scripts/control-plane modification
+
+worker contract prohibited
+    scripts/**
+
+result
+    process liveness without useful progress
+
+existing supervisor tests
+    51/51 passing
+
+missing proof
+    PostgreSQL/action-debt/Director continuation chain
+
+Treat these facts as the starting incident state.
+
+Reverify before modification, but do not rediscover the entire project from scratch.
+
+2. CRITICAL CORRECTION: CODEX CLI FAILURE ≠ LUNA UNAVAILABLE
+
+Your previous reasoning contained an invalid inference:
+
+local `codex` CLI auth check failed
+    therefore
+no subscription-backed Luna launcher is available
+
+That conclusion is NOT yet proven.
+
+The installed CAO architecture uses the Hermes provider.
+
+The CAO Hermes provider launches a command conceptually equivalent to:
+
+hermes chat --yolo --accept-hooks --source cao
+
+or launches a configured Hermes profile.
+
+Therefore you MUST investigate the actual Hermes/CAO model-routing and authentication path before declaring Luna unavailable.
+
+Do not require the literal codex executable if Hermes already exposes the user's subscription-backed ChatGPT/Codex access through another supported mechanism.
+
+The requirement is:
+
+GPT-5.6 Luna
++
+verified existing subscription entitlement
++
+zero pay-as-you-go inference
+
+The requirement is NOT:
+
+must invoke binary named `codex`
+3. DISCOVER THE REAL SUBSCRIPTION ROUTE
+
+Perform a bounded authentication/routing investigation.
+
+Inspect without exposing secrets:
+
+CAO empirium-director profile
+CAO empirium-reviewer profile
+Hermes cao-director profile
+Hermes cao-reviewer profile
+Hermes model configuration
+Hermes provider configuration
+Hermes subscription/account configuration
+Hermes authentication state
+Codex/ChatGPT integration configuration
+relevant profile aliases
+relevant model aliases
+CAO hermesProfile fields
+environment inheritance
+systemd environment
+existing working interactive Hermes configuration
+
+Determine:
+
+How is the currently working Hermes CLI authenticated?
+
+What model does `cao-director` actually use?
+
+What model does `cao-reviewer` actually use?
+
+Can Hermes select Luna through subscription-backed access?
+
+Can Hermes select Sol through subscription-backed access?
+
+Does that route require OPENAI_API_KEY?
+
+Could it incur API charges?
+
+Can it operate non-interactively?
+
+Can CAO launch it?
+
+Do NOT print tokens, cookies or secrets.
+
+4. VERIFY ROUTES BY EXECUTION, NOT CONFIGURATION NAMES
+
+A profile saying luna is not proof.
+
+Perform a minimal harmless smoke test.
+
+LUNA-SUB-001
+
+Launch one isolated test Director through the actual CAO/Hermes route.
+
+Prompt it to return an exact nonce such as:
+
+LUNA-SUBSCRIPTION-SMOKE-OK
+
+Capture:
+
+CAO session ID
+terminal ID
+Hermes profile
+requested model
+effective model where observable
+authentication class
+cost class
+exit/result
+
+The environment must have paid API credentials removed where necessary to prevent accidental fallback.
+
+Expected:
+
+model = GPT-5.6 Luna or verified Luna alias
+auth_class = SUBSCRIPTION_VERIFIED
+pay_as_you_go_cost = 0
+OpenRouter = false
+SOL-SUB-001
+
+Repeat for Sol using reviewer profile.
+
+Expected:
+
+model = GPT-5.6 Sol or verified Sol alias
+auth_class = SUBSCRIPTION_VERIFIED
+pay_as_you_go_cost = 0
+OpenRouter = false
+
+Only after these tests may the routes be marked verified.
+
+5. PROHIBIT PAID FALLBACK DURING ROUTE DISCOVERY
+
+Testing authentication must never accidentally solve itself by using an API key.
+
+For subscription smoke tests, sanitize the environment so that routes cannot silently use:
+
+OPENAI_API_KEY
+ANTHROPIC_API_KEY
+OPENROUTER_API_KEY
+other pay-as-you-go provider credentials
+
+Do not delete the user's unrelated credentials.
+
+Remove them only from the launched process environment where appropriate.
+
+If subscription access stops working once API credentials are removed, investigate.
+
+Do not call that subscription-verified.
+
+6. IF HERMES ALREADY HAS THE SUBSCRIPTION ROUTE
+
+If Luna works through Hermes/CAO:
+
+use that.
+
+Do not repair the standalone codex CLI merely because the old design assumed it.
+
+Create a stable launcher whose only job is to launch the verified CAO/Hermes Director.
+
+Conceptually:
+
+supervisor
+   ↓
+empirium-luna-director-launcher
+   ↓
+CAO
+   ↓
+empirium-director
+   ↓
+Hermes verified subscription profile
+   ↓
+GPT-5.6 Luna
+
+The launcher must:
+
+launch exactly one Director
+capture CAO session ID
+capture terminal ID
+record PID/session metadata
+return enough data to monitor it
+use correct project context
+use correct profile
+use correct TARGET working directory/context
+not inherit forbidden paid-provider credentials
+
+Do not launch Luna through FreeLLMAPI.
+
+Do not launch a local CPU model as Luna.
+
+7. IF THE SUBSCRIPTION ROUTE IS GENUINELY NOT AUTHENTICATED
+
+Only after checking:
+
+Hermes profile
+CAO profile
+existing ChatGPT/Codex subscription integration
+existing authenticated account state
+noninteractive execution
+
+may you declare:
+
+LUNA_SUBSCRIPTION_AUTH_REQUIRED
+
+That is a genuine human-only blocker for that route.
+
+It is NOT a reason to stop the entire build.
+
+If human authentication is genuinely required:
+
+persist one BLOCKED_HUMAN_AUTH record;
+provide the user with the single smallest exact authentication action required;
+continue all independent FreeLLMAPI/deterministic work that does not require Luna;
+do not repeatedly ask;
+automatically re-probe the authenticated route after the user completes the action;
+resume full autonomy immediately when authentication succeeds.
+
+Do not mark the project globally stopped while independent implementation work remains possible.
+
+8. REPAIR THE SUPERVISOR AS THE REAL PRODUCTION CONTINUATION SERVICE
+
+The existing supervisor has useful primitives but is dormant.
+
+Do not merely enable it unchanged.
+
+Repair it first.
+
+The production supervisor must own:
+
+programme liveness
+Director liveness
+action-debt detection
+stall detection
+relaunch timing
+restart/backoff state
+completion observation
+
+It must NOT own:
+
+product architecture decisions
+implementation
+QA approval
+code merges
+manual SHIPPED declarations
+9. SUPERVISOR MUST BECOME ACTIVE AND BOOT-PERSISTENT
+
+After repair:
+
+empirium-workforce-supervisor.service
+
+must be:
+
+enabled = true
+active = true
+restart policy = configured
+boot persistent = verified
+
+Verify using actual service state.
+
+Not a unit-file inspection alone.
+
+The reconciler and supervisor have different jobs.
+
+Do not replace one with the other.
+
+10. REQUIRED RESPONSIBILITY SPLIT
+
+The architecture must be:
+
+systemd
+   │
+   ├── workforce supervisor
+   │       │
+   │       ├── programme liveness
+   │       ├── Director liveness
+   │       ├── action debt
+   │       └── recovery/backoff
+   │
+   ├── production reconciler
+   │       │
+   │       ├── DB work reconciliation
+   │       ├── leases
+   │       ├── runnable WorkItems
+   │       ├── Attempts
+   │       └── worker dispatch/recovery
+   │
+   └── CAO
+           │
+           └── disposable AI sessions
+
+PostgreSQL remains canonical project/work state.
+
+CAO SQLite is not project authority.
+
+11. REPAIR THE DIRECTOR CONFIGURATION
+
+The current:
+
+empirium-freellmapi-director
+
+configuration violates V5.
+
+Replace it with the verified Luna launcher.
+
+The supervisor configuration should reference a stable executable/wrapper rather than embedding fragile shell logic.
+
+Example semantic config:
+
+{
+  "director_role": "meta_luna",
+  "director_route": "subscription_verified",
+  "director_launcher": "<verified launcher path>",
+  "required_model": "gpt-5.6-luna"
+}
+
+Adapt to existing supervisor schema rather than blindly copying this JSON.
+
+12. FIX BACKOFF CORRECTLY
+
+The supervisor is reportedly already in restart BACKOFF.
+
+Do not simply delete the state file.
+
+Investigate:
+
+why restart counter increased
+what previous launches executed
+whether previous Director immediately exited
+whether the wrong FreeLLMAPI Director caused failures
+whether timeout values were wrong
+whether heartbeat never appeared
+whether BACKOFF state survives configuration changes
+
+Once the underlying cause is fixed:
+
+perform a controlled recovery/reset of the retry generation according to the supervisor's state model.
+
+Preserve historical restart evidence.
+
+Then prove a healthy Director clears/normalizes the failure condition.
+
+13. COMPLETION CONDITION MUST BE STRICT
+
+Current completion condition is insufficient.
+
+Global completion requires ALL of:
+
+FINAL_RELEASE_GATE.exitCode == 0
+
+AND
+
+BUILD_STATE.status == "SHIPPED"
+
+AND
+
+mandatory unresolved requirements == 0
+
+AND
+
+blocking human issues == 0
+
+AND
+
+blocking QA/security/visual/resilience defects == 0
+
+A status string inside one release-gate document alone is insufficient.
+
+A passing worker suite is insufficient.
+
+A Director saying complete is insufficient.
+
+14. IMPLEMENT ACTION DEBT AGAINST REAL POSTGRESQL STATE
+
+The supervisor must not merely watch a heartbeat file.
+
+It must have a deterministic/read-only view of programme state sufficient to determine whether intelligent action is owed.
+
+Define:
+
+PROJECT_INCOMPLETE =
+    BUILD_STATE.status != SHIPPED
+    OR FINAL_RELEASE_GATE.exitCode != 0
+
+Then:
+
+ACTION_DEBT =
+    PROJECT_INCOMPLETE
+    AND NOT explicitly_user_paused
+    AND NOT genuine_global_human_blocker
+    AND NOT legitimate_global_timed_wait
+
+When ACTION_DEBT == true, one of these must exist:
+
+productive implementation Attempt
+
+productive review Attempt
+
+productive integration action
+
+runnable queued WorkItem
+
+legitimate deterministic retry scheduled
+
+active Luna Director making meaningful progress
+
+If none exist:
+
+CONTINUATION_INVARIANT_VIOLATION
+
+and the supervisor must trigger Luna.
+
+15. EMPTY QUEUE WHILE INCOMPLETE IS A DEFECT
+
+An unfinished Project with:
+
+no runnable tasks
+no active workers
+no active reviewer
+no active Director
+release gate != 0
+
+must never remain quietly idle.
+
+The system should launch Luna to reconcile:
+
+release-gate failures
+requirements
+dependencies
+blocked tasks
+review defects
+current integration SHA
+
+and create the next bounded work.
+
+16. RELEASE-GATE FAILURE MUST CREATE ACTION
+
+After each release-gate execution:
+
+For every failing check, determine:
+
+already represented by unfinished WorkItem?
+
+If yes:
+
+ensure it remains scheduled.
+
+If no:
+
+create a corrective WorkItem or send the failure packet to Luna for bounded decomposition.
+
+The impossible state is:
+
+release gate NOT_READY
++
+no corrective work
++
+no Director
+
+Treat that as a P0 invariant violation.
+
+17. FIX HEARTBEAT VS PROGRESS
+
+The existing supervisor already partially distinguishes heartbeat/progress.
+
+Complete the implementation.
+
+Persist separately:
+
+last_heartbeat_at
+last_meaningful_progress_at
+last_attempt_transition_at
+last_file_change_at
+last_test_at
+last_review_at
+last_integration_at
+
+A process is not productive because CPU usage is nonzero.
+
+A process is not productive because its CAO terminal exists.
+
+A process is not productive because heartbeat updates.
+
+18. FIX THE CURRENT NO-PROGRESS WORKER
+
+The active worker is assigned contradictory instructions:
+
+required remediation touches scripts/**
+
+but:
+
+scope contract forbids scripts/**
+
+That Attempt cannot be treated as productive execution.
+
+Immediately:
+
+classify the current Attempt appropriately, likely NO_PROGRESS / INVALID_SCOPE_CONTRACT;
+preserve logs/evidence;
+release/terminate safely;
+correct the WorkItem scope;
+create a new bounded Attempt.
+
+Do not globally remove script protections.
+
+For control-plane work, create an explicit privileged file scope containing only the required control-plane files.
+
+Example:
+
+allowed:
+    scripts/production-reconciler.ts
+    specific supervisor/controller files
+    relevant tests
+
+forbidden:
+    unrelated application files
+    system secrets
+    unrelated services
+19. CONTROL-PLANE WORKER CLASS
+
+Create a distinct bounded contract for control-plane implementation if needed.
+
+It still uses FreeLLMAPI for code authoring.
+
+It receives:
+
+CONTROL_PLANE_TASK=true
+exact allowed files
+exact tests
+architecture contract
+rollback requirement
+no service activation until reviewed
+
+Because control-plane changes are high risk:
+
+FreeLLMAPI implements
+        ↓
+deterministic tests
+        ↓
+Sol reviews
+        ↓
+staged activation
+
+No worker may directly activate its own unreviewed supervisor change.
+
+20. DO NOT LET MISSING SOL TEMPORARILY DESTROY PROGRESS
+
+If the Sol subscription route is temporarily unavailable:
+
+persist work as WAITING_REVIEW;
+continue implementation of independent Tasks;
+do not merge high-risk unreviewed changes;
+periodically recheck Sol route.
+
+Do not substitute FreeLLMAPI self-review as final approval.
+
+21. ADD REAL CONTINUATION TESTS
+
+The 51 existing tests are retained.
+
+Add a separate production-continuation suite.
+
+At minimum:
+
+CONT-001 — SUPERVISOR SERVICE ACTIVE
+
+Verify real systemd state:
+
+enabled
+active
+one process
+correct config
+CONT-002 — VERIFIED LUNA DIRECTOR LAUNCH
+
+Supervisor launches the real configured subscription-backed Luna route.
+
+Capture:
+
+CAO session
+terminal
+profile
+model evidence
+heartbeat
+CONT-003 — DIRECTOR NORMAL EXIT WHILE INCOMPLETE
+
+Setup:
+
+release gate != 0
+BUILD_STATE != SHIPPED
+
+Allow Luna to exit successfully.
+
+Expected:
+
+project stays active
+action debt detected
+replacement Luna automatically launched
+no user input
+CONT-004 — DIRECTOR CRASH
+
+Kill Luna.
+
+Expected:
+
+death detected
+backoff policy respected
+replacement launched
+state reconstructed
+CONT-005 — BACKOFF RECOVERY
+
+Cause controlled repeated Director failures.
+
+Expected:
+
+BACKOFF enters
+no restart storm
+
+Then restore healthy launcher.
+
+Expected:
+
+controlled recovery occurs
+programme resumes
+
+It must not stay stuck forever because an old generation failed.
+
+CONT-006 — EMPTY QUEUE / INCOMPLETE PROJECT
+
+Setup:
+
+release gate fails
+no active worker
+no runnable WorkItem
+
+Expected:
+
+action-debt violation detected
+Luna launched
+new bounded work created
+CONT-007 — IDLE PROCESS DOES NOT MASK ACTION DEBT
+
+Keep a worker process alive but generate no meaningful progress.
+
+Expected:
+
+progress timeout
+Attempt classified
+worker recovered
+programme continues
+CONT-008 — INVALID SCOPE CONTRACT
+
+Assign a fixture task requiring one prohibited file.
+
+Expected:
+
+dispatcher detects incompatibility before wasting long worker execution
+Attempt rejected/rebriefed
+
+Where preflight detection is possible.
+
+CONT-009 — RELEASE GATE FAILURE → WORK
+
+Generate known release-gate defect.
+
+Expected:
+
+corrective WorkItem exists
+or Luna receives failure packet and creates one
+
+No idle terminal state.
+
+CONT-010 — RECONCILER RESTART
+
+Restart reconciler while Project incomplete.
+
+Expected:
+
+DB state survives
+workers reconciled
+continuation maintained
+CONT-011 — SUPERVISOR RESTART
+
+Restart supervisor.
+
+Expected:
+
+project discovered
+action debt reconstructed
+Director monitoring/relaunch resumes
+CONT-012 — CAO RESTART
+
+Restart CAO.
+
+Expected:
+
+project state survives outside CAO
+stale terminal reconciled
+replacement session can be created
+CONT-013 — BROWSER CLOSED
+
+Browser absence has zero effect on continuation.
+
+CONT-014 — STATUS REPORT DOES NOT STOP PROGRAMME
+
+Have Luna produce a normal progress summary while:
+
+release gate != 0
+
+Expected:
+
+summary persisted
+Director episode may end
+supervisor continues programme automatically
+CONT-015 — TRUE TERMINAL SUCCESS
+
+Only when:
+
+FINAL_RELEASE_GATE.exitCode == 0
+AND
+BUILD_STATE.status == SHIPPED
+
+Expected:
+
+no further Director relaunch
+22. TEST THE ACTUAL LIVE CHAIN
+
+Do not stop after mocked/unit testing.
+
+Prove:
+
+systemd supervisor
+    ↓
+PostgreSQL project
+    ↓
+action debt
+    ↓
+verified Luna launcher
+    ↓
+CAO
+    ↓
+Luna Director
+    ↓
+creates/repairs WorkItem
+    ↓
+reconciler
+    ↓
+FreeLLMAPI worker
+    ↓
+real result
+    ↓
+test
+    ↓
+Sol review
+    ↓
+integration
+    ↓
+release gate still fails
+    ↓
+next cycle begins AUTOMATICALLY
+
+The key acceptance condition is the final arrow.
+
+Leave it unattended across at least three consecutive orchestration cycles.
+
+Do not manually send "continue" between them.
+
+23. RUN A SHORT CONTINUATION BURN-IN BEFORE RESUMING MASS WORK
+
+After control-plane repair:
+
+Run at least 60–90 minutes or several complete bounded cycles, whichever is more meaningful.
+
+During that period:
+
+let Luna finish and be relaunched at least once;
+kill one FreeLLMAPI worker;
+allow one worker NO_PROGRESS;
+allow one review/rework loop;
+verify tasks continue.
+
+Success:
+
+zero human "continue" messages
+zero silent idle while action debt exists
+zero duplicate Director
+zero duplicate task claim
+no paid inference
+no OpenRouter
+
+Only then consider the continuation mechanism repaired.
+
+24. THEN RESUME V5 IMMEDIATELY
+
+Do not return to the user saying:
+
+control plane fixed
+
+That is not the mission.
+
+The V5 release gate is still NOT_READY.
+
+Immediately resume the P0 product frontier.
+
+Current known P0 product gaps include at minimum:
+
+Organization Overview / Organization Cockpit
+Department Cockpit
+state-bound Living 2D Office
+blue/yellow employee character integration
+remaining unverified mandatory requirements
+
+Use the existing indexed VPS asset library.
+
+Do not regenerate generic replacement assets.
+
+25. ORGANIZATION IMPLEMENTATION DECOMPOSITION
+
+Do not assign:
+
+build Organization cockpit
+
+to one free worker.
+
+Break it into dependency-safe contracts such as:
+
+ORG-UI-01 shell/navigation
+ORG-UI-02 summary metrics backend queries
+ORG-UI-03 summary metric components
+ORG-UI-04 department-card data adapter
+ORG-UI-05 rich Department cards
+ORG-UI-06 mini-office renderer/snapshots
+ORG-UI-07 Organization Activity
+ORG-UI-08 Models/Cost panel
+ORG-UI-09 Improvements panel
+ORG-UI-10 Create Department persistent workflow
+ORG-UI-11 responsive states
+ORG-UI-12 browser/visual QA fixes
+
+Each:
+
+FreeLLMAPI implementation
+tests
+runtime proof
+Sol review where appropriate
+integration
+26. DEPARTMENT COCKPIT DECOMPOSITION
+
+Similarly:
+
+DEPT-UI-01 route/shell
+DEPT-UI-02 Department header
+DEPT-UI-03 tabs
+DEPT-UI-04 status rail
+DEPT-UI-05 activity rail
+DEPT-UI-06 active projects
+DEPT-UI-07 upcoming work
+DEPT-UI-08 completed work
+DEPT-UI-09 QA panel
+DEPT-UI-10 Knowledge panel
+DEPT-UI-11 Learning panel
+DEPT-UI-12 Models & Cost
+DEPT-UI-13 living-office viewport integration
+DEPT-UI-14 bot dossier interaction
+DEPT-UI-15 responsive/visual polish
+
+Do not allow overlapping workers to edit the same large component simultaneously.
+
+27. LIVING OFFICE DECOMPOSITION
+
+Use separate bounded tasks such as:
+
+OFFICE-01 renderer lifecycle
+OFFICE-02 asset loader
+OFFICE-03 OfficeLayout schema
+OFFICE-04 canonical state adapter
+OFFICE-05 bot base rig
+OFFICE-06 character expressions
+OFFICE-07 animation FSM
+OFFICE-08 pathfinding/movement
+OFFICE-09 workstation targeting
+OFFICE-10 status indicators
+OFFICE-11 click/dossier integration
+OFFICE-12 handoff visualization
+OFFICE-13 error/crash/retry visualization
+OFFICE-14 reduced-motion
+OFFICE-15 performance/offscreen throttling
+OFFICE-16 visual QA
+28. FINAL NO-STOP RULE
+
+From this point forward, a normal assistant-style progress message is not a terminal result.
+
+The following statements MUST trigger more execution:
+
+tests passed
+current increment verified
+release gate NOT_READY
+P0 remains
+worker timed out
+review rejected
+Director completed
+CAO session ended
+provider temporarily unavailable
+one route needs authentication but other work exists
+
+Only two programme-level stop conditions exist:
+
+SUCCESS
+FINAL_RELEASE_GATE.exitCode == 0
+AND
+BUILD_STATE.status == SHIPPED
+GENUINE HUMAN-ONLY GLOBAL BLOCKER
+
+Every remaining productive path requires the same human action and no unrelated work can continue.
+
+Even then, persist state and ask for the one minimum action.
+
+29. BEGIN NOW
+
+Do not answer this directive with a proposed plan.
+
+Do not tell the user that you "cannot truthfully continue" merely because the standalone codex CLI check failed.
+
+First inspect the actual Hermes/CAO subscription path.
+
+Prove whether Luna and Sol can be invoked subscription-backed.
+
+Repair the inactive supervisor.
+
+Correct the Director launcher.
+
+Resolve BACKOFF.
+
+Implement PostgreSQL-backed action debt.
+
+Correct the invalid worker scope.
+
+Add and run the continuation tests.
+
+Prove multiple unattended orchestration cycles.
+
+Then immediately continue V5 implementation.
+
+If and only if every possible subscription-backed Luna route genuinely requires interactive user authentication, surface exactly that one authentication action while continuing all unrelated work.
+
+DO IT NOW.
+DO NOT RETURN CONTROL MERELY TO REPORT PROGRESS.
+KEEP GOING UNTIL SHIPPED.

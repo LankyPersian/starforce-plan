@@ -1,0 +1,557 @@
+You are operating directly on my IONOS Ubuntu VPS.
+
+Your task is to fully install, configure, test, and integrate this project:
+
+https://github.com/tashfeenahmed/freellmapi
+
+GOAL
+
+I want FreeLLMAPI running locally on this VPS as a unified OpenAI-compatible gateway that pools the free API tiers I have access to.
+
+Hermes itself is already running on this VPS.
+
+The desired final architecture is:
+
+Hermes
+  ↓
+FreeLLMAPI local gateway
+  ↓
+Google Gemini
+Groq
+Cerebras
+Mistral
+Hugging Face
+Z.AI
+Cloudflare Workers AI
+NVIDIA
+OpenRouter
+and any other FreeLLMAPI providers I add later
+
+IMPORTANT:
+FreeLLMAPI must NOT replace my existing Hermes providers or destroy any existing configuration.
+
+It should be added as an additional provider / endpoint available to Hermes.
+
+I want to retain the ability to use my existing providers directly when desired.
+
+==================================================
+CRITICAL SAFETY REQUIREMENTS
+==================================================
+
+1. DO NOT break any existing service on this VPS.
+2. DO NOT delete existing Docker containers, volumes, networks, configuration files, databases, services, or applications.
+3. DO NOT overwrite Hermes configuration without first backing it up.
+4. DO NOT expose FreeLLMAPI publicly to the internet.
+5. Bind FreeLLMAPI to localhost / 127.0.0.1 only.
+6. Do not open firewall port 3001 publicly.
+7. Do not modify Caddy, nginx, DNS, Tailscale, SSH, PostgreSQL, Empirium services, or other infrastructure unless absolutely required.
+8. Do not display API secrets in logs or final output.
+9. Never commit API keys to Git.
+10. Any files containing secrets must have restrictive filesystem permissions.
+11. Before changing an existing configuration file:
+   - identify it
+   - create a timestamped backup
+   - verify backup exists
+   - then make the change
+12. If port 3001 is already occupied, do NOT kill the existing process. Find a safe unused localhost port and use that instead.
+13. Prefer reversible changes.
+14. If any operation appears capable of damaging existing services, stop that operation and choose a safer approach.
+
+==================================================
+PHASE 1 — AUDIT THE VPS
+==================================================
+
+First perform a quick read-only environment audit.
+
+Determine:
+
+- Ubuntu version
+- current user
+- Docker version
+- Docker Compose availability
+- currently running Docker containers
+- ports currently listening
+- whether port 3001 is available
+- available disk space
+- available RAM
+- where Hermes is installed
+- how Hermes providers/models are currently configured
+- whether Hermes supports custom OpenAI-compatible providers/base URLs
+- whether FreeLLMAPI is already installed anywhere
+
+Do not change anything during this phase.
+
+Give yourself enough information to avoid conflicts.
+
+==================================================
+PHASE 2 — INSPECT FREELLMAPI
+==================================================
+
+Review the current upstream repository:
+
+https://github.com/tashfeenahmed/freellmapi
+
+Read at minimum:
+
+README.md
+
+docs/en/install/01-install.md
+
+docs/en/architecture/00-high-level-index.md
+
+docs/en/clients/01-agent-clients.md
+
+and any Hermes-specific configuration documentation present in the repository.
+
+Confirm the current official installation method rather than assuming older instructions are still correct.
+
+If using an upstream shell installer, DO NOT blindly pipe an unknown script straight into bash.
+
+Instead:
+
+1. download it
+2. inspect it
+3. confirm it belongs to the official FreeLLMAPI project
+4. confirm it does not perform destructive/unexpected operations
+5. then execute it
+
+Prefer the official Docker deployment unless there is a strong reason not to.
+
+==================================================
+PHASE 3 — INSTALL FREELLMAPI
+==================================================
+
+Install FreeLLMAPI.
+
+Preferred deployment:
+
+Docker / Docker Compose.
+
+Requirements:
+
+- persistent storage
+- restart automatically after VPS reboot
+- provider keys encrypted at rest using FreeLLMAPI's supported encryption mechanism
+- localhost-only network binding
+- no public exposure
+
+Default preferred address:
+
+http://127.0.0.1:3001
+
+If 3001 is already in use, choose another unused localhost port and record it.
+
+Make sure the encryption key is securely generated.
+
+Do not print the encryption key into normal logs/output.
+
+Set restrictive permissions on files containing secrets.
+
+Verify the container/service starts successfully.
+
+Verify:
+
+GET /v1/models
+
+or another appropriate FreeLLMAPI health/API endpoint works locally.
+
+Also verify the dashboard can be reached locally on the VPS.
+
+==================================================
+PHASE 4 — PROVIDER CONFIGURATION
+==================================================
+
+I already possess API credentials for several providers.
+
+I intend to configure:
+
+- Google Gemini
+- Groq
+- Cerebras
+- Mistral
+- Hugging Face
+- Z.AI
+- Cloudflare Workers AI
+- NVIDIA
+- OpenRouter
+
+Do NOT invent API keys.
+
+Do NOT search my filesystem indiscriminately for secrets.
+
+First determine exactly what credentials each FreeLLMAPI provider requires.
+
+Examples:
+
+Google:
+API key
+
+Groq:
+API key
+
+Cerebras:
+API key
+
+Mistral:
+API key
+
+Hugging Face:
+access token
+
+Z.AI:
+API key
+
+Cloudflare Workers AI:
+API token
+AND Cloudflare Account ID if required
+
+NVIDIA:
+API key
+
+OpenRouter:
+API key
+
+Use FreeLLMAPI's supported secure key-storage mechanism.
+
+If credentials are not already available to you through an explicitly configured secure source, pause only at this stage and ask me to supply the missing values.
+
+Ask for them in a concise checklist.
+
+Do not ask me to put secrets into Git or source files.
+
+If possible, give me a secure terminal-based way to enter them without echoing them onto the screen.
+
+For example, use hidden shell input where appropriate.
+
+Never repeat a secret back to me after receiving it.
+
+Once supplied, configure all providers.
+
+==================================================
+PHASE 5 — VALIDATE EVERY PROVIDER
+==================================================
+
+Do not assume that adding a key means the provider works.
+
+Individually test every configured provider.
+
+For each provider determine:
+
+- authentication successful?
+- at least one model available?
+- simple chat completion successful?
+- tool calling available?
+- streaming available?
+- latency
+- current rate/quota errors
+- whether the account appears to have free access
+- any special restrictions returned by the provider
+
+Use very small prompts so testing consumes minimal quota.
+
+Example test:
+
+"Reply exactly with OK"
+
+Do not waste significant free tokens during setup.
+
+Produce an internal matrix resembling:
+
+Provider | Auth | Models | Completion | Streaming | Tool support | Status
+
+If one provider fails, diagnose it.
+
+Do not let one failed provider block the remainder of the setup.
+
+==================================================
+PHASE 6 — CONFIGURE FREELLMAPI ROUTING
+==================================================
+
+Configure FreeLLMAPI for sensible general-purpose routing.
+
+Goals:
+
+1. Prefer strong models when free quota is available.
+2. Prefer low latency where capability is similar.
+3. Automatically fall back when a provider:
+   - rate limits
+   - reaches daily quota
+   - times out
+   - returns a temporary 5xx error
+4. Avoid repeatedly retrying a provider that is already known to be unavailable.
+5. Preserve tool-calling compatibility for Hermes agent tasks.
+6. Do not send tool-calling requests to models that cannot support them if FreeLLMAPI can detect this.
+7. Keep the router's built-in quota/rate tracking enabled.
+
+Use FreeLLMAPI's current recommended automatic/balanced routing method unless repository documentation gives a better configuration.
+
+Do not aggressively customise internal routing logic unless necessary.
+
+==================================================
+PHASE 7 — TEST THE UNIFIED API
+==================================================
+
+Obtain/create the FreeLLMAPI unified API token.
+
+Do not print the complete token in the report.
+
+Test the gateway directly.
+
+Perform:
+
+1. /v1/models test
+2. normal chat completion
+3. streaming completion
+4. tool/function-call test if supported
+5. deliberate fallback test if this can be safely done without consuming significant quota
+
+Verify that a request goes:
+
+local client
+→ FreeLLMAPI
+→ upstream provider
+→ FreeLLMAPI
+→ local client
+
+Confirm the OpenAI-compatible endpoint works.
+
+==================================================
+PHASE 8 — INTEGRATE WITH HERMES
+==================================================
+
+Now integrate FreeLLMAPI with Hermes.
+
+IMPORTANT:
+
+DO NOT delete or replace Hermes's existing provider configuration.
+
+Add FreeLLMAPI as an additional provider.
+
+Before editing Hermes configuration:
+
+1. locate exact active configuration
+2. create timestamped backup
+3. verify backup
+4. make the minimum required change
+
+Use:
+
+Base URL:
+http://127.0.0.1:<FREELLMAPI_PORT>/v1
+
+API key:
+the local FreeLLMAPI unified key
+
+Use whichever OpenAI-compatible/custom provider configuration Hermes currently supports.
+
+If FreeLLMAPI has official Hermes Agent instructions in its repository, follow those.
+
+Give the provider a clear name such as:
+
+FreeLLMAPI
+
+or:
+
+Free Pool
+
+Do not make it impossible for me to select my existing providers directly.
+
+==================================================
+PHASE 9 — HERMES END-TO-END TEST
+==================================================
+
+Test Hermes through FreeLLMAPI.
+
+Use a tiny, harmless task such as:
+
+"Reply with exactly: FREELLMAPI_OK"
+
+Verify:
+
+Hermes
+→ local FreeLLMAPI
+→ one of the configured providers
+→ response reaches Hermes
+
+Then perform one simple tool-capable Hermes task if safe.
+
+Verify no authentication errors occur.
+
+Check FreeLLMAPI request logs/analytics to confirm the request was routed.
+
+Do not expose secret values in screenshots/log output.
+
+==================================================
+PHASE 10 — PERSISTENCE / RESTART TEST
+==================================================
+
+Verify the system survives restart conditions.
+
+At minimum verify:
+
+- Docker/container restart policy
+- persistent FreeLLMAPI database/storage
+- provider credentials remain available
+- encryption configuration remains valid
+- Hermes configuration persists
+
+Restart only the FreeLLMAPI service/container first.
+
+Do NOT reboot the entire VPS unless genuinely necessary.
+
+After restart test again:
+
+/v1/models
+
+and one tiny completion.
+
+==================================================
+PHASE 11 — OPTIONAL QUALITY IMPROVEMENTS
+==================================================
+
+After the basic installation is fully working, inspect whether FreeLLMAPI supports:
+
+- model profiles
+- fallback profiles
+- sticky sessions
+- context handoff
+- prompt compression
+- model capability routing
+- latency/reliability scoring
+- provider health checks
+
+Do not turn everything on blindly.
+
+Enable only options that clearly improve Hermes reliability/cost without causing incompatibility.
+
+In particular, evaluate whether prompt compression could reduce Hermes's excessive token usage.
+
+Do NOT integrate third-party compression systems like Headroom/Ponytail during this task.
+
+That will be handled separately.
+
+==================================================
+DEFINITION OF DONE
+==================================================
+
+This task is NOT complete merely because a container is running.
+
+It is complete only when ALL applicable conditions below are true:
+
+[ ] FreeLLMAPI installed on the VPS
+
+[ ] Runs persistently
+
+[ ] Localhost-only
+
+[ ] No public FreeLLMAPI port exposed
+
+[ ] Existing VPS services unaffected
+
+[ ] Existing Hermes configuration backed up
+
+[ ] Existing Hermes providers preserved
+
+[ ] FreeLLMAPI unified API functional
+
+[ ] Provider credentials stored securely
+
+[ ] Every supplied provider individually tested
+
+[ ] Working providers enabled
+
+[ ] Broken providers clearly identified
+
+[ ] Automatic fallback/routing operational
+
+[ ] Hermes can call FreeLLMAPI successfully
+
+[ ] Hermes can still use its previous providers
+
+[ ] Restart test passed
+
+[ ] No API keys leaked into logs/source/Git
+
+[ ] Final report produced
+
+==================================================
+FINAL REPORT
+==================================================
+
+When completely finished, give me a concise but complete report containing:
+
+1. INSTALLATION
+
+- installation directory
+- deployment method
+- container/service name
+- local port
+- current status
+
+2. PROVIDERS
+
+Table:
+
+Provider
+Status
+Models detected
+Test result
+Approximate latency
+Notes
+
+3. ROUTING
+
+Explain the routing/fallback configuration you selected.
+
+4. HERMES
+
+Show:
+
+provider name
+base URL
+
+Do NOT reveal the actual API key.
+
+Confirm existing Hermes providers remain intact.
+
+5. TESTS
+
+List every test performed and PASS/FAIL.
+
+6. SECURITY
+
+Confirm:
+
+localhost-only
+no firewall exposure
+secrets encrypted/restricted
+no secrets committed
+configuration backup path
+
+7. ISSUES
+
+List anything that failed or could not be configured.
+
+8. EXACT NEXT STEP
+
+If I personally need to do anything, give me only the minimum required action.
+
+==================================================
+WORKING STYLE
+==================================================
+
+Work autonomously.
+
+Do not repeatedly ask me what to do next.
+
+Investigate, implement, test, diagnose and repair issues yourself.
+
+Use the repository documentation and actual system state as the source of truth.
+
+Do not stop after installation — carry the job through configuration, Hermes integration and testing.
+
+Only interrupt me when information unavailable to you is genuinely mandatory, such as an API credential.
+
+Minimise token usage and unnecessary commentary while working.
+
+Begin now with the read-only VPS audit.

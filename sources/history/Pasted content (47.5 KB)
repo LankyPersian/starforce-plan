@@ -1,0 +1,1972 @@
+<ROLE>
+You are the senior principal engineer responsible for hardening the inference layer used by the Empirium autonomous software company.
+
+You are NOT being asked to write a proposal, produce another architectural essay, or merely identify potential improvements.
+
+You are being asked to INSPECT THE ACTUAL CURRENT CODE, IMPLEMENT THE REQUIRED CHANGES, TEST THEM, CONFIGURE THE system, prove the resulting behaviour, and leave the repositories in a clean, comprehensible, maintainable state.
+
+Continue working until the acceptance criteria in this specification are genuinely satisfied or until there is a true external blocker that cannot be solved locally.
+
+Do not stop after creating a plan.
+Do not stop after changing configuration.
+Do not stop because unit tests pass if the runtime behaviour has not been demonstrated.
+Do not repeatedly tell me what you intend to do instead of doing it.
+Use tools.
+Read code.
+Edit code.
+Run tests.
+Run local/mock integration tests.
+Inspect logs and databases where appropriate.
+Verify actual HTTP payloads.
+Verify actual routing behaviour.
+
+Do not consume paid LLM inference during testing unless a pre-existing test explicitly requires it and the environment is already configured for such testing. Prefer mocks, local test doubles, existing test harnesses, or free endpoints.
+
+Preserve uncommitted user work. Never run destructive git reset/clean commands against an unfamiliar dirty repository.
+
+This task concerns the INFERENCE AND ROUTING LAYER.
+
+Do NOT redesign the entire Empirium product or its wider task orchestration system here. The larger durable task-graph architecture is being handled separately.
+
+However, implement the inference-layer hooks Empirium needs in order to distinguish:
+1. provider/inference failure;
+2. technically successful LLM responses;
+3. successful responses that make no useful project progress;
+4. productive responses that advance a task.
+
+The result must integrate cleanly with that larger architecture.
+</ROLE>
+
+
+<PRIMARY_OBJECTIVE>
+
+Tailor FreeLLMAPI + Hermes Agent + the Empirium integration for this use case:
+
+Empirium is an autonomous software-building system.
+
+Its priority order is approximately:
+
+1. THE ASSIGNED TASK ACTUALLY GETS COMPLETED.
+2. Inference is reliable enough for unattended autonomous operation.
+3. Model quality/intelligence is high enough for coding, debugging, planning and tool use.
+4. Free inference should be used wherever practical.
+5. Rate limits and quotas should be preserved intelligently.
+6. Provider/model failures must cause automatic recovery.
+7. Speed matters, but is a distant priority compared with reliability and completion.
+8. No human should have to manually choose a "thinking budget" every time FreeLLMAPI picks a different underlying model.
+
+A response that arrives in 40 seconds and successfully completes useful work is preferable to a response that arrives in 3 seconds and does nothing useful.
+
+A model that returns HTTP 200 but repeatedly produces no tool calls, no repository changes, no task advancement and no useful output must NOT continue receiving work just because FreeLLMAPI thinks the transport request was successful.
+
+A provider/model/key is disposable.
+
+The Empirium Task is not.
+
+The inference stack must therefore behave like:
+
+EMPIRIUM TASK
+    durable
+      |
+      v
+TASK ATTEMPT
+      |
+      v
+HERMES AGENT
+      |
+      v
+FREELLMAPI
+      |
+      +--> provider/model/key A
+      |        failure
+      |
+      +--> provider/model/key B
+      |        rate limited
+      |
+      +--> provider/model/key C
+               success
+      |
+      v
+EMPIRIUM EVALUATES WHETHER USEFUL PROGRESS OCCURRED
+
+Provider failure and no-progress model output are TWO DIFFERENT FAILURE CLASSES.
+
+They must never again be collapsed into one generic "failure counter".
+</PRIMARY_OBJECTIVE>
+
+
+<CURRENT_OBSERVED_SYSTEM AND IMPORTANT FACTS>
+
+Before changing anything, verify these facts against the ACTUAL LOCAL CODE.
+
+Do not assume the repository is identical to upstream.
+
+The upstream code inspected immediately before this task had the following relevant behaviour.
+
+FREE LLM API:
+
+- Main routing is implemented around:
+  server/src/services/router.ts
+  server/src/services/scoring.ts
+  server/src/services/ratelimit.ts
+  server/src/lib/fallback-loop.ts
+  server/src/lib/sampling-params.ts
+  server/src/routes/proxy.ts
+
+- FreeLLMAPI supports adaptive scoring rather than simple round robin.
+
+- Default "balanced" weights were approximately:
+  reliability = 0.50
+  speed       = 0.25
+  intelligence= 0.25
+
+- Other routing strategies include balanced, smartest, fastest, reliable, priority and custom.
+
+- Historical routing statistics use approximately:
+  seven-day window
+  two-day exponential half-life
+
+- Timeouts are included as negative speed/reliability evidence.
+
+- 429s and ordinary failures produce temporary model penalties.
+
+- Provider-level transport/timeout/5xx failures can cause:
+  state.skipPlatforms.add(route.platform)
+
+  meaning the remainder of that request should move away from that provider.
+
+- Key failures, model failures and provider failures are intentionally classified differently.
+
+- FreeLLMAPI persists:
+  request records
+  cooldowns
+  rate-limit usage
+  per-attempt routing traces
+
+- request_attempts contains information about actual provider/model/key attempts.
+
+- Relevant response telemetry includes:
+  X-Routed-Via
+  X-Fallback-Attempts
+  X-Fallback-Trail
+  optional X-Fallback-Detail
+
+- Detailed fallback telemetry can be enabled.
+
+- The current default failover wall-clock budget is around 45 seconds.
+
+- Current code allows up to around 20 fallback attempts, but the wall-clock budget frequently prevents reaching that number.
+
+- Provider timeouts can be configured individually with provider-specific timeout settings/environment variables.
+
+- Current upstream development includes work addressing slow-but-healthy endpoints and extremely late provider error responses.
+
+At the time this task specification was written, upstream PRs of particular interest included:
+
+  #1264
+  per-endpoint TTFB-aware retry budget
+
+  #1268
+  bench a route when a provider only emits an in-band error after consuming most of the retry budget
+
+DO NOT blindly cherry-pick these.
+
+First inspect whether they have now merged, whether the local repository already contains equivalent behaviour, and whether the implementation has changed.
+
+If the relevant functionality is now upstream, update/rebase appropriately or implement the equivalent local configuration.
+
+If not, port the minimum well-tested functionality necessary.
+
+Do not duplicate functionality that already exists.
+
+
+HERMES AGENT:
+
+Relevant current source areas include approximately:
+
+  agent/reasoning_effort.py
+  agent/agent_init.py
+  agent/conversation_loop.py
+  agent/system_prompt.py
+  agent/prompt_builder.py
+  agent/verification_stop.py
+  plugins/model-providers/custom/__init__.py
+  providers/README.md
+  apps/shared/src/reasoning-effort.ts
+  web/src/components/ReasoningPicker.tsx
+
+The inspected current Hermes source exposes reasoning values such as:
+
+  none
+  minimal
+  low
+  medium
+  high
+  xhigh
+  max
+  ultra
+
+"none" means DISABLE REASONING.
+
+It does NOT mean:
+"I don't care; use the provider/model default."
+
+The current default reasoning effort when no explicit value is selected is generally medium.
+
+That is a bad semantic for FreeLLMAPI `model=auto`, because Hermes does not know which actual model FreeLLMAPI will choose.
+
+FreeLLMAPI itself already has provider compatibility logic that can:
+- omit reasoning parameters for unsupported providers;
+- normalize/clamp several reasoning effort values;
+- translate Gemini effort to thinking budget.
+
+For example, current FreeLLMAPI Gemini behaviour maps low/medium/high into explicit Gemini thinking budgets and maps none/minimal to zero thinking.
+
+Therefore:
+
+"reasoning_effort=none"
+
+MUST NOT be used as the generic solution.
+
+That would actively disable reasoning on models where reasoning could help.
+
+The desired normal semantic is instead:
+
+PROVIDER_DEFAULT
+
+meaning:
+
+Hermes does not force a reasoning budget;
+FreeLLMAPI chooses the model;
+the provider/model uses its native/default reasoning behaviour.
+
+Explicit task-specific reasoning must still be possible later.
+
+
+IMPORTANT HERMES RETRY SEMANTICS:
+
+Do not blindly follow documentation saying "api_max_retries=0".
+
+Inspect actual code.
+
+In the source inspected before this prompt, agent/agent_init.py effectively did:
+
+  _api_retries = max(int(config_value), 1)
+
+and conversation_loop.py used approximately:
+
+  while retry_count < max_retries
+
+Therefore `1` means ONE Hermes-level API attempt.
+
+That is what we want when FreeLLMAPI itself already owns provider/model failover.
+
+Verify this in the local version.
+
+The desired behaviour is:
+
+ONE Hermes wrapper attempt
+containing
+ONE FreeLLMAPI request
+which internally performs provider/model failover.
+
+We DO NOT want:
+
+Hermes attempt #1
+    FreeLLMAPI tries several routes
+
+Hermes retries whole call
+    FreeLLMAPI repeats entire ladder
+
+Hermes retries again
+    entire ladder repeats again
+
+If local semantics have changed, configure the equivalent of ONE outer attempt.
+
+If comments/docs claim something different from the implementation, correct the inconsistency as part of this task.
+</CURRENT_OBSERVED_SYSTEM_AND_IMPORTANT_FACTS>
+
+
+<NON_NEGOTIABLE DESIGN PRINCIPLES>
+
+1. CONFIGURATION BEFORE FORKING
+
+Use existing settings and extension mechanisms wherever possible.
+
+Priority:
+
+existing configuration
+    >
+existing provider/plugin extension point
+    >
+small isolated patch
+    >
+large invasive fork
+
+Do not rewrite FreeLLMAPI routing from scratch.
+
+
+2. UPSTREAM MAINTAINABILITY
+
+Any FreeLLMAPI changes should remain easy to rebase against upstream.
+
+Prefer:
+- isolated modules;
+- small API additions;
+- migrations;
+- feature flags;
+- settings;
+- extension hooks.
+
+Avoid scattering Empirium-specific conditions through unrelated code.
+
+
+3. NO HIDDEN RETRY EXPLOSIONS
+
+Exactly one component should own each retry layer.
+
+FreeLLMAPI owns:
+provider/model/key failover inside one inference request.
+
+Hermes should not replay the whole FreeLLMAPI ladder several times.
+
+Empirium owns:
+task-level attempts and no-progress recovery.
+
+
+4. REASONING IS TASK/MODEL SPECIFIC
+
+No global arbitrary thinking budget should be required for FreeLLMAPI auto routing.
+
+Default:
+provider/model default.
+
+Explicit task-level override:
+allowed.
+
+None:
+must remain an explicit instruction to disable reasoning.
+
+
+5. SPEED IS LOW PRIORITY, NOT ZERO PRIORITY
+
+Do not completely remove latency information.
+
+A 25-second healthy model is fine.
+
+A route that hangs for minutes, repeatedly, is operationally broken.
+
+Latency should function mainly as a health/degradation signal.
+
+
+6. PRODUCTIVE WORK IS DIFFERENT FROM HTTP SUCCESS
+
+HTTP 200 != useful agent work.
+
+A future router should be able to learn from:
+repo_changed
+tests_passed
+task_advanced
+QA_accepted
+no_progress
+rework_required
+
+Do not let "successful API response" remain the only definition of success.
+
+
+7. OBSERVABILITY IS REQUIRED
+
+Never leave the user with:
+
+"FreeLLMAPI turn 17"
+
+and no idea what happened.
+
+Every relevant Empirium inference attempt must be explainable.
+
+
+8. DO NOT ENABLE PAID INFERENCE ACCIDENTALLY
+
+Preserve the current free-first cost policy.
+
+Do not silently activate paid providers or paid fallback.
+
+Testing should not incur paid usage without explicit permission.
+</NON_NEGOTIABLE_DESIGN_PRINCIPLES>
+
+
+<PHASE_0_BASELINE_AND_SAFETY>
+
+Before editing:
+
+1. Locate the actual repositories involved.
+
+Expected conceptual repositories:
+
+A. FreeLLMAPI fork/install
+B. Hermes Agent install/fork
+C. Empirium project
+
+Do not assume their paths.
+
+Find them.
+
+2. Record for each repository:
+
+absolute path
+remote origin(s)
+current branch
+HEAD commit
+git status
+dirty files
+upstream relationship
+package/runtime version
+current test command
+current build command
+
+3. Do NOT discard dirty changes.
+
+If necessary create worktrees or checkpoint commits WITHOUT modifying the user's unrelated work.
+
+4. Record actual runtime configuration for:
+
+FreeLLMAPI:
+routing strategy
+routing weights
+active profile
+enabled providers
+enabled models
+API-key health
+fallback time budget
+fallback detail header
+rate-limit configuration
+key-selection strategy
+per-provider timeout overrides
+per-key concurrency controls if present
+
+Hermes:
+provider
+model
+base URL
+reasoning effort
+api_max_retries
+tool_use_enforcement
+execution_guidance
+verify_on_stop
+gateway timeout
+request timeout
+any fallback-provider settings
+
+Empirium:
+the command/process used to invoke Hermes
+outer timeout
+free-vs-paid fallback threshold
+current 30-failure mechanism
+how repository progress is currently detected
+
+5. Capture baseline evidence.
+
+Run existing unit tests/builds before modifications.
+
+Do not "fix" pre-existing unrelated failures silently.
+
+Document them.
+
+6. Inspect several recent FreeLLMAPI request_attempts records corresponding to real failed/slow Empirium turns if available.
+
+Answer with evidence:
+
+Did FreeLLMAPI actually use multiple providers?
+
+Did it repeatedly hit the same provider?
+
+Was the failover budget exhausted?
+
+Which route consumed the time?
+
+Was the final request technically successful?
+
+What model/provider actually produced the final completion?
+
+This diagnostic data should inform configuration choices.
+
+Then CONTINUE IMPLEMENTATION.
+
+Do not stop after Phase 0.
+</PHASE_0_BASELINE_AND_SAFETY>
+
+
+<PHASE_1_CREATE_AN_EMPIRIUM_SPECIFIC_FREELLM_ROUTING_PROFILE>
+
+Create or configure a dedicated FreeLLMAPI profile:
+
+  empirium-code
+
+Empirium implementation workers should use:
+
+  auto:empirium-code
+
+or the current equivalent profile-selection mechanism.
+
+Do not make generic `auto` the permanent coding-worker route unless the installed FreeLLMAPI architecture has no profile facility.
+
+PROFILE GOALS:
+
+A. high reliability
+B. high coding/tool capability
+C. provider diversity
+D. quota preservation
+E. very low emphasis on raw latency
+
+TARGET STARTING ROUTING WEIGHTS:
+
+  reliability   0.55
+  intelligence  0.40
+  speed         0.05
+
+If FreeLLMAPI's custom strategy expresses weights differently, translate faithfully.
+
+Do not hard-code those numbers into general upstream defaults.
+
+Configure them for the Empirium profile/installation.
+
+If custom routing currently cannot be profile-specific, use the least invasive supported mechanism and clearly document the scope.
+
+Do not set speed to exactly zero.
+
+Slow-but-good is acceptable.
+Repeatedly hanging is not.
+
+
+MODEL POOL:
+
+Do NOT blindly choose specific models from this prompt.
+
+Inspect the ACTUAL available healthy model/provider catalogue.
+
+Construct an initial coding pool based on real availability.
+
+Aim approximately for:
+
+6-10 primary candidate model/provider combinations
+
+spread across:
+
+at least 4 provider/platform families where possible
+
+Avoid:
+10 models all served by one provider.
+
+Prefer no more than roughly 2 primary candidates from a single provider unless provider availability makes this impossible.
+
+Candidate requirements:
+
+- credible coding capability;
+- credible tool/function calling;
+- enough context for agentic coding;
+- no known incompatibility with Hermes tools;
+- currently routable;
+- free under the installed provider arrangement;
+- not consistently truncating;
+- not consistently producing empty outputs;
+- not known to fail structured/tool output required by Hermes.
+
+Where practical, run a lightweight coding/tool-use qualification harness against candidates using free capacity.
+
+Do NOT exclude a model solely because its latency is high.
+
+Exclude/demote it because of unreliability, unusable tool behaviour, repeated failure, excessive hanging, context limits, bad completion behaviour, or no-progress outcomes.
+
+
+TASK CLASSIFICATION:
+
+If FreeLLMAPI already supports task type = code and the current integration can set it cleanly, ensure Empirium coding calls are classified as code.
+
+However, since we are using a custom routing vector, do not allow an automatic task bias to unexpectedly rewrite explicitly configured custom weights.
+
+Verify actual scoring code.
+</PHASE_1_CREATE_AN_EMPIRIUM_SPECIFIC_FREELLM_ROUTING_PROFILE>
+
+
+<PHASE_2_FIX_REASONING_OR_THINKING_POLICY>
+
+This is a core requirement.
+
+Problem:
+
+Hermes currently asks the user to select a reasoning level even though FreeLLMAPI auto routing may send each request to a different underlying model.
+
+Different models/providers have incompatible reasoning controls.
+
+Some have no request-side reasoning control.
+
+Some have discrete levels.
+
+Some translate effort into thinking-token budgets.
+
+The user does NOT want to manually manage this.
+
+
+DESIRED USER EXPERIENCE:
+
+When FreeLLMAPI is the selected provider and an automatic model/profile is selected, the normal reasoning selector should offer:
+
+  Automatic — provider/model default
+
+This must be visually and semantically distinct from:
+
+  None — disable reasoning
+
+The user should normally be able to leave it on Automatic forever.
+
+
+DESIRED WIRE BEHAVIOUR:
+
+For:
+
+provider = FreeLLMAPI
+model = auto or auto:<profile>
+reasoning policy = provider_default
+
+Hermes should NOT force:
+
+reasoning_effort=medium
+
+and should NOT force:
+
+reasoning_effort=none
+
+It should OMIT an explicit reasoning request.
+
+FreeLLMAPI then dispatches the call and allows the chosen model/provider to use its normal default behaviour.
+
+
+EXPLICIT OVERRIDE:
+
+The architecture must still permit a later Empirium Task to explicitly request, for example:
+
+low
+medium
+high
+
+where genuinely required.
+
+When explicitly requested:
+
+Hermes/Empirium
+    |
+    v
+FreeLLMAPI
+    |
+    v
+existing provider-specific normalize/clamp/drop logic
+
+Do NOT make Hermes manually translate every provider's reasoning vocabulary.
+
+FreeLLMAPI already has provider-side compatibility policy and should remain the owner of that translation.
+
+
+IMPLEMENTATION OPTIONS:
+
+Prefer the cleanest current Hermes extension point.
+
+A dedicated FreeLLMAPI Hermes provider profile/plugin is preferred over special-casing generic `custom` everywhere.
+
+Potential design:
+
+plugins/model-providers/freellmapi/
+
+with explicit semantics for:
+
+- auto model;
+- provider-default reasoning;
+- custom base URL;
+- fallback telemetry;
+- FreeLLMAPI-specific request metadata.
+
+However, inspect Hermes's current provider/plugin architecture first and fit naturally into it.
+
+Do not create redundant abstractions.
+
+
+IMPORTANT:
+
+Do not simply add "auto" to a UI drop-down while still converting it to medium internally.
+
+Add end-to-end tests proving:
+
+Automatic
+→ no reasoning_effort is forced onto FreeLLMAPI auto request.
+
+None
+→ explicit disable reaches FreeLLMAPI where appropriate.
+
+High
+→ explicit high reaches FreeLLMAPI.
+
+Provider that doesn't accept reasoning
+→ FreeLLMAPI safely omits/clamps according to its existing platform policy.
+
+Gemini auto/default
+→ no fixed thinkingBudget is injected by Hermes.
+
+Gemini explicit high
+→ FreeLLMAPI may translate high according to its Gemini adapter.
+
+The provider-default mode must survive:
+CLI
+dashboard/web
+desktop/model picker if relevant
+config reload
+new session
+
+Do not accidentally change the semantics of `none` for existing Hermes users.
+
+
+TASK-SPECIFIC FUTURE HOOK:
+
+Expose a clean programmatic mechanism by which Empirium can later say:
+
+reasoning_policy = provider_default
+
+or:
+
+reasoning_effort = high
+
+per Task Attempt.
+
+Do not require the user to change the global UI setting.
+</PHASE_2_FIX_REASONING_OR_THINKING_POLICY>
+
+
+<PHASE_3_REMOVE_NESTED_RETRY AMPLIFICATION>
+
+FreeLLMAPI already owns internal provider/model/key failover.
+
+Hermes must therefore make only ONE outer request attempt for the FreeLLMAPI provider before returning control to Empirium.
+
+Inspect the ACTUAL local Hermes retry implementation.
+
+In the source previously inspected:
+
+agent._api_max_retries = 1
+
+meant:
+
+one total API attempt
+
+because the loop was approximately:
+
+while retry_count < max_retries
+
+Verify local semantics.
+
+Configure the FreeLLMAPI Hermes profile accordingly.
+
+Do NOT blindly use a value of 0 if the implementation clamps it to 1.
+
+If docs/comments say "0 means immediate fallback" while actual implementation treats 1 as one attempt, resolve that inconsistency cleanly.
+
+The target is:
+
+Hermes:
+one FreeLLMAPI request
+
+FreeLLMAPI:
+internal failover across many candidate routes
+
+Empirium:
+task-level retry if the whole FreeLLMAPI call fails or makes no useful progress
+
+
+TEST:
+
+Simulate:
+
+FreeLLMAPI:
+route A timeout
+route B 429
+route C success
+
+Assert Hermes issued ONE HTTP request to FreeLLMAPI.
+
+Assert FreeLLMAPI internally recorded THREE attempts.
+
+Do not allow Hermes to replay all three attempts three/four more times.
+
+
+OUTER TIMEOUT RELATIONSHIP:
+
+Inspect current timeout hierarchy.
+
+Required invariant:
+
+provider attempt timeout
+    <
+FreeLLMAPI effective failover allowance
+    <
+Hermes outer request deadline
+    <
+Empirium hard Attempt deadline
+
+No outer layer may kill a healthy inner fallback operation before the inner layer can finish its configured recovery.
+
+Do not choose arbitrary numbers blindly.
+
+Calculate from actual configuration.
+
+Because speed is low priority, the Empirium/Hermes outer timeout may be reasonably generous.
+
+Leave margin above the maximum FreeLLMAPI allowance.
+
+Example conceptual relationship only:
+
+FreeLLMAPI effective cap: 300 seconds
+Hermes hard request deadline: >= 360 seconds
+Empirium Attempt deadline: > Hermes deadline
+
+Use current architecture/configuration to implement the equivalent safely.
+</PHASE_3_REMOVE_NESTED_RETRY_AMPLIFICATION>
+
+
+<PHASE_4_IMPROVE_SLOW_PROVIDER_FAILOVER>
+
+The current flat ~45-second FreeLLMAPI fallback budget is a poor fit for this deployment.
+
+Some free providers are legitimately slow before first byte.
+
+The user cares much more about successful autonomous completion than raw latency.
+
+But unlimited waiting is also unacceptable.
+
+Desired behaviour:
+
+historically slow but healthy endpoint
+→ allow more time
+
+normally fast endpoint suddenly dead
+→ fail away sooner
+
+provider produces real first byte/progress
+→ treat as alive
+
+provider remains completely silent
+→ eventually abort
+
+provider consumes almost entire budget then finally says overloaded
+→ bench/deprioritize route
+
+
+Inspect current upstream and local code for the functionality represented by upstream work around:
+
+PR #1264
+per-endpoint TTFB-aware retry allowance
+
+PR #1268
+late in-band-error route benching
+
+If equivalent functionality is already merged:
+use/test it.
+
+If not:
+port/adapt the minimum clean implementation.
+
+Do not create two competing TTFB systems.
+
+
+EMPIRIUM LOCAL CONFIGURATION:
+
+The existing 45-second base budget is likely too aggressive.
+
+Configure a more patient starting point for this installation.
+
+Start around 90-180 seconds depending on actual historical data.
+
+Prefer an adaptive mechanism over one enormous fixed timeout.
+
+An acceptable conceptual adaptive policy is:
+
+effective allowance =
+max(base allowance,
+    observed endpoint P95 TTFB + safety buffer)
+
+with a hard ceiling around several minutes.
+
+Use observed history if available.
+
+Do not silently make the global upstream FreeLLMAPI default 3 minutes for every user.
+
+This is an Empirium deployment preference.
+
+
+LATE ERROR:
+
+If a route stays silent for nearly all of its allowance and finally returns a provider-overloaded/in-band failure, it must not remain first choice on the immediately following request.
+
+Apply an appropriate temporary bench/cooldown.
+
+Early fast errors should still fail over immediately without being treated like long stalls.
+
+
+PROVIDER-SPECIFIC TIMEOUTS:
+
+Review current provider defaults.
+
+Do not shorten NVIDIA or other known slow free endpoints merely to improve apparent speed.
+
+Tune only where evidence justifies it.
+</PHASE_4_IMPROVE_SLOW_PROVIDER_FAILOVER>
+
+
+<PHASE_5_QUOTA_AND_RATE_LIMIT POLICY>
+
+Preserve and use FreeLLMAPI's existing sophisticated quota system.
+
+Do NOT replace it with a simplistic round robin.
+
+Verify:
+
+RPM
+RPD
+TPM
+TPD
+cooldowns
+Retry-After handling
+provider-wide quotas
+key-level quotas
+in-flight reservations
+per-key concurrency
+headroom scoring
+
+are functioning in the local version.
+
+
+KEY SELECTION:
+
+Where the implementation supports selection based on quota headroom/remaining allowance, configure Empirium to prefer healthier, less-exhausted credentials.
+
+Avoid using the final few percent of one key while an equivalent mostly-unused key exists.
+
+
+CONCURRENCY:
+
+Empirium will eventually run many workers concurrently.
+
+Prevent self-inflicted 429 storms.
+
+If per-key concurrency limits are supported, begin conservatively.
+
+For free-tier credentials where true provider capacity is unknown, an initial concurrency of approximately 1 per key may be appropriate until evidence supports raising it.
+
+Do not globally impose 1 on every provider if the current system has better known limits.
+
+Use provider/key-specific data.
+
+
+429 BEHAVIOUR:
+
+A rate-limited key must not result in:
+
+retry same key
+retry same key
+retry same key
+
+It should produce:
+
+classify 429
+record usage/limit evidence
+skip or cooldown affected key/route
+use healthy sibling credential if appropriate
+otherwise move provider/model
+automatically recover after cooldown
+
+Test this.
+</PHASE_5_QUOTA_AND_RATE_LIMIT_POLICY>
+
+
+<PHASE_6_OBSERVABILITY_AND_DIAGNOSTICS>
+
+This is mandatory.
+
+Currently the operator sees messages like:
+
+"FreeLLMAPI turn 17 active"
+
+which are insufficient.
+
+FreeLLMAPI already contains much of the required underlying telemetry.
+
+Surface it into the Hermes/Empirium execution record.
+
+
+FOR EACH FREELLMAPI REQUEST CAPTURE:
+
+execution/request ID
+
+requested logical model/profile
+
+final routed provider
+
+final routed model
+
+fallback attempt count
+
+for each failed/attempted route:
+
+attempt ordinal
+provider/platform
+model
+key ordinal or safe key label
+outcome class
+start offset
+duration
+TTFB if known
+error class
+redacted error summary
+
+Never expose raw credentials.
+
+
+DISPLAY/LOG EXAMPLE:
+
+Inference request abc123
+Profile: empirium-code
+
+Attempt 1
+Provider: NVIDIA
+Model: <model>
+Duration: 92.4s
+Outcome: TIMEOUT
+
+Attempt 2
+Provider: Kilo
+Model: <model>
+Duration: 2.1s
+Outcome: RATE_LIMITED
+
+Attempt 3
+Provider: Google
+Model: <model>
+Duration: 18.7s
+Outcome: SUCCESS
+
+Final route:
+Google / <model>
+
+Agent result:
+NO_PROGRESS
+
+Next policy action:
+fresh route requested
+
+
+Use existing:
+request_attempts
+X-Fallback-Trail
+X-Fallback-Detail
+X-Routed-Via
+request ID
+
+rather than inventing duplicate sources of truth.
+
+Enable detailed fallback telemetry in the local Empirium deployment.
+
+If the detail header is intentionally opt-in for privacy, enable it only between local/internal Empirium components.
+
+Errors must remain redacted.
+
+
+Persist enough linkage that a later Empirium Task Attempt can reference the FreeLLMAPI execution that produced it.
+</PHASE_6_OBSERVABILITY_AND_DIAGNOSTICS>
+
+
+<PHASE_7_ADD_A FRESH_ROUTE / AVOID_PREVIOUS_ROUTE MECHANISM>
+
+This is one of the most important custom changes.
+
+Problem:
+
+FreeLLMAPI considers:
+
+HTTP/model completion succeeded
+
+to be success.
+
+Empirium may later determine:
+
+the model returned prose only;
+made no tool calls;
+changed no files;
+advanced no task;
+or produced unusable work.
+
+FreeLLMAPI cannot know this at response time.
+
+Because the request looked successful, sticky routing and historical transport reliability may choose the same route again.
+
+That creates repeated useless turns.
+
+
+Implement a SMALL, SAFE request-scoped mechanism allowing Empirium to say:
+
+Do not use the route(s) that produced the previous unproductive attempt for this next attempt.
+
+Possible interface:
+
+X-FreeLLM-Avoid-Route
+
+or equivalent structured request metadata.
+
+Do not commit to that exact header name if the current architecture has a more appropriate extension mechanism.
+
+
+REQUIREMENTS:
+
+The mechanism must be request-scoped by default.
+
+It should support avoiding at minimum:
+
+specific provider+model route
+
+and, where useful:
+
+specific model
+specific provider
+
+Do not permanently ban a route merely because one task found it unproductive.
+
+
+INTERNAL IMPLEMENTATION:
+
+Reuse the existing route exclusion concepts if available:
+
+skipKeys
+skipModels
+skipPlatforms
+
+Do not write a second routing engine.
+
+Seed the request's exclusion state before the first routing decision.
+
+
+SAFETY:
+
+Do not allow arbitrary untrusted internet clients to manipulate internal database IDs unsafely.
+
+Use canonical safe route identifiers.
+
+Validate all input.
+
+
+BEHAVIOUR EXAMPLE:
+
+Attempt 1:
+NVIDIA / Model A
+HTTP success
+Empirium outcome = NO_PROGRESS
+
+Attempt 2:
+Empirium requests fresh route
+avoid NVIDIA/Model A
+
+FreeLLMAPI should not immediately sticky-route Model A again.
+
+It should select the next suitable healthy candidate.
+
+
+RECOVERY:
+
+Avoid list should apply only to the relevant retry/Task Attempt unless explicitly requested otherwise.
+
+A model that fails one particular task can remain usable for other work.
+
+
+TEST THIS END-TO-END.
+</PHASE_7_ADD_A_FRESH_ROUTE_AVOID_PREVIOUS_ROUTE_MECHANISM>
+
+
+<PHASE_8_SEPARATE FAILURE CLASSES IN EMPIRIUM>
+
+Locate the existing Empirium logic producing counters such as:
+
+consecutive failures: 9
+21 failures remain before fallback
+
+Replace the inference-facing portion of this policy.
+
+DO NOT continue the simplistic:
+
+failure
+failure
+failure
+...
+30
+then stronger fallback
+
+for every kind of failure.
+
+
+CREATE EXPLICIT FAILURE/OUTCOME CLASSES:
+
+At minimum:
+
+INFERENCE_TIMEOUT
+RATE_LIMITED
+AUTH_FAILURE
+PROVIDER_UNAVAILABLE
+ROUTING_EXHAUSTED
+LLM_SUCCESS_PRODUCTIVE
+LLM_SUCCESS_NO_PROGRESS
+LLM_SUCCESS_INVALID_WORK
+TASK_BLOCKED
+TASK_REQUIRES_REPLAN
+
+Use names appropriate to the existing codebase.
+
+
+POLICY:
+
+A provider/inference failure should generally be handled first by FreeLLMAPI internal failover.
+
+If the ENTIRE FreeLLMAPI pool cannot serve the request:
+
+record inference failure
+preserve Task/worktree
+possibly retry whole pool once under a fresh request depending on error class
+then temporarily open an Empirium-level circuit/fallback route
+
+Do NOT wait for 30 identical whole-pool failures.
+
+
+NO-PROGRESS RESPONSE:
+
+If LLM returns successfully but Task does not advance:
+
+do not classify as provider failure.
+
+Instead:
+
+NO_PROGRESS #1
+→ retry task with a fresh model/route
+→ avoid previous route
+
+NO_PROGRESS #2
+→ use a different candidate/model and refresh bounded task context
+
+Repeated no progress across diverse models
+→ send Task for diagnosis/replanning/decomposition
+
+Do NOT simply rerun the same global Director session.
+
+
+Do not define "progress" solely as token output.
+
+Use appropriate task evidence such as:
+
+file change
+commit/change-set
+test movement
+task state transition
+artifact generation
+accepted analysis artifact
+explicit task-specific result
+
+Be careful:
+some legitimate tasks are read-only/research tasks.
+
+Progress detection must be task-type aware.
+
+For coding Tasks, repository/tool activity is an important signal.
+
+
+PRESERVE EXISTING PAID-FALLBACK GOVERNANCE:
+
+Do not remove any operator approval or cost rules for paid inference.
+
+Simply stop requiring 30 useless retries before the free route is acknowledged as degraded.
+</PHASE_8_SEPARATE_FAILURE_CLASSES_IN_EMPIRIUM>
+
+
+<PHASE_9_AGENTIC OUTCOME FEEDBACK>
+
+Implement the foundation for FreeLLMAPI to learn:
+
+not only
+"did the API return successfully?"
+
+but
+"did this route actually perform useful autonomous work?"
+
+
+Do this carefully and behind a clear feature/config boundary.
+
+Do not contaminate generic FreeLLMAPI transport reliability with project-specific meaning.
+
+
+PREFERRED DESIGN:
+
+Add a distinct agentic feedback channel/table rather than overwriting `requests.status`.
+
+Conceptual data:
+
+agentic_outcomes
+
+fields roughly equivalent to:
+
+id
+request/execution id
+timestamp
+task class
+provider
+model
+optional safe route identifier
+productive boolean / outcome enum
+repo_changed boolean nullable
+tests_passed boolean nullable
+qa_accepted boolean nullable
+task_advanced boolean nullable
+no_progress boolean
+rework_required boolean nullable
+
+Do NOT store:
+
+full proprietary prompts
+source code
+secrets
+API keys
+repository contents
+
+This is routing performance metadata only.
+
+
+API:
+
+Expose an internal authenticated/local endpoint or direct integration allowing Empirium to submit outcome feedback using the FreeLLMAPI execution/request ID.
+
+Example conceptual payload:
+
+{
+  "execution_id": "...",
+  "task_type": "code",
+  "outcome": "productive",
+  "repo_changed": true,
+  "tests_passed": true,
+  "task_advanced": true
+}
+
+or:
+
+{
+  "execution_id": "...",
+  "task_type": "code",
+  "outcome": "no_progress"
+}
+
+
+SCORING:
+
+Do not immediately give one feedback event absolute control over routing.
+
+Use decay-weighted historical evidence similar to transport reliability.
+
+A Beta-style posterior or equivalent stable estimator is appropriate.
+
+Keep this score distinct from transport reliability.
+
+For Empirium coding routing, target long-term ranking priorities approximately:
+
+agentic/productive success      ~50%
+transport reliability          ~30%
+model intelligence/capability  ~15%
+speed                           ~5%
+
+Those percentages are INITIAL EMPIRIUM PREFERENCES, not universal FreeLLMAPI defaults.
+
+If implementing this complete scoring safely would make the first deployment much riskier, stage it behind a feature flag:
+
+agentic feedback collection first
+then optional scoring integration
+
+But the schema/API and linkage should be production-quality.
+
+Do not fake completion by merely creating an empty table nobody consumes.
+</PHASE_9_AGENTIC_OUTCOME_FEEDBACK>
+
+
+<PHASE_10_HERMES AUTONOMOUS CODING POSTURE>
+
+Because FreeLLMAPI presents Hermes with a logical model such as:
+
+auto
+
+Hermes cannot always recognize the underlying actual model family from the model name.
+
+Therefore automatic per-model execution guidance can fail to activate.
+
+For Empirium coding workers, explicitly configure the current supported equivalents of:
+
+tool_use_enforcement = true
+execution_guidance = true
+verify_on_stop = true
+
+VERIFY ACTUAL CONFIG KEYS against current Hermes source.
+
+Do not invent settings.
+
+Purpose:
+
+The agent should actually use tools and perform work rather than merely narrate:
+
+"I will inspect the repository..."
+
+and then stop.
+
+`verify_on_stop` should require appropriate fresh verification after coding changes.
+
+Do not require tests for Tasks where tests are semantically irrelevant, but coding edits should normally have evidence.
+
+
+REASONING SETTING:
+
+Use the new:
+
+provider_default / Automatic
+
+mode for FreeLLMAPI auto profiles.
+
+Do not use `none` as the default.
+
+
+API ATTEMPTS:
+
+Configure the equivalent of ONE Hermes API attempt around each FreeLLMAPI request.
+
+Based on the inspected current code this was likely:
+
+agent.api_max_retries: 1
+
+but VERIFY SEMANTICS FIRST.
+
+
+CONFIGURATION SHOULD BE SCOPED:
+
+Where possible, these aggressive autonomous coding settings should apply to the Empirium worker profile rather than unexpectedly changing every user's conversational Hermes behaviour.
+</PHASE_10_HERMES_AUTONOMOUS_CODING_POSTURE>
+
+
+<PHASE_11_TIMEOUT_AND LIVENESS POLICY>
+
+Implement and document the full timeout ladder.
+
+There must not be hidden contradictory watchdogs.
+
+Produce a runtime report showing:
+
+Provider-level timeout:
+<value by provider>
+
+FreeLLMAPI failover base:
+<value>
+
+FreeLLMAPI adaptive maximum:
+<value>
+
+Hermes request timeout:
+<value>
+
+Empirium Task Attempt timeout:
+<value>
+
+
+Required:
+
+provider-specific operation gets enough time to demonstrate health
+
+FreeLLMAPI gets enough time to fail over
+
+Hermes does not kill FreeLLMAPI early
+
+Empirium does not kill Hermes early
+
+but no layer waits forever without evidence of life
+
+
+Distinguish:
+
+time to headers
+time to first token
+mid-stream stall
+whole-request timeout
+
+Do not treat all four as the same thing.
+
+
+For streams:
+
+if bytes/content are flowing:
+do not kill just because model is slow overall.
+
+if nothing arrives for the configured stall interval:
+recover.
+
+
+For free endpoints with known long TTFB:
+use observed latency rather than hard commercial-API assumptions where supported.
+</PHASE_11_TIMEOUT_AND_LIVENESS_POLICY>
+
+
+<PHASE_12_TEST PLAN>
+
+The implementation is not complete until these behaviours are proven.
+
+Create deterministic tests using mock providers where practical.
+
+
+TEST A — REASONING DEFAULT
+
+Input:
+Hermes FreeLLMAPI profile
+model auto:empirium-code
+reasoning Automatic/provider-default
+
+Assert:
+Hermes does not force medium.
+Hermes does not force none.
+FreeLLMAPI receives no forced reasoning effort.
+Chosen provider receives its default reasoning semantics.
+
+
+TEST B — EXPLICIT REASONING
+
+Input:
+explicit high
+
+Assert:
+high reaches FreeLLMAPI.
+Provider policy translates/clamps/drops safely.
+
+
+TEST C — NON-REASONING PROVIDER
+
+Route to provider/model with no supported reasoning knob.
+
+Assert:
+no unsupported reasoning field causes a 400.
+
+
+TEST D — PROVIDER FAILOVER
+
+Mock route A:
+timeout
+
+Mock route B:
+success
+
+Assert:
+same FreeLLMAPI request reaches B.
+A is appropriately skipped/benched.
+Hermes made one outer HTTP request.
+
+
+TEST E — WHOLE PROVIDER SKIP
+
+Provider A has several models.
+
+First A route generates a provider-level transport failure.
+
+Assert:
+request does not waste later hops trying every other model on provider A when classification indicates provider-wide failure.
+
+
+TEST F — RATE LIMIT
+
+Key A:
+429
+
+Healthy alternative exists.
+
+Assert:
+cooldown recorded
+A skipped
+alternate route selected
+Retry-After honoured where present.
+
+
+TEST G — QUOTA HEADROOM
+
+Key A near quota exhaustion.
+Key B healthy headroom.
+
+Assert:
+router prefers B when equivalent.
+
+
+TEST H — SLOW HEALTHY ENDPOINT
+
+Endpoint historically needs >45 seconds TTFB but eventually succeeds.
+
+Assert:
+adaptive/patient policy does not kill it solely because it exceeds old commercial-provider budget.
+
+
+TEST I — DEAD ENDPOINT
+
+Endpoint never produces first byte.
+
+Assert:
+timeout occurs.
+route is demoted/benched appropriately.
+next provider receives request.
+
+
+TEST J — LATE IN-BAND ERROR
+
+Provider remains silent near entire allowance then emits overloaded/error.
+
+Assert:
+route receives temporary bench.
+next request does not immediately pay the same huge stall again.
+
+
+TEST K — NO PROGRESS
+
+Model returns perfectly valid HTTP success.
+
+Hermes output performs zero task-progress activity.
+
+Empirium classifies:
+LLM_SUCCESS_NO_PROGRESS
+
+Assert:
+not counted as provider failure.
+next Task Attempt requests fresh route.
+previous route is avoided.
+
+
+TEST L — PRODUCTIVE SUCCESS
+
+Model performs required edit and verification.
+
+Assert:
+productive outcome feedback is associated with correct FreeLLMAPI execution ID.
+
+
+TEST M — ROUTE OBSERVABILITY
+
+A request performs:
+
+provider A timeout
+provider B 429
+provider C success
+
+Assert operator/Empirium record contains all three hops, durations and classifications without exposing secrets.
+
+
+TEST N — NESTED RETRY PROTECTION
+
+FreeLLMAPI internally performs multiple fallback hops then returns exhaustion.
+
+Assert Hermes did not automatically repeat the entire FreeLLMAPI ladder multiple times.
+
+
+TEST O — RESTART PERSISTENCE
+
+Restart FreeLLMAPI.
+
+Assert persistent cooldown/request history still influences appropriate behaviour.
+
+Do not require transient in-memory penalties to persist unless design explicitly says they should.
+
+
+TEST P — MULTI-WORKER CONCURRENCY
+
+Simulate multiple simultaneous Empirium workers.
+
+Assert provisional/in-flight quota reservations prevent all workers from simultaneously believing the same remaining quota is available.
+
+
+TEST Q — EXISTING REGRESSION SUITE
+
+Run full relevant:
+
+FreeLLMAPI tests
+Hermes tests
+Empirium tests
+type checks
+builds
+
+Record exact results.
+</PHASE_12_TEST_PLAN>
+
+
+<PHASE_13_RUNTIME PROOF>
+
+After unit/integration tests pass, perform a bounded local runtime demonstration.
+
+Do not use expensive paid inference.
+
+Where real free-provider credentials are already present and safe to use, a small live probe may be performed.
+
+Otherwise use mock test providers.
+
+Produce one real trace demonstrating the new flow.
+
+Example required trace shape:
+
+Empirium Task Attempt X
+    |
+    v
+Hermes
+outer calls = 1
+    |
+    v
+FreeLLMAPI request abc
+    |
+    +-- route A -> timeout
+    +-- route B -> 429
+    +-- route C -> success
+    |
+    v
+Hermes tool activity
+    |
+    v
+Empirium outcome
+PRODUCTIVE or NO_PROGRESS
+
+Show the actual persisted/request trace proving this.
+
+Do not just state "works".
+</PHASE_13_RUNTIME_PROOF>
+
+
+<PHASE_14_CONFIGURATION DELIVERABLE>
+
+Leave a clearly identifiable Empirium inference configuration.
+
+Exact syntax depends on the actual projects.
+
+Conceptually it should encode:
+
+FREELLMAPI:
+
+profile:
+  empirium-code
+
+routing:
+  strategy: custom
+  reliability: 0.55
+  intelligence: 0.40
+  speed: 0.05
+
+fallback:
+  patient/adaptive
+  detailed telemetry enabled internally
+
+reasoning:
+  provider_default unless Task explicitly overrides
+
+quota:
+  use existing headroom-aware routing
+  conservative unknown-key concurrency
+
+HERMES:
+
+provider:
+  freellmapi
+
+model:
+  auto:empirium-code
+
+agent:
+  one outer API attempt
+  reasoning: provider_default
+  tool_use_enforcement: true
+  execution_guidance: true
+  verify_on_stop: true
+
+EMPIRIUM:
+
+provider failures:
+  use inference failure policy
+
+successful no-progress:
+  fresh Task Attempt
+  avoid previous route
+
+repeated diverse no-progress:
+  replan/decompose
+
+Do not overwrite unrelated user configuration.
+
+Provide a migration/update path from the old configuration.
+</PHASE_14_CONFIGURATION_DELIVERABLE>
+
+
+<DO_NOT_DO>
+
+Do NOT:
+
+- rewrite FreeLLMAPI from scratch;
+- remove its quota/cooldown system;
+- replace adaptive routing with naive random routing;
+- set reasoning to "none" globally;
+- force "medium" reasoning onto every auto-routed model;
+- make speed the dominant routing factor;
+- set speed to exactly zero and ignore pathological hangs;
+- make every provider share one arbitrary 20-second timeout;
+- make every provider share one arbitrary five-minute timeout;
+- retry the entire FreeLLMAPI ladder repeatedly at the Hermes layer;
+- preserve the 30-identical-failures-before-fallback rule;
+- treat HTTP 200 as proof the software task succeeded;
+- permanently blacklist a model because of one no-progress Task;
+- expose API keys in logs;
+- silently enable paid providers;
+- destroy dirty git state;
+- spend the task creating documentation without implementing;
+- create fake "verified" flags without runtime evidence;
+- mark completion merely because tests are green.
+</DO_NOT_DO>
+
+
+<IMPLEMENTATION STYLE>
+
+Keep changes small and reviewable.
+
+Where multiple repositories require modification, maintain a clear change log.
+
+Use migrations for durable database changes.
+
+Use settings/feature flags for behavioural changes that may need rollback.
+
+Name new Empirium-specific concepts clearly.
+
+Add comments describing WHY a non-obvious routing rule exists.
+
+Avoid comments that merely restate code.
+
+Update relevant documentation after code works, not instead of making code work.
+
+If upstream behaviour changes while doing this task, adapt to CURRENT SOURCE rather than blindly following filenames in this prompt.
+
+The behavioural requirements in this prompt are authoritative; specific filenames are guidance.
+</IMPLEMENTATION_STYLE>
+
+
+<COMPLETION CRITERIA>
+
+Do not declare this task complete until ALL applicable statements below are true:
+
+[ ] Exact local FreeLLMAPI/Hermes/Empirium versions were inspected.
+
+[ ] Existing dirty user work was preserved.
+
+[ ] Empirium coding has a dedicated FreeLLMAPI routing profile or equivalent.
+
+[ ] Routing prioritises reliability and capability far above speed.
+
+[ ] Provider diversity exists in the primary coding pool.
+
+[ ] Reasoning has an actual provider-default/Automatic semantic.
+
+[ ] "Automatic" is NOT secretly medium.
+
+[ ] "Automatic" is NOT the same as none.
+
+[ ] None still explicitly disables reasoning.
+
+[ ] Explicit task reasoning overrides remain possible.
+
+[ ] Hermes does only one outer attempt around FreeLLMAPI.
+
+[ ] FreeLLMAPI remains responsible for internal route failover.
+
+[ ] Timeout hierarchy cannot kill the inner recovery loop prematurely.
+
+[ ] Slow-but-healthy free routes are handled more intelligently than a flat 45-second assumption.
+
+[ ] Dead routes still eventually fail over.
+
+[ ] Late provider overload failures are appropriately benched.
+
+[ ] 429/cooldown/quota logic still works.
+
+[ ] Multi-worker in-flight quota safety is preserved.
+
+[ ] Detailed per-route attempt telemetry is visible to Empirium.
+
+[ ] Empirium can distinguish provider failure from no-progress LLM success.
+
+[ ] A no-progress Task can request a fresh/alternate route.
+
+[ ] The old "30 identical failures then fallback" behaviour is removed from this inference path.
+
+[ ] Agentic outcome feedback is at least durably captured and linked to the inference request.
+
+[ ] If agentic routing feedback is enabled, it is feature/config scoped and tested.
+
+[ ] Hermes coding guidance/tool-use/verification posture is explicitly configured for Empirium workers.
+
+[ ] Full relevant tests pass.
+
+[ ] Builds/typechecks pass.
+
+[ ] At least one runtime trace demonstrates actual fallback behaviour.
+
+[ ] No paid inference was unintentionally used.
+
+[ ] Final state is documented sufficiently for another engineer to operate.
+
+
+<FINAL REPORT FORMAT>
+
+Only after implementation and proof, provide a concise but complete final report containing:
+
+1. REPOSITORIES / COMMITS
+   Exact repositories, branches, old HEAD, new HEAD.
+
+2. WHAT CHANGED
+   Group by:
+   FreeLLMAPI
+   Hermes
+   Empirium
+
+3. FINAL REASONING POLICY
+   Precisely explain Automatic/provider-default versus None versus explicit levels.
+
+4. FINAL ROUTING POLICY
+   Profile, weights, candidate/provider strategy.
+
+5. FINAL RETRY/TIMEOUT LAYERS
+   Show each layer and its actual configured timeout/retry semantics.
+
+6. OBSERVABILITY
+   Show an actual fallback trace.
+
+7. NO-PROGRESS HANDLING
+   Demonstrate what happens when a model returns successfully but does no useful work.
+
+8. TEST RESULTS
+   Exact commands and counts.
+
+9. REMAINING RISKS
+   Only real remaining risks; do not manufacture work to sound thorough.
+
+10. OPERATOR ACTIONS
+   Any action I genuinely still need to perform manually.
+
+If there are zero required manual actions, explicitly say so.
+
+Do not claim COMPLETE unless the completion criteria are actually supported by evidence.
+</FINAL_REPORT_FORMAT>
+
+
+<START_NOW>
+
+Begin by locating and inspecting the actual repositories and configuration.
+
+Then implement.
+
+Do not return to me merely with the audit or implementation plan.
+
+Proceed through the changes, tests, configuration and runtime proof autonomously.
+</START_NOW>

@@ -1,0 +1,2295 @@
+# EMPIRIUM OS → AI WORKFORCE
+# PHASE 0: COMPLETE FORENSIC AUDIT AND IMPLEMENTATION-READINESS INVESTIGATION
+
+You are conducting a COMPLETE, FORENSIC, READ-ONLY AUDIT of my existing Empirium OS application and the Hermes Studio / Hermes components already embedded inside it.
+
+This is NOT the implementation phase.
+
+DO NOT build the AI Workforce yet.
+DO NOT refactor production code yet.
+DO NOT make speculative changes.
+DO NOT "clean things up" merely because you notice something imperfect.
+
+Your job is to investigate the existing software exhaustively enough that another AI can subsequently produce a complete autonomous implementation plan and implementation prompt with essentially no missing technical context.
+
+You may create audit documents, screenshots, temporary analysis files, cloned reference repositories, temporary scripts, test artefacts, logs, diagrams and reports in a SEPARATE AUDIT WORKSPACE.
+
+Do not intentionally alter the Empirium OS working tree.
+
+If a test/build process itself creates normal generated files, caches or build artefacts, record that fact and clean them up where safe.
+
+==========================================================
+MISSION
+==========================================================
+
+Determine EXACTLY how Empirium OS currently works, EXACTLY how Hermes Studio has been embedded into it, EXACTLY how Conductor works inside the embedded version, and EXACTLY what can be reused, extracted, adapted or extended to create the AI Workforce system described below.
+
+The final implementation will ultimately introduce:
+
+AI ORGANIZATION
+    ↓
+DEPARTMENTS
+    ↓
+PERSISTENT SPECIALIST AGENTS
+    ↓
+PROJECTS
+    ↓
+TASKS
+    ↓
+RUNS / CONDUCTOR MISSIONS
+    ↓
+QA
+    ↓
+KNOWLEDGE / OBSIDIAN
+    ↓
+LEARNING
+    ↓
+PROMPT + PLAYBOOK EVOLUTION
+    ↓
+MODEL ROUTING + COST CONTROL
+    ↓
+HISTORY / ACTIVITY / AUDITABILITY
+
+The first real department will be:
+
+PERSONAL SOFTWARE DEPARTMENT
+
+Its purpose:
+
+"Build, maintain, test, improve and learn from all of Ash's personal software."
+
+Initial persistent roles:
+
+1. Software Director
+2. Research / Architecture Engineer
+3. Implementation Engineer
+4. QA / Review Engineer
+5. Learning Analyst
+
+These are persistent organizational roles.
+
+They are NOT necessarily permanently running processes.
+
+When idle they must remain visually represented.
+
+When working they may map to Hermes sessions / workers / Conductor agents.
+
+When the temporary run ends, the persistent organizational agent remains.
+
+==========================================================
+THE PRODUCT WE ARE PREPARING TO BUILD
+==========================================================
+
+The eventual user experience should behave approximately like this:
+
+EMPIRIUM OS
+    ↓
+AI ORGANIZATION OVERVIEW
+
+The organization overview contains MANY departments.
+
+Each department appears as a visually rich card.
+
+Each card includes approximately:
+
+- department name
+- department mission
+- operational status
+- miniature office / visual representation
+- actual number of agents assigned to that department
+- which agents are working
+- active projects
+- today's work
+- QA health
+- current spend
+- current activity
+- perhaps pending learning/improvement items
+
+There is NO need for a permanent left-side navigation bar inside this AI Workforce interface.
+
+The organization overview itself should scale to many departments efficiently.
+
+Clicking a department opens its full Department View.
+
+==========================================================
+DEPARTMENT VIEW
+==========================================================
+
+Each department may have a DIFFERENT:
+
+- number of agents
+- roles
+- personalities
+- models
+- tools
+- MCPs
+- memory scopes
+- prompts
+- skills
+- rules
+- budget
+- projects
+- recurring jobs
+- visual office layout
+
+The Personal Software Department should ultimately expose at minimum:
+
+OVERVIEW
+PROJECTS
+TASKS
+AGENTS
+QA
+KNOWLEDGE
+LEARNING
+HISTORY
+MODELS & COST
+SETTINGS
+
+Its Overview should include:
+
+- live visual office
+- persistent agent desks / positions
+- live working state
+- active projects
+- upcoming work
+- completed work
+- current activity
+- statistics
+- department QA
+- knowledge summary
+- learning/improvement summary
+- model/cost summary
+
+==========================================================
+VISUAL AGENT / ROBOT CONCEPT
+==========================================================
+
+The eventual system should retain and expand the visually appealing character/office concepts already present in Hermes Studio Conductor.
+
+Every persistent specialist should eventually have a configurable visual identity.
+
+Potential configurable attributes include:
+
+- base robot/avatar design
+- color palette
+- screen / face appearance
+- screen color
+- body accents
+- status lighting
+- gadgets
+- accessories
+- equipment
+- desk equipment
+- monitor arrangement
+- technology aesthetic
+- personality
+- movement style
+- idle animation
+- walking/floating/rushing animation
+- work animation
+- busy animation
+- blocked animation
+- QA/review animation
+- thinking animation
+- interaction with office objects
+
+Agents should feel alive.
+
+Examples:
+
+IDLE:
+slow floating / subtle movement
+
+WORKING:
+moves to appropriate workplace or visibly works
+
+VERY BUSY:
+faster movement, increased animation intensity and visible RED FLASHING status light
+
+BLOCKED:
+different visual state
+
+REVIEWING:
+QA/review animation
+
+RESEARCHING:
+research-specific animation or environment interaction
+
+Agents may move around / float / rush between office locations depending on activity.
+
+The office itself should eventually support interaction with agents.
+
+Examples could include:
+
+- desk
+- terminal
+- monitor
+- whiteboard
+- QA station
+- research terminal
+- server rack
+- charging station
+- meeting area
+- project board
+- knowledge terminal
+
+DO NOT design or generate these assets during this audit.
+
+Instead investigate EXACTLY what current rendering/animation technology exists and what implementation approach is most compatible.
+
+==========================================================
+CONDUCTOR CONCEPT
+==========================================================
+
+A key question of this audit is determining how the embedded Hermes Studio Conductor actually works.
+
+We currently think the ideal abstraction may be:
+
+DEPARTMENT = persistent organization
+
+AGENT = persistent specialist
+
+PROJECT = persistent body of work
+
+TASK = durable work item
+
+RUN = one execution attempt
+
+CONDUCTOR = temporary orchestration mechanism for complex work
+
+HERMES SESSION / WORKER = actual temporary execution process
+
+When a persistent department agent starts working:
+
+Persistent agent
+    ↓
+Hermes session / worker
+    ↓
+possibly Conductor mission worker
+    ↓
+execution occurs
+    ↓
+session ends
+    ↓
+persistent department agent remains
+    ↓
+status returns to idle
+
+AUDIT WHETHER THIS IS TECHNICALLY CORRECT.
+
+DO NOT simply assume it.
+
+Trace the actual source code.
+
+==========================================================
+KNOWLEDGE AND MEMORY CONCEPT
+==========================================================
+
+The future architecture should probably distinguish:
+
+GLOBAL MEMORY
+    ↓
+DEPARTMENT MEMORY
+    ↓
+PROJECT MEMORY
+    ↓
+AGENT / ROLE MEMORY
+
+Obsidian is intended to become the major human-readable institutional knowledge repository.
+
+Operational records should NOT simply become Obsidian notes.
+
+We likely want:
+
+DATABASE:
+- departments
+- agents
+- projects
+- tasks
+- runs
+- events
+- QA
+- budgets
+- model use
+- prompt versions
+- learning proposals
+- permissions
+- memory links
+
+OBSIDIAN:
+- architecture
+- decisions
+- research
+- coding standards
+- design preferences
+- project knowledge
+- lessons learned
+- reusable playbooks
+- known problems
+- model findings
+- historical summaries
+
+Agents should retrieve only relevant knowledge rather than receiving the entire vault.
+
+Audit ALL current memory/storage mechanisms and determine what already exists that can support this.
+
+==========================================================
+LEARNING CONCEPT
+==========================================================
+
+The eventual system must learn from completed work.
+
+Desired loop:
+
+WORK
+    ↓
+EVALUATION
+    ↓
+LESSONS
+    ↓
+MEMORY
+    ↓
+PLAYBOOK
+    ↓
+PROMPT / MODEL POLICY
+    ↓
+NEXT RUN
+
+Learning signals may include:
+
+- successful outcome
+- failed outcome
+- tests
+- QA results
+- retries
+- human corrections
+- regressions
+- costs
+- latency
+- model used
+- reviewer score
+- files changed
+- task type
+- complexity
+- retrieved memory
+- tools used
+
+IMPORTANT:
+
+Agents should NOT autonomously mutate critical prompts without control.
+
+Initially:
+
+experience
+    ↓
+candidate lesson
+    ↓
+evidence
+    ↓
+learning proposal
+    ↓
+evaluation
+    ↓
+human approval
+    ↓
+new prompt/playbook version
+
+Audit anything already present in Hermes Studio / Hermes relating to:
+
+- Patterns & Corrections
+- memory
+- prompt management
+- agent configuration
+- session history
+- audit history
+- feedback
+- agent learning
+- knowledge graphs
+- evaluations
+- corrections
+
+==========================================================
+MODEL ECONOMICS
+==========================================================
+
+The eventual system must optimise for QUALITY PER UNIT COST, not simply cheapest token price.
+
+There will be:
+
+FREE COMPUTE
+SUBSCRIPTION COMPUTE
+PAID API COMPUTE
+
+Free models should be used aggressively where they work.
+
+Connected subscription capacity should also be treated differently from incremental API cash spend.
+
+Paid OpenRouter use should be reserved for cases where it materially improves expected success.
+
+Model selection should ultimately be based on:
+
+task type
+complexity
+risk
+historical performance
+expected success
+model availability
+latency
+cash cost
+subscription availability
+remaining task/project budget
+
+A large Personal Software project should eventually have:
+
+HARD PAID-INFERENCE / EXTERNAL-ASSET CEILING:
+$1.50 unless Ash explicitly authorizes more.
+
+The WHOLE AI WORKFORCE IMPLEMENTATION PROJECT has:
+
+TOTAL OPENROUTER + PAID GENERATED ASSET BUDGET:
+$5.00
+
+THIS AUDIT IS PART OF THAT TOTAL.
+
+Therefore:
+
+AUDIT OPENROUTER CASH SPEND HARD LIMIT:
+$0.40
+
+Target:
+$0.00 if practical.
+
+Use FREE models for:
+- repository scanning
+- file classification
+- bulk summarisation
+- search
+- code indexing
+- duplicate detection
+- trivial analysis
+
+Use already-connected subscription compute where appropriate.
+
+Paid OpenRouter inference may ONLY be used where free/subscription approaches are materially insufficient.
+
+Do not pay for image generation during this audit.
+
+If a free model fails twice on the SAME analysis step:
+STOP repeating the same attempt.
+Change strategy/model.
+
+Record EVERY paid call if Hermes exposes that information.
+
+==========================================================
+AUTONOMY
+==========================================================
+
+This is intended to be autonomous.
+
+Do not repeatedly ask Ash questions.
+
+Investigate.
+
+Use tools.
+
+Inspect code.
+
+Inspect processes.
+
+Inspect repositories.
+
+Read documentation.
+
+Run tests.
+
+Take screenshots.
+
+Compare upstream code.
+
+Delegate to subagents.
+
+Cross-check findings.
+
+If the mission takes many hours or must be broken into batches, THAT IS FINE.
+
+Maintain state on disk.
+
+Resume intelligently.
+
+Do not abandon the mission merely because context becomes large.
+
+Create persistent audit artefacts after each major phase.
+
+If you hit a blocker:
+
+1. investigate alternatives
+2. inspect logs
+3. search local documentation
+4. inspect repository history
+5. inspect upstream repositories
+6. try another read-only method
+7. use a specialist subagent
+8. document the blocker
+
+Only stop early if the blocker genuinely prevents further investigation.
+
+==========================================================
+ABSOLUTE SAFETY RULES
+==========================================================
+
+THIS IS A READ-ONLY PRODUCT AUDIT.
+
+DO NOT:
+
+- rewrite source code
+- refactor production files
+- upgrade dependencies
+- install dependencies into the product unless strictly required for a test and safely reversible
+- modify database schemas
+- modify production data
+- modify user notes
+- modify Obsidian vault contents
+- modify Hermes profiles
+- modify prompts
+- change models
+- change MCP configuration
+- change firewall configuration
+- change Caddy
+- change PostgreSQL
+- change production environment variables
+- deploy anything
+- push commits
+- merge branches
+- delete files
+- reset Git state
+- stash user work
+- discard uncommitted changes
+- expose secrets
+- include raw secret values in reports
+
+You MAY:
+
+- read
+- search
+- inspect
+- run read-only queries
+- run existing tests
+- run existing builds if safe
+- run lint/typechecking
+- inspect screenshots/UI
+- inspect Git history
+- inspect process state
+- inspect database schemas read-only
+- clone public reference repositories into a SEPARATE audit/reference directory
+- create audit files outside the product repository
+- make TEMPORARY copies of code for analysis
+- create diagrams/reports outside the product repo
+
+If an operation could alter user/production data:
+DO NOT EXECUTE IT.
+
+==========================================================
+FIRST ACTION: IDENTIFY THE REAL RUNNING APPLICATION
+==========================================================
+
+Do not assume a folder name.
+
+There have historically been multiple Empirium OS copies / folders.
+
+Start from what is ACTUALLY RUNNING.
+
+Determine:
+
+- executable/process
+- process command line
+- current working directory if discoverable
+- Electron entry point
+- active repository
+- active branch
+- HEAD commit
+- dirty/uncommitted files
+- remotes
+- startup mechanism
+- relevant ports
+- child processes
+- backend processes
+- current frontend URL if applicable
+
+If a currently running Empirium OS process exists, establish which source tree it actually uses.
+
+Use this as authoritative unless evidence proves otherwise.
+
+Record EXACT evidence.
+
+Do NOT repeat previous assumptions.
+
+==========================================================
+CREATE A DEDICATED AUDIT WORKSPACE
+==========================================================
+
+Create a SEPARATE workspace such as:
+
+empirium-os-ai-workforce-audit/
+    README.md
+    MASTER_AUDIT.md
+    IMPLEMENTATION_CONTEXT.md
+    FILE_MAP.md
+    CONDUCTOR_FORENSICS.md
+    HERMES_INTEGRATION.md
+    DATA_MODEL_AUDIT.md
+    UI_ARCHITECTURE.md
+    TEST_BASELINE.md
+    MEMORY_KNOWLEDGE_AUDIT.md
+    MODEL_PROVIDER_AUDIT.md
+    SECURITY_PERMISSIONS.md
+    DEPLOYMENT_RUNTIME.md
+    DONOR_CODE_RESEARCH.md
+    LICENSING.md
+    RISK_REGISTER.md
+    BUILD_RECOMMENDATION.md
+    OPEN_QUESTIONS.md
+    screenshots/
+    diagrams/
+    logs/
+    manifests/
+    references/
+    test-results/
+
+Name files clearly.
+
+Add timestamps where useful.
+
+==========================================================
+SUBAGENT STRATEGY
+==========================================================
+
+Use as many specialist subagents as useful.
+
+Run independent investigations in parallel where safe.
+
+Suggested roles:
+
+A. REPOSITORY FORENSICS AGENT
+B. HERMES STUDIO / CONDUCTOR AGENT
+C. FRONTEND / UI ARCHITECTURE AGENT
+D. BACKEND / API AGENT
+E. DATA / STORAGE AGENT
+F. HERMES RUNTIME / GATEWAY AGENT
+G. MODEL / PROVIDER / COST AGENT
+H. MEMORY / OBSIDIAN AGENT
+I. TESTING / QA AGENT
+J. SECURITY / PERMISSIONS AGENT
+K. DEPLOYMENT / INFRASTRUCTURE AGENT
+L. OPEN-SOURCE DONOR CODE AGENT
+M. ANIMATION / VISUAL ENGINEERING AGENT
+N. PERFORMANCE AGENT
+O. LICENSE / DEPENDENCY AGENT
+P. CROSS-CHECK / RED-TEAM AGENT
+
+Do NOT create subagents just for theatre.
+
+Give each a narrow investigation scope and require evidence.
+
+At least one final agent should independently challenge the conclusions of the others.
+
+==========================================================
+PHASE 1 — REPOSITORY FORENSICS
+==========================================================
+
+Identify every repository or directory materially involved in Empirium OS.
+
+For the authoritative running application capture:
+
+- absolute path
+- Git repository root
+- current branch
+- current HEAD
+- remote URLs
+- relevant tags
+- recent commit history
+- uncommitted changes
+- ignored/generated directories
+- package manager
+- lock files
+- Node version requirements
+- Electron version
+- frontend framework
+- build system
+- bundler
+- CSS system
+- state management
+- database libraries
+- API libraries
+- testing libraries
+- animation libraries
+- graphics libraries
+- WebSocket/SSE libraries
+- IPC libraries
+- process management libraries
+
+Create:
+
+REPOSITORY MAP
+
+For every major directory:
+
+PATH
+PURPOSE
+FRAMEWORK
+ENTRY POINT
+IMPORTANT FILES
+RISK IF MODIFIED
+
+==========================================================
+PHASE 2 — MAP THE ENTIRE APPLICATION ARCHITECTURE
+==========================================================
+
+Trace startup from executable to rendered UI.
+
+Document:
+
+Electron main process
+preload
+renderer
+browser windows
+webviews
+iframes
+embedded apps
+local servers
+remote services
+IPC
+REST APIs
+WebSockets
+SSE
+background workers
+database connections
+filesystem integrations
+Hermes integrations
+Obsidian integrations
+authentication
+configuration loading
+
+Create architecture diagrams.
+
+Use Mermaid if convenient.
+
+Document:
+
+APP START
+    ↓
+MAIN
+    ↓
+PRELOAD
+    ↓
+RENDERER
+    ↓
+ROUTES
+    ↓
+HERMES STUDIO
+    ↓
+HERMES
+    ↓
+MODEL / TOOL / MCP LAYER
+
+but BASE IT ON ACTUAL SOURCE.
+
+==========================================================
+PHASE 3 — FORENSICALLY LOCATE THE EMBEDDED HERMES STUDIO
+==========================================================
+
+Determine EXACTLY how Hermes Studio was added.
+
+Possible forms include:
+
+- copied source
+- git subtree
+- embedded web app
+- iframe
+- local server
+- bundled package
+- fork
+- partial component port
+- mixed integration
+
+Do not assume.
+
+Identify:
+
+- exact Studio-related directories
+- components copied
+- routes copied
+- stores copied
+- hooks copied
+- services copied
+- CSS/theme copied
+- assets copied
+- server components copied
+- gateway code copied
+- Conductor code copied
+- Tasks/Kanban code copied
+- Operations code copied
+- Agent Library code copied
+- Knowledge components copied
+- Cost components copied
+- Cron components copied
+
+For each relevant file produce:
+
+FILE
+ORIGIN IF IDENTIFIABLE
+PURPOSE
+DEPENDENCIES
+CURRENT MODIFICATIONS
+REUSABILITY
+COUPLING
+REFACTOR RISK
+
+==========================================================
+PHASE 4 — IDENTIFY UPSTREAM HERMES STUDIO VERSION
+==========================================================
+
+Use GitHub/public sources if needed.
+
+Compare embedded code against current and historical Hermes Studio source.
+
+Determine where possible:
+
+- upstream repository
+- likely originating commit/tag/version
+- files that match upstream
+- files modified locally
+- files missing
+- newer useful upstream features not embedded
+- any breaking changes between embedded and latest versions
+
+DO NOT merge anything.
+
+Produce a DIFF/PROVENANCE report.
+
+==========================================================
+PHASE 5 — CONDUCTOR FORENSICS
+==========================================================
+
+THIS IS ONE OF THE MOST IMPORTANT PHASES.
+
+Trace Conductor end-to-end.
+
+Find and document:
+
+- Conductor entry route
+- Conductor screen/components
+- office rendering
+- worker rendering
+- agent avatars
+- layouts
+- worker state
+- mission state
+- gateway hooks
+- mission lifecycle
+- worker lifecycle
+- session lifecycle
+- polling
+- WebSocket/SSE if present
+- Hermes Gateway/ACP communication
+- task creation
+- worker launch
+- model assignment
+- cost tracking
+- completion handling
+- cancellation
+- errors
+- history storage
+- localStorage
+- persistence
+- event logs
+- speech bubbles
+- animation logic
+- movement logic
+- agent location logic
+- office layout definitions
+- status visualization
+- configuration
+
+Trace ONE mission from:
+
+user starts mission
+    ↓
+mission object created
+    ↓
+plan created
+    ↓
+workers created
+    ↓
+Hermes execution begins
+    ↓
+states update
+    ↓
+office reacts
+    ↓
+results arrive
+    ↓
+costs/events update
+    ↓
+mission completes
+    ↓
+history persists
+
+Give exact source files and important symbols/functions.
+
+Answer explicitly:
+
+CAN OFFICEVIEW BE REUSED WITH PERSISTENT DEPARTMENT AGENTS?
+
+If YES:
+explain exact refactor.
+
+If NO:
+explain why and alternative.
+
+Determine whether a clean interface can be created such as:
+
+<OfficeView
+  workers={departmentAgents}
+  layout={department.officeLayout}
+/>
+
+while still allowing:
+
+<OfficeView
+  workers={missionWorkers}
+  layout={mission.officeLayout}
+/>
+
+Do not implement.
+
+==========================================================
+PHASE 6 — OPERATIONS / TASKS / KANBAN FORENSICS
+==========================================================
+
+Audit all existing work-management functionality.
+
+Find:
+
+- Kanban
+- Tasks
+- statuses
+- Backlog
+- Todo
+- In Progress
+- Review
+- Done
+- task persistence
+- mission/task links
+- priorities
+- due dates
+- assignees
+- scheduled work
+- Cron
+- background jobs
+- Operations dashboard
+- history
+- logs
+- notifications
+- event feeds
+
+Determine exactly what can become:
+
+DEPARTMENT
+    ↓
+PROJECT
+    ↓
+TASK
+    ↓
+RUN
+
+Identify what is already present and what must be created.
+
+==========================================================
+PHASE 7 — AGENT DEFINITIONS
+==========================================================
+
+Audit all concepts related to persistent agents.
+
+Investigate:
+
+- Hermes profiles
+- Hermes Studio Agent Library
+- SOUL
+- system prompts
+- skills
+- tools
+- MCPs
+- model settings
+- memory
+- working directories
+- permissions
+- configuration
+- sessions
+- per-agent costs
+- agent history
+
+Determine whether our future persistent specialist should map to:
+
+A. Hermes Profile
+B. Hermes Studio Agent definition
+C. new Empirium Department Agent entity
+D. combination
+
+Recommend the cleanest abstraction.
+
+We likely want the organizational identity to survive individual execution sessions.
+
+Determine exact mapping strategy.
+
+==========================================================
+PHASE 8 — MODEL PROVIDERS AND ROUTING
+==========================================================
+
+Inventory EVERY currently available model/provider route.
+
+Do NOT reveal API keys.
+
+Identify:
+
+- OpenRouter
+- direct providers
+- local models
+- connected subscription-backed models
+- Hermes provider configuration
+- model aliases
+- defaults
+- fallbacks
+- free models
+- paid models
+- per-model pricing if available locally
+- rate limits if known
+- usage accounting
+- cost logs
+- current model router behavior
+
+Specifically determine whether these can be used programmatically from Hermes:
+
+- free OpenRouter models
+- OpenAI / Codex subscription-backed execution
+- GPT/Luna variants available through connected subscription
+- Anthropic subscription-backed Sonnet
+- Anthropic subscription-backed Opus
+- any current local models
+- any other free provider models
+
+Do not assume availability.
+
+VERIFY.
+
+Document:
+
+MODEL
+PROVIDER
+ACCESS METHOD
+CASH MARGINAL COST
+SUBSCRIPTION OR API
+STRENGTHS
+LATENCY IF KNOWN
+RESTRICTIONS
+CAN HERMES SPAWN IT?
+CAN CONDUCTOR ASSIGN IT?
+CAN AGENT OVERRIDE IT?
+
+==========================================================
+PHASE 9 — COST ACCOUNTING
+==========================================================
+
+Determine:
+
+- whether Hermes Studio already calculates model cost
+- where cost data originates
+- per-session cost
+- per-agent cost
+- per-model cost
+- mission cost
+- daily cost
+- persisted cost history
+- whether free calls show zero correctly
+- how subscription compute appears
+- whether budgets are supported
+- whether hard limits can be enforced
+
+Determine where a future:
+
+PROJECT MAX CASH COST = $1.50
+
+could be technically enforced.
+
+Do NOT rely solely on LLM obedience.
+
+Find a deterministic enforcement point.
+
+==========================================================
+PHASE 10 — DATABASE / PERSISTENCE
+==========================================================
+
+Inventory ALL persistent data systems.
+
+Examples:
+
+PostgreSQL
+SQLite
+localStorage
+IndexedDB
+JSON files
+filesystem
+Obsidian
+Hermes files
+session files
+logs
+
+For PostgreSQL:
+
+READ ONLY.
+
+Capture:
+
+- version
+- databases
+- schemas
+- tables
+- important columns
+- relationships
+- indexes where relevant
+- existing migrations
+- database libraries
+- connection architecture
+
+Never expose passwords.
+
+Determine the correct place for future entities:
+
+departments
+department_agents
+projects
+tasks
+runs
+run_events
+qa_reviews
+agent_configs
+prompt_versions
+model_policies
+budget_policies
+memory_scopes
+knowledge_links
+learning_events
+learning_proposals
+department_events
+agent_visual_profiles
+
+Recommend:
+
+existing DB?
+new schema?
+new database?
+
+Explain trade-offs.
+
+==========================================================
+PHASE 11 — OBSIDIAN / MEMORY AUDIT
+==========================================================
+
+Find how Obsidian currently interacts with Hermes / Empirium OS.
+
+Identify:
+
+- actual vault location if accessible
+- how software accesses it
+- MCPs
+- filesystem access
+- plugins
+- REST APIs
+- search
+- embeddings
+- indexing
+- retrieval
+- write support
+- read support
+- authentication
+- permissions
+- sync
+
+DO NOT modify the vault.
+
+Determine how future memory scopes could work:
+
+global
+department
+project
+agent
+
+Determine whether metadata/frontmatter/tagging/path conventions would work best.
+
+Recommend retrieval architecture.
+
+Also audit Hermes native memory mechanisms:
+
+- MEMORY.md
+- USER.md
+- profile memory
+- other memory providers
+- context injection
+
+Determine what belongs in always-on Hermes memory versus retrieved Obsidian knowledge.
+
+==========================================================
+PHASE 12 — PROMPTS / LEARNING / CORRECTIONS
+==========================================================
+
+Find all current code related to:
+
+prompts
+system prompts
+SOUL
+skills
+patterns
+corrections
+agent memory
+prompt templates
+prompt versioning
+evaluation
+feedback
+history
+learning
+knowledge graph
+
+Determine what can support:
+
+PROMPT VERSION HISTORY
+
+Example:
+
+Implementation Engineer
+v7 → v8
+rule added:
+"Inspect route registry before modifying navigation."
+
+The eventual system must store:
+
+- previous prompt
+- proposed prompt
+- reason
+- evidence
+- evaluator result
+- approval
+- rollout date
+- performance after rollout
+- rollback capability
+
+Identify what exists and what needs building.
+
+==========================================================
+PHASE 13 — QA / TESTING AUDIT
+==========================================================
+
+Inventory all test infrastructure.
+
+Find:
+
+- unit tests
+- integration tests
+- E2E
+- Playwright
+- Electron testing
+- browser tests
+- screenshots
+- visual regression
+- lint
+- TypeScript
+- build
+- security checks
+- accessibility checks
+- smoke tests
+
+Run the CURRENT SAFE TEST BASELINE.
+
+Do not modify production data.
+
+Record commands and COMPLETE results.
+
+Attempt:
+
+install-state verification
+typecheck
+lint
+tests
+build
+safe runtime smoke test
+
+where supported.
+
+If something fails:
+record exact failure.
+
+Do not silently fix it.
+
+Create:
+
+TEST_BASELINE.md
+
+including:
+
+COMMAND
+RESULT
+DURATION
+FAILURES
+KNOWN PREEXISTING?
+EVIDENCE
+
+==========================================================
+PHASE 14 — MANUAL UI / VISUAL BASELINE
+==========================================================
+
+Launch the current application safely if necessary.
+
+Take screenshots of important current views including:
+
+- Empirium OS home
+- embedded Hermes Studio
+- Conductor home
+- Conductor mission preview
+- Conductor active mission if safely testable
+- Operations
+- Tasks/Kanban
+- Agent Library
+- Costs
+- Knowledge
+- Settings
+- any relevant agent/profile screen
+
+DO NOT trigger expensive real work merely for screenshots.
+
+If Conductor can run a harmless zero/near-zero-cost test using a free model and isolated task, that is allowed only if safe.
+
+Capture baseline dimensions and responsiveness if practical.
+
+==========================================================
+PHASE 15 — VISUAL / ANIMATION TECH AUDIT
+==========================================================
+
+We need to eventually create animated configurable robots and department offices.
+
+Determine existing technologies:
+
+React?
+DOM?
+CSS animation?
+Framer Motion?
+Canvas?
+SVG?
+PixiJS?
+Three.js?
+WebGL?
+Lottie?
+GSAP?
+sprite sheets?
+CSS transforms?
+requestAnimationFrame?
+Electron GPU acceleration?
+
+Find exactly how current Conductor avatars and office visuals are rendered.
+
+Determine:
+
+- current asset formats
+- current animation formats
+- frame rates
+- rendering cost
+- layout system
+- sprite/image handling
+- responsive scaling
+- z-index/layering
+- hit testing
+- interactions
+- performance implications
+
+Evaluate future options:
+
+A. DOM/CSS/SVG
+B. sprite-based 2D
+C. Canvas/PixiJS
+D. Three.js/WebGL
+E. hybrid
+
+The overview page may ultimately show MANY miniature departments simultaneously.
+
+Therefore analyse:
+
+- CPU cost
+- GPU cost
+- memory
+- Electron performance
+- number of animated agents
+- number of department cards
+- whether mini offices should be static snapshots
+- whether animation should start only on hover / viewport visibility
+- whether full animation should exist only inside opened department
+- caching strategies
+- reduced-motion support
+
+Provide recommendation.
+
+==========================================================
+PHASE 16 — AGENT VISUAL CUSTOMIZATION DATA MODEL
+==========================================================
+
+DO NOT build assets.
+
+Design only the likely technical representation.
+
+Investigate feasibility for a future profile such as:
+
+agent_visual_profile
+    base_model
+    body_style
+    primary_color
+    secondary_color
+    screen_style
+    screen_color
+    eye_style
+    gadgets[]
+    accessories[]
+    desk_style
+    monitor_style
+    role_badge
+    idle_animation
+    work_animation
+    busy_animation
+    blocked_animation
+    review_animation
+    movement_style
+    personality_visual_intensity
+
+Determine whether these can be implemented by:
+
+layered SVG
+sprite composition
+CSS variables
+Canvas sprite layers
+generated image variants
+or another approach.
+
+Since TOTAL implementation budget is only $5, prioritize reusable procedural/customizable visuals over generating hundreds of separate images.
+
+We want a system where ONE base visual framework can create many unique agents.
+
+==========================================================
+PHASE 17 — SECURITY AND PERMISSIONS
+==========================================================
+
+Audit:
+
+- CSP
+- Electron context isolation
+- nodeIntegration
+- preload exposure
+- IPC allowlists
+- filesystem permissions
+- database credentials
+- Hermes access
+- MCP access
+- network listeners
+- local-only services
+- exposed ports
+- authentication
+- secrets
+- environment variables
+- write capabilities
+
+DO NOT print secret values.
+
+Determine how future agent tool permissions could be enforced.
+
+Example:
+
+Implementation Engineer:
+✓ Git
+✓ terminal
+✓ project filesystem
+✓ tests
+
+✗ finance
+✗ personal diary
+✗ production deploy without approval
+
+Determine whether enforcement exists already or needs a policy layer.
+
+==========================================================
+PHASE 18 — DEPLOYMENT / RUNTIME
+==========================================================
+
+Map the actual operational topology.
+
+Potential components may include:
+
+Windows machine
+Empirium OS Electron
+local worker
+VPS
+Hermes
+Hermes Studio
+PostgreSQL
+Caddy
+Tailscale
+Obsidian
+OpenRouter
+external APIs
+
+VERIFY EVERYTHING.
+
+Produce:
+
+deployment diagram
+network diagram
+process diagram
+service ownership
+ports
+startup procedures
+restart procedures
+build procedures
+deployment procedures
+rollback procedures
+
+Do not reveal secrets.
+
+==========================================================
+PHASE 19 — OPEN SOURCE DONOR CODE RESEARCH
+==========================================================
+
+Research current public repositories that may contain reusable implementation patterns or code.
+
+At minimum inspect:
+
+Hermes Studio
+Hermes War Room
+Hermes Workspace
+Builderz Mission Control
+
+Also inspect any other HIGHLY relevant open-source systems discovered during research.
+
+For each donor repository determine:
+
+PROJECT
+REPOSITORY
+LICENSE
+RELEVANT FILES
+FEATURES WORTH REUSING
+COPY DIRECTLY?
+ADAPT?
+INSPIRATION ONLY?
+INTEGRATION RISK
+
+Focus particularly on:
+
+- persistent visible agents
+- department/workspace structures
+- agent cards
+- live activity feeds
+- delegation trees
+- task boards
+- project management
+- session history
+- observability
+- budget controls
+- approvals
+- agent permissions
+- animation systems
+- prompt management
+- memory visualization
+
+Do not copy anything into Empirium OS during this audit.
+
+Clone references separately if useful.
+
+==========================================================
+PHASE 20 — LICENSE AUDIT
+==========================================================
+
+For every codebase we may salvage code from:
+
+record exact license.
+
+Identify:
+
+- MIT
+- Apache
+- GPL
+- AGPL
+- PolyForm
+- proprietary restrictions
+- unclear licensing
+
+Flag anything we should NOT directly copy.
+
+Also inspect current Empirium OS / embedded Hermes Studio attribution obligations.
+
+Produce LICENSING.md.
+
+==========================================================
+PHASE 21 — PERFORMANCE BASELINE
+==========================================================
+
+Measure where practical:
+
+application startup
+renderer memory
+CPU idle
+CPU during Hermes Studio
+CPU during Conductor
+GPU usage if visible
+number of renderer processes
+bundle size
+route load
+large component renders
+network polling frequency
+session polling
+event streaming
+animation impact
+
+We need to know whether many department cards with animated mini offices are practical.
+
+Record baseline.
+
+==========================================================
+PHASE 22 — EXACT UI COMPONENT REUSE MAP
+==========================================================
+
+Produce a table of all existing components likely reusable for the future AI Workforce.
+
+For each:
+
+COMPONENT
+FILE
+CURRENT PURPOSE
+DEPENDENCIES
+REUSE TYPE:
+- reuse unchanged
+- extract
+- refactor generic
+- adapt
+- replace
+
+LIKELY FUTURE USE
+
+Pay particular attention to:
+
+OfficeView
+AgentAvatar
+Conductor Active
+Conductor Gateway hooks
+Mission history
+Mission events
+Cost tracker
+Tasks/Kanban
+Operations
+Agent Library
+Workflow DAG
+Cron
+Audit Trail
+Session History
+Patterns & Corrections
+Knowledge Graph
+MCP management
+Model management
+
+==========================================================
+PHASE 23 — PROPOSE FUTURE ADAPTER BOUNDARY
+==========================================================
+
+Without implementing, design a clean API between the future Empirium organizational layer and Hermes.
+
+Example conceptual interface:
+
+listAgents()
+getAgent(agentId)
+getAgentStatus(agentId)
+startRun(agentId, task)
+stopRun(runId)
+listRuns()
+getRunEvents(runId)
+createTask()
+updateTask()
+startConductorMission()
+getMission()
+getCosts()
+listAvailableModels()
+getModelUsage()
+retrieveKnowledge()
+recordQA()
+recordLearningProposal()
+
+Determine what is already supported directly.
+
+Determine what requires adapters.
+
+Determine what would require new backend endpoints.
+
+==========================================================
+PHASE 24 — PROPOSE FUTURE DATABASE MODEL
+==========================================================
+
+Without applying migrations, draft the full likely schema.
+
+Include entities and key relationships for:
+
+departments
+agents
+agent_visual_profiles
+agent_model_policies
+agent_tool_permissions
+agent_memory_scopes
+agent_prompt_versions
+
+projects
+tasks
+runs
+run_events
+
+conductor_missions
+mission_agent_links
+
+qa_reviews
+qa_checks
+qa_evidence
+
+knowledge_sources
+knowledge_links
+memory_retrieval_events
+
+learning_events
+learning_proposals
+playbook_versions
+
+model_catalog
+model_performance
+model_usage
+cost_events
+budget_policies
+
+department_events
+audit_events
+
+schedules
+background_jobs
+
+Provide:
+
+PKs
+FKs
+important fields
+indexes
+status enums
+timestamps
+soft-delete/archive strategy if useful
+
+==========================================================
+PHASE 25 — PERSONAL SOFTWARE DEPARTMENT CONFIGURATION
+==========================================================
+
+Draft, but do not instantiate, the first department.
+
+PERSONAL SOFTWARE
+
+Mission:
+Build, maintain, test, improve and learn from Ash's personal software.
+
+Roles:
+
+SOFTWARE DIRECTOR
+
+Responsibilities:
+- receive request
+- classify request
+- determine complexity/risk
+- create project/task decomposition
+- choose model strategy
+- control budget
+- delegate
+- decide escalation
+- monitor completion
+- request QA
+- close project
+
+RESEARCH / ARCHITECTURE ENGINEER
+
+Responsibilities:
+- inspect current architecture
+- research solutions
+- examine donor code
+- investigate documentation
+- create implementation approach
+- identify risks
+- produce ADRs where appropriate
+
+IMPLEMENTATION ENGINEER
+
+Responsibilities:
+- modify software
+- write code
+- run tests
+- follow coding standards
+- create implementation evidence
+
+QA / REVIEW ENGINEER
+
+Responsibilities:
+- validate requirements
+- inspect diffs
+- run automated tests
+- run integration tests
+- perform visual QA
+- look for regressions
+- verify security where applicable
+- approve/reject work
+
+LEARNING ANALYST
+
+Responsibilities:
+- inspect completed work
+- extract lessons
+- identify repeated failures
+- identify successful strategies
+- propose memory updates
+- propose playbook updates
+- propose prompt updates
+- propose model-routing updates
+- NEVER silently mutate critical prompts
+
+For each role recommend:
+
+Hermes mapping
+prompt structure
+tools
+MCPs
+memory scope
+default model class
+escalation model class
+permissions
+autonomy
+visual office role
+performance metrics
+
+==========================================================
+PHASE 26 — CURRENT-STATE GAP ANALYSIS
+==========================================================
+
+For every desired future capability classify:
+
+ALREADY EXISTS
+PARTIALLY EXISTS
+MUST BE BUILT
+SHOULD BE REUSED FROM DONOR
+SHOULD NOT BE BUILT
+
+Capabilities include:
+
+organization overview
+departments
+persistent roles
+office visualization
+agent customization
+animations
+projects
+tasks
+runs
+Conductor integration
+live activity
+QA
+history
+costs
+budgets
+memory scopes
+Obsidian
+learning
+prompt versions
+model routing
+background work
+scheduling
+permissions
+logs
+audit
+metrics
+visual status
+agent interaction with environment
+
+==========================================================
+PHASE 27 — IMPLEMENTATION RISK REGISTER
+==========================================================
+
+Identify every meaningful risk.
+
+Examples:
+
+breaking embedded Hermes Studio
+tight coupling to Conductor internals
+Hermes API instability
+persistent-vs-session identity mismatch
+localStorage limitations
+database migration risk
+Electron CSP
+performance of many animations
+model access limitations
+subscription automation limitations
+asset budget
+provider rate limits
+permissions
+uncontrolled prompt self-modification
+Obsidian synchronization
+Windows/VPS boundaries
+
+For each:
+
+RISK
+PROBABILITY
+IMPACT
+EVIDENCE
+MITIGATION
+HOW TO TEST
+
+==========================================================
+PHASE 28 — BASELINE REGRESSION CONTRACT
+==========================================================
+
+Before future implementation, define what MUST continue working.
+
+Create an explicit regression contract based on the current app.
+
+Examples could include:
+
+- Empirium OS starts
+- current dashboard renders
+- Hermes Studio embed loads
+- Hermes connection works
+- Conductor existing flow works
+- Tasks works
+- Agents works
+- existing synchronization works
+- database access works
+- personal software functions remain intact
+
+But derive the real list from the software.
+
+This becomes the implementation's minimum non-regression test suite.
+
+==========================================================
+PHASE 29 — IMPLEMENTATION RECOMMENDATION
+==========================================================
+
+At the end of the audit, recommend the lowest-risk build strategy.
+
+We currently suspect:
+
+EMBEDDED HERMES STUDIO
+    ↓
+extract reusable Conductor presentation components
+    ↓
+add Empirium Department organizational layer
+    ↓
+persistent Department Agents
+    ↓
+Projects / Tasks / Runs
+    ↓
+Conductor as temporary execution
+    ↓
+QA
+    ↓
+Obsidian knowledge
+    ↓
+Learning
+    ↓
+Model/cost router
+
+But challenge this.
+
+If the source indicates a better architecture, say so.
+
+The recommendation must be based on evidence.
+
+==========================================================
+PHASE 30 — CREATE THE IMPLEMENTATION CONTEXT BUNDLE
+==========================================================
+
+This is the MOST IMPORTANT deliverable.
+
+Create:
+
+IMPLEMENTATION_CONTEXT.md
+
+It must contain enough information for another strong AI model to write the COMPLETE implementation mission without re-auditing the machine.
+
+It should include:
+
+1. authoritative application location
+2. Git state
+3. app architecture
+4. relevant technology stack
+5. exact Hermes Studio embed architecture
+6. exact Conductor architecture
+7. exact relevant source files
+8. component reuse map
+9. backend/API map
+10. database map
+11. Hermes integration
+12. profiles/agents model
+13. tasks/Kanban model
+14. cost model
+15. model/provider inventory
+16. Obsidian/memory architecture
+17. test infrastructure
+18. current test results
+19. deployment topology
+20. animation/rendering architecture
+21. security constraints
+22. donor code recommendations
+23. licensing constraints
+24. performance constraints
+25. proposed future schema
+26. Personal Software Department definition
+27. risk register
+28. regression contract
+29. recommended implementation sequence
+30. exact build/test/deploy commands
+31. anything the implementation agent MUST NOT do
+32. unresolved blockers if any
+
+DO NOT merely provide vague prose.
+
+USE EXACT FILE PATHS, FUNCTIONS, CLASSES, ENDPOINTS AND DATA STRUCTURES.
+
+==========================================================
+MANDATORY MACHINE-READABLE OUTPUTS
+==========================================================
+
+Also produce machine-readable files.
+
+At minimum:
+
+manifests/relevant-files.json
+manifests/components.json
+manifests/routes.json
+manifests/services.json
+manifests/apis.json
+manifests/models.json
+manifests/storage.json
+manifests/tests.json
+manifests/donor-code.json
+manifests/risks.json
+
+Where useful include:
+
+{
+  "path": "...",
+  "purpose": "...",
+  "dependencies": [],
+  "future_use": "...",
+  "change_risk": "low|medium|high"
+}
+
+==========================================================
+MANDATORY SCREENSHOT PACK
+==========================================================
+
+Create labelled screenshots where possible.
+
+Name them clearly.
+
+Example:
+
+01-current-empirium-home.png
+02-hermes-studio-home.png
+03-conductor-home.png
+04-conductor-active.png
+05-tasks.png
+06-agents.png
+07-operations.png
+
+If something cannot be safely captured:
+document why.
+
+==========================================================
+MANDATORY SOURCE EVIDENCE
+==========================================================
+
+Every major conclusion must cite evidence.
+
+For code findings provide:
+
+FILE PATH
+SYMBOL/FUNCTION/COMPONENT
+RELEVANT LINE RANGE IF PRACTICAL
+SHORT EXPLANATION
+
+Do not simply say:
+
+"Conductor probably uses X."
+
+Prove it.
+
+==========================================================
+RED-TEAM REVIEW
+==========================================================
+
+Once the audit appears complete, assign an independent reviewer.
+
+Reviewer mission:
+
+"Assume this audit is wrong or incomplete. Find missing dependencies, incorrect assumptions, hidden coupling, unsafe implementation recommendations, missing tests, and anything likely to cause the future autonomous build to fail."
+
+Resolve or document every material criticism.
+
+==========================================================
+FINAL VALIDATION
+==========================================================
+
+Before declaring the audit complete verify:
+
+[ ] authoritative running repo identified
+[ ] Git state captured
+[ ] Hermes Studio embed located
+[ ] embedded Studio provenance investigated
+[ ] Conductor traced end-to-end
+[ ] office rendering traced
+[ ] persistent-agent feasibility assessed
+[ ] tasks/Kanban traced
+[ ] model providers inventoried
+[ ] paid/free/subscription access distinguished
+[ ] cost tracking audited
+[ ] hard-budget enforcement point identified
+[ ] databases/storage inventoried
+[ ] Obsidian integration investigated
+[ ] memory systems investigated
+[ ] prompt/learning mechanisms investigated
+[ ] full safe test baseline executed
+[ ] UI screenshot baseline captured
+[ ] animation stack audited
+[ ] agent customization feasibility evaluated
+[ ] security reviewed
+[ ] runtime/deployment topology mapped
+[ ] donor repositories investigated
+[ ] licenses checked
+[ ] performance baseline captured
+[ ] future adapter boundary proposed
+[ ] future schema drafted
+[ ] Personal Software department drafted
+[ ] risk register completed
+[ ] regression contract created
+[ ] red-team review completed
+[ ] IMPLEMENTATION_CONTEXT.md completed
+[ ] machine-readable manifests completed
+[ ] paid audit spend <= $0.40
+[ ] Empirium OS production source remains unmodified
+
+==========================================================
+DEFINITION OF DONE
+==========================================================
+
+THIS AUDIT IS DONE ONLY WHEN:
+
+1. Another AI can understand the actual current Empirium OS architecture without asking Ash to explain it.
+
+2. Another AI can understand exactly how the embedded Hermes Studio works.
+
+3. Another AI can understand exactly how Conductor creates, monitors and completes work.
+
+4. We know precisely which current components can be reused for the AI Workforce.
+
+5. We know precisely what must be newly built.
+
+6. We know how persistent department agents should map to Hermes execution.
+
+7. We know how Projects → Tasks → Runs → QA → Learning should persist.
+
+8. We know how Obsidian should connect as institutional knowledge.
+
+9. We know which models/providers are actually available and how they can be invoked.
+
+10. We know where and how the $1.50-per-large-project hard cash ceiling can be enforced.
+
+11. We know the safest rendering strategy for many visual departments and animated customizable robot agents.
+
+12. We know the full current regression baseline.
+
+13. We know the exact build/test/deployment commands.
+
+14. We know all meaningful implementation risks.
+
+15. Every major conclusion has source evidence.
+
+16. The implementation context bundle is complete enough to use as the primary input to the next autonomous implementation mission.
+
+17. No existing production functionality was intentionally modified.
+
+18. The audit's OpenRouter spend did not exceed $0.40.
+
+==========================================================
+FINAL RESPONSE TO ASH
+==========================================================
+
+When everything above is complete, DO NOT dump thousands of lines into chat.
+
+Respond with a concise completion report:
+
+EMPIRIUM OS AI WORKFORCE AUDIT — COMPLETE
+
+Authoritative repo:
+<path>
+
+Branch / HEAD:
+<branch + commit>
+
+Current app status:
+<working / known failures>
+
+Hermes Studio embedding:
+<one-paragraph summary>
+
+Conductor finding:
+<one-paragraph summary>
+
+Recommended architecture:
+<one-paragraph summary>
+
+Largest risks:
+<top few>
+
+Existing functionality reusable:
+<brief summary>
+
+New functionality required:
+<brief summary>
+
+Baseline tests:
+<x passed / x failed>
+
+Audit OpenRouter spend:
+<$>
+
+Product files modified:
+NONE
+(or explicitly explain unavoidable generated artefacts)
+
+Audit workspace:
+<absolute path>
+
+Primary handoff file:
+<absolute path to IMPLEMENTATION_CONTEXT.md>
+
+Full audit:
+<absolute path to MASTER_AUDIT.md>
+
+Evidence/screenshots:
+<absolute path>
+
+Machine-readable manifests:
+<absolute path>
+
+Then STOP.
+
+Do not begin implementation.
+
+The next phase will be separately authorized.

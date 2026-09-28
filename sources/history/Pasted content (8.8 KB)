@@ -1,0 +1,372 @@
+STOP. This is a provider-routing bug, not a prompt-behaviour problem.
+
+The application is STILL attempting to use OpenRouter.
+
+Current reproduced error:
+
+"Out of credits
+Your openrouter account has no credits left. Top up or switch provider, then send again."
+
+I have repeatedly specified that OpenRouter must NOT be used.
+
+Do NOT simply change the currently selected model.
+Do NOT modify a system prompt telling the agent not to use OpenRouter.
+Do NOT declare this fixed after finding one OpenRouter setting.
+
+Provider routing occurs below the agent prompt. I need OpenRouter removed from the complete execution graph.
+
+OBJECTIVE
+
+For this application:
+
+OPENROUTER MUST NEVER BE CALLED.
+
+This prohibition applies to:
+
+- main chat model
+- supervisor/orchestrator
+- worker agents
+- delegated agents
+- subagents
+- crews
+- background agents
+- fallback models
+- fallback providers
+- retry logic
+- auxiliary models
+- context compression
+- title generation
+- vision
+- screenshot analysis
+- approval classification
+- MCP routing/classification
+- skills matching
+- triage
+- kanban decomposition
+- profile generation
+- memory summarisation
+- research workers
+- coding workers
+- any legacy provider layer
+- any frontend provider selection
+- any backend provider selection
+
+The replacement provider/model system we have explicitly configured must be used instead.
+
+PHASE 1 — FORENSIC AUDIT
+
+Before changing anything, locate EVERY possible OpenRouter route.
+
+Search the entire relevant installation, application source, Hermes configuration,
+environment configuration and persisted application state for at minimum:
+
+openrouter
+OpenRouter
+OPENROUTER
+openrouter.ai
+OPENROUTER_API_KEY
+provider: openrouter
+provider="openrouter"
+provider = "openrouter"
+fallback_providers
+fallback_model
+fallback_chain
+provider: auto
+provider="auto"
+provider = "auto"
+
+Inspect at minimum:
+
+~/.hermes/config.yaml
+~/.hermes/.env
+
+all Hermes config files
+
+systemd services
+systemd Environment directives
+systemd EnvironmentFile files
+
+Docker/docker-compose configuration if present
+
+shell environment
+service environment
+application .env files
+.env.local
+.env.production
+.env.development
+
+backend configuration
+frontend configuration
+
+database-stored provider preferences
+
+browser/local persisted chat/provider settings if applicable
+
+supervisor configuration
+
+agent configuration
+
+crew configuration
+
+subagent/delegation configuration
+
+fallback configuration
+
+auxiliary model configuration
+
+retry configuration
+
+legacy configuration
+
+OpenAI-compatible routing adapters
+
+any provider registry/router code
+
+any hard-coded OpenRouter URLs
+
+Do not assume ~/.hermes/config.yaml is the only source.
+
+PHASE 2 — TRACE THE FAILED REQUEST
+
+Reproduce the exact user action that currently creates the:
+
+"OpenRouter account has no credits left"
+
+error.
+
+Trace that request from:
+
+UI
+→ API route
+→ conversation/session configuration
+→ orchestrator/supervisor
+→ provider resolver
+→ fallback resolver
+→ actual HTTP client
+
+Identify EXACTLY why OpenRouter was selected.
+
+If two OpenRouter error cards are generated from one user message, determine why two provider requests are being made.
+
+Report the call sites.
+
+PHASE 3 — REMOVE OPENROUTER FROM THE EXECUTION GRAPH
+
+Modify the implementation so OpenRouter is not an eligible provider for this application.
+
+Do not merely make another provider higher priority.
+
+Do not leave OpenRouter as the final fallback.
+
+Do not leave OpenRouter available through "auto".
+
+Do not leave OpenRouter inherited by child agents.
+
+Do not leave OpenRouter in auxiliary fallback chains.
+
+Do not silently fall back to OpenRouter when the desired free API fails.
+
+All applicable fallback chains must explicitly contain ONLY providers that we have approved.
+
+If no approved provider succeeds, return a clear error.
+
+NEVER fall back to OpenRouter.
+
+Audit Hermes' separate delegation configuration.
+
+If delegation.fallback_providers inherits an unwanted parent chain, explicitly configure it.
+
+Audit every auxiliary provider slot.
+
+Where appropriate, explicitly pin the approved provider instead of using ambiguous "auto" provider resolution.
+
+PHASE 4 — ADD A HARD SAFETY GUARD
+
+This must not depend solely on configuration being correct.
+
+Add a deterministic provider policy before provider execution.
+
+Conceptually:
+
+FORBIDDEN_PROVIDERS = {
+    "openrouter"
+}
+
+Before executing ANY LLM request:
+
+resolved_provider = resolve_provider(...)
+
+if normalized(resolved_provider) in FORBIDDEN_PROVIDERS:
+    raise ProviderPolicyViolation(
+        "OpenRouter is disabled for this application"
+    )
+
+This check must occur AFTER provider/fallback resolution but BEFORE the HTTP request.
+
+It must therefore protect against:
+
+- accidental configuration changes
+- fallback selection
+- inherited settings
+- legacy sessions
+- worker agents
+- new chats
+- auxiliary requests
+- supervisor requests
+
+If endpoints can bypass the provider name, also reject requests whose resolved
+base URL/domain points to OpenRouter, including:
+
+openrouter.ai
+https://openrouter.ai/api/
+https://openrouter.ai/api/v1
+
+Do not rely only on string matching if the provider registry provides a canonical
+provider ID.
+
+PHASE 5 — REMOVE STALE SESSION STATE
+
+Determine whether existing chats persist:
+
+provider
+model
+base_url
+fallback chain
+agent profile
+
+If old chats can retain OpenRouter after global configuration changes, migrate or
+invalidate that stale state.
+
+A new application setting must apply consistently to:
+
+existing chats
+new chats
+subagents
+background jobs
+
+PHASE 6 — TEST
+
+Do not state that this is fixed without executing tests.
+
+At minimum test:
+
+1. New normal chat
+2. Existing chat
+3. Supervisor request
+4. Worker/subagent request
+5. Delegated task
+6. Tool/MCP task
+7. Long conversation triggering compression
+8. Automatic title generation
+9. Retry after intentional provider failure
+10. Fallback after intentional provider failure
+11. Restart application and repeat
+12. Restart Hermes/service and repeat
+
+CRITICAL TEST:
+
+Make the configured preferred provider intentionally fail.
+
+Verify that the system DOES NOT attempt OpenRouter.
+
+It should either:
+
+A. use another explicitly approved provider
+
+or
+
+B. fail with our own provider-unavailable error.
+
+It must NEVER produce an OpenRouter response.
+
+PHASE 7 — NETWORK-LEVEL VERIFICATION
+
+Instrument/log outbound LLM requests during the test suite.
+
+Record:
+
+timestamp
+request type
+agent
+provider
+model
+base URL/hostname
+whether fallback occurred
+
+There must be ZERO requests to:
+
+openrouter.ai
+
+during the complete test suite.
+
+Search the logs afterwards for:
+
+openrouter
+openrouter.ai
+
+Expected result: ZERO outbound OpenRouter requests.
+
+PHASE 8 — RESTART AND PERSISTENCE TEST
+
+Restart all affected services.
+
+Restart the application.
+
+Start a completely fresh chat.
+
+Run another request.
+
+Confirm the provider remains correct after restart.
+
+This is necessary because an in-memory change does not constitute a fix.
+
+DEFINITION OF DONE
+
+This task is NOT complete until ALL of the following are true:
+
+[ ] Root cause of the current OpenRouter request identified
+[ ] Reason for duplicate OpenRouter errors identified
+[ ] Main model does not use OpenRouter
+[ ] Supervisor does not use OpenRouter
+[ ] Workers/subagents do not use OpenRouter
+[ ] Delegation does not use OpenRouter
+[ ] Auxiliary tasks do not use OpenRouter
+[ ] Compression does not use OpenRouter
+[ ] Title generation does not use OpenRouter
+[ ] Fallback chains do not contain OpenRouter
+[ ] "auto" routing cannot resolve to OpenRouter for this application
+[ ] Existing stale sessions cannot retain OpenRouter routing
+[ ] OpenRouter base URL cannot be invoked
+[ ] Deterministic runtime OpenRouter prohibition implemented
+[ ] Preferred-provider failure test passes
+[ ] New-chat test passes
+[ ] Existing-chat test passes
+[ ] Restart persistence test passes
+[ ] Complete outbound-request logs contain zero OpenRouter requests
+
+FINAL REPORT
+
+When finished give me:
+
+1. Root cause
+2. Every OpenRouter reference discovered
+3. Which references were legitimate/non-routing references
+4. Every routing reference removed or changed
+5. Files changed
+6. Configuration changed
+7. Runtime guard implementation
+8. Existing-session migration/fix
+9. Tests executed
+10. Test results
+11. Outbound provider request log
+12. Proof that an intentional provider failure does NOT invoke OpenRouter
+13. Proof that the fix survives a full restart
+
+DO NOT ask me whether you should continue after the audit.
+
+Audit, fix, restart, test and verify autonomously.
+
+Do not say "fixed" merely because configuration looks correct.
+
+The only acceptable proof is successful runtime testing showing ZERO OpenRouter
+requests.

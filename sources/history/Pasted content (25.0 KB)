@@ -1,0 +1,252 @@
+Build a reliable durable Hermes project orchestrator
+You are implementing and commissioning a reliable autonomous software-project execution system. This is an implementation task, not another audit or a proposal-only task.
+
+1. My actual objective
+When I give Hermes a detailed software/code-project specification, I want it to keep implementing, testing, reviewing, repairing and continuing until every mandatory acceptance criterion is satisfied. The work must survive the initiating chat ending, context exhaustion, terminal/SSH/browser closure, gateway restarts, worker failures and controller restarts.
+
+I do NOT mean an LLM repeatedly saying it will continue, a watchdog repeatedly sending prompts, an immortal process that makes no progress, or workers producing commits without acceptance.
+
+The required outcome is:
+
+Detailed specification
+  → durable, source-traceable acceptance contract
+  → dependency-aware bounded WorkItems
+  → atomic ownership and isolated workers
+  → real implementation
+  → validated structured handoff
+  → independent verification
+  → verified integration
+  → durable rework/diagnosis when necessary
+  → next eligible work
+  → deterministic final acceptance at current Git SHA
+The controller owns scheduling, retries, ownership, recovery and completion deterministically. Hermes is a disposable implementation/diagnosis worker, not the sole holder of the plan or execution state.
+
+Do not promise impossible completion. Host power loss, unavailable credentials, external approvals, permanent provider outages and unavailable physical hardware can prevent progress. Persist these honestly, continue unrelated eligible work, automatically resume retryable waits, and surface genuine human blockers. Never substitute fake evidence, silently weaken the specification, or call a blocked project complete.
+
+2. Existing system and evidence
+Primary project:
+
+/home/ash/Desktop/nailify
+Controller:
+
+/home/ash/Desktop/nailify/.hermes/autonomy/controller.py
+Schema initializer:
+
+/home/ash/Desktop/nailify/.hermes/autonomy/init_db.py
+State and heartbeat:
+
+/home/ash/Desktop/nailify/.hermes/state/project.db
+/home/ash/Desktop/nailify/.hermes/state/controller-heartbeat.json
+User systemd unit:
+
+/home/ash/.config/systemd/user/nailed-it-controller.service
+Hermes config:
+
+/home/ash/.hermes/config.yaml
+Full product specification:
+
+/home/ash/Desktop/nailify/.hermes/source/PRODUCT_CHARTER.md
+Independent audit and evidence:
+
+/home/ash/audits/nailify-20260918/MASTER_AUDIT.md
+/home/ash/audits/nailify-20260918-audit.zip
+The separate empirium-autonomy-reconciler.service is NOT the Nailify controller. hermes-gateway.service is also a separate service. Do not change, restart or use either as a substitute for Nailify supervision without a demonstrated need and appropriate approval.
+
+Read the complete audit, controller, schema, service configuration and relevant Hermes skills/documentation. Reinspect live state before any intervention: audit PIDs, timestamps and state are historical, not instructions to signal those PIDs now. Do not assume the repository still matches the audit.
+
+If these files are unavailable, retrieve the attached audit or ask for its location. Do not invent their contents.
+
+3. Scope, authority and working rules
+Build the smallest maintainable implementation that satisfies the behavioral contract. Reuse sound existing code and SQLite/systemd infrastructure. Do not introduce a new orchestrator stack, database service, UI, cron watcher or LLM manager unless a demonstrated requirement cannot be met more simply.
+
+Make the core reusable for another code repository through project configuration and adapters. Do not hardcode Nailify-specific requirements, native-device checks or model strings throughout the scheduler. Do not turn this into an unrelated platform rewrite.
+
+Routine local source edits, tests, audit artifacts and incremental Git commits are authorized by this implementation request. Continue autonomously through them without asking for permission at each phase. Preserve pre-existing modifications and commit small coherent increments with clear messages.
+
+Before changing live service behavior, activating new dispatch, altering the active production database, stopping workers or changing shared routing, present one concise, targeted change/rollback plan and obtain approval. Stage and prove fixes in disposable environments first. Do not deploy, publish, alter accounts, buy credits, remove user work, or modify unrelated projects/profiles without permission.
+
+Never run destructive cleanup as a recovery shortcut. Never print credentials. Use supported Hermes configuration interfaces; do not guess CLI flags or directly rewrite shared config files.
+
+Honor this chat's actual selected subscription model and current routing permissions. Implementation workers use FreeLLMAPI. No direct or indirect OpenRouter, Token Harbor, Gemini API, Anthropic API, OpenAI metered API, or other pay-as-you-go fallback is authorized by this prompt. Existing fallback configuration is not new permission. Subscription-backed fallback/review may be used only when explicitly authorized and verified; otherwise make it an honest durable wait. Do not assume a headless subscription CLI works because it exits zero: require real output and verified route identity.
+
+4. Start with safe containment and a reproducible baseline
+Inventory the exact running service, executable, source revision, process ancestry, effective configuration, registered projects, cron jobs and other launchers touching this repository. Eliminate ambiguity about the sole runtime authority; do not create a second competing writer.
+Capture canonical and worker Git HEAD/status, database state, active claims, process identities, lease deadlines, events and current evidence. Capture a consistent SQLite backup, not a naive copy of only the main file while WAL is active.
+Preserve active/failed worktrees, dirty changes, commits, logs and useful artifacts. Make backups and rollback instructions outside the product worktree.
+Pay particular attention to expired-but-live workers. In the audit, SQLite marked an Attempt EXPIRED while its live worker remained in CHILDREN and blocked the only slot. Restarting then would forget the worker and could dispatch another owner. Never blindly restart or kill based on a stale PID.
+Create a requirements-to-fixes matrix covering every finding and every commissioning scenario below. Define evidence required to close each item. Do not mark a finding resolved merely because code was written.
+5. Required implementation behavior
+A. One authoritative durable state machine
+Persist project lifecycle, specification revision/hash, requirements, WorkItems, dependencies, attempts, claims, worker identity, launch intent, route policy, retries, failures, handoffs, verifier results, defects, integration mappings and release-gate evaluations in authoritative state.
+
+Define legal transitions and enforce them transactionally. In-memory maps may cache recoverable state but must not be independent authority for capacity, ownership or completion. Reconstruct counters and active work from durable ownership/process records after restart.
+
+Differentiate implementation-finished, verification-pending, verified, integrated and accepted. Do not let INTEGRATED or worker exit implicitly satisfy unmet review or acceptance requirements.
+
+Use additive, versioned, tested migrations. Explicitly configure required SQLite connection settings on every connection. Do not fabricate missing historical fields during migration; retain UNKNOWN where provenance is unavailable.
+
+B. Atomic ownership, crash safety and integration serialization
+Claim eligible work transactionally before launching a worker. Enforce one active owner for a WorkItem and any declared conflicting resource/file scope. Add database uniqueness/invariants and an appropriate single-controller lock or equivalent leader fencing.
+
+Use attempt IDs and monotonically changing ownership/fencing tokens. Reject stale heartbeats, results and integration requests from superseded owners.
+
+Resolve the spawn-versus-persist crash window through a durable launch intent and idempotent supervised launch, or an equally sound protocol. Do not pretend spawning an OS process and committing SQLite are one atomic action. Recovery must reconcile every intermediate state without forgetting a process or launching duplicate work.
+
+Serialize canonical integration against both other integrations and externally changed HEAD. Refuse to overwrite dirty user state or abort a Git operation owned by someone else. Record dispatch base SHA, candidate commit range and resulting canonical SHA.
+
+C. Worker identity, ownership and exit receipts
+Persist strong process identity: boot ID, PID plus process start time, and expected executable/unit/cgroup identity, or a demonstrably equivalent mechanism. Handle zombie processes, PID reuse, reboot and missing processes explicitly.
+
+Use independently supervised worker units or a durable wrapper so the controller can recover true exit status and a validated result receipt after restart. A disappeared PID must mean UNKNOWN/RECOVERY_NEEDED until reconciled, not invented exit=1 or assumed success.
+
+Define separate controller-restart, operator-pause, project-cancellation and host-reboot behavior. Intentional worker survival must be documented and tested. A plain service stop must not masquerade as project cancellation. Only processes belonging to the verified Attempt may be signalled.
+
+D. Leases, timeouts and reconciliation
+Separate lease/liveness, useful-progress stall detection and absolute execution deadline. Persist deadlines and meaningful progress observations. A controller writing its own heartbeat is not worker progress.
+
+On timeout/expiry, fence the old owner and reconcile or terminate its exact owned process tree according to policy before allowing conflicting work. Release capacity consistently. Never leave EXPIRED work counted as a valid running slot, and never forget a still-live writer merely because its status changed.
+
+Bound provider calls, workers, verification commands and Git subprocesses. A hung operation must not block the only reconciliation loop forever. Use persisted backoff/jitter and bounded diagnostic escalation rather than tight retry loops.
+
+E. Worker context, isolation and permission boundary
+Generate a bounded packet with project/spec revision, requirement IDs and source references, current task, allowed outputs, base SHA, acceptance checks, prior failure summary, useful artifact references, route policy, execution budget and handoff schema.
+
+Use a real isolated worktree per Attempt and enforce the write boundary, not merely request it. Workers must not modify canonical state, the controller database, gate implementation, independent evidence store, credentials or service configuration. They may propose changes to product tests, but may not alter the verifier authority that decides acceptance.
+
+Select a practical OS/process isolation mechanism and prove its protections. A detached worktree and prompt are not sufficient. Keep secrets minimally scoped and do not expose unrelated account capabilities. Runtime state, evidence and logs must survive worktree cleanup.
+
+F. Enforced provider policy and cost provenance
+Inspect the full route: controller → Hermes inherited config → fallbacks/auxiliary calls → FreeLLMAPI pool → upstream. Passing --provider freellmapi does not exclude OpenRouter if that pool can route to it.
+
+Implement project-scoped permitted routing without breaking shared users. Fail closed on forbidden or unverified routes. Do not silently change shared gateway defaults to solve a single project. If a project-scoped pool restriction is unavailable, propose an isolated permitted route and obtain approval before changing service topology.
+
+Record requested and actual provider/model, downstream route changes, request IDs where available, token/cost metadata and whether usage is free-tier, subscription-backed, metered or unknown. Never label unknown billing as free. Persist provider waits with real retry deadlines. Provider health/capacity failures must not create acceptance or trigger uncontrolled fallback.
+
+G. Mandatory structured handoff
+Require a versioned machine-readable result containing at least:
+
+project, WorkItem, Attempt and fencing identities;
+spec revision, base SHA, candidate SHA and complete commit range;
+changed-file manifest;
+requirement IDs addressed;
+command/results and evidence references with hashes;
+remaining defects/blockers and proposed follow-up work;
+requested and actual route metadata;
+worker outcome distinct from verifier outcome.
+Validate schema, identity, ancestry, file scope, paths and hashes. Reject absent, malformed, contradictory, stale or out-of-scope results. Treat worker test claims as inputs to independent verification, not proof. Preserve partial handoff, logs and dirty work when an Attempt fails.
+
+H. Independent verification before canonical integration
+Run an independently controlled verifier against the actual candidate. The worker cannot write its own verifier PASS or change the gate to make itself pass.
+
+Execute applicable tests, lint/typechecks, build, runtime checks and user-story tests. For UI/native work, require browser, accessibility, visual and device evidence where the specification calls for them. Missing environments/evidence remain explicit blockers. A screenshot alone does not prove behavior; an LLM review alone does not prove tests ran.
+
+Capture real commands, exit statuses, timestamps, environment, candidate SHA, artifacts and hashes. Verify review identity and findings. Convert rejection into durable rework/defects linked to requirements and the rejected candidate.
+
+Validate the whole worker commit range, not just its last commit. Integrate only after candidate verification, then validate the resulting canonical revision and record candidate-to-canonical mapping. Handle crashes between Git changes and DB commit idempotently. Never equate an old ancestor SHA with new progress.
+
+If independent review is required but its authorized route is unavailable, persist WAITING_REVIEW and continue eligible unrelated work. Never quietly let the implementing worker approve itself.
+
+I. Requirement-ledger completeness and final acceptance
+Read the full original charter. Normalize actual mandatory requirements with stable IDs and source references; do not confuse headings or every extracted text line with a requirement. Preserve original intent, explicit exclusions and approved deferrals. Reconcile all source clauses, including requirements not currently represented in the queue.
+
+Keep the authoritative ledger in SQLite and make Markdown/JSON projections regenerable. Every mandatory requirement needs an executable check or explicitly specified independent/manual evidence rule. Completion must cover the entire agreed scope, not only P0, a phase, or the current finite queue.
+
+Implement a fail-closed final predicate tied to the current canonical SHA, specification hash, verifier policy revision and required evidence. At minimum require:
+
+nonempty, reconciled mandatory requirement set with no unexplained source omissions;
+every mandatory requirement accepted with valid current evidence;
+required automated/runtime/browser/visual/accessibility/device checks passed;
+independent review complete, with all blocking findings resolved;
+no unresolved release-blocking defects or mandatory human blockers;
+no outstanding mandatory work or unsafe/in-flight integration;
+required deliverables/docs/user stories satisfied;
+consistent canonical revision and integration provenance.
+Only the controller's gate may authorize ACCEPTED/SHIPPED. Reject direct worker completion claims. Invalidate or supersede stale acceptance when relevant code, specification or policy changes. Never retag old evidence with a new SHA without rerunning the required checks.
+
+J. Repeated-failure diagnosis and zero-work recovery
+Persist failure signatures and consecutive counts. Detect provider failure, deterministic test failure, integration conflict, no-change/false-progress output, missing handoff and repeated rejected evidence separately.
+
+After configured thresholds, create one idempotent diagnosis task with the preserved evidence. It may propose a smaller scope, dependency correction or split, but cannot delete requirements or lower acceptance. Validate proposals before activating them; deterministic code owns state changes and completion.
+
+Recompute unmet requirements after each accepted slice. If the project is incomplete and there is no eligible work, running owner, scheduled retry or explicit human blocker, automatically create diagnosis/replan work. Missing dependencies and cycles are diagnostic conditions, not infinite wait states.
+
+Avoid recursive diagnosis loops and starvation. Bound repeated unsuccessful diagnoses and turn a genuinely unsolved condition into an explicit durable blocker with concrete evidence/action needed. This is not completion and not a silently abandoned project.
+
+K. Lifecycle, observability and pause/cancel controls
+Provide documented, supported operations for submitting/validating a spec, starting/resuming, pausing dispatch, cancelling, inspecting status, inspecting a blocked gate and exporting evidence. Do not invent CLI commands in documentation; implement and exercise them.
+
+Pause must prevent new claims while respecting the declared in-flight policy. Cancellation must be checked before dispatch and integration and fence late results. Reaching deterministic acceptance stops new implementation dispatch; the monitoring service may remain alive.
+
+Status must show accepted/unverified requirements, active ownership and process identity, last meaningful verified progress, retries, next wakeup, actual routes, current gate blockers and pending human actions. Distinguish controller health, worker health, provider health and product progress. Alert on logical stalls; do not spam on every normal polling tick.
+
+6. Required tests and commissioning evidence
+Use layered tests: unit/invariant tests, integration tests, real subprocess tests, and disposable-project tests through the actual installed service path. Keep test databases, units, worktrees and evidence separate from production. Fault-injection fixtures must be labelled as fixtures, never passed off as real implementation or real provider success.
+
+Cover every scenario below and add tests for additional defects found:
+
+Controller restart with a live worker: new controller PID, same Attempt/strong worker identity, no duplicate ownership.
+Worker succeeds after controller restart: real exit=0 and handoff recovered, independently verified and integrated exactly once.
+Worker death/nonzero/missing commit/missing or invalid handoff produces preserved evidence and appropriate durable recovery.
+Claim/spawn/persist crash windows and crash between canonical integration and DB update recover idempotently.
+Two controllers attempt the same work: only one owns/launches it.
+PID reuse, zombie, reboot/boot-ID change and stale fencing token cannot impersonate an active owner.
+Lease expiry while process remains alive does not block capacity indefinitely or permit duplicate writers; restart after expiry is safe.
+Absolute timeout and no-progress stall reclaim work safely without using heartbeat as useful progress.
+Provider outage/rate limit/timeout produces durable waiting/backoff; service restart preserves retry schedule; restoration resumes work.
+Forbidden direct, inherited, auxiliary and pool fallback routes are rejected without actually invoking a paid/prohibited route to test it.
+Candidate fails tests, review, runtime checks or required evidence: no canonical integration/acceptance; durable rework is created.
+Worker exit=0, empty commit, stale ancestor, unrelated diff or claimed PASS cannot bypass verification.
+Multiple candidate commits are handled correctly; dirty canonical checkout, changed HEAD and integration conflicts preserve user work.
+Malformed, path-escaping, altered-hash or stale-SHA evidence is rejected. Workers cannot write control-plane/gate acceptance records.
+Repeated equivalent failures create bounded diagnosis/split/replan rather than identical endless retries.
+Incomplete empty queue creates exactly one diagnosis task. Dependency cycles/missing dependencies are surfaced. Genuine human blockers remain explicit.
+Cancellation/pause races prevent unauthorized dispatch/integration and reject late stale results.
+Full gate rejects absent/unclassified mandatory requirements, stale evidence, unresolved defects and missing independent review/device evidence.
+Full gate accepts a genuinely completed disposable project at the exact verified SHA; later spec/code changes cannot reuse stale acceptance.
+Closing the initiating client does not stop execution. Verify service ownership; do not endanger the user's session simply to simulate logout. Verify restart/linger and test reboot recovery only in an approved safe environment.
+Submit a second fresh repository/spec through the documented intake path without editing scheduler source or manually seeding hidden DB records.
+Run a small real FreeLLMAPI-built project with dependent slices, independent checks and final gate. It must continue after the kickoff client exits, and survive a controller restart during work. Capture actual upstream route metadata.
+Unit-test passes alone are insufficient. Real commissioning evidence must include unit/service identity, controller generations/PIDs, worker start identity, durable Attempt/lease transitions, preserved outputs, verifier executions, commits and final gate result. Do not manually write PASS rows or acceptance certificates to make commissioning succeed.
+
+7. Separate infrastructure readiness from Nailify completion
+There are three separate outcomes:
+
+The orchestrator's required behavior is implemented and commissioned.
+A fresh disposable real software project completes through it end to end.
+Nailify is safely migrated and continues against its full product charter.
+Do not conflate these. A successful disposable project does not make Nailify complete. After approved live activation, observe at least one real Nailify implementation → handoff → independent QA → integration → next-work transition, or report the exact genuine blocking boundary without claiming this acceptance criterion passed.
+
+Native AR/device validation must remain incomplete unless actually demonstrated on the required supported environment. Do not replace the requested product with a smaller definition merely to make the gate green.
+
+8. Implementation order and continuity of this repair
+Use this order unless verified dependencies require a better one:
+
+Baseline, preserve evidence, freeze acceptance contract and prepare isolated test environment.
+State invariants, atomic ownership, launch/exit receipts, strong identity and safe lease recovery.
+Cancellation, isolation, route enforcement and bounded retries.
+Structured handoff, independent verifier and idempotent verified integration.
+Requirement authority and deterministic final gate.
+Repeated-failure diagnosis, zero-work continuation and status operations.
+Full fault matrix and real disposable-project commissioning.
+Approved migration/activation of Nailify and real continuation proof.
+Independent final review, repair findings, rerun affected tests and review again.
+Persist a repair checkpoint outside active worker trees after every meaningful increment: original task reference, current code SHA, dirty work ownership, completed acceptance IDs/evidence, remaining IDs, exact next action, approval boundary and blockers. Do not let context compaction replace this full contract with a shorter ambition.
+
+If the existing orchestrator is too unsafe to run the repair itself, do not entrust the repair to it. Use isolated development and an explicitly verified durable execution mechanism if needed. Never create a self-modifying live-controller loop with no rollback boundary. If the chat cannot continue unattended, disclose that honestly rather than claiming a background process is doing the work.
+
+9. Final deliverables and completion rules
+Deliver:
+
+Working, tested implementation and small coherent commits.
+Additive migration, consistent backups and exercised rollback procedure.
+State-machine/invariant documentation and minimal reusable project configuration.
+Actual supported intake, status, pause, resume and cancel operations.
+Structured handoff and verifier/evidence schemas.
+Tests and real commissioning artifacts for every scenario above.
+An audit-finding matrix: original finding → implementation → test → observed evidence → residual limitation.
+A requirement-by-requirement readiness report tied to the exact implementation revision.
+Current live Nailify status, active ownership, route, next work or blocker, and acceptance gaps.
+Clear operating limits: power/network/provider/hardware/approval boundaries.
+Do not finish with only a plan, scaffolding, passing unit tests, a healthy heartbeat or a worker-created summary. Do not mark this repair complete until its named acceptance criteria are verified. When approval or a genuinely unavailable dependency blocks a criterion, report it explicitly as NOT VERIFIED/INCOMPLETE, preserve resumable state and continue other safe eligible work.
+
+Start now with read-only live discovery and the full audit. Then implement and prove the system, rather than merely recommending that someone else do so.

@@ -1,0 +1,376 @@
+Hermes Stealth Browser + CAPTCHA Handoff — Exhaustive Build Spec
+For: an implementing LLM (Claude Code / Codex / subagent) with shell access to Ash's Ubuntu 24.04.4 LTS box (/home/ash, user ash, x86_64). Goal: Hermes + subagents do scanning/scraping/data tasks through a stealth browser; when a CAPTCHA/bot-gate appears, Ash solves it on his phone (Telegram + mobile browser), replies solved, Hermes resumes the same session. Non-goals: auto-solving CAPTCHAs (no 2captcha yet), exposing anything to the public internet, paid proxies, supporting Camofox/Lightpanda in v1.
+
+0. Decisions (frozen — do not relitigate)
+One stealth backend: Fortress. It is ALREADY RUNNING on 127.0.0.1:9336 (observed ps aux, curl /json/version → Chrome/149.0.7827.232, UA Windows NT 10.0). The "abandoned" status in old notes is WRONG. Keep it, persist it.
+One subagent bridge: browser-session-mcp (~/browser-session-mcp, v0.1.0, Rust, 28 tools) pointed at Fortress via BROWSER_URL=http://127.0.0.1:9336. It gives isolated sessionId contexts, stealth toggle, saved cookies, and the request_human_takeover / await_human_takeover flow.
+DELETE from v1 scope: Camofox REST (~/scripts/camofox_browser.py → archive, server on :9377 is DOWN and real Camofox is not a REST server), Lightpanda (not installed, no code present), Fortress-container story (no containers on this box).
+Two captcha modes, default = SIMPLE. SIMPLE (ship first): Telegram sends URL + screenshot; Ash solves in his own mobile browser; same-session cookies make resume work for most IP/reputation gates. TAKEOVER (optional phase): browser-session takeover daemon + Tailscale Serve so Ash drives the live session from his phone. Do NOT block v1 on TAKEOVER.
+browser-use stays (browser-use==0.13.10 in ~/.browser-use-venv, Python 3.12.3) as the agentic loop, always via --cdp http://127.0.0.1:9336. Direct CDP/session work goes through the MCP tools instead.
+All user-level state under /home/ash, never /var/lib. The MCP will run as user ash (Hermes gateway child), which cannot write /var/lib/browser-session-mcp.
+1. Current-state inventory (verify before changing anything)
+Item	Path / version	Observed state 2026-09-16
+Fortress shim	~/.browser-use-venv/bin/tilion-fortress → tilion_fortress.__main__:main, flags --port --no-headless --version	Running: /home/ash/.cache/tilion-fortress/v149.0.7827.232/linux-x64/tilion-fortress/chrome … --headless=new --no-sandbox --remote-debugging-port=9336 --user-data-dir=/home/ash/.cache/tilion-fortress/profile + full uxr-* spoof flags
+Fortress CDP	http://127.0.0.1:9336/json/version	LIVE, Browser: Chrome/149.0.7827.232, webSocketDebuggerUrl: ws://127.0.0.1:9336/devtools/browser/…
+Camofox client	~/scripts/camofox_browser.py (53 lines, env CAMOFOX_URL default http://127.0.0.1:9377)	Server DOWN (curl :9377/health fails). Archive, do not fix.
+Fortress helper	~/scripts/fortress_browser.py (61 lines, default port 9334, sleep(3), --no-headless inversion bug)	BROKEN/UNUSED (wrong default port, no health poll, no systemd). Replace.
+browser-use wrapper	~/scripts/run_browser_use_task.py (131 lines, BrowserProfile(headless=False, disable_security=True, cdp_url?), ChatOpenAI(base_url=https://openrouter.ai/api/v1, model=nvidia/nemotron-3-ultra-550b-a55b:free))	WORKS but wrong defaults: forces headed, weak default model, prints free-text result (no JSON contract)
+browser-session-mcp	~/browser-session-mcp (git clone, Cargo.toml v0.1.0, src/*.rs 12 files, frontend/ Astro+pnpm, packaging/systemd/{README.md,browser-session.env}, docs/{workflows,how-it-works,deployment}.md)	NOT BUILT: no target/, no cargo/rustc on PATH, no ~/.cargo. Frontend webroot/ not built. Not in ~/.hermes/config.yaml.
+Hermes config	~/.hermes/config.yaml (377 lines), mcp_servers: has empirium-os, github, laptop, ekko-studio-{api,browser,devices,use}	NO browser-session entry. Gateway hermes-gateway.service user unit ACTIVE, Telegram connected (gateway_state.json), DM channel telegram: [{id: 6583879337}] in channel_directory.json
+browser-use lib	browser-use 0.13.10, BrowserProfile fields include `cdp_url: str	None, headless: bool
+OS/toolchain	Ubuntu 24.04.4 LTS, python3=3.12.3, node present (~/.local/bin/node, ~/.hermes/node/bin/node), pnpm? verify, cargo MISSING	Install Rust via rustup (user-level, no sudo needed for toolchain)
+Pre-flight verification commands (run, do not skip):
+
+curl -s -m 5 http://127.0.0.1:9336/json/version; echo
+ps aux | grep -E "tilion-fortress/chrome" | grep -v grep | head -n 3
+ls ~/browser-session-mcp/src/ ~/browser-session-mcp/packaging/systemd/
+which cargo rustc node pnpm; node --version 2>&1; pnpm --version 2>&1
+cat ~/.hermes/channel_directory.json
+systemctl --user status hermes-gateway.service --no-pager | head -n 12
+~/.browser-use-venv/bin/pip show browser-use | head -n 4
+2. Target architecture (v1)
+                +------------------+     CDP :9336      +-------------------+
+                | Fortress Chrome  |<-------------------| browser-session   |
+                | (stealth, headed |   BROWSER_URL=     | mcp (stdio child  |
+                |  under headless= |   http://127.0.0.1 | of hermes-gateway)|
+                |  new, profile    |   :9336            | 28 tools          |
+                |  ~/.cache/…/prof |                    +--------+----------+
+                +--------+---------+                             |
+                         ^                                       | files
+                         | CDP                                   v
+                +--------+---------+                    ~/.local/share/browser-
+                | browser-use      |                    session/{state.json,
+                | agent loop       |                    logs/, states/, takeover/}
+                | (--cdp :9336)    |
+                +--------+---------+
+                         | challenge_encountered (JSON)
+                         v
+                Hermes orchestrator → Telegram DM (6583879337) → Ash's phone
+                [screenshot + URL + sessionId + what to do] → Ash solves in
+                mobile browser → replies "solved" → Hermes resumes SAME session
+                (navigate/retry + optional load_browser_state)
+
+Optional P2: browser-session {listener,reaper,takeover} user units +
+Tailscale Serve takeover URL for live phone driving.
+Port map (all loopback unless noted): Fortress CDP 127.0.0.1:9336 · takeover bind 127.0.0.1:9223 (P2 only) · Hermes gateway API 127.0.0.1:8642 · FreeLLMAPI 127.0.0.1:3101 · laptop MCP 127.0.0.1:8766. Do NOT move Fortress to :9222 (docs default) — :9336 is live and referenced everywhere below.
+
+State dir (user-writable, shared by ALL roles + MCP):
+
+~/.local/share/browser-session/
+  state.json
+  logs/<sessionId>/00001-<targetId>.ndjson
+  states/<name>.json        # saved cookies, dir 0700, files 0600
+  takeover/tokens|claims|done|stealth/
+3. Phase 1 — Persist Fortress (systemd user unit)
+Why: Fortress currently runs as a stray process; a reboot or crash kills the whole stack (browser-session sessions do NOT survive Chrome restart by design).
+
+3.1. Capture the exact working invocation. The live process flags (from ps aux) MUST be preserved, especially the uxr-* spoof block, --headless=new, --no-sandbox, --remote-debugging-port=9336, --user-data-dir=/home/ash/.cache/tilion-fortress/profile. The tilion-fortress Python shim generates these; do NOT hand-roll a chrome command line. Preferred ExecStart:
+
+/home/ash/.browser-use-venv/bin/tilion-fortress --port 9336
+(headed-under-headless=new is the shim default; --no-headless needs X and MUST NOT be used in the unit.)
+
+3.2. Write unit file ~/.config/systemd/user/fortress-chrome.service:
+
+[Unit]
+Description=Fortress stealth Chrome (CDP :9336) for Hermes
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/ash/.browser-use-venv/bin/tilion-fortress --port 9336
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/ash/.cache/tilion-fortress /home/ash/.config/chromium
+Environment=HOME=/home/ash
+
+[Install]
+WantedBy=default.target
+NOTE: if ProtectSystem=strict breaks chrome sandbox/profile writes (it runs --no-sandbox but still writes profile + crashpad), relax to ProtectSystem=full or drop the hardening lines — functionality beats hardening here. Document whichever you ship.
+
+3.3. Enable + verify:
+
+systemctl --user daemon-reload
+systemctl --user enable --now fortress-chrome.service
+sleep 6
+curl -s -m 5 http://127.0.0.1:9336/json/version
+# expect Browser + webSocketDebuggerUrl JSON, NOT "connection refused"
+systemctl --user status fortress-chrome.service --no-pager | head -n 15
+3.4. Kill the old stray process only AFTER the unit is healthy (same port will conflict): identify old PIDs via ps, kill them, confirm unit still answers. If the unit dies on port conflict, stop unit → kill strays → start unit.
+
+3.5. Linger: loginctl enable-linger ash (already enabled for hermes-gateway per gateway status; verify with loginctl show-user ash -p Linger).
+
+4. Phase 2 — Obtain the browser-session binary
+Prefer prebuilt release; build from source only if no release fits. Steps in order:
+
+4.1. Check for a usable release:
+
+uname -sm   # expect: Linux x86_64 → asset arch x86_64-unknown-linux-gnu
+# List tags:
+curl -s https://api.github.com/repos/xav-ie/browser-session-mcp/releases | grep '"tag_name"' | head
+If a tag exists (e.g. v0.1.0):
+
+ver=v0.1.0; arch=x86_64-unknown-linux-gnu
+base=https://github.com/xav-ie/browser-session-mcp/releases/download/$ver
+cd /tmp && curl -fsSLO "$base/browser-session-$ver-$arch.tar.gz"
+curl -fsSL "$base/SHA256SUMS" | grep "browser-session-$ver-$arch.tar.gz" | sha256sum -c -
+tar -xzf "browser-session-$ver-$arch.tar.gz"
+ls /tmp/browser-session-$ver-$arch/  # expect: browser-session + webroot/
+Install user-level (NO sudo — no root needed):
+
+mkdir -p ~/.local/bin ~/.local/share/browser-session/webroot
+install -Dm755 /tmp/browser-session-$ver-$arch/browser-session ~/.local/bin/browser-session
+cp -r /tmp/browser-session-$ver-$arch/webroot/. ~/.local/share/browser-session/webroot/
+~/.local/bin/browser-session --version
+~/.local/bin/browser-session --help
+4.2. Fallback: build from source (only if 4.1 has no usable asset):
+
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+source ~/.cargo/env && rustc --version && cargo --version
+cd ~/browser-session-mcp
+cargo build --release   # NOT debug; release sets strip+lto per Cargo.toml
+ls target/release/browser-session
+mkdir -p ~/.local/bin && install -Dm755 target/release/browser-session ~/.local/bin/browser-session
+# Frontend webroot (needs node>=22 + pnpm 10.33.2):
+cd ~/browser-session-mcp/frontend
+corepack enable 2>/dev/null; pnpm install; pnpm build
+# astro build emits dist/; confirm what the takeover daemon expects:
+grep -rn "TAKEOVER_WEBROOT\|webroot" ~/browser-session-mcp/src/takeover.rs | head -n 20
+mkdir -p ~/.local/share/browser-session/webroot
+cp -r dist/. ~/.local/share/browser-session/webroot/
+If pnpm build fails, SHIP v1 WITHOUT takeover (SIMPLE mode only) and record it — do not block MCP on the UI.
+
+4.3. Create shared state dir + env file ~/.config/browser-session/browser-session.env:
+
+mkdir -p ~/.local/share/browser-session/{logs,states,takeover} ~/.config/browser-session
+chmod 700 ~/.local/share/browser-session ~/.local/share/browser-session/states
+cat > ~/.config/browser-session/browser-session.env <<'EOF'
+BROWSER_URL=http://127.0.0.1:9336
+STATE_FILE=/home/ash/.local/share/browser-session/state.json
+LOGS_DIR=/home/ash/.local/share/browser-session/logs
+STATES_DIR=/home/ash/.local/share/browser-session/states
+TAKEOVER_DIR=/home/ash/.local/share/browser-session/takeover
+TAKEOVER_BASE_URL=
+TAKEOVER_BIND=127.0.0.1:9223
+CHROME_WS_BASE=
+TAKEOVER_WEBROOT=/home/ash/.local/share/browser-session/webroot
+MAX_IDLE_HOURS=24
+RUST_LOG=info
+EOF
+chmod 600 ~/.config/browser-session/browser-session.env
+Leave TAKEOVER_BASE_URL/CHROME_WS_BASE EMPTY in v1 (SIMPLE mode). P2 fills them.
+
+4.4. Smoke-test MCP over stdio (before touching Hermes):
+
+set -a; source ~/.config/browser-session/browser-session.env; set +a
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}' | timeout 20 ~/.local/bin/browser-session mcp | head -c 2000; echo
+Expect a JSON-RPC result with server info (not a crash / missing BROWSER_URL error). Then a live CDP check:
+
+curl -s http://127.0.0.1:9336/json/version | head -c 500; echo
+5. Phase 3 — Daemons (P1 listener+reaper NOW; takeover P2)
+5.1. browser-session-listener.service (~/.config/systemd/user/):
+
+[Unit]
+Description=browser-session console/network listener
+After=fortress-chrome.service network-online.target
+BindsTo=fortress-chrome.service
+
+[Service]
+Type=simple
+EnvironmentFile=/home/ash/.config/browser-session/browser-session.env
+ExecStart=/home/ash/.local/bin/browser-session listener
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
+5.2. browser-session-reaper.timer + .service:
+
+# browser-session-reaper.service
+[Unit]
+Description=browser-session idle reaper (one-shot)
+After=fortress-chrome.service
+[Service]
+Type=oneshot
+EnvironmentFile=/home/ash/.config/browser-session/browser-session.env
+ExecStart=/home/ash/.local/bin/browser-session reaper
+# browser-session-reaper.timer
+[Unit]
+Description=Run browser-session reaper every 12h
+[Timer]
+OnBootSec=30min
+OnUnitActiveSec=12h
+Unit=browser-session-reaper.service
+[Install]
+WantedBy=timers.target
+5.3. Takeover (P2 ONLY — do not enable in v1 unless Ash asks): needs (a) browser-session-takeover.service with TAKEOVER_BIND/TAKEOVER_DIR/CHROME_WS_BASE/TAKEOVER_WEBROOT, (b) CHROME_WS_BASE = the WS base the PHONE can reach. ws://127.0.0.1:9336 is useless to a phone — must be wss://<tailscale-name-or-funnel>/… via Tailscale Serve/Funnel + TLS proxy in front of Fortress CDP. That exposes DevTools remotely: require Tailscale ACL + Network.setBlockedURLs loopback firewall (already in browser-session) + short TTLs. SIMPLE mode avoids all of this — hence default.
+
+systemctl --user daemon-reload
+systemctl --user enable --now browser-session-listener.service
+systemctl --user enable --now browser-session-reaper.timer
+systemctl --user status browser-session-listener.service --no-pager | head
+systemctl --user list-timers browser-session-reaper.timer --no-pager | head
+6. Phase 4 — Wire MCP into Hermes (~/.hermes/config.yaml)
+6.1. Backup config, then add under mcp_servers: (2-space YAML, sibling of empirium-os:):
+
+  browser-session:
+    command: /home/ash/.local/bin/browser-session
+    args:
+      - mcp
+    env:
+      BROWSER_URL: http://127.0.0.1:9336
+      STATE_FILE: /home/ash/.local/share/browser-session/state.json
+      LOGS_DIR: /home/ash/.local/share/browser-session/logs
+      STATES_DIR: /home/ash/.local/share/browser-session/states
+      TAKEOVER_DIR: /home/ash/.local/share/browser-session/takeover
+      TAKEOVER_BASE_URL: ''
+      RUST_LOG: info
+    connect_timeout: 30
+    timeout: 120
+Keep TAKEOVER_BASE_URL: '' in v1 so request_human_takeover fails CLOSED with a clear error instead of minting unreachable links. Do NOT copy the /var/lib/… defaults from upstream docs.
+
+6.2. Restart gateway + verify:
+
+cp ~/.hermes/config.yaml ~/.hermes/config.yaml.bak-browser-session-$(date +%Y%m%d-%H%M%S)
+hermes gateway restart
+sleep 8
+hermes gateway status --no-pager 2>&1 | head -n 40
+# then in Hermes chat: list MCP tools; expect 28 browser-session tools:
+# open_browser_session close_browser_session list_browser_sessions new_page list_pages
+# switch_tab close_tab navigate take_screenshot take_snapshot click type press_key
+# scroll move_mouse wait_for evaluate list_visits list_console_messages
+# list_network_requests set_stealth get_stealth request_human_takeover
+# await_human_takeover save_browser_state load_browser_state list_browser_states delete_browser_state
+If any ekko-studio-* MCP shows failed initial connection … parked, that is PRE-EXISTING and out of scope — do not chase it. Only browser-session must be green.
+
+6.3. Live tool test (from Hermes once green):
+
+open_browser_session({}) → navigate({sessionId, url:"https://example.com"})
+→ take_snapshot({sessionId}) → take_screenshot({sessionId})
+→ evaluate({sessionId, expression:"document.title"})
+→ close_browser_session({sessionId})
+Then stealth-gated test: set_stealth({sessionId, enabled:true}) → navigate to a Cloudflare site → get_stealth → screenshot.
+
+7. Phase 5 — Rewrite ~/scripts/run_browser_use_task.py (v2)
+Defects to fix: forced headless=False; no --headless flag; free-model default; free-text stdout (unparseable); no captcha contract; no conversation log; --cdp documented against Camofox; no timeouts.
+
+7.1. Exact v2 CLI contract:
+
+run_browser_use_task.py "<task>" [--cdp URL] [--headless|--no-headless]
+  [--model MODEL] [--max-steps N] [--json] [--out PATH] [--save-conversation PATH]
+Defaults: --cdp http://127.0.0.1:9336 (env FORTRESS_CDP_URL overrides), headless TRUE when --cdp is set (CDP browser already runs headed-under-headless; the flag only affects locally-launched browsers), --model from BROWSER_USE_MODEL else OPENROUTER_MODEL else anthropic/claude-sonnet-5 (NEVER default to :free for the agent loop — reasoning quality gates captcha avoidance), --max-steps 40, --json emits a single JSON object on stdout (see 7.3).
+
+7.2. Behavioral spec:
+
+BrowserProfile(cdp_url=<cdp>, headless=<flag>, disable_security=True) when --cdp set; else local BrowserProfile(headless=<flag>, disable_security=True, user_data_dir=/home/ash/.cache/browser-use/profile).
+Agent(task=task, llm=get_llm(model), browser_profile=profile, step_timeout=180, max_failures=5, use_vision=True). Pass save_conversation_path through when given.
+get_llm(): ChatOpenAI(base_url=https://openrouter.ai/api/v1, api_key=$OPENROUTER_API_KEY or $FREELLMAPI_API_KEY, model=model, temperature=0.1) wrapped in the existing BrowserUseChatOpenAI adapter (keep the class as-is; it already satisfies BaseChatModel.ainvoke).
+CAPTCHA/bot-gate detection post-run: scan result text + history for regexes (?i)(captcha|recaptcha|challenge|cloudflare|attention required|verify you are human|are you a robot|datadome|perimeterx|kasada). On match → status: challenge_encountered (do NOT mark success).
+Always write full log to ~/.local/share/browser-session/agent-runs/<ts>.log in addition to stdout.
+Exit codes: 0 success · 2 challenge_encountered · 3 task_failed · 4 config error (missing API key / CDP unreachable — pre-flight curl {cdp}/json/version with 5s timeout before launching the agent).
+7.3. Stdout JSON contract (--json, the ONLY thing subagents parse):
+
+{
+  "status": "success | challenge_encountered | task_failed",
+  "captcha_type": "none | image | checkbox | reCAPTCHA | cloudflare | other",
+  "captcha_url": "https://… (page URL at detection time, else null)",
+  "summary": "one-paragraph human-readable result or challenge description",
+  "data": "extracted payload on success, else null",
+  "log_path": "/home/ash/.local/share/browser-session/agent-runs/….log"
+}
+Human-readable lines go to stderr; stdout is JSON-only when --json is passed.
+
+7.4. Reference implementation skeleton (adapt imports to installed browser-use 0.13.10; keep BrowserUseChatOpenAI verbatim from current file):
+
+#!/usr/bin/env python3
+"""browser-use runner v2 — CDP-first (Fortress :9336), JSON contract, captcha detection."""
+import argparse, asyncio, datetime, json, os, re, sys, urllib.request
+# + existing VENV sys.path bootstrap + BrowserUseChatOpenAI (unchanged)
+CHALLENGE_RES = [r"captcha", r"recaptcha", r"cloudflare", r"verify you (are )?human",
+  r"are you a robot", r"attention required", r"datadome", r"perimeterx", r"kasada", r"challenge"]
+def detect_challenge(text): return next((p for p in CHALLENGE_RES if re.search(p, text or "", re.I)), None)
+def cdp_alive(url):
+    try: return urllib.request.urlopen(url.rstrip("/")+"/json/version", timeout=5).status == 200
+    except Exception: return False
+# main(): parse args with defaults above → preflight CDP + API key →
+# BrowserProfile(...) → Agent(...) → await agent.run() →
+# classify → print(json.dumps(contract)) to stdout, logs to stderr/file →
+# sys.exit(0/2/3/4)
+7.5. Verify:
+
+~/.browser-use-venv/bin/python ~/scripts/run_browser_use_task.py --help
+FORTRESS_CDP_URL=http://127.0.0.1:9336 ~/.browser-use-venv/bin/python ~/scripts/run_browser_use_task.py "Go to https://example.com and return the main heading." --json
+# expect {"status":"success",...} with heading text
+8. Phase 6 — Telegram CAPTCHA handoff (SIMPLE mode v1)
+8.1. Trigger: wrapper exits 2 OR any MCP flow's take_snapshot/take_screenshot shows a gate. Orchestrator (Hermes, never the subagent directly) owns the handoff.
+
+8.2. What Hermes sends to Telegram DM 6583879337 (via the already-connected gateway; keep message <1000 chars, screenshot as attachment):
+
+🧩 CAPTCHA needs you (Hermes browser)
+Site: <captcha_url>
+Session: <sessionId> (kept open 15 min)
+Task: <one-line goal>
+1) On your phone open the Site link and solve the check
+   (same Wi-Fi/account helps; stay in the same site).
+2) Reply here: solved  (or failed <what you saw>)
+Screenshot of what I see is attached.
+Screenshot source: MCP take_screenshot({sessionId}) (base64 PNG → file → attach) or wrapper log_path sibling PNG. NEVER paste passwords/2FA/cards into this chat.
+
+8.3. Resume logic (on solved):
+
+MCP path: wait_for({sessionId, timeout:15000}) → take_snapshot → if gate gone: continue original steps; else retry navigate({sessionId, url: original}) once → re-check.
+browser-use path: re-run SAME task with --cdp (fresh agent, persistent Fortress profile/cookies carry the solved state); if save_browser_state({sessionId, name:"<site>"}) was taken post-solve, load_browser_state first on subsequent runs.
+On failed …: report captcha_url + screenshot + user note, back off 10 min, offer: retry later / save state / switch to TAKEOVER (P2).
+Timeouts: keep session open ≥15 min during handoff; close_browser_session ONLY after success/fail declared; reaper MAX_IDLE_HOURS=24 must not reap mid-handoff (15 min ≪ 24 h — safe).
+8.4. Polling for P2 takeover (implement in P2 only): request_human_takeover → send url (TTL default 5 min, max 30) → poll await_human_takeover({token, timeout:4000}) in a loop (short polls, NOT one long await — MCP client timeouts) → continue. First browser to open claims via HttpOnly cookie.
+
+9. Phase 7 — Skills + scripts housekeeping
+Rewrite ~/.hermes/skills/autonomous-ai-agents/browser-use-integration/SKILL.md: single backend (--cdp http://127.0.0.1:9336), MCP-first for deterministic steps / browser-use for agentic loops, SIMPLE handoff protocol with the §8 message template, JSON contract, save/load_browser_state reuse. Remove ALL Camofox-CDP claims and browser-session-mcp "cargo run" hand-waving (binary path + env file instead).
+Deprecate browser-use-agent skill → one-line redirect to browser-use-integration (keep file to avoid dangling refs).
+Archive ~/scripts/camofox_browser.py → ~/scripts/archive/camofox_browser.py.<date>; replace ~/scripts/fortress_browser.py with a thin fortress_status.py (curl :9336/json/version + systemctl --user status fortress-chrome) OR delete if unused. No new Camofox/Lightpanda code.
+Memory update (≤2 lines): Fortress CDP :9336 persistent unit + browser-session MCP state dir + SIMPLE Telegram captcha handoff. No secrets.
+10. Phase 8 — Test matrix (must all pass before "done")
+#	Test	Command / flow	Pass bar
+T1	Fortress survives reboot	sudo reboot (with Ash) → curl :9336/json/version + systemctl --user status fortress-chrome	JSON + active
+T2	MCP CRUD	Hermes: open→navigate example.com→snapshot→screenshot→evaluate title→close	All return, title correct
+T3	Parallel isolation	Two open_browser_session, different cookies, list_browser_sessions shows 2	Zero cross-talk
+T4	browser-use JSON success	run_browser_use_task.py "…" --json on example.com	exit 0, status: success
+T5	Challenge contract	Point wrapper at a gate (or simulate by matching test string)	exit 2, challenge_encountered + url
+T6	SIMPLE handoff E2E	Trigger gate → Telegram msg + screenshot → Ash solves on phone → solved → resume same session → data	Data returned post-solve, session id unchanged
+T7	Cookie reuse	save_browser_state(name:"t7") → new session → load_browser_state → authed	No re-login
+T8	Reaper safety	Idle session <24h survives; list_browser_sessions stable across MCP restart	Survives transport churn
+T9	Stealth toggle	set_stealth(true)→gated nav→screenshot vs false→evaluate page globals	Document which combo passes
+11. Operations runbook
+Logs: journalctl --user -u fortress-chrome -u browser-session-listener --since -30min · MCP stderr in gateway logs · agent runs ~/.local/share/browser-session/agent-runs/ · NDJSON LOGS_DIR/<session>/.
+Common failures: CDP refused → systemctl --user restart fortress-chrome, verify :9336/json/version; MCP missing tools → hermes gateway restart, check BROWSER_URL + state-dir perms (700/600); challenge loop → back off, save_browser_state after ONE good solve, reuse; Chrome restart → ALL sessions dead by design → re-open_browser_session (tell Ash).
+Backups: include ~/.local/share/browser-session/states/ (cookies) + ~/.config/browser-session/ + ~/.config/systemd/user/fortress-chrome.service + ~/.hermes/config.yaml in the existing Google-Drive VPS backup set. Cookies are plaintext 0600 — that backup must stay private.
+Security: CDP stays loopback; never expose :9336 without Tailscale+auth; takeover P2 needs WS reachability + short TTLs; never log tokens/chat IDs/secrets; GATEWAY_ALLOW_ALL_USERS stays off.
+12. File-by-file change list (implementer checklist)
+~/.config/systemd/user/fortress-chrome.service — CREATE (§3.2)
+~/.local/bin/browser-session — INSTALL (§4.1/4.2)
+~/.local/share/browser-session/webroot/ — INSTALL (§4.1/4.2; optional v1)
+~/.config/browser-session/browser-session.env — CREATE, 0600 (§4.3)
+~/.config/systemd/user/browser-session-listener.service — CREATE (§5.1)
+~/.config/systemd/user/browser-session-reaper.{service,timer} — CREATE (§5.2)
+~/.hermes/config.yaml — ADD browser-session under mcp_servers: (§6.1), restart gateway (§6.2)
+~/scripts/run_browser_use_task.py — REWRITE v2 (§7)
+~/scripts/camofox_browser.py — ARCHIVE; ~/scripts/fortress_browser.py — REPLACE/DELETE (§9)
+~/.hermes/skills/autonomous-ai-agents/browser-use-integration/SKILL.md — REWRITE (§9)
+~/.hermes/skills/autonomous-ai-agents/browser-use-agent/SKILL.md — REDIRECT stub (§9)
+Memory + backup set — UPDATE (§9/§11)
+13. Acceptance criteria (read back before claiming done)
+ curl -s http://127.0.0.1:9336/json/version returns Chrome JSON after reboot (unit active).
+ ~/.local/bin/browser-session --version works; BROWSER_URL smoke test passes.
+ Hermes lists 28 browser-session tools; T2–T3 pass from chat.
+ Wrapper --help shows v2 flags; T4–T5 pass with correct exit codes + JSON.
+ T6 SIMPLE handoff demonstrated E2E with Ash's phone (URL + screenshot → solved → resumed data).
+ Skill docs match reality (no Camofox-CDP, no /var/lib, no cargo run).
+ Rollback tested: hermes gateway restart with backup config restores prior state; old config.yaml.bak-* present.
+14. Rollback
+Fortress: systemctl --user stop fortress-chrome; disable; old stray flags re-launchable manually. MCP: remove browser-session: block, hermes gateway restart. Wrapper: ~/scripts/run_browser_use_task.py.bak-<ts> (create before rewrite). Config: cp ~/.hermes/config.yaml.bak-browser-session-* ~/.hermes/config.yaml.
+
+15. Explicitly OUT for v1
+Auto-captcha solvers (2captcha), Lightpanda, Camofox resurrection, public takeover URL, proxy pools, multi-profile Chrome, Windows-laptop browsing. Add as P2 proposals with separate specs.

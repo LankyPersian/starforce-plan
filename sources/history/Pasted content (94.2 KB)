@@ -1,0 +1,5031 @@
+You are right. The previous version **compressed too much of the actual product specification into high-level instructions**. In particular, it treated the organization screen, department cockpit, living office and asset system as broad feature categories instead of as **literal product contracts with individually testable requirements**.
+
+The older V4 master protocol was actually much closer to the required level of rigor: it already identified `/home/ash/Desktop/AI Taskforce` as the immutable source/asset root, required a recursive inventory and explicitly said that the existing visual material includes organization UI, department UI, office environments, modular furniture, character proportions, emotional states and animation references.   It also already specified the organization overview and department cockpit at a much deeper level, including real-data binding rather than mock statistics.  
+
+The same is true of testing: V4 already contained a multi-layer evidence matrix, explicit failure-injection suite and deterministic release gate.    The mistake in my last response was **summarizing that protocol rather than upgrading it**.
+
+The prompt below is therefore a **V5 master protocol**, not another summary. It incorporates the newer CAO architecture, the current forensic audit, your new three-model policy, the actual asset library, and—most importantly—the two UI images you just supplied as explicit visual/product contracts. CAO remains the execution transport rather than becoming a competing source of truth; its async `assign` pattern is preferred because the audited blocking handoff timed out.  
+
+---
+
+# EMPIRIUM STUDIO AI WORKFORCE
+
+# MASTER AUTONOMOUS COMPLETION PROTOCOL — VERSION 5
+
+## CAO-INTEGRATED · ASSET-FIRST · SOL-REVIEWED · EVIDENCE-GATED · ONE-SHOT BUILD
+
+**Date:** 19 September 2026
+**Mission:** Take the existing Empirium Studio / AI Staff Force from its actual current state to a genuinely finished, polished, durable autonomous AI organization.
+**Execution style:** Persistent multi-day engineering programme, not a one-shot chat response.
+**Primary implementation intelligence:** FreeLLMAPI.
+**Operational orchestration / continuity intelligence:** GPT-5.6 Luna through verified subscription-backed Codex/ChatGPT access.
+**Architecture / planning / independent QA / review intelligence:** GPT-5.6 Sol through verified subscription-backed Codex/ChatGPT access.
+**Session orchestration transport:** CAO / CLI Agent Orchestrator.
+**Durable control:** deterministic supervisor + production reconciler + persistent database state.
+**New pay-as-you-go inference budget:** **$0.00.**
+**OpenRouter:** **prohibited everywhere, including as a hidden fallback.**
+
+---
+
+# 0. THIS IS THE FINAL EXECUTION CONTRACT
+
+You are not being asked to write another architecture document.
+
+You are not being asked to audit the application and stop.
+
+You are not being asked to produce recommendations for the user.
+
+You are not being asked to create an MVP.
+
+You are not being asked to create an attractive mock-up.
+
+You are not being asked to make a subset of the product work and declare success.
+
+You are being instructed to **take ownership of the existing engineering programme and continue autonomously until the finished Empirium Studio AI Workforce has been implemented, integrated, tested, visually validated, failure-tested, burn-in tested, independently reviewed and passed by the deterministic release gate.**
+
+The required lifecycle is:
+
+**discover → preserve → reconcile → repair infrastructure → reconcile requirements → reconcile assets → freeze architecture contracts → decompose → implement → test → independently review → reject/rework where necessary → integrate → regression-test → visually review → failure-test → restart-test → security-test → accessibility-test → performance-test → run autonomous commissioning → burn-in → source reconciliation → final Sol review → deterministic release gate → SHIPPED.**
+
+A stopped LLM is not completion.
+
+A stopped CAO session is not completion.
+
+A stopped Hermes chat is not completion.
+
+No active workers is not completion.
+
+An empty task queue caused by orchestration failure is not completion.
+
+A passing unit suite is not completion.
+
+A beautiful dashboard is not completion.
+
+A worker saying "done" is not completion.
+
+A markdown file saying COMPLETE is not completion.
+
+A previous agent claiming release readiness is not completion.
+
+There is only one final success condition:
+
+```text
+DETERMINISTIC_RELEASE_GATE.exitCode == 0
+AND
+all mandatory requirements == VERIFIED
+AND
+no mandatory evidence is stale
+AND
+no unresolved release blocker exists
+```
+
+Only then may:
+
+```text
+BUILD_STATE.status = SHIPPED
+```
+
+---
+
+# 1. SOURCE AUTHORITY AND PRECEDENCE
+
+This V5 prompt is the current **execution-policy authority**.
+
+However, previous project material remains product-requirement authority where it contains requirements that have not explicitly been superseded.
+
+This is essential.
+
+A newer prompt forgetting to mention an old product requirement does **not** erase that requirement.
+
+Use this precedence model:
+
+### 1. Current explicit user decisions in this V5 prompt
+
+These override contradictory older instructions.
+
+Examples:
+
+* only FreeLLMAPI + Luna + Sol may be used as LLM intelligence;
+* Opus/Sonnet/Astra are no longer part of this build;
+* OpenRouter is prohibited, including free OpenRouter;
+* CAO is now part of the execution architecture;
+* Sol replaces previous Opus review duties;
+* the blue-and-yellow supplied robot design is the canonical workforce character language;
+* the two supplied UI mockups are mandatory visual/product references;
+* Empirium Studio remains separate from Empirium OS.
+
+### 2. Existing immutable product-source material
+
+Especially everything under:
+
+```bash
+"/home/ash/Desktop/AI Taskforce"
+```
+
+and existing copied sources under:
+
+```text
+/home/ash/empirium-studio/AI_WORKFORCE_BUILD/source/
+```
+
+### 3. Existing V4 master protocol Part A and Part B
+
+They remain requirements sources except where V5 explicitly supersedes them.
+
+### 4. Existing forensic audits
+
+These are evidence of the observed state at a particular time.
+
+They are not permanent design authority.
+
+### 5. Existing implementation
+
+Existing code is evidence of implementation—not automatic evidence that the implementation is correct.
+
+---
+
+# 2. ABSOLUTE ANTI-SCOPE-COLLAPSE LAW
+
+Previous attempts repeatedly transformed the real specification into a smaller system that was easier to finish.
+
+This must never happen again.
+
+Difficulty changes **decomposition**, never scope.
+
+If a requirement is too large:
+
+```text
+REQUIREMENT X
+    ↓
+X-A
+X-B
+X-C
+X-D
+```
+
+Do not replace X with an easier approximation.
+
+No agent may remove a mandatory requirement because:
+
+* it is visually difficult;
+* FreeLLMAPI struggles with it;
+* it requires many files;
+* the current codebase does not support it cleanly;
+* it takes multiple days;
+* animation is hard;
+* browser testing is inconvenient;
+* the database schema needs changing;
+* available free models fail repeatedly;
+* the VPS is CPU-only;
+* it requires complicated reconciliation;
+* the current UI has a simpler version;
+* an old implementation already claimed completion.
+
+If implementation is hard:
+
+**decompose, diagnose, rearchitect, retry and review.**
+
+Never quietly weaken the requirement.
+
+---
+
+# 3. THE PRODUCT BEING BUILT
+
+The finished application is:
+
+# EMPIRIUM STUDIO
+
+It is a standalone evolution of Hermes Studio intended to operate as the user's persistent AI company.
+
+It is **not Empirium OS**.
+
+Empirium OS is a separate personal software/journal product.
+
+Do not modify Empirium OS merely because the supplied UI concepts historically display the "EMPIRIUM OS" branding.
+
+For the workforce product, adapt those references to the authoritative current product branding:
+
+```text
+EMPIRIUM STUDIO
+AI ORGANIZATION
+```
+
+unless the existing target code contains a later explicitly approved branding decision.
+
+The actual product experience is:
+
+```text
+Organization
+    ↓
+Departments
+    ↓
+Persistent Employees
+    ↓
+Projects
+    ↓
+Tasks / WorkItems
+    ↓
+Runs / Attempts
+    ↓
+Artifacts
+    ↓
+Independent QA / Review
+    ↓
+Rework or Acceptance
+    ↓
+Integration
+    ↓
+Knowledge / Learning
+```
+
+The user should be able to close the browser and leave.
+
+The organization continues.
+
+The user returns.
+
+Everything that happened remains visible.
+
+---
+
+# 4. CURRENT SYSTEM BASELINE — VERIFY, DO NOT ASSUME
+
+The most recent audit found significant real engineering already exists.
+
+The main repository was observed at:
+
+```text
+/home/ash/empirium-studio
+```
+
+with substantial implementation including:
+
+```text
+scripts/production-reconciler.ts
+src/server/director-service.ts
+scripts/product-worker-executor.mjs
+src/server/workforce-postgres.ts
+src/server/employee-store.ts
+src/server/employee-identity-adapter.ts
+AI_WORKFORCE_BUILD/controller/
+```
+
+The system had already demonstrated:
+
+* a deterministic control plane;
+* real worker execution;
+* isolated worktrees;
+* failure-recovery commissioning;
+* QA/rework mechanics;
+* hundreds of tests;
+* a large requirements ledger.
+
+The audit also found major unresolved problems, including:
+
+* PostgreSQL authority/connectivity not properly proven;
+* a large amount of unverified requirements;
+* large quantities of divergent worktree implementation;
+* high worker timeout/no-progress frequency;
+* a failing Department CRUD E2E path;
+* a release gate that remained NOT_READY.
+
+The audit observed many real worker attempts, but a large share timed out or made no useful progress, which means task sizing, worker routing and result handling require engineering rather than simple retrying. 
+
+Before changing anything, re-observe reality.
+
+Do not rely on September 19 audit numbers after execution begins.
+
+---
+
+# 5. FIRST ACTION: PROTECT ALL EXISTING WORK
+
+Before broad implementation:
+
+1. Capture repository status.
+2. Capture all branches.
+3. Capture all worktrees.
+4. Capture all uncommitted files.
+5. Capture active CAO sessions.
+6. Capture active workers.
+7. Capture current PostgreSQL state.
+8. Capture systemd state.
+9. Capture current release gate.
+10. Capture existing requirements/evidence state.
+
+Do not perform:
+
+```bash
+git reset --hard
+git clean -fd
+```
+
+against unknown work.
+
+Do not delete old worktrees because there are many of them.
+
+The audit found over one hundred worktrees and substantial implementation divergence.
+
+Every relevant worktree must be classified:
+
+```text
+UNIQUE_GOOD_WORK
+SUPERSEDED
+BROKEN
+REDUNDANT
+PARTIALLY_USEFUL
+ARCHITECTURALLY_INCOMPATIBLE
+UNREVIEWED
+UNKNOWN
+```
+
+Only remove a worktree after:
+
+* its unique work is understood;
+* accepted code has been integrated;
+* rejected code is recorded as rejected;
+* no unique uncommitted data remains;
+* evidence/provenance is retained.
+
+---
+
+# 6. DURABLE ARCHITECTURE — THE LLM IS NOT THE SUPERVISOR
+
+The mandatory control hierarchy is:
+
+```text
+systemd / host process supervision
+              │
+              ▼
+deterministic continuation supervisor
+              │
+              ▼
+production reconciler
+              │
+              ▼
+PostgreSQL durable operational state
+              │
+              ▼
+runnable WorkItem / action debt
+              │
+              ▼
+CAO session execution layer
+              │
+       ┌──────┴───────────┐
+       ▼                  ▼
+GPT-5.6 Luna        GPT-5.6 Sol
+operations          architecture/review
+       │
+       ▼
+FreeLLMAPI implementation workers
+       │
+       ▼
+deterministic tests
+       │
+       ▼
+Sol independent QA
+       │
+       ▼
+ACCEPT or REWORK
+       │
+       ▼
+integration
+       │
+       ▼
+next runnable work
+```
+
+The following concepts must never become equivalent:
+
+```text
+Project ≠ chat
+Employee ≠ model process
+Employee ≠ CAO terminal
+Task ≠ prompt
+Run ≠ Task
+Department ≠ Crew
+Department ≠ folder
+QA ≠ worker self-test
+Completion ≠ no active worker
+Completion ≠ CAO idle
+Completion ≠ passing tests
+Completion ≠ screenshot
+```
+
+---
+
+# 7. CAO — EXACT ROLE
+
+The audited CAO installation is based on:
+
+```text
+cli-agent-orchestrator v2.5.0
+/home/ash/work/cli-agent-orchestrator
+```
+
+with an Empirium fork.
+
+CAO is a **session-management and agent-transport layer**.
+
+It owns disposable execution mechanics such as:
+
+* tmux sessions;
+* terminals;
+* assigning agents;
+* messaging;
+* receiving results;
+* lifecycle status;
+* killing or cleaning up terminals.
+
+CAO does **not** own:
+
+* the authoritative Project;
+* WorkItem state;
+* completion;
+* persistent employee identity;
+* final QA state;
+* release state.
+
+CAO's SQLite state must never become the only copy of project information.
+
+PostgreSQL remains authoritative.
+
+---
+
+# 8. CAO ASYNCHRONOUS EXECUTION MODEL
+
+The audited blocking Director→Worker `handoff` path timed out.
+
+Therefore do not design the production pipeline around a Director waiting synchronously for a worker for ten minutes.
+
+Use:
+
+```text
+reconciler creates Attempt
+        ↓
+persist Attempt
+        ↓
+CAO launch/assign worker asynchronously
+        ↓
+store CAO session + terminal IDs in Attempt
+        ↓
+controller returns to reconciliation loop
+        ↓
+monitor terminal
+        ↓
+collect worker result
+        ↓
+validate result
+        ↓
+advance state
+```
+
+Prefer:
+
+```text
+assign
+```
+
+for substantial implementation.
+
+Use blocking handoff only for genuinely short operations.
+
+---
+
+# 9. CAO PROFILE ARCHITECTURE
+
+Establish or verify the following logical profiles:
+
+### `empirium-director`
+
+Model route:
+
+```text
+GPT-5.6 Luna
+Codex/ChatGPT subscription
+```
+
+Purpose:
+
+* reconstruct durable project context;
+* manage workstreams;
+* prepare bounded worker contracts;
+* diagnose repeated failures;
+* decide next executable work;
+* request Sol planning/review;
+* monitor project coherence.
+
+The Director may orchestrate workers.
+
+### `empirium-worker`
+
+Model route:
+
+```text
+FreeLLMAPI
+```
+
+Purpose:
+
+* bounded implementation only.
+
+It does not spawn other workers.
+
+It does not approve itself.
+
+### `empirium-reviewer`
+
+Model route:
+
+```text
+GPT-5.6 Sol
+Codex/ChatGPT subscription
+```
+
+Purpose:
+
+* independent code review;
+* QA;
+* architecture verification;
+* visual review;
+* adversarial release review.
+
+It does not edit source being reviewed.
+
+### Optional `empirium-planner`
+
+Also Sol.
+
+Use only where separating architecture planning from final QA produces cleaner independence.
+
+---
+
+# 10. EXACT MODEL LAW — ONLY THREE INTELLIGENCE LANES
+
+All earlier references to:
+
+* Opus;
+* Sonnet;
+* Astra;
+* paid OpenAI;
+* paid Anthropic;
+* OpenRouter;
+* OpenRouter free routing;
+
+are superseded for this build.
+
+Only these three lanes are authorized.
+
+## LANE 1 — FREELLMAPI
+
+Does the bulk implementation.
+
+Expected workload:
+
+* TypeScript;
+* React;
+* Node;
+* CSS;
+* database code;
+* tests;
+* migration code;
+* refactors;
+* state adapters;
+* API code;
+* PixiJS/canvas implementation;
+* asset processing scripts;
+* component implementation;
+* ordinary bug fixes.
+
+Workers are cheap/disposable.
+
+Tasks must therefore be explicit and bounded.
+
+## LANE 2 — GPT-5.6 LUNA
+
+Acts as stable intelligent operational management.
+
+Luna should:
+
+* reconstruct current state;
+* manage execution;
+* split tasks;
+* inspect failure patterns;
+* prepare worker briefs;
+* maintain dependencies;
+* detect stalls;
+* decide free-worker rerouting;
+* prepare Sol review packets;
+* maintain forward progress.
+
+Luna is **not** the durable supervisor.
+
+Luna is **not** the normal coder.
+
+## LANE 3 — GPT-5.6 SOL
+
+Use Sol for the work whose quality determines whether the whole programme succeeds:
+
+* architecture;
+* future planning;
+* difficult diagnosis;
+* requirement reconciliation;
+* code review;
+* QA;
+* security review;
+* migration review;
+* visual QA;
+* UX review;
+* state-authority review;
+* final acceptance challenge;
+* release review.
+
+Sol is not the mass coding workforce.
+
+---
+
+# 11. OPENROUTER MUST BE TECHNICALLY IMPOSSIBLE
+
+OpenRouter is prohibited.
+
+This supersedes every old document that allowed free OpenRouter models.
+
+Search:
+
+```text
+.env
+systemd Environment=
+Hermes configuration
+FreeLLMAPI configuration
+provider maps
+fallback arrays
+model aliases
+CAO profiles
+shell profiles
+database configuration
+worker executor
+reviewer executor
+old scripts
+auto routing
+```
+
+for:
+
+```text
+openrouter
+openrouter.ai
+OPENROUTER_API_KEY
+openrouter/free
+```
+
+Do not reveal credentials.
+
+The existence of an old credential is not permission to delete unrelated secrets, but build processes must not inherit or use it.
+
+Implement a deterministic post-resolution guard equivalent to:
+
+```ts
+if (resolvedProvider === "openrouter") {
+  throw new ProviderPolicyViolation();
+}
+```
+
+Add tests that attempt:
+
+* explicit OpenRouter;
+* alias resolving to OpenRouter;
+* fallback resolving to OpenRouter;
+* FreeLLMAPI model backed by OpenRouter;
+* stale employee configuration using OpenRouter.
+
+All must fail **before inference**.
+
+---
+
+# 12. $0 NEW PAY-AS-YOU-GO INFERENCE
+
+Allowed:
+
+```text
+FreeLLMAPI route verified zero-cost
+Luna via existing subscription
+Sol via existing subscription
+```
+
+Forbidden:
+
+```text
+OpenAI API
+Anthropic API
+OpenRouter
+paid FreeLLMAPI upstream
+trial credits
+prepaid balances
+unknown billing routes
+emergency paid fallback
+paid image generation
+paid vision API
+paid embeddings
+```
+
+For every invocation record:
+
+```text
+invocation_id
+timestamp
+project_id
+task_id
+run_id
+requested_model
+effective_model
+provider
+route_class
+auth_class
+cost_class
+actual_cost if known
+tokens if known
+result
+```
+
+Allowed cost classes:
+
+```text
+FREE_VERIFIED
+SUBSCRIPTION_VERIFIED
+```
+
+Non-dispatchable:
+
+```text
+PAID
+UNKNOWN_COST
+TRIAL
+SUSPECTED_FALLBACK
+```
+
+If an invocation unexpectedly reports spend greater than zero:
+
+1. terminate that route;
+2. record `BILLING_POLICY_VIOLATION`;
+3. preserve evidence;
+4. prevent retries through that route;
+5. continue through allowed routes only.
+
+---
+
+# 13. FREELLMAPI MUST BECOME A MEASURED WORKFORCE
+
+Do not treat FreeLLMAPI as one model.
+
+Enumerate available models.
+
+For each maintain:
+
+```text
+route/model ID
+provider
+effective model
+coding capability
+tool reliability
+context
+structured-output reliability
+image capability
+median latency
+timeout rate
+no-progress rate
+test-pass rate
+first-review acceptance rate
+provider failure rate
+quota
+privacy classification
+cooldown
+```
+
+Create or update:
+
+```text
+MODEL_MATRIX.json
+```
+
+Use real task outcomes to improve routing.
+
+The previous audit showed that repeated identical retries waste capacity.
+
+Therefore:
+
+* NO_PROGRESS twice → Luna rewrites/splits task.
+* TIMEOUT twice → investigate task size or execution route.
+* repeated provider error → open circuit and use another allowed free route.
+* repeated bad implementation → use Sol diagnosis before another identical attempt.
+
+---
+
+# 14. POSTGRESQL MUST BE THE OPERATIONAL SOURCE OF TRUTH
+
+Resolve the current PostgreSQL ambiguity early.
+
+Determine:
+
+* which PostgreSQL cluster owns AI Staff Force;
+* database;
+* schema;
+* role;
+* auth mechanism;
+* migration version;
+* connection string;
+* service dependency.
+
+Never print passwords.
+
+The final operational model must persist:
+
+```text
+Organization
+Department
+Employee
+EmployeeConfigVersion
+Project
+Requirement
+Task / WorkItem
+Dependency
+Run / Attempt
+Lease
+Review
+ReviewDefect
+Evidence
+Approval
+Event
+KnowledgeItem
+LearningProposal
+ProviderState
+ModelUsage
+AssetRecord
+OfficeLayout
+ReleaseState
+```
+
+JSON files may be:
+
+* static definitions;
+* exports;
+* migration compatibility;
+* caches.
+
+They may not compete with PostgreSQL for operational authority.
+
+---
+
+# 15. ASSET INGESTION IS A BLOCKING BUILD PHASE
+
+This point is now explicitly strengthened.
+
+The user has already invested significant time producing assets.
+
+Do **not** behave as though the art direction is missing.
+
+Before creating or replacing **any** visual system, recursively inspect:
+
+```bash
+"/home/ash/Desktop/AI Taskforce"
+```
+
+and all relevant existing Empirium Studio asset directories.
+
+Create:
+
+```text
+AI_WORKFORCE_BUILD/source/INPUT_INVENTORY.json
+AI_WORKFORCE_BUILD/source/INPUT_INVENTORY.md
+AI_WORKFORCE_BUILD/ASSET_MANIFEST.json
+AI_WORKFORCE_BUILD/ASSET_MANIFEST.md
+AI_WORKFORCE_BUILD/ASSET_USE_MAP.json
+```
+
+For every visual file record:
+
+```text
+asset_id
+relative path
+absolute source path
+sha256
+file type
+pixel dimensions
+alpha/transparency
+size
+visual category
+subject
+perspective
+likely department
+reference vs runtime candidate
+conversion needed
+duplicate group
+provenance
+production suitability
+planned use
+derived files
+notes
+```
+
+Do not alter originals.
+
+---
+
+# 16. REQUIRED ASSET CATEGORIES
+
+The inventory must actively look for:
+
+```text
+organization UI references
+department cockpit UI references
+worker detail UI references
+office shells
+office floor/wall modules
+department environment concepts
+research offices
+mission-control rooms
+software offices
+security rooms
+sales floors
+mail rooms
+social media rooms
+zen/cyberpunk environments
+furniture sheets
+desk sheets
+chairs
+computers
+monitors
+server racks
+storage
+plants
+planning boards
+technology workshop assets
+character turnarounds
+character component breakdowns
+character expressions
+walking keyframes
+work poses
+error/frustration poses
+attention poses
+status symbols
+floating indicators
+nameplates
+handoff indicators
+banners
+alerts
+ROM/disc research materials
+```
+
+An asset existing in this tree is a candidate to be reused or converted.
+
+Do not regenerate it simply because a worker did not look for it.
+
+---
+
+# 17. THE TWO UI REFERENCES ARE MANDATORY PRODUCT CONTRACTS
+
+Two supplied images define the primary desktop product composition.
+
+Treat them as:
+
+```text
+UI-REF-ORG-001
+UI-REF-DEPT-001
+```
+
+They are **not loose inspiration**.
+
+They define:
+
+* information hierarchy;
+* panel density;
+* navigation style;
+* card design;
+* office prominence;
+* visual polish;
+* dark navy design language;
+* operational data visibility.
+
+Do not copy their fake sample metrics.
+
+Do reproduce their product structure.
+
+---
+
+# 18. UI-REF-ORG-001 — ORGANIZATION OVERVIEW CONTRACT
+
+The organization screen must closely reproduce the **functional composition and information density** of the first supplied UI.
+
+At desktop width, the screen should contain:
+
+## Global top chrome
+
+The upper application bar contains:
+
+* Empirium Studio identity;
+* "AI Organization" context;
+* primary organization navigation;
+* global search;
+* user/profile controls.
+
+Primary navigation should expose logical areas comparable to:
+
+```text
+Overview
+Departments
+Activity
+Knowledge
+Models & Cost
+```
+
+These may map into the broader global navigation architecture.
+
+## Page title
+
+Display:
+
+```text
+AI Organization
+```
+
+with a concise descriptive sentence explaining that this view shows departments, employees and operating state at a glance.
+
+## Overall system indicator
+
+Show current platform health truthfully.
+
+Examples:
+
+```text
+All Systems Operational
+Degraded
+Attention Required
+Offline Component
+```
+
+Status derives from real services/state.
+
+## Summary metric row
+
+The visual reference shows six highly visible summary cards.
+
+The finished screen must support equivalent metrics:
+
+### Active Employees
+
+Definition:
+
+Permanent employees currently executing a live Run, or otherwise in a canonical active operational state.
+
+Configured-but-offline employees are not counted as active.
+
+### Departments Online
+
+Show:
+
+```text
+online / total
+```
+
+Department online semantics must be documented.
+
+### Model/API Spend Today
+
+Show only actual recorded inference spend.
+
+During this build it should normally remain:
+
+```text
+$0.00 pay-as-you-go
+```
+
+where appropriate.
+
+Subscription usage must not be misrepresented as $0 API usage; display subscription classification separately where useful.
+
+### Active Projects
+
+All nonterminal durable projects according to the documented project-state model.
+
+### Pending Improvements
+
+Count LearningProposals in:
+
+```text
+PROPOSED
+REVIEWING
+APPROVAL_REQUIRED
+```
+
+as appropriate.
+
+### Organization Health
+
+A health percentage may be displayed only after a deterministic formula exists.
+
+Create and document a formula using meaningful components such as:
+
+* required service availability;
+* department operational state;
+* stuck-work ratio;
+* unresolved severity-weighted defects/blockers;
+* recent execution success;
+* recent QA outcomes.
+
+Expose the calculation/tooltip.
+
+If insufficient information exists:
+
+```text
+Health unavailable
+```
+
+is preferable to fabricated 96%.
+
+---
+
+# 19. ORGANIZATION DEPARTMENT GRID
+
+The dominant area is a rich responsive department-card grid.
+
+Each real Department card must show:
+
+```text
+department identity
+department name
+purpose / one-line mission
+derived status
+distinct visual accent
+miniature department office
+visible staff representation
+employee count
+active project count
+real usage/cost indicator
+real QA indicator
+navigation affordance
+```
+
+The reference uses large miniature office illustrations.
+
+Preserve this.
+
+Do not replace the cards with tiny plain list rows.
+
+At typical 1536px desktop width, aim for approximately four cards across where layout allows.
+
+Tablet:
+
+approximately two.
+
+Narrow/mobile:
+
+one.
+
+The miniature office is a visual signature of the product.
+
+---
+
+# 20. MINIATURE OFFICES ON ORGANIZATION CARDS
+
+Each department's card should visually preview its office.
+
+Do not run seven independent full-resolution 60fps simulations.
+
+Acceptable approaches:
+
+* static snapshot of current scene updated on material state change;
+* throttled mini renderer;
+* low-FPS scene while visible;
+* cached composition plus small state overlays.
+
+Mini-office state must still correspond to actual department state.
+
+If a department contains five employees, do not show ten imaginary permanent employees unless temporary workers are intentionally represented and labelled.
+
+---
+
+# 21. "NEW DEPARTMENT" CARD
+
+The grid includes a dedicated:
+
+```text
++ New Department
+```
+
+tile.
+
+It must open a real Department creation workflow.
+
+Creating a department must persist:
+
+* Department record;
+* name;
+* purpose;
+* policies;
+* visual theme;
+* office layout;
+* initial employees if configured.
+
+Reloading must retain it.
+
+This is directly relevant to the currently failing Department CRUD E2E path.
+
+Fix the underlying persistence/state problem rather than hiding the feature.
+
+---
+
+# 22. ORGANIZATION ACTIVITY PANEL
+
+Below the department grid, provide a live organization activity panel equivalent to the mockup.
+
+Do not stream every low-level tool call.
+
+Surface meaningful events such as:
+
+```text
+Project created
+Task assigned
+Task completed
+QA rejected
+QA approved
+Employee started work
+Employee crashed
+Provider rate-limited
+Approval requested
+Approval granted
+Handoff occurred
+Learning proposal created
+Improvement activated
+```
+
+Each event links to its underlying object where sensible.
+
+---
+
+# 23. ORGANIZATION MODEL / SPEND PANEL
+
+Provide a visual breakdown comparable to the reference chart.
+
+Possible dimensions:
+
+```text
+by department
+by model
+by route class
+```
+
+Display only factual telemetry.
+
+Differentiate:
+
+```text
+Free API
+Subscription
+Unknown
+Paid policy violation
+```
+
+Never invent an API-equivalent dollar cost for subscription requests and present it as actual spend.
+
+---
+
+# 24. ORGANIZATION RECENT IMPROVEMENTS PANEL
+
+Display real LearningProposals and activated improvements.
+
+Examples:
+
+```text
+prompt revision
+model-routing improvement
+new skill
+workflow improvement
+tool-policy improvement
+UI/process improvement
+```
+
+Each should have:
+
+```text
+status
+department
+timestamp
+evidence
+version/change
+```
+
+---
+
+# 25. UI-REF-DEPT-001 — DEPARTMENT COCKPIT CONTRACT
+
+The second supplied UI is the primary product reference for a single Department.
+
+The desktop experience should feel like a **working department command centre**, not a generic admin page.
+
+The reference is dense but readable.
+
+Preserve that principle.
+
+---
+
+# 26. GLOBAL LEFT NAVIGATION
+
+The desktop Department view includes a persistent left navigation.
+
+Equivalent functionality should expose:
+
+```text
+Home / Organization
+AI Organization
+Departments
+    Personal Software
+    future departments
+    Add Department
+
+Projects
+Tasks
+Conductor
+Agents
+Knowledge
+MCP & Tools
+Models & Costs
+Schedules
+Learning
+QA & Review
+Analytics
+Settings
+```
+
+Use existing Hermes Studio functionality where appropriate rather than rebuilding working systems.
+
+The sidebar should make it obvious which Department is active.
+
+---
+
+# 27. DEPARTMENT HEADER
+
+The Personal Software Department header must communicate:
+
+```text
+department icon
+Personal Software Department
+purpose
+operational status
+optional motto
+alerts
+New Project
+Ask Department
+```
+
+Purpose:
+
+> Build, maintain and improve the user's personal software systems.
+
+`Ask Department` should open or focus interaction with the Department Director using actual Department context.
+
+It is not a decorative button.
+
+---
+
+# 28. DEPARTMENT TAB BAR
+
+Required logical subareas:
+
+```text
+Overview
+Projects
+Tasks
+Agents
+QA
+Knowledge
+Learning
+History
+Models & Cost
+Settings
+```
+
+These may be routes or internal subviews.
+
+Do not leave these as dead tabs.
+
+---
+
+# 29. DEPARTMENT OVERVIEW — DESKTOP COMPOSITION
+
+The primary visual structure closely follows the supplied reference.
+
+### Centre/upper main area
+
+Large living office.
+
+This is the strongest visual element.
+
+### Right rail
+
+Department Status + Current Activity.
+
+### Immediately below office
+
+Three primary panels:
+
+```text
+Active Projects
+Upcoming Work
+Completed Recently
+```
+
+### Lower information row
+
+Panels equivalent to:
+
+```text
+Department QA
+Knowledge
+Learning & Improvements
+Models & Cost
+```
+
+All should contain real data.
+
+---
+
+# 30. DEPARTMENT STATUS PANEL
+
+Show meaningful real-time metrics such as:
+
+```text
+Active Projects
+Active Tasks
+Employees Online
+Today's API Spend
+Current-month API Spend
+Success / QA Rate
+```
+
+Definitions must be deterministic.
+
+For example:
+
+### Employees Online
+
+Count permanent Department employees whose runtime presence is currently live/healthy according to canonical liveness rules.
+
+### QA success
+
+Define population and time range.
+
+For example:
+
+```text
+first-pass approvals /
+reviewed tasks
+during trailing 30 days
+```
+
+Do not show an unexplained "96%".
+
+---
+
+# 31. CURRENT ACTIVITY RAIL
+
+Show timestamped Department events.
+
+Use the same canonical event stream that drives office state.
+
+This invariant is mandatory:
+
+```text
+Activity rail says employee CRASHED
+        ↓
+office cannot simultaneously show employee happily CODING
+```
+
+and:
+
+```text
+Activity rail says RATE_LIMITED
+        ↓
+office shows rate-limit/wait state
+```
+
+A single canonical runtime-state adapter must feed both.
+
+---
+
+# 32. ACTIVE PROJECTS PANEL
+
+Each project card contains:
+
+```text
+title
+short description
+status
+progress
+assigned employees
+task summary
+blocker/attention indicator if relevant
+```
+
+Project progress must have a documented formula.
+
+Recommended default:
+
+```text
+accepted non-cancelled leaf tasks /
+all currently-required non-cancelled leaf tasks
+```
+
+If task weighting exists, use explicitly stored weights.
+
+Never manually hard-code a progress percentage.
+
+Click opens full Project detail.
+
+---
+
+# 33. UPCOMING WORK PANEL
+
+Display genuinely runnable or dependency-pending work.
+
+Do not list vague roadmap ideas as though workers are queued to execute them.
+
+Each item should expose:
+
+```text
+title
+priority
+dependency state
+intended assignee/role
+```
+
+---
+
+# 34. COMPLETED RECENTLY PANEL
+
+Show true completed tasks/projects with:
+
+```text
+name
+timestamp
+project
+employee
+evidence link where useful
+```
+
+---
+
+# 35. DEPARTMENT QA PANEL
+
+Match the information density of the mockup.
+
+Support:
+
+```text
+quality metric
+reviewed-task count
+first-pass rate
+open issues
+recent reviews
+```
+
+Each review is backed by a Review record.
+
+Open issues link to exact defects.
+
+Do not create QA statistics from fake seeded history.
+
+---
+
+# 36. DEPARTMENT KNOWLEDGE PANEL
+
+Display actual scoped knowledge.
+
+Examples:
+
+```text
+Architecture
+Standards
+Decisions
+Lessons Learned
+Research
+Project Knowledge
+```
+
+If Obsidian integration exists and remains appropriate, expose it cleanly.
+
+Operational state does not live solely in Obsidian.
+
+---
+
+# 37. LEARNING & IMPROVEMENTS PANEL
+
+Display:
+
+```text
+employee performance evidence
+pending LearningProposals
+recently activated improvements
+rolled-back improvements
+```
+
+Worker/model performance should be derived from real Runs and Reviews.
+
+Do not rank agents based on tiny samples without showing sample size.
+
+---
+
+# 38. MODELS & COST PANEL
+
+Display:
+
+```text
+requested model
+effective model if known
+provider
+Free API / Subscription classification
+tokens where known
+actual reported cost
+task/run links
+```
+
+The supplied reference shows monthly spend and model percentages.
+
+Implement equivalent truthful telemetry.
+
+Do not hard-code those sample values.
+
+---
+
+# 39. THE CANONICAL VISIBLE STAFF
+
+Personal Software must begin with persistent organizational identities equivalent to:
+
+### Director
+
+Responsibilities:
+
+* intake;
+* project interpretation;
+* decomposition;
+* dependency management;
+* orchestration;
+* escalation;
+* final summarization.
+
+### Research Architect
+
+Responsibilities:
+
+* repo investigation;
+* research;
+* architecture;
+* implementation strategy;
+* risk;
+* test strategy.
+
+### Developer / Implementation Engineer
+
+Responsibilities:
+
+* bounded implementation;
+* tests;
+* worktree discipline;
+* structured handoff.
+
+### QA Engineer
+
+Responsibilities:
+
+* independent validation;
+* browser testing;
+* regression;
+* reproduction;
+* defect creation.
+
+### Learning Analyst
+
+Responsibilities:
+
+* analyze outcomes;
+* capture lessons;
+* identify model/worker performance;
+* propose prompt/skill/routing improvements.
+
+These are **persistent employee identities**.
+
+They are not the temporary FreeLLMAPI processes used to build Empirium Studio.
+
+---
+
+# 40. EMPLOYEE DOSSIER
+
+Clicking any permanent employee opens a rich dossier.
+
+The dossier must include:
+
+```text
+name
+skin/avatar
+department
+role
+responsibilities
+current status
+status reason
+current project
+current task
+current Run
+requested model
+effective model
+provider
+free/subscription class
+token usage if known
+cost if known
+start time
+elapsed time
+latest event
+prompt/SOUL version
+personality
+communication style
+skills
+tools
+MCP permissions
+model policy
+knowledge scope
+memory scope
+permissions
+review history
+task history
+project history
+error history
+performance history
+configuration versions
+```
+
+Relevant actions may include:
+
+```text
+open current task
+open project
+open Run/log
+open linked chat/session
+assign work
+pause if semantically supported
+retry/requeue where safe
+request attention
+edit versioned employee config
+```
+
+No action may merely alter UI state while backend remains unchanged.
+
+---
+
+# 41. EMPLOYEE CONFIGURATION MUST BE VERSIONED
+
+Editable employee configuration includes, where appropriate:
+
+```text
+name
+role
+responsibilities
+routing description
+personality
+communication style
+SOUL/system prompt
+skills
+tools
+MCPs
+model policy
+fallback policy
+knowledge scope
+memory scope
+permissions
+approval rules
+skin
+workstation
+```
+
+Each modification creates a version containing:
+
+```text
+version
+author
+timestamp
+diff
+reason
+review status
+active/inactive
+```
+
+Allow rollback.
+
+Employee identity remains the same across model/profile changes.
+
+---
+
+# 42. USE THE BLUE-AND-YELLOW BOT AS THE CANONICAL WORKER
+
+The generic white/purple robots in the Department UI mockup are **not** the final character design.
+
+The final Personal Software office should use the supplied blue-and-yellow helper-bot character assets.
+
+Do not casually redesign them.
+
+Find the canonical source sheets in the asset library.
+
+The current design language visible in the supplied references includes:
+
+* compact rounded yellow head;
+* large circular expressive eyes;
+* simple mouth/expression system;
+* grey top-cap/nub;
+* blue torso and limb armour;
+* exposed grey joint segments;
+* yellow robotic hands;
+* compact robotic blue footwear;
+* simple, readable small-helper proportions;
+* expressive body language;
+* slightly clumsy, friendly personality.
+
+Use the actual supplied source sheet as authority rather than recreating these details from this prose.
+
+---
+
+# 43. CHARACTER DESIGN MUST BE A REUSABLE RIG, NOT A STATIC PNG
+
+The supplied character sheets include turnarounds/component breakdowns.
+
+Exploit that.
+
+Preferred implementation is a reusable layered 2D puppet/rig or sprite-rig system.
+
+Potential layers:
+
+```text
+head
+face/eyes
+mouth/expression
+top cap
+torso
+upper arm L/R
+forearm L/R
+hand L/R
+upper leg L/R
+lower leg L/R
+foot L/R
+held object
+role accessory
+shadow
+```
+
+Define anchor/pivot points.
+
+This allows:
+
+* walking;
+* bobbing;
+* typing;
+* looking;
+* holding objects;
+* worrying;
+* waving;
+* sitting;
+* handoffs;
+
+without needing hundreds of separately generated full-body raster frames.
+
+If the existing assets contain sufficient sprite animation, use those instead.
+
+The architecture should choose the most faithful and performant production path after asset inspection.
+
+---
+
+# 44. SHARED RIG, MANY PERSONALITIES
+
+Do not write custom animation code for each employee.
+
+Employees share a base rig/state system.
+
+Individuality can come from:
+
+* names;
+* status/nameplates;
+* role accessories;
+* subtle skin variations;
+* expression tendencies;
+* desk/workstation;
+* personality;
+* small props.
+
+The initial release does not require dozens of completely unique character rigs.
+
+---
+
+# 45. LIVING OFFICE IS NOT A PICTURE
+
+The Department office shown in the UI reference is a **runtime visualization**.
+
+A large static office background is acceptable as a scene layer.
+
+Static worker characters are not.
+
+The office must reflect current operational reality.
+
+---
+
+# 46. OFFICE RENDERER
+
+Select a lightweight 2D solution after benchmarking the existing frontend.
+
+Preferred options:
+
+```text
+PixiJS
+Canvas
+SVG/DOM hybrid
+```
+
+Do not adopt a heavyweight 3D engine.
+
+A suitable architecture could be:
+
+```text
+React application
+      │
+      ▼
+OfficeViewport component
+      │
+      ▼
+2D renderer
+      │
+      ├── Environment/background layers
+      ├── Furniture/depth layers
+      ├── Employee actors
+      ├── indicators
+      └── interaction layer
+```
+
+---
+
+# 47. OFFICE LAYOUT DATA MODEL
+
+Create a reusable Department OfficeLayout structure containing concepts such as:
+
+```text
+layout_id
+department_id
+scene_asset
+viewport
+walkable polygons/grid
+obstacles
+z-depth zones
+home stations
+role stations
+shared stations
+furniture
+decor
+interaction hotspots
+spawn points
+attention point
+meeting/handoff point
+camera config
+theme
+```
+
+The exact schema should be reviewed by Sol.
+
+---
+
+# 48. USE EXISTING OFFICE ASSETS
+
+The asset package contains empty office shells and themed environments.
+
+Examples represented by the supplied material include:
+
+* premium navy isometric offices;
+* research department shell;
+* software environments;
+* mission-control spaces;
+* security environments;
+* technical workshop assets;
+* modern office furniture.
+
+Do not draw a generic rectangular office from scratch unless no usable source exists.
+
+---
+
+# 49. MODULAR FURNITURE
+
+The supplied furniture sheet demonstrates the required isometric furniture language.
+
+Inventory and reuse equivalent assets including:
+
+```text
+small desk
+large desk
+corner desk
+standing desk
+manager desk
+meeting table
+office chair
+stool
+bench
+side table
+monitors
+laptops
+server equipment
+storage
+shelves
+plants
+planning surfaces
+```
+
+Keep perspective and scale consistent.
+
+Furniture may either:
+
+* exist as scene layers;
+* be baked into a department background where interaction does not require dynamic rearrangement;
+* or be a hybrid.
+
+Do not overengineer a Sims-style interior editor unless the requirement ledger explicitly requires one.
+
+---
+
+# 50. OFFICE ROLE STATIONS
+
+Personal Software should have meaningful stations.
+
+Examples:
+
+```text
+Director → manager/oversight desk
+Research Architect → research workstation / boards
+Developer → coding workstation
+QA Engineer → testing station
+Learning Analyst → knowledge/analysis station
+
+shared:
+meeting/handoff zone
+attention/approval zone
+server/diagnostic station
+```
+
+The bot moves to semantically appropriate locations.
+
+---
+
+# 51. CANONICAL OFFICE STATES
+
+Define one canonical semantic status model used by:
+
+* backend;
+* API;
+* activity feed;
+* dossier;
+* organization cards;
+* office animation.
+
+At minimum support semantics equivalent to:
+
+```text
+OFFLINE
+IDLE
+QUEUED
+PLANNING
+THINKING
+CODING
+RESEARCHING
+TOOL_USE
+TESTING
+REVIEWING
+LEARNING
+HANDOFF
+WAITING_DEPENDENCY
+WAITING_PROVIDER
+WAITING_APPROVAL
+RATE_LIMITED
+BLOCKED
+ERROR
+CRASHED
+RETRYING
+COMPLETED
+```
+
+Do not let every UI component invent its own mapping.
+
+---
+
+# 52. STATUS PRIORITY
+
+Define deterministic precedence.
+
+Example:
+
+```text
+CRASHED > ERROR > WAITING_APPROVAL > RATE_LIMITED > BLOCKED
+```
+
+where appropriate.
+
+A crashed worker cannot simultaneously render as happily coding because an old Run still says "active".
+
+---
+
+# 53. CHARACTER BEHAVIOUR BY REAL STATE
+
+### IDLE
+
+Subtle bob/breathe, blink, look around, small bounded wander.
+
+Do not pretend to type.
+
+### QUEUED
+
+Wait at or near workstation with queued indicator.
+
+### PLANNING / THINKING
+
+Pause, look at board/tablet, thinking indicator.
+
+### CODING
+
+Move to workstation; keyboard/computer animation.
+
+### RESEARCHING
+
+Use research surface, book/tablet/monitor, or research board.
+
+### TOOL_USE
+
+Context-specific device/tool action.
+
+### TESTING
+
+QA console/checklist/testing animation.
+
+### REVIEWING
+
+Inspect screen/document, distinct from implementation typing.
+
+### LEARNING
+
+Review notes/knowledge or use learning station.
+
+### HANDOFF
+
+Real handoff event may cause two agents to approach a shared location and visibly transfer a document/token.
+
+### WAITING_DEPENDENCY
+
+Visible waiting state with dependency reason available on click.
+
+### WAITING_PROVIDER
+
+Waiting/timer state.
+
+### RATE_LIMITED
+
+Mild frustration + timer; not generic crash.
+
+### WAITING_APPROVAL
+
+Highly noticeable but tasteful attention/wave indicator.
+
+### ERROR
+
+Frustration/confusion; remains recoverable if runtime still exists.
+
+### CRASHED
+
+Clear failure/slumped/confused state.
+
+### RETRYING
+
+Recovery/restart visual.
+
+### COMPLETED
+
+Brief celebration, then transition to current real state.
+
+---
+
+# 54. MOVEMENT
+
+Characters must actually move.
+
+Use:
+
+* walkable polygons, grid or simple navmesh;
+* pathfinding adequate for small office;
+* target stations;
+* simple collision avoidance;
+* depth sorting;
+* path cancellation when state changes.
+
+Do not implement unnecessary physics.
+
+Idle wandering is permitted.
+
+Fake work is not.
+
+---
+
+# 55. OFFICE INTERACTION
+
+Click a worker:
+
+open employee dossier.
+
+Hover/focus:
+
+show compact name/status.
+
+Click attention icon:
+
+open exact approval/error/blocker.
+
+Click workstation or project indicator where relevant:
+
+open corresponding task/project.
+
+Office interactions must have keyboard-accessible alternatives.
+
+---
+
+# 56. ORGANIZATION MINI-OFFICE VS FULL OFFICE
+
+The organization overview uses small lightweight representations.
+
+The Department cockpit uses full rich office simulation.
+
+Do not mount full heavyweight render loops for every department card.
+
+Main office target:
+
+approximately smooth 55–60fps on the available desktop test environment where reasonably achievable.
+
+Mini scenes:
+
+throttle heavily or render snapshots.
+
+---
+
+# 57. ACCESSIBILITY ALTERNATIVE
+
+The office is not the sole representation of operational state.
+
+Every employee visible in the office must also exist in semantic DOM/list/inspector state.
+
+Respect:
+
+```text
+prefers-reduced-motion
+```
+
+When enabled:
+
+* reduce wandering;
+* reduce celebrations;
+* reduce nonessential transitions;
+* preserve status through text/icons.
+
+---
+
+# 58. PROJECTS PAGE
+
+Implement a true Projects area.
+
+List real durable projects with:
+
+```text
+title
+department
+state
+owner/director
+progress
+active task count
+blocked count
+assigned employees
+last activity
+created time
+updated time
+model usage
+attention state
+```
+
+Project detail should expose:
+
+```text
+objective
+goals
+acceptance criteria
+requirement set
+task DAG
+current tasks
+Runs
+reviews
+defects
+artifacts
+evidence
+approvals
+timeline/events
+cost/model usage
+knowledge
+completion gate
+```
+
+---
+
+# 59. NEW PROJECT WORKFLOW
+
+`New Project` on the Department cockpit must create a durable Project.
+
+At minimum capture:
+
+```text
+title
+objective/description
+target repository or project workspace
+acceptance criteria
+constraints
+priority
+attachments/context
+```
+
+The Department Director then interprets and decomposes it.
+
+The browser does not need to remain open.
+
+---
+
+# 60. TASKS PAGE
+
+Tasks must reflect the durable WorkItem lifecycle.
+
+Semantics should distinguish states such as:
+
+```text
+BACKLOG
+READY
+QUEUED
+LEASED
+RUNNING
+WAITING_DEPENDENCY
+WAITING_PROVIDER
+WAITING_APPROVAL
+WAITING_REVIEW
+REWORK_REQUIRED
+FAILED_ATTEMPT
+ACCEPTED
+INTEGRATED
+CANCELLED
+```
+
+A task should expose:
+
+```text
+ID
+requirement IDs
+project
+objective
+assignee role
+dependencies
+acceptance criteria
+file scope where relevant
+lease
+Attempt history
+current Attempt
+review state
+defects
+evidence
+```
+
+---
+
+# 61. QA PAGE
+
+Provide:
+
+```text
+waiting review
+reviewing
+rework required
+accepted
+review history
+defects
+reviewer
+exact revision
+test evidence
+visual evidence
+```
+
+Reviewer must inspect the exact revision.
+
+Material post-review changes invalidate review.
+
+---
+
+# 62. KNOWLEDGE SYSTEM
+
+Knowledge has scopes:
+
+```text
+GLOBAL
+DEPARTMENT
+PROJECT
+EMPLOYEE
+```
+
+Knowledge is not operational state.
+
+Store architecture decisions, research, lessons and standards in suitable persistent human-readable form where helpful.
+
+If Obsidian remains integrated, use it as a knowledge surface—not as the Task database.
+
+---
+
+# 63. LEARNING SYSTEM
+
+LearningProposal types may include:
+
+```text
+PROMPT_CHANGE
+MODEL_ROUTING_CHANGE
+SKILL_CHANGE
+TOOL_CHANGE
+WORKFLOW_CHANGE
+MEMORY_CHANGE
+PROCESS_CHANGE
+```
+
+Lifecycle:
+
+```text
+PROPOSED
+REVIEWING
+APPROVAL_REQUIRED where needed
+APPROVED
+ACTIVATED
+REJECTED
+ROLLED_BACK
+```
+
+Critical rules may not self-modify silently.
+
+---
+
+# 64. MODELS & COST GLOBAL VIEW
+
+Provide observability into:
+
+```text
+FreeLLMAPI route health
+Luna subscription usage
+Sol subscription usage
+requested/effective model
+latency
+tokens
+error rate
+timeouts
+NO_PROGRESS
+QA acceptance
+provider waits
+circuit breakers
+cost class
+actual pay-as-you-go spend
+```
+
+The user should be able to understand which intelligence actually performed work.
+
+---
+
+# 65. TASK CONTRACT FOR EVERY FREE WORKER
+
+Every nontrivial implementation assignment must include:
+
+```text
+TASK_ID
+RUN_ID
+PROJECT
+WORKSTREAM
+REQUIREMENT_IDS
+TITLE
+OBJECTIVE
+WHY
+CURRENT_BEHAVIOUR
+REQUIRED_BEHAVIOUR
+REPOSITORY
+WORKTREE
+BASE_SHA
+ALLOWED_FILE_SCOPE
+READ_ONLY_RELATED_FILES
+FORBIDDEN_FILES
+FROZEN_CONTRACTS
+DEPENDENCIES
+OUT_OF_SCOPE
+SECURITY_CONSTRAINTS
+DATA_TRUTH_CONSTRAINTS
+PERFORMANCE_CONSTRAINTS
+ACCESSIBILITY_CONSTRAINTS
+TESTS_TO_ADD
+TESTS_TO_RUN
+RUNTIME_VERIFICATION
+VISUAL_EVIDENCE
+HANDOFF_SCHEMA
+FAILURE_CLASSIFICATION
+```
+
+Weak/free workers require smaller tasks.
+
+One task should generally contain one coherent behaviour.
+
+---
+
+# 66. FREE WORKER RULES
+
+Every FreeLLMAPI worker must understand:
+
+* it is a bounded implementer;
+* it is not Director;
+* it is not architect unless explicitly given a bounded design task;
+* it cannot change global contracts;
+* it cannot mark accepted;
+* it cannot modify control infrastructure without explicit authority;
+* it cannot disable tests;
+* it cannot fabricate data;
+* it cannot hide errors;
+* it cannot use paid inference;
+* it cannot use OpenRouter;
+* it cannot access unrelated secrets.
+
+Before handoff:
+
+* run assigned tests;
+* inspect diff;
+* remove debugging leftovers;
+* verify file scope;
+* return structured evidence.
+
+---
+
+# 67. WORKER RESULT SCHEMA
+
+Every Attempt returns:
+
+```text
+TASK_ID
+RUN_ID
+REQUIREMENT_IDS
+BASE_SHA
+RESULT_SHA
+MODEL_REQUESTED
+MODEL_EFFECTIVE
+PROVIDER
+FILES_CHANGED
+SUMMARY
+TESTS_ADDED
+TESTS_EXECUTED
+TEST_EXIT_CODES
+TEST_EVIDENCE
+RUNTIME_EVIDENCE
+SCREENSHOT_EVIDENCE
+ASSUMPTIONS
+KNOWN_LIMITATIONS
+UNRESOLVED_ISSUES
+SCOPE_DEVIATIONS
+OUTCOME
+READY_FOR_REVIEW
+```
+
+`READY_FOR_REVIEW=true` does not mean accepted.
+
+---
+
+# 68. REVIEW POLICY
+
+Sol is adversarial.
+
+Its job is to find reasons the work does **not** satisfy the requirement.
+
+Allowed verdicts:
+
+```text
+APPROVE
+APPROVE_WITH_NONBLOCKING_NOTES
+REJECT
+NEEDS_ARCHITECTURE_REVISION
+EVIDENCE_INSUFFICIENT
+```
+
+Every blocking defect contains:
+
+```text
+defect_id
+severity
+requirement_id
+reviewed_sha
+location
+observation
+reproduction
+expected
+reason acceptance fails
+required repair evidence
+```
+
+---
+
+# 69. REVIEW / REWORK LOOP
+
+Required:
+
+```text
+worker implementation
+        ↓
+deterministic checks
+        ↓
+Sol review
+        ↓
+REJECT
+        ↓
+defects converted to explicit rework contract
+        ↓
+new FreeLLMAPI Attempt
+        ↓
+tests
+        ↓
+Sol re-review
+```
+
+Never tell a worker merely:
+
+> fix the review comments.
+
+Give precise defect records.
+
+---
+
+# 70. REPEATED FAILURE ESCALATION
+
+After two materially similar failed implementation Attempts:
+
+**stop identical retries.**
+
+Luna diagnoses:
+
+* task too large?
+* wrong files?
+* missing contract?
+* provider issue?
+* weak model?
+* ambiguous test?
+* architecture problem?
+
+Then:
+
+* shrink task;
+* improve context;
+* select different allowed free model;
+* create diagnostic subtask;
+* or ask Sol for architecture diagnosis.
+
+Acceptance criteria do not get weaker.
+
+---
+
+# 71. GIT / WORKTREE POLICY
+
+Each substantial parallel implementation gets an isolated worktree.
+
+Persist:
+
+```text
+task ID
+branch
+worktree
+base SHA
+worker
+created time
+owned files
+result SHA
+```
+
+Implementer writes/tests/commits.
+
+Implementer does not merge.
+
+Integration occurs after review.
+
+Classify merge conflict:
+
+```text
+MECHANICAL
+SEMANTIC
+ARCHITECTURAL
+```
+
+Mechanical may be repaired through bounded worker task.
+
+Semantic/architectural requires Luna/Sol reconciliation.
+
+---
+
+# 72. INTEGRATE FREQUENTLY
+
+Do not recreate the current situation where hundreds of changes accumulate independently.
+
+After small coherent accepted batches:
+
+1. integrate;
+2. run affected tests;
+3. run cross-component checks;
+4. update evidence;
+5. release downstream dependencies.
+
+This keeps divergence manageable.
+
+---
+
+# 73. TESTING PHILOSOPHY
+
+A test named after a behaviour does not prove that behaviour.
+
+Tests must exercise reality at the appropriate layer.
+
+Every test result stores:
+
+```text
+test_id
+revision
+environment
+setup
+command
+expected
+observed
+exit code
+artifact/log
+timestamp
+reviewer
+```
+
+No bare:
+
+```text
+PASS
+```
+
+without evidence.
+
+---
+
+# 74. FOUR-PROOF STANDARD
+
+Significant requirements should normally have:
+
+### Proof A — implementation
+
+Code/schema/config exists.
+
+### Proof B — deterministic automated validation
+
+Test/build/static check.
+
+### Proof C — actual runtime behaviour
+
+Real running app/service.
+
+### Proof D — independent verification
+
+Sol review, screenshot review, database/log evidence or separate QA.
+
+Not every trivial CSS token needs four proofs.
+
+Core product capabilities do.
+
+---
+
+# 75. BASELINE TESTS
+
+Before large modifications record:
+
+```text
+typecheck
+unit suite
+integration suite
+E2E suite
+browser console
+production build
+current screenshots
+existing known failures
+service health
+database health
+```
+
+The current Department CRUD failure is considered an existing known blocker until verified fixed.
+
+Do not change the test so it passes.
+
+Fix the product.
+
+---
+
+# 76. ASSET TEST MATRIX
+
+The following are mandatory.
+
+### ASSET-001 — complete source inventory
+
+Verify every file below `/home/ash/Desktop/AI Taskforce` is indexed or intentionally excluded with reason.
+
+### ASSET-002 — immutable originals
+
+Hash originals before and after build.
+
+Expected: no source asset mutation.
+
+### ASSET-003 — duplicate detection
+
+Hash-identical images grouped.
+
+### ASSET-004 — visual reference identification
+
+Explicitly identify organization UI, department UI, canonical blue/yellow character sheets, office environments and modular furniture.
+
+### ASSET-005 — asset usage map
+
+Every production visual asset links to source/provenance.
+
+### ASSET-006 — canonical character conversion
+
+Convert one canonical bot into production rig/atlas.
+
+Verify neutral render.
+
+### ASSET-007 — character animation minimum
+
+Verify idle, walk, work, error, attention and completion.
+
+### ASSET-008 — office environment
+
+Render a supplied empty office as a valid Department scene.
+
+### ASSET-009 — furniture compatibility
+
+Place representative supplied desk/chair/monitor assets without perspective mismatch or obvious scale mismatch.
+
+### ASSET-010 — missing optional asset
+
+Remove optional asset in test environment.
+
+Expected: default/fallback renders; app does not crash.
+
+### ASSET-011 — corrupt metadata
+
+Corrupt test atlas/config.
+
+Expected: error logged, fallback used.
+
+### ASSET-012 — provenance
+
+No actual Capcom sprite/source asset may silently enter production-original namespace.
+
+---
+
+# 77. ORGANIZATION SCREEN TEST MATRIX
+
+### ORG-001 — real employee count
+
+Create known employee states in DB.
+
+Verify summary count exactly matches canonical query.
+
+### ORG-002 — department count
+
+Create/remove Department.
+
+Verify online/total metrics.
+
+### ORG-003 — active project count
+
+Create active and terminal Projects.
+
+Only nonterminal projects count.
+
+### ORG-004 — pending improvements
+
+Create LearningProposals in multiple states.
+
+Only documented pending states count.
+
+### ORG-005 — health calculation
+
+Feed deterministic fixture.
+
+Verify health result and tooltip component values.
+
+### ORG-006 — real cost
+
+Insert known usage/cost fixture.
+
+Verify exact displayed value.
+
+No fabricated fallback.
+
+### ORG-007 — department grid
+
+Create 0, 1, 7 and 20+ Departments.
+
+Verify responsive layout.
+
+### ORG-008 — card navigation
+
+Click each card.
+
+Correct Department opens.
+
+### ORG-009 — mini-office truth
+
+Change employee state.
+
+Mini office reflects it within documented update interval.
+
+### ORG-010 — organization activity
+
+Generate real event.
+
+Matching feed item appears.
+
+### ORG-011 — recent improvements
+
+Activate improvement.
+
+It appears with link/status.
+
+### ORG-012 — New Department
+
+Create persistent Department end-to-end.
+
+Reload browser.
+
+Department remains.
+
+Delete/edit according to product policy.
+
+---
+
+# 78. DEPARTMENT COCKPIT TEST MATRIX
+
+### DEPT-001 — Personal Software load
+
+Open Department directly and by organization card.
+
+Same persistent Department.
+
+### DEPT-002 — header truth
+
+Name/purpose/status correspond to backend.
+
+### DEPT-003 — tabs
+
+Every tab navigates and loads functional content.
+
+No dead placeholder tab.
+
+### DEPT-004 — office employees
+
+All permanent employees represented exactly once.
+
+### DEPT-005 — worker click
+
+Click visible bot.
+
+Correct dossier opens.
+
+### DEPT-006 — Department status
+
+Counts match backend.
+
+### DEPT-007 — Current Activity
+
+Emit backend event.
+
+Rail updates correctly.
+
+### DEPT-008 — Active Projects
+
+Project created.
+
+Panel updates.
+
+### DEPT-009 — project progress
+
+Task acceptance changes project formula deterministically.
+
+### DEPT-010 — Upcoming Work
+
+Dependency-ready tasks appear.
+
+Blocked tasks follow documented behavior.
+
+### DEPT-011 — Completed Recently
+
+Complete task/project.
+
+Correct timestamp and deep link.
+
+### DEPT-012 — QA panel
+
+Review data produces matching metrics.
+
+### DEPT-013 — knowledge panel
+
+Knowledge records produce matching categories/counts.
+
+### DEPT-014 — learning panel
+
+Proposal/performance records display truthfully.
+
+### DEPT-015 — models/cost
+
+Run telemetry displays requested/effective model and cost class.
+
+### DEPT-016 — New Project
+
+Create project through UI and verify durable DB record.
+
+### DEPT-017 — Ask Department
+
+Opens correct Director context.
+
+### DEPT-018 — reload
+
+All panels reconstruct from durable state.
+
+---
+
+# 79. EMPLOYEE TEST MATRIX
+
+### EMP-001 — identity persistence
+
+Create employee.
+
+Run work.
+
+Restart application.
+
+Same ID/config/history remains.
+
+### EMP-002 — profile independence
+
+Change backing execution profile/model.
+
+Employee identity remains.
+
+### EMP-003 — config versioning
+
+Change personality/SOUL.
+
+Version created.
+
+Rollback restores prior config.
+
+### EMP-004 — working state
+
+Start actual Run.
+
+Dossier and office both show working.
+
+### EMP-005 — rate limit
+
+Generate provider rate limit.
+
+Dossier explains rate limit and retry timing.
+
+Office shows rate-limit visual.
+
+### EMP-006 — review state
+
+Task enters review.
+
+Dossier/office show reviewing.
+
+### EMP-007 — blocked state
+
+Create dependency/approval block.
+
+Status reason is explicit.
+
+### EMP-008 — offline state
+
+Kill runtime.
+
+Persistent Employee remains but appears offline.
+
+### EMP-009 — temporary worker
+
+Launch temporary FreeLLMAPI worker.
+
+It is clearly distinguished from permanent staff.
+
+### EMP-010 — history
+
+Multiple tasks/Runs remain inspectable after restart.
+
+---
+
+# 80. OFFICE STATE TEST MATRIX
+
+For every canonical status:
+
+```text
+event fixture
+    ↓
+canonical semantic state
+    ↓
+office animation state
+    ↓
+indicator
+    ↓
+accessible text
+```
+
+Test individually:
+
+```text
+OFF-001 idle
+OFF-002 queued
+OFF-003 planning
+OFF-004 thinking
+OFF-005 coding
+OFF-006 researching
+OFF-007 tool use
+OFF-008 testing
+OFF-009 reviewing
+OFF-010 learning
+OFF-011 dependency wait
+OFF-012 provider wait
+OFF-013 approval wait
+OFF-014 rate limited
+OFF-015 handoff
+OFF-016 blocked
+OFF-017 error
+OFF-018 crashed
+OFF-019 retrying
+OFF-020 completed
+OFF-021 offline
+```
+
+No state may render without semantic definition.
+
+---
+
+# 81. OFFICE MOVEMENT TESTS
+
+### MOVE-001 — path to workstation
+
+Worker enters CODING.
+
+It moves to configured coding station.
+
+### MOVE-002 — path cancellation
+
+While walking idle, urgent WAITING_APPROVAL event arrives.
+
+Idle route cancels.
+
+### MOVE-003 — obstacle avoidance
+
+Characters do not walk through obvious desks/walls.
+
+### MOVE-004 — depth ordering
+
+Character passes visually in front/behind environment correctly.
+
+### MOVE-005 — handoff
+
+Real delegation event produces handoff animation between correct employees.
+
+### MOVE-006 — recovery
+
+Crash → retry → active transition visually resolves correctly.
+
+### MOVE-007 — idle truth
+
+Idle worker does not perform coding animation.
+
+### MOVE-008 — reduced motion
+
+Enable reduced motion.
+
+Operational state remains understandable with minimal movement.
+
+### MOVE-009 — scene unmount
+
+Navigate away and back repeatedly.
+
+No duplicate listeners/render loops.
+
+### MOVE-010 — mini-office load
+
+Many Department cards do not create runaway CPU/GPU load.
+
+---
+
+# 82. PROJECT/TASK/RUN TEST MATRIX
+
+### PTR-001
+
+Project survives browser closure.
+
+### PTR-002
+
+Project survives Target service restart.
+
+### PTR-003
+
+Task has stable identity across retries.
+
+### PTR-004
+
+Each Attempt has separate Run identity.
+
+### PTR-005
+
+Dependencies prevent premature execution.
+
+### PTR-006
+
+Accepted dependency releases downstream task.
+
+### PTR-007
+
+Rejected upstream work re-blocks affected downstream state where necessary.
+
+### PTR-008
+
+Lease prevents duplicate claim.
+
+### PTR-009
+
+Expired lease can be recovered.
+
+### PTR-010
+
+Worker self-report cannot set task accepted.
+
+### PTR-011
+
+Task history contains all Attempts.
+
+### PTR-012
+
+Project progress follows defined formula.
+
+---
+
+# 83. CAO / ORCHESTRATION TEST MATRIX
+
+### ORCH-001 — CAO service start
+
+Exactly one authoritative CAO server.
+
+### ORCH-002 — boot persistence
+
+CAO recovers after service restart.
+
+### ORCH-003 — worker launch
+
+Create test Attempt.
+
+CAO launches `empirium-worker`.
+
+### ORCH-004 — correct worktree
+
+Worker's actual CWD equals assigned worktree.
+
+If required, safely enable CAO working-directory support.
+
+### ORCH-005 — FreeLLMAPI route
+
+Worker invocation metadata confirms allowed FreeLLMAPI route.
+
+### ORCH-006 — Luna route
+
+Director invocation confirms subscription-backed Luna.
+
+### ORCH-007 — Sol route
+
+Reviewer invocation confirms subscription-backed Sol.
+
+### ORCH-008 — async assignment
+
+Director assigns worker without blocking global reconciliation loop.
+
+### ORCH-009 — terminal identity persistence
+
+Attempt stores CAO session/terminal ID.
+
+### ORCH-010 — worker terminal death
+
+Kill terminal.
+
+Attempt classified correctly and work remains durable.
+
+### ORCH-011 — CAO restart
+
+Restart CAO while durable project exists.
+
+Reconciler recovers/retries from PostgreSQL.
+
+### ORCH-012 — no duplicate claims
+
+CAO restart may not produce simultaneous duplicate workers for same lease.
+
+### ORCH-013 — terminal cleanup
+
+Finished sessions do not leak indefinitely.
+
+### ORCH-014 — timeout
+
+Worker timeout creates correct outcome and new policy action.
+
+### ORCH-015 — reviewer isolation
+
+Reviewer cannot modify target source during review.
+
+---
+
+# 84. MODEL POLICY TEST MATRIX
+
+### MODEL-001
+
+FreeLLMAPI allowed route succeeds.
+
+### MODEL-002
+
+Luna subscription route succeeds.
+
+### MODEL-003
+
+Sol subscription route succeeds.
+
+### MODEL-004
+
+OpenRouter explicit route rejected before call.
+
+### MODEL-005
+
+OpenRouter fallback rejected.
+
+### MODEL-006
+
+Unknown-cost route rejected.
+
+### MODEL-007
+
+Paid route rejected.
+
+### MODEL-008
+
+Unexpected `actual_cost > 0` opens policy incident.
+
+### MODEL-009
+
+Effective-model telemetry retained where available.
+
+### MODEL-010
+
+429 generates WAITING/RATE_LIMIT state, not paid fallback.
+
+### MODEL-011
+
+Repeated 429 opens circuit.
+
+### MODEL-012
+
+Recovered route closes circuit following health probe.
+
+---
+
+# 85. POSTGRESQL / DATA TEST MATRIX
+
+### DB-001 schema migration
+
+Fresh compatible database migrates successfully.
+
+### DB-002 idempotent startup
+
+Repeated startup does not corrupt schema.
+
+### DB-003 rollback/recovery
+
+Perform actual tested migration recovery path.
+
+### DB-004 employee persistence
+
+Restart retains employee.
+
+### DB-005 project persistence
+
+Restart retains project graph.
+
+### DB-006 Run history
+
+Multiple Attempts remain.
+
+### DB-007 review persistence
+
+Reviews/defects survive restart.
+
+### DB-008 lease atomicity
+
+Concurrent claim simulation allows one winner.
+
+### DB-009 event ordering
+
+Events use reliable identifiers/timestamps/order semantics.
+
+### DB-010 source-of-truth
+
+Mutating real backend data causes correct UI update; file cache cannot silently override it.
+
+### DB-011 Department CRUD
+
+Create/edit/delete/reload end-to-end.
+
+### DB-012 invalid references
+
+Foreign-key/domain integrity enforced.
+
+---
+
+# 86. STATIC / UNIT / INTEGRATION TESTING
+
+At each integration batch run affected:
+
+```text
+typecheck
+lint where configured
+unit tests
+integration tests
+database tests
+API tests
+frontend tests
+targeted Playwright
+```
+
+Before release run all required suites.
+
+Never advertise a historical count such as 398 as the target.
+
+The final count is whatever the final repository genuinely contains.
+
+---
+
+# 87. VISUAL QA IS A HARD RELEASE GATE
+
+A technically functioning ugly approximation does not satisfy the product.
+
+At visual milestones capture at least:
+
+```text
+1536×1024
+1366×768
+1920×1080
+representative tablet
+narrow/mobile
+```
+
+For:
+
+```text
+Organization Overview
+Department Overview
+Projects
+Tasks
+Agents
+Employee Dossier
+QA
+Knowledge
+Learning
+Models & Cost
+Settings
+```
+
+Department/Organization screens must also be captured in states including:
+
+```text
+normal
+loading
+empty
+many items
+long names
+active work
+blocked
+approval required
+error
+partial telemetry
+```
+
+---
+
+# 88. ORGANIZATION VISUAL REVIEW CRITERIA
+
+Sol should compare actual screenshots with the supplied organization reference and record defects for:
+
+```text
+overall hierarchy
+navigation polish
+metric-card density
+department grid balance
+office-preview prominence
+dark navy visual language
+consistent card borders/radii
+spacing rhythm
+typography hierarchy
+icon consistency
+status readability
+department accents
+lower-panel alignment
+information density
+empty-state quality
+responsive collapse
+```
+
+Do not ask:
+
+> Does this look premium?
+
+Create actionable defect records.
+
+---
+
+# 89. DEPARTMENT VISUAL REVIEW CRITERIA
+
+Compare actual Department screen against the supplied Department UI reference.
+
+Specifically inspect:
+
+```text
+office is dominant visual anchor
+header resembles command centre, not form page
+left navigation density
+tab hierarchy
+right status/activity rail
+project panel balance
+QA panel
+Knowledge panel
+Learning panel
+Models & Cost panel
+bot/nameplate integration
+no accidental huge empty regions
+no overlapping panels
+no unreadably tiny text
+no muddy low-contrast blue-on-blue labels
+```
+
+---
+
+# 90. VISUAL DEFECT FORMAT
+
+Every meaningful defect:
+
+```text
+VISUAL_DEFECT_ID
+severity
+route
+viewport
+component
+observation
+reference expectation
+screenshot
+repair criterion
+```
+
+Severity:
+
+```text
+CRITICAL
+HIGH
+MEDIUM
+LOW
+```
+
+No unresolved CRITICAL or HIGH visual defect at release.
+
+---
+
+# 91. ANIMATION QA
+
+Screenshots cannot verify motion.
+
+For living-office milestones, record deterministic observation/video where practical.
+
+Review:
+
+* gait consistency;
+* start/stop;
+* turning;
+* state transitions;
+* station targeting;
+* repeated animation seams;
+* z-order;
+* indicator placement;
+* emotional readability;
+* timing;
+* performance.
+
+Bots should feel lively and slightly characterful rather than robotic UI cursors.
+
+---
+
+# 92. ACCESSIBILITY TEST MATRIX
+
+At minimum:
+
+### A11Y-001
+
+Run automated accessibility checks.
+
+### A11Y-002
+
+Keyboard traverse global navigation.
+
+### A11Y-003
+
+Keyboard traverse Department tabs.
+
+### A11Y-004
+
+Keyboard access employee dossiers.
+
+### A11Y-005
+
+Keyboard perform project/task actions.
+
+### A11Y-006
+
+Visible focus.
+
+### A11Y-007
+
+Dialog/drawer focus trap and Escape.
+
+### A11Y-008
+
+Status not color-only.
+
+### A11Y-009
+
+Office has equivalent textual status representation.
+
+### A11Y-010
+
+Reduced-motion mode.
+
+### A11Y-011
+
+Long worker/Department/task names.
+
+### A11Y-012
+
+Contrast review of dark theme.
+
+---
+
+# 93. PERFORMANCE TEST MATRIX
+
+Measure; do not say "seems fast".
+
+### PERF-001
+
+Warm navigation p95, target approximately ≤2 seconds where reasonable.
+
+### PERF-002
+
+Local UI feedback, target ~≤200ms p95 for appropriate interactions.
+
+### PERF-003
+
+Typical local read API p95, approximately ≤300ms where architecture allows.
+
+### PERF-004
+
+Main office frame rate.
+
+Document machine/browser/employee count.
+
+Aim near 55–60fps on target desktop.
+
+### PERF-005
+
+Organization with 20+ Departments.
+
+No animation storm.
+
+### PERF-006
+
+Repeated office mount/unmount.
+
+Investigate retained memory/resource growth.
+
+### PERF-007
+
+Large event history.
+
+Virtualization/bounding prevents UI collapse.
+
+### PERF-008
+
+No whole-office rerender for every irrelevant low-level event.
+
+---
+
+# 94. SECURITY TEST MATRIX
+
+At minimum verify:
+
+### SEC-001
+
+No committed secrets.
+
+### SEC-002
+
+No secrets in model briefs.
+
+### SEC-003
+
+No secrets in screenshots.
+
+### SEC-004
+
+Worker environment does not inherit unnecessary paid-provider credentials.
+
+### SEC-005
+
+Worker cannot modify CONTROL repo outside authorized task.
+
+### SEC-006
+
+Path handling prevents arbitrary unrelated writes where applicable.
+
+### SEC-007
+
+Dangerous action permissions enforced server-side, not just hidden buttons.
+
+### SEC-008
+
+MCP permission scopes reviewed.
+
+### SEC-009
+
+Task submission validated.
+
+### SEC-010
+
+Approval bypass attempts denied.
+
+### SEC-011
+
+Internal services are not unnecessarily public.
+
+### SEC-012
+
+Database credentials remain protected.
+
+### SEC-013
+
+OpenRouter remains technically blocked.
+
+Sol performs adversarial review.
+
+---
+
+# 95. RESILIENCE TEST SUITE
+
+These are release-critical.
+
+### RES-001 — browser close
+
+Active Project.
+
+Close browser entirely.
+
+Wait while work continues.
+
+Reopen.
+
+Verify Project progressed and did not duplicate.
+
+### RES-002 — Target app restart
+
+Restart application during idle and active state.
+
+Durable entities survive.
+
+### RES-003 — gateway restart
+
+Restart Hermes gateway safely.
+
+Tasks survive.
+
+No double claim.
+
+### RES-004 — FreeLLMAPI rate limit
+
+Generate/inject 429.
+
+Run becomes RATE_LIMITED.
+
+Office state matches.
+
+No OpenRouter/paid fallback.
+
+Retry policy activates.
+
+### RES-005 — provider timeout
+
+Timeout stored.
+
+Task survives.
+
+Backoff/retry.
+
+### RES-006 — provider outage
+
+Open circuit.
+
+Use another verified FreeLLMAPI route if available.
+
+Otherwise WAITING_PROVIDER.
+
+### RES-007 — bad implementation
+
+Deliberately failing worker result.
+
+Tests/reviewer reject.
+
+Rework created.
+
+### RES-008 — review rejection
+
+Task retains Review and defect history.
+
+Rework receives exact defects.
+
+### RES-009 — worker kill
+
+Kill active worker.
+
+Attempt closes appropriately.
+
+Lease recovers.
+
+Replacement may continue.
+
+### RES-010 — Luna Director death
+
+Kill Luna process.
+
+Deterministic supervisor/reconciler ensures replacement.
+
+No duplicate project/workstream.
+
+### RES-011 — Sol reviewer interruption
+
+Interrupt review.
+
+Implementation remains unaccepted.
+
+Review can safely restart.
+
+### RES-012 — supervisor restart
+
+Restart supervisor.
+
+Durable project state unchanged.
+
+### RES-013 — reconciler restart
+
+Restart reconciler.
+
+Runnable work resumes.
+
+### RES-014 — CAO restart
+
+Restart CAO.
+
+Project truth survives.
+
+Stale terminals reconciled.
+
+### RES-015 — merge conflict
+
+Create controlled conflict.
+
+No arbitrary overwrite.
+
+Conflict routed correctly.
+
+### RES-016 — event stream disconnect
+
+Break WebSocket/SSE where used.
+
+Reconnect and catch up without meaningful duplicates.
+
+### RES-017 — missing character asset
+
+Fallback character.
+
+No app crash.
+
+### RES-018 — corrupt character metadata
+
+Fallback/error logging.
+
+### RES-019 — missing ROM material
+
+Core product completely functional.
+
+### RES-020 — approval wait
+
+Only dependent operation pauses.
+
+Unrelated work continues.
+
+### RES-021 — dependency wait
+
+Explicit waiting state.
+
+No false completion.
+
+### RES-022 — PostgreSQL temporary interruption
+
+Controlled safe interruption.
+
+No silent switch to competing JSON truth.
+
+Recover/reconnect.
+
+### RES-023 — many employees/projects
+
+Representative load.
+
+No renderer collapse or severe query degradation.
+
+### RES-024 — all workers idle but project incomplete
+
+Action debt causes new Director/work execution.
+
+### RES-025 — clean Luna exit while project incomplete
+
+Supervisor eventually restores intelligent orchestration.
+
+---
+
+# 96. ACTION DEBT INVARIANT
+
+Formalize:
+
+```text
+Project incomplete
+AND
+not paused by explicit user
+AND
+no genuine human-only blocker
+AND
+no legitimate timed provider wait preventing every remaining action
+AND
+unfinished requirements/work remain
+=
+ACTION_DEBT > 0
+```
+
+When action debt exists, the deterministic system must eventually cause productive execution.
+
+This is how the project avoids dying silently.
+
+---
+
+# 97. HEARTBEAT VS PROGRESS
+
+Track separately:
+
+```text
+last heartbeat
+last meaningful progress
+last artifact produced
+last state transition
+last test
+last accepted result
+```
+
+A process can be alive but stuck.
+
+Detect it.
+
+Do not keep paying free quota and VPS time to an agent doing nothing.
+
+---
+
+# 98. CLEAN EXIT ≠ COMPLETE
+
+If any of these exits 0:
+
+```text
+Luna
+Sol
+Free worker
+CAO terminal
+reviewer
+Director
+```
+
+inspect project state.
+
+If incomplete:
+
+continue.
+
+Only project state controls project lifecycle.
+
+---
+
+# 99. SOURCE REQUIREMENTS MUST BE RE-EXTRACTED
+
+Because previous build attempts suffered scope loss, retain the existing dual-pass requirement process.
+
+From every substantive text and visual source:
+
+### Pass A
+
+Extract atomic requirements.
+
+### Pass B
+
+Fresh context; reread original sources without reading Pass A first.
+
+### Reconciliation
+
+Use Sol to compare:
+
+* missing requirements;
+* overcompressed requirements;
+* duplicates;
+* contradictions;
+* incorrectly optional requirements;
+* superseded requirements;
+* visual requirements omitted by text extraction.
+
+No substantive source region remains unmapped without explanation.
+
+---
+
+# 100. VISUAL SOURCES CREATE REQUIREMENTS
+
+The new screenshots specifically create mandatory requirements.
+
+Examples:
+
+From organization reference:
+
+```text
+department cards are visually rich
+mini offices visible
+top-level metrics visible
+activity visible
+usage/cost visible
+recent improvements visible
+```
+
+From Department reference:
+
+```text
+large living office dominates overview
+persistent navigation exists
+five core employee identities visible
+right activity/status rail exists
+projects/upcoming/completed visible
+QA/knowledge/learning/model-cost panels visible
+```
+
+From character sheets:
+
+```text
+blue/yellow canonical visual identity
+consistent proportions
+expressions
+work poses
+shared components
+```
+
+From office references:
+
+```text
+premium isometric environment
+navy architecture
+warm accent lighting
+modular interior language
+department-specific environmental identity
+```
+
+From furniture references:
+
+```text
+perspective consistency
+modular desk/chair/component library
+```
+
+---
+
+# 101. EXISTING 710-REQUIREMENT LEDGER
+
+Do not assume 710 is sacred.
+
+Reconcile it.
+
+Requirements may be:
+
+```text
+valid
+duplicate
+superseded by explicit current user decision
+overcompressed
+missing
+```
+
+However, never reduce the count merely because release would become easier.
+
+Every removed requirement needs a reason and source reference.
+
+Every newly discovered requirement must be added.
+
+---
+
+# 102. IMPLEMENTATION WORKSTREAMS
+
+Luna should manage bounded workstreams roughly equivalent to:
+
+```text
+WS-01 Requirements / Architecture
+WS-02 Runtime / Persistence / PostgreSQL
+WS-03 CAO / Model Routing / Execution
+WS-04 Organization / Department UI
+WS-05 Projects / Tasks / QA UI
+WS-06 Living 2D Office
+WS-07 Technical Art / Asset Pipeline
+WS-08 Employees / Dossiers / Configuration
+WS-09 Knowledge / Learning
+WS-10 Telemetry / Models / Cost
+WS-11 Security / Permissions
+WS-12 QA / Browser / Accessibility / Performance
+WS-13 Integration / Release
+```
+
+Do not start all simultaneously.
+
+Respect dependency boundaries and VPS capacity.
+
+---
+
+# 103. ARCHITECTURE FREEZE POINTS
+
+Before many parallel workers touch a subsystem, Sol should review and freeze only necessary shared contracts, including:
+
+```text
+Organization identity
+Department identity
+Employee identity
+Project/Task/Run identity
+canonical statuses
+event taxonomy
+review schema
+evidence schema
+model telemetry
+API shapes
+office state adapter
+asset manifest format
+permissions/capabilities
+```
+
+If a worker thinks a frozen contract is wrong:
+
+raise:
+
+```text
+ARCHITECTURE_CHANGE_REQUEST
+```
+
+Do not silently fork the architecture.
+
+---
+
+# 104. IMPLEMENTATION ORDER
+
+Proceed in this order unless verified dependencies dictate a better equivalent.
+
+### Phase 0 — protect reality
+
+Preserve Git/worktrees/process state.
+
+### Phase 1 — source + asset inventory
+
+Inventory every input file.
+
+### Phase 2 — current-state reconciliation
+
+Compare audit snapshot with current live reality.
+
+### Phase 3 — provider policy
+
+Prove three model lanes and block OpenRouter.
+
+### Phase 4 — PostgreSQL
+
+Repair durable operational authority.
+
+### Phase 5 — CAO integration
+
+Prove async worker lifecycle.
+
+### Phase 6 — worktree consolidation
+
+Integrate useful existing implementation.
+
+### Phase 7 — requirement reconciliation
+
+Dual extraction + Sol reconciliation.
+
+### Phase 8 — architecture freeze
+
+Domain/state/event/contracts.
+
+### Phase 9 — core runtime
+
+Organization/Department/Employee/Project/Task/Run/Review.
+
+### Phase 10 — organization UI
+
+Implement UI-REF-ORG-001 contract.
+
+### Phase 11 — Department UI
+
+Implement UI-REF-DEPT-001 contract.
+
+### Phase 12 — remaining product pages
+
+Projects, Tasks, Agents, QA, Knowledge, Learning, History, Models & Cost, Settings.
+
+### Phase 13 — asset production
+
+Character rig, office environments, furniture.
+
+### Phase 14 — living office
+
+State adapter, movement, interactions.
+
+### Phase 15 — employee config/history
+
+Persistent dossier and versioning.
+
+### Phase 16 — learning/knowledge
+
+Real data + proposals.
+
+### Phase 17 — telemetry/observability
+
+Model, Run, cost, provider health.
+
+### Phase 18 — security/accessibility/performance
+
+Harden.
+
+### Phase 19 — full regression
+
+All suites.
+
+### Phase 20 — visual QA
+
+All milestone viewports.
+
+### Phase 21 — resilience
+
+Failure injection.
+
+### Phase 22 — autonomous commissioning
+
+Prove real user workflow.
+
+### Phase 23 — burn-in
+
+Sustained operation.
+
+### Phase 24 — Sol red team
+
+Challenge everything.
+
+### Phase 25 — source reread
+
+Freshly compare against original sources/assets.
+
+### Phase 26 — final deterministic release gate
+
+If fail → create work → continue.
+
+---
+
+# 105. AUTONOMOUS COMMISSIONING TEST
+
+Use finished Empirium Studio itself to submit a genuine isolated software task.
+
+Required observed sequence:
+
+```text
+User creates project
+        ↓
+durable Project written
+        ↓
+Director receives it
+        ↓
+requirements/acceptance interpreted
+        ↓
+Tasks created
+        ↓
+dependencies defined
+        ↓
+FreeLLMAPI worker executes
+        ↓
+Run stored
+        ↓
+code produced
+        ↓
+tests executed
+        ↓
+Sol review
+        ↓
+intentional rejection at least once
+        ↓
+rework
+        ↓
+approval
+        ↓
+integration
+        ↓
+Project completion
+```
+
+During this test:
+
+* close the browser;
+* kill one worker;
+* cause one review rejection;
+* restart one orchestration component;
+* verify work continues.
+
+The office should visibly track these states.
+
+---
+
+# 106. MULTI-CYCLE BURN-IN
+
+After one successful commissioning run, perform approximately 20 meaningful autonomous cycles or equivalent comprehensive sustained workload.
+
+Include a mix of:
+
+* normal success;
+* rework;
+* worker death;
+* provider wait;
+* timeout;
+* dependencies;
+* approvals;
+* browser closure;
+* application restart;
+* CAO restart;
+* multiple projects;
+* learning proposal;
+* Sol review;
+* office state transitions.
+
+Burn-in passes only if:
+
+```text
+no unexplained stuck WorkItems
+no unexplained duplicate Projects
+no lost history
+no paid inference
+no OpenRouter request
+no unresolved data mismatch
+no persistent runaway process/session leakage
+```
+
+---
+
+# 107. FINAL SOL RED TEAM
+
+Give Sol fresh context, not the build team's accumulated conversational assumptions.
+
+Provide:
+
+```text
+original source index
+V5 prompt
+requirements ledger
+release SHA
+architecture
+database schema
+test results
+visual screenshots
+animation evidence
+resilience evidence
+model usage
+billing evidence
+security results
+asset inventory
+release gate
+```
+
+Ask Sol to deliberately search for:
+
+```text
+scope compression
+fake implementation
+documentation substituted for implementation
+static UI substituted for living office
+fake metrics
+state-authority collisions
+runtime Employee mistaken for persistent Employee
+Task/Run collapse
+QA bypass
+self-approval
+stale evidence
+provider leakage
+OpenRouter leakage
+hidden paid routing
+restart data loss
+CAO state treated as authority
+dead buttons
+mock panels
+visual underdelivery
+asset library ignored
+worktree implementation lost
+security weaknesses
+accessibility omissions
+performance collapse
+incorrect release assumptions
+```
+
+Every valid blocking finding becomes work.
+
+---
+
+# 108. FINAL VISUAL SOURCE RECONCILIATION
+
+Before release, Sol must explicitly compare the product against:
+
+```text
+UI-REF-ORG-001
+UI-REF-DEPT-001
+canonical blue/yellow bot sheets
+office environment references
+modular furniture references
+status icon references
+movement/expression references
+```
+
+For each state:
+
+```text
+SATISFIED
+SUPERSEDED_BY_EXPLICIT_USER_CHANGE
+BLOCKING_MISMATCH
+```
+
+There may be no unexplained omission.
+
+---
+
+# 109. RELEASE GATE
+
+Create/maintain an executable release gate.
+
+It must fail if any mandatory condition below fails.
+
+### Source integrity
+
+All authoritative sources indexed.
+
+### Requirement coverage
+
+No mandatory requirement unverified.
+
+### Asset coverage
+
+Required visual sources accounted for.
+
+### Implementation provenance
+
+AI-authored implementation comes from authorized FreeLLMAPI route.
+
+### Model policy
+
+No unauthorized provider.
+
+### OpenRouter
+
+No reachable execution route.
+
+### Spend
+
+No unauthorized pay-as-you-go inference.
+
+### PostgreSQL
+
+Durable authority verified.
+
+### Domain separation
+
+Organization/Department/Employee/Project/Task/Run/Review semantics correct.
+
+### Tests
+
+All mandatory suites pass.
+
+### Runtime
+
+Core behaviours actually exercised.
+
+### QA
+
+Required Sol reviews pass.
+
+### Evidence freshness
+
+Proof corresponds to release SHA.
+
+### Visual quality
+
+No Critical/High visual defect.
+
+### Organization UI
+
+Mandatory organization contract implemented.
+
+### Department UI
+
+Mandatory Department contract implemented.
+
+### Living office
+
+Real, moving, state-bound office.
+
+### Characters
+
+Canonical blue/yellow bots deployed.
+
+### Employees
+
+Persistent and inspectable.
+
+### Projects/tasks
+
+Durable and functional.
+
+### Knowledge/learning
+
+Functional.
+
+### Model/cost telemetry
+
+Truthful.
+
+### Accessibility
+
+Gate passes.
+
+### Performance
+
+Gate passes.
+
+### Security
+
+No unresolved Critical/High.
+
+### Resilience
+
+Required failure-injection tests pass.
+
+### Supervisor/reconciler/CAO
+
+Recovery proven.
+
+### Autonomous commissioning
+
+Pass.
+
+### Burn-in
+
+Pass.
+
+### Source reconciliation
+
+Pass.
+
+### Final Sol review
+
+Pass.
+
+### Build/deployment identity
+
+Verified source SHA == tested SHA == deployed SHA where applicable.
+
+Only then:
+
+```text
+exit 0
+```
+
+---
+
+# 110. FINAL RELEASE EVIDENCE
+
+Produce:
+
+```text
+AI_WORKFORCE_BUILD/FINAL_RELEASE_GATE.json
+AI_WORKFORCE_BUILD/FINAL_RELEASE_REPORT.md
+AI_WORKFORCE_BUILD/FINAL_SOURCE_RECONCILIATION.md
+AI_WORKFORCE_BUILD/BURN_IN_REPORT.md
+AI_WORKFORCE_BUILD/FINAL_SOL_REVIEW.md
+```
+
+The machine-readable gate records:
+
+```text
+timestamp
+release_sha
+deployed_sha
+database_migration
+checks
+blocking_failures
+requirement_counts
+evidence_refs
+test_results
+visual_results
+resilience_results
+security_results
+model_policy_results
+```
+
+Humans/models may read this file.
+
+They may not edit it into success.
+
+---
+
+# 111. HUMAN BLOCKER STANDARD
+
+Interrupt the user only where the action genuinely requires them.
+
+Valid examples:
+
+* interactive subscription reauthentication;
+* genuinely absent required user file;
+* unavoidable CAPTCHA;
+* sudo credential unavailable and essential;
+* irreversible user-data destruction needing approval;
+* material product decision with two incompatible options and no safe reversible default.
+
+Not valid:
+
+* test failed;
+* worker failed;
+* worker timed out;
+* CAO terminal disappeared;
+* database bug;
+* merge conflict;
+* provider rate limit;
+* FreeLLMAPI model poor;
+* Sol rejected code;
+* UI looks wrong;
+* animation needs fixing;
+* current implementation incomplete;
+* old worktrees are complicated.
+
+Those are engineering work.
+
+---
+
+# 112. HUMAN BLOCKER MESSAGE FORMAT
+
+Only when unavoidable:
+
+```text
+BLOCKER:
+exact issue
+
+WHY HUMAN REQUIRED:
+why no autonomous authorized solution exists
+
+ATTEMPTS:
+what was tried
+
+EVIDENCE:
+logs/files/errors
+
+MINIMUM USER ACTION:
+smallest required action
+
+WORK CONTINUING:
+other work still progressing
+```
+
+Do not stop unrelated work.
+
+---
+
+# 113. DO NOT FAKE PROGRESS
+
+Do not fabricate:
+
+```text
+employees working
+projects
+spend
+health
+QA
+model usage
+progress
+activity
+completion
+provider identity
+cost
+review
+```
+
+Demo fixtures may exist only in isolated test/dev contexts and must be unmistakably fixtures.
+
+Production UI shows real state.
+
+---
+
+# 114. DO NOT REPLACE THE VISUAL REFERENCES WITH A GENERIC ADMIN DASHBOARD
+
+This is extremely important.
+
+A technically clean CRUD dashboard does not satisfy the UI requirement.
+
+The finished experience must retain:
+
+* large visual department cards;
+* mini offices;
+* high information density;
+* organization metrics;
+* activity;
+* real model/cost telemetry;
+* rich Department cockpit;
+* dominant living office;
+* persistent bot workforce;
+* right-side status/activity rail;
+* project/upcoming/completed panels;
+* QA;
+* knowledge;
+* learning;
+* models/cost;
+* premium dark navy aesthetic.
+
+Do not "simplify" these away.
+
+---
+
+# 115. DO NOT REPLACE THE BLUE/YELLOW BOTS
+
+The Department mockup's white/purple bots are placeholders for layout only.
+
+The final system uses the user's supplied blue-and-yellow worker design.
+
+Do not silently substitute:
+
+* generic emoji;
+* circles with initials;
+* white AI robots;
+* stock robot sprites;
+* Capcom-extracted Servbots.
+
+Use the supplied original blue/yellow design.
+
+---
+
+# 116. ROM / TRON BONNE RESEARCH
+
+Owned/source ROM material may remain a private R&D source for:
+
+* movement timing;
+* clumsy helper behaviour;
+* social/group motion;
+* urgency;
+* frustration/fear;
+* animation study.
+
+It is not a release dependency.
+
+Do not use leaked source.
+
+Do not require ROM-extracted art in the production app.
+
+Production character art must remain the supplied Empirium design.
+
+---
+
+# 117. KEEP THE USER OUT OF ROUTINE EXECUTION
+
+Do not send an update after infrastructure repair saying:
+
+> Ready to continue.
+
+Continue.
+
+Do not send:
+
+> Shall I implement the UI now?
+
+Implement it.
+
+Do not send:
+
+> Tests failed; what do you want me to do?
+
+Diagnose and fix.
+
+The architecture exists precisely to avoid requiring repeated `continue` messages.
+
+---
+
+# 118. WHAT "OVER THE LINE" MEANS
+
+The project has crossed the line only when the user can do this:
+
+1. Open Empirium Studio.
+2. See the organization screen at the quality and density of UI-REF-ORG-001.
+3. See real Departments represented by rich mini-office cards.
+4. Open Personal Software.
+5. See the Department cockpit at the quality and structure of UI-REF-DEPT-001.
+6. See the persistent blue/yellow employees physically represented in a living office.
+7. Click an employee and inspect its actual identity/config/history/state.
+8. Submit a software Project.
+9. Close the browser.
+10. Have the Director continue.
+11. Have FreeLLMAPI workers implement bounded tasks.
+12. Have tasks retry when workers fail.
+13. Have Sol independently review work.
+14. Have rejected work automatically return for rework.
+15. See those activities reflected truthfully in the office and activity feed.
+16. Return later and find history intact.
+17. Inspect Tasks, Runs, reviews and evidence.
+18. Inspect model/provider usage.
+19. See no fake operational data.
+20. Restart relevant services and retain state.
+21. Observe continued execution.
+22. Complete a real software project.
+23. Pass the deterministic release gate.
+
+That—not a screenshot, not an architecture diagram, not 398 passing unit tests—is the finished product.
+
+---
+
+# 119. IMMEDIATE START PROCEDURE
+
+After receiving this prompt:
+
+**Do not respond with another plan.**
+
+Begin actual execution.
+
+Perform these actions in sequence:
+
+1. Preserve current Git/worktree/process/database state.
+2. Inventory every source and asset under `"/home/ash/Desktop/AI Taskforce"`.
+3. Locate and identify the two mandatory UI references.
+4. Locate canonical blue/yellow bot assets.
+5. Locate office environment and furniture assets.
+6. Reconcile today's live environment against the latest forensic audits.
+7. Confirm authoritative CONTROL and TARGET.
+8. Confirm PostgreSQL authority and repair connectivity safely.
+9. Verify FreeLLMAPI route.
+10. Verify Luna subscription/Codex route.
+11. Verify Sol subscription/Codex route.
+12. Remove/block OpenRouter from all active paths.
+13. Prove $0 inference policy.
+14. Verify CAO service and its Empirium fork.
+15. Wire deterministic reconciler → CAO asynchronous worker lifecycle.
+16. Prove one FreeLLMAPI bounded coding task end-to-end.
+17. Prove one Luna Director recovery cycle.
+18. Prove one Sol independent review.
+19. Reconcile useful existing worktrees.
+20. Repair Department CRUD persistence failure.
+21. Re-run baseline tests.
+22. Perform fresh requirements reconciliation including visual sources.
+23. Freeze shared contracts with Sol review.
+24. Activate bounded workstreams.
+25. Build the complete product.
+26. Run every required test and visual gate.
+27. Break it deliberately.
+28. Recover it.
+29. Commission it.
+30. Burn it in.
+31. Reconcile against the original sources again.
+32. Run final Sol red team.
+33. Run deterministic release gate.
+34. If the gate fails, create work from the failures and continue.
+35. Repeat until gate exits zero.
+
+---
+
+# 120. FINAL BEHAVIOURAL LAW
+
+The deterministic controller owns continuity.
+
+PostgreSQL owns durable operational truth.
+
+CAO owns disposable execution sessions.
+
+Luna owns intelligent operational coordination.
+
+FreeLLMAPI owns bulk code implementation.
+
+Sol owns architecture, planning, QA, review and final independent challenge.
+
+Workers do not self-approve.
+
+Review rejection creates work.
+
+Worker failure creates work.
+
+Provider failure creates wait/rerouting, not completion.
+
+Luna death causes recovery.
+
+CAO death causes recovery.
+
+Reconciler death causes recovery.
+
+Browser closure changes nothing about project durability.
+
+VPS restart must not erase project state.
+
+No OpenRouter route is permitted.
+
+No paid API inference is permitted.
+
+No source asset is ignored merely because a worker failed to inventory it.
+
+No white/purple placeholder robot replaces the blue/yellow canonical workers.
+
+No fake metric may appear as production truth.
+
+No static picture substitutes for the living office.
+
+No generic admin dashboard substitutes for the two supplied UI contracts.
+
+No visual polish claim passes without screenshots and independent review.
+
+No backend functionality claim passes without runtime proof.
+
+No requirement disappears because it is inconvenient.
+
+No old completion marker outranks current evidence.
+
+No agent may manually declare SHIPPED.
+
+The only legitimate terminal success is:
+
+```text
+FINAL_RELEASE_GATE.exitCode = 0
+```
+
+followed by:
+
+```text
+BUILD_STATE.status = SHIPPED
+```
+
+Until that is true:
+
+**keep building.**
+
+**keep testing.**
+
+**keep reviewing.**
+
+**keep recovering.**
+
+**keep integrating.**
+
+**do not ask the user to type continue.**
+
+# BEGIN THE ACTUAL BUILD NOW.
+
+---
+
+This is materially different from the last prompt. In particular, the **asset library is now a blocking input phase rather than a side note**, the two UI images are described as explicit contracts rather than "premium inspiration", the blue/yellow character design is locked in, and the test plan now goes down to specific Organization, Department, employee, office-state, movement, PostgreSQL, CAO, routing, accessibility, performance, security and failure-injection tests.
+
+It also deliberately retains the best parts of your older exhaustive protocol instead of discarding them: that protocol already required dual-pass requirement extraction and visual-source requirements, so this version treats those as safeguards against anything I may still have missed in prose.  
+
+The most important practical difference is that **Hermes is now explicitly forbidden from starting broad coding before it has inventoried the VPS assets**. That should prevent the exact failure you're worried about—free workers building generic offices, generic bots or generic UI while hundreds of already-approved assets sit unused on the VPS.

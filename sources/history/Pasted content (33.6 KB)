@@ -1,0 +1,1051 @@
+S0.1  brand name:
+Nailed It. Keep `nailify`, `app.nailify.mobile`, existing package names, repo names, database identifiers, and other technical identifiers unchanged unless there is a genuine technical reason to migrate them. “Nailed It” is the user-facing product/brand.
+
+S0.2  one-paragraph definition:
+Nailed It is a premium consumer nail-design studio that lets a user discover nail inspiration, create highly detailed nail designs themselves using a professional but approachable layer-based editor, save and revisit those designs, and realistically preview them on their own hand using AR. The core experience must feel like a genuinely polished consumer design product rather than an MVP: photorealistic nail materials, sophisticated colour/texture/lighting, fluid gestures and motion, eight powerful editing studios, a beautiful curated inspiration catalogue, and AR that convincingly anchors the design to the physical nail instead of appearing as a flat floating sticker. The defining features of the product are the nail editor, visual/design quality, and convincing AR try-on.
+
+S0.3  finish line (a/b/c):
+(a) Mockup fidelity for this campaign.
+
+However, interpret this as “paid-product-quality mockup fidelity,” not merely visual imitation. Core editor, design persistence and AR must actually work.
+
+Store-readiness and revenue are later campaigns. Do not contaminate this campaign with payment/account/store work before the core product is genuinely excellent.
+
+S0.4  deadline:
+No artificial fixed-date deadline. Quality and verified completion take precedence over hitting a date. Use bounded phase gates and kill criteria instead of rushing to an arbitrary deadline.
+
+S0.5  platform priority:
+Web first for the rapid autonomous build/visual-validation loop, followed by native mobile.
+
+Native priority after web:
+
+1. iOS
+2. Android
+
+However, architecture must remain genuinely cross-platform. “Web first” must never mean implementing something in a way that knowingly prevents the native version.
+
+S0.6  physical device available + willing to run manual AR tests (y/n, which):
+Willing to perform the required manual AR validation: YES.
+
+Exact physical test-device availability is NOT VERIFIED in the supplied material. Do not invent a device. Build the automated/web fixture system regardless; native hardware contracts remain explicitly hardware-limited until a suitable physical device is confirmed.
+
+S0.7  Apple / Google dev accounts (y/n):
+UNKNOWN / NOT VERIFIED.
+
+Do not assume either account exists. This does not block this quality campaign because store publication is not its finish line.
+
+S0.8  out of scope (confirm/amend):
+CONFIRM, with clarification.
+
+Out of scope for this campaign:
+
+* cloud sync
+* user authentication/accounts
+* social feed/community
+* in-app purchases/paywall
+* subscriptions/payment processing
+* real salon booking
+* commerce/Shop
+* server-side AI nail generation
+* production analytics/marketing attribution
+* store submission
+* extensive localisation
+
+In scope:
+
+* excellent local persistence
+* full editor
+* inspiration/catalogue
+* AR
+* saved designs/My Nails
+* architecture that does not make future accounts/cloud/payments unnecessarily difficult
+
+S0.9  canonical tab bar (a/b/c):
+(a)
+
+Home / Explore / Create / Try On / My Nails
+
+“Create” is the visually prominent central action.
+
+Do not maintain competing navigation taxonomies in different screens.
+
+S0.10 personal or to-be-published:
+To be published and sold eventually.
+
+Therefore write production-quality code and apply sensible privacy/accessibility/licensing standards even though publication and monetisation themselves are outside this campaign.
+
+S1.1  mockups binding or directional:
+Binding for:
+
+* visual language
+* perceived quality
+* typography character
+* materials
+* colour family
+* spacing character
+* component language
+* hierarchy
+* polish
+* overall user experience
+
+Directional rather than pixel-binding where AI-generated mockups contradict each other or depict impossible/inconsistent UI.
+
+The goal is not to reproduce their mistakes. The goal is to reproduce or exceed their quality and design intent.
+
+S1.2  new set beats old inspo (confirm):
+CONFIRM.
+
+The 30 `initial mock-up images/` images supersede older inspiration wherever there is a conflict.
+
+Older images may still provide useful secondary ideas where they do not conflict.
+
+S1.3  who resolves mockup conflicts:
+The autonomous planner may resolve conflicts and record every substantive resolution in a design decision register.
+
+Rules:
+
+1. newer mockups beat old inspiration;
+2. established campaign-wide design tokens beat isolated inconsistent mockup details;
+3. consistency across the product beats copying an isolated AI-generation mistake;
+4. major product-navigation or feature-scope changes escalate to me;
+5. minor visual decisions do not.
+
+S1.4  fonts:
+Use:
+
+* Display serif: Playfair Display
+* Script accent: Allura
+* Body/UI sans: Montserrat
+
+Use a deliberately small type scale and weights rather than arbitrary per-screen typography.
+
+Script is decorative/accent use only, never for dense functional UI.
+
+S1.5  extract palette programmatically (y/n) + palette overrides:
+YES.
+
+Extract palette distribution programmatically from the 30 new mockups and use that analysis to finalise the tokens.
+
+The current proposed values are good starting anchors:
+
+* Canvas around `#F5EFE8`
+* Primary/deep wine around `#7D2B3E`
+* Primary-soft/rose around `#A8626F`
+* Champagne gold around `#C9A06A`
+* Ink around `#3B2A2E`
+
+Do not blindly average pixels. Backgrounds, photographs and nail art must not corrupt the UI-palette extraction.
+
+Produce a small canonical semantic token set from the analysis.
+
+S1.6  theme system (kill neon/pastel? light+dark only?):
+Kill pastel and neon.
+
+One canonical warm-luxe light identity.
+
+A deliberately designed dark mode may remain/be created as Q1, but it must be a real design rather than automatic token inversion.
+
+Do not let dark mode double early campaign work. Complete the canonical light experience first.
+
+S1.7  backgrounds (a/b/c):
+(c), implemented as:
+
+Procedural gradient meshes, subtle grain, glass/material treatment and coded texture as the reusable base design system.
+
+Use carefully selected/generated photographic silk, pearl, satin or similar imagery only where it genuinely improves hero/onboarding/editor presentation.
+
+Never wallpaper every page with large raster images.
+
+S1.8  photographic nail assets source (a/b/c):
+Primary: (a) renderer-generated catalogue imagery once the renderer reaches the necessary quality.
+
+Interim/bootstrap: (b) curate the existing `nail presets/`.
+
+This is important: ultimately the catalogue should dogfood our own renderer. If our renderer cannot produce catalogue imagery that looks good enough to promote the app, the renderer is not good enough.
+
+S1.9  image-generation spend allowed (y/n, ceiling, service):
+Allowed only through already-paid/subscription tooling with £0 incremental metered API spend during this campaign.
+
+Do not introduce OpenRouter or another metered image API.
+
+If suitable generation cannot be performed through an already-authorised subscription/tool, use curated existing assets or escalate before spending money.
+
+S1.10 human design assets supplied (y/n, what):
+No supplied human design package should be assumed.
+
+Everything should be coded/generated/curated.
+
+Use one coherent open icon family, preferably Phosphor, with consistent optical size and stroke treatment.
+
+Do not mix five unrelated icon languages.
+
+S1.11 accessibility floor + contrast-vs-mockup tiebreak:
+WCAG AA for all functional UI is mandatory.
+
+Functional usability/contrast beats a mockup when the two genuinely conflict.
+
+Decorative script, texture and non-informational ornament may intentionally fall outside functional contrast requirements where:
+
+* it carries no necessary information; and
+* it is correctly excluded from accessibility semantics where appropriate.
+
+Touch sizes, focus/keyboard behaviour, semantic labels and reduced-motion handling are part of accessibility, not merely colour contrast.
+
+S2.1  RENDERER (a Skia / b WebGL / c hybrid / d stay SVG):
+(a) Skia.
+
+Build the editor renderer around `@shopify/react-native-skia`.
+
+Use shader/material techniques to achieve convincing dimensionality without prematurely committing the whole editor to true 3D.
+
+Architect the renderer sufficiently cleanly that AR can later consume the same canonical design/material model.
+
+S2.2  full renderer rewrite + migration acceptable (y/n):
+YES.
+
+The existing flat renderer is not sacred.
+
+Saved designs must have a migration/compatibility path. Never silently destroy existing persisted projects.
+
+Maintain an explicit schema version.
+
+S2.3  add Reanimated (y/n):
+YES.
+
+Add Reanimated and use the existing gesture-handler integration.
+
+Continuous visual motion and direct-manipulation gestures should run on the UI thread wherever appropriate.
+
+S2.4  storage target:
+`expo-sqlite`.
+
+Use a versioned additive schema/migration system.
+
+Retain legacy AsyncStorage data long enough to migrate it safely.
+
+Never implement a migration that wipes old user data because it is inconvenient.
+
+S2.5  Expo SDK upgrade first (y/n):
+YES.
+
+But make it an isolated preliminary WorkItem/phase.
+
+Upgrade to the current stable supported Expo SDK at execution time, not a beta/preview.
+
+No renderer, design-system or feature rewrite should be mixed into the SDK-upgrade WorkItem.
+
+The SDK upgrade gets its own before/after verification.
+
+S2.6  move to dev-build workflow (y/n):
+YES.
+
+Use development builds for the native application.
+
+Web remains available as the fast autonomous visual-testing surface.
+
+Do not constrain the product to Expo Go compatibility.
+
+S2.7  AR architecture (a 2.5D / b full 3D / c native ARKit-ARCore):
+(a) 2.5D first.
+
+Use:
+
+* landmark depth
+* perspective/foreshortening
+* orientation-aware transform
+* correct depth ordering
+* segmentation/occlusion
+* realistic contact shadow
+* jitter smoothing
+* scale/orientation stabilisation
+* colour/material integration
+
+Build and measure that solution before escalating to full 3D.
+
+Full 3D becomes a justified follow-on only if 2.5D demonstrably fails the visual acceptance gate.
+
+S2.8  un-stub native AR in scope (y/n):
+YES.
+
+Native AR is a core product capability and is in scope.
+
+Do not fake successful native AR if hardware prevents proof. In that case it remains explicitly hardware-blocked rather than being marked complete.
+
+S2.9  branch strategy:
+Create a long-lived `v2-quality` integration branch.
+
+`main` remains demoable/stable.
+
+Individual WorkItems use isolated worktrees/short-lived branches and merge into `v2-quality` only after their acceptance contracts pass.
+
+Merge `v2-quality` to `main` only after campaign release acceptance.
+
+S2.10 stale branches (audit+delete?):
+Audit for unique/unmerged work first.
+
+Recover anything genuinely useful.
+
+Then delete stale branches that contain no required unique work.
+
+No blind deletion based merely on age/name.
+
+Record what was recovered or why deletion was safe.
+
+S2.11 TypeScript (stay JS / partial / migrate):
+Stay JavaScript for this campaign.
+
+Do not introduce a codebase-wide TypeScript migration as a confounding project.
+
+JSDoc/type definitions may be used selectively where they substantially improve contracts around renderer state, schemas or migrations, but this is not a TypeScript-migration campaign.
+
+S3.1  all 122 List-B items become requirements (y/n, strikes):
+YES.
+
+All become tracked requirements.
+
+Nothing disappears merely because it is inconvenient.
+
+Items explicitly outside the current campaign are marked `DEFERRED` / appropriate later band rather than deleted.
+
+S3.2  priority bands (confirm/reshuffle):
+Broadly CONFIRM, with this clarification:
+
+Q0:
+
+* design system / typography / palette / textures
+* renderer
+* editor quality
+* core eight studios
+* AR realism
+* persistence necessary for those features
+* core navigation
+* critical usability/accessibility failures
+* visual acceptance tooling
+
+Q1:
+
+* dark mode
+* broader accessibility completion
+* shape parameterisation refinements
+* performance hardening beyond ship-blocking budgets
+* catalogue depth/content refinement
+
+Q2 / later campaigns:
+
+* monetisation
+* accounts/cloud
+* community/social
+* commerce
+* extensive localisation
+* salon booking
+
+S3.3  existing 30 P0 reqs merge in (y/n):
+YES.
+
+Do not discard unfinished MVP truth because this is now a quality campaign.
+
+The 14 uncovered P0 requirements must be converted into properly evidenced active requirements/WorkItems.
+
+Previously integrated items without evidence are historical state, not proof.
+
+S3.4  ID scheme (confirm):
+CONFIRM.
+
+Use:
+`NAIL-<band>-<area>-<number>`
+
+Examples:
+`NAIL-Q0-RENDER-001`
+`NAIL-Q0-AR-004`
+`NAIL-Q1-A11Y-003`
+
+IDs never get silently recycled.
+
+S3.5  ledger size ~150-200 acceptable (y/n):
+YES.
+
+150–200 capability-level requirements is reasonable.
+
+Absolutely do not return to thousands of line-level pseudo-requirements.
+
+S3.6  failure contract = bounded WorkItem (confirm):
+CONFIRM.
+
+A failed acceptance predicate:
+
+* records evidence,
+* identifies the bounded unmet capability,
+* creates/reopens bounded corrective work,
+* does NOT end the whole campaign,
+* does NOT trigger another orchestration layer,
+* does NOT weaken the acceptance criterion to make the result pass.
+
+S4.1  authorised acceptance mechanisms (pick from 1-6):
+Authorise ALL SIX:
+
+1. Static token checks
+2. Screenshot/golden visual regression
+3. Structural/render-output assertions
+4. Vision-model review/scoring
+5. Perceptual/image metrics
+6. Human visual gate
+
+No single method is sufficient on its own.
+
+S4.2  vision scoring: model + binding or advisory:
+Use Claude Opus through the existing subscription route where practical as the independent visual-quality reviewer.
+
+ADVISORY ONLY.
+
+A vision model can:
+
+* identify regressions
+* score named dimensions
+* flag areas for rework
+* decide whether something should be escalated for human review
+
+It cannot independently mark subjective visual quality SHIPPED.
+
+Do not introduce a paid metered vision API merely to automate this.
+
+S4.3  human gate cadence (a/b/c):
+(a) Once per phase.
+
+Additionally require a human sign-off when crossing these particularly important milestones:
+
+* first accepted photoreal material renderer
+* AR realism vertical slice
+* final pre-merge visual release candidate
+
+Keep the review to a concise contact sheet/video rather than requiring constant supervision.
+
+S4.4  visual-regression threshold:
+For regression against an already-approved golden:
+
+* max changed pixels: 0.1%
+* per-pixel colour tolerance: 2%
+* exclude known anti-aliasing/platform-noise regions where justified
+
+Important:
+Raw pixel regression is for detecting CHANGE FROM AN APPROVED GOLDEN.
+
+Do not use pixel-perfect difference against the AI mockup as the sole definition of design quality.
+
+S4.5  "photoreal nail" predicate (accept/amend/replace):
+AMEND.
+
+A material class passes only when:
+
+1. The renderer contains genuine independent material components, including:
+
+   * base/body colour
+   * curvature-dependent shading
+   * broad specular response
+   * sharper highlight response
+   * edge/rim response
+   * cuticle/root integration
+   * appropriate texture/noise where material demands it
+
+2. Highlight and shading move/respond coherently to the nail geometry rather than being static decorative overlays.
+
+3. Objective image measurements show plausible apex/edge luminance falloff and material contrast relative to the reference class.
+
+4. Edges remain clean at intended output resolution:
+
+   * no obvious clipping
+   * no staircase aliasing
+   * no flat SVG/sticker appearance
+
+5. It is evaluated across multiple nail shapes and colours, not a single cherry-picked design.
+
+6. Vision review should target ≥8/10 on material realism, but this score is advisory because S4.2 makes vision non-binding.
+
+7. Binding subjective acceptance is one explicit human sign-off per material class:
+
+   * glossy
+   * matte
+   * metallic/chrome
+   * glitter
+   * translucent/jelly
+   * relevant textured/special finishes
+
+Once a material class is approved, its golden fixtures become regression-protected.
+
+S4.6  "AR doesn't float" predicate (accept/amend/replace):
+AMEND and strengthen.
+
+On a fixed recorded hand fixture plus eventual physical-device validation:
+
+1. Nail position remains anchored to its corresponding physical nail landmark.
+
+2. Scale changes correctly as the finger moves toward/away from camera.
+
+3. Nail orientation follows finger orientation.
+
+4. Perspective/foreshortening visibly responds when the finger rotates >30° from camera-facing.
+
+5. Nail/root alignment remains attached at the cuticle instead of pivoting around the centre.
+
+6. A plausible contact/ambient shadow is rendered separately from the nail layer.
+
+7. Finger/hand segmentation correctly occludes the synthetic nail where geometry requires it.
+
+8. Occlusion should hide ≥90% of pixels that should be behind the hand/finger in the away-facing fixture cases.
+
+9. Static-hold positional jitter target: <2 px RMS in the canonical recorded fixture after stabilisation.
+
+10. No obvious scale pumping, one-frame teleporting, incorrect finger assignment or orientation inversion.
+
+11. Human side-by-side video sign-off is required for final acceptance.
+
+S4.7  motion-quality predicate (accept/amend):
+ACCEPT with wording clarification.
+
+* scripted interaction frame-time p95 ≤16.7ms on the canonical performance target;
+* continuous animation/gesture work must not depend on JS-thread frame-by-frame execution where Reanimated/UI-thread execution is appropriate;
+* every intentional transition appears in a motion manifest;
+* durations/easing/springs reference named motion tokens;
+* reduced-motion behaviour exists;
+* interruption/reversal of gestures must not leave components in invalid intermediate states.
+
+S4.8  performance budgets (accept mine or give numbers):
+Use:
+
+* cold start to first meaningful paint: <2.0s on canonical test hardware
+* normal UI/scroll p95 frame time: ≤16.7ms
+* editor direct-manipulation response: <50ms
+* normal editor target: 60fps
+* AR: sustained ≥30fps on canonical device; brief dips may occur but not sustained sub-24fps operation
+* JS/application bundle target: <25 MB excluding fonts and intentionally curated catalogue media
+* track catalogue/media separately rather than cheating the figure
+* initial installed product should aim to remain under ~80 MB unless evidence justifies exceeding it
+* editor memory: <350 MB
+* no unbounded memory growth during a 10-minute scripted editor session
+
+S4.9  flake policy:
+Retry up to 3 total attempts.
+
+If it fails and then passes:
+
+* record it as a flake
+* retain the evidence
+* increment the flake counter
+
+After three attempts, fail hard.
+
+Recurring flaky checks become their own reliability WorkItem.
+
+Never silently retry indefinitely.
+
+S4.10 behaviour-not-existence rule (confirm):
+CONFIRM.
+
+Acceptance proves the actual rendered/runtime behaviour.
+
+Presence of a file, variable, component, dependency, string or token is not sufficient proof unless existence itself is genuinely the requirement.
+
+S5.1  extend verify.sh vs second harness:
+Extend `app/verify.sh`.
+
+One acceptance authority.
+
+Organise new checks beneath it, including:
+
+* `checks/visual/`
+* `checks/perf/`
+* renderer checks
+* accessibility checks
+* AR fixture checks where automatable
+
+Do not create two competing definitions of “green.”
+
+S5.2  harness may only grow (confirm):
+CONFIRM.
+
+The frozen harness may grow in coverage and strictness.
+
+A mutation that weakens a protected existing acceptance predicate without explicit authorised review is `PROTECTED_HARNESS_MUTATION`.
+
+Legitimate bug fixes to the harness must:
+
+* be versioned
+* document why the old predicate was incorrect
+* receive independent review
+* prove they are not simply weakening acceptance to make implementation pass
+
+S5.3  who reviews the visual harness:
+Two-stage independent review:
+
+1. a fresh independent worker/reviewer session that did not author the harness;
+2. final deep read by Opus through the authorised Claude subscription route.
+
+Harness authors do not self-certify their own acceptance system.
+
+S5.4  golden-image storage:
+Out-of-repo evidence directory:
+`.hermes/evidence/golden/`
+
+Commit:
+
+* hashes
+* metadata
+* fixture name
+* dimensions
+* originating requirement
+* approval state
+* renderer/app commit SHA
+
+Do not commit hundreds of large screenshots to normal Git history.
+
+S5.5  device/viewport matrix:
+Do NOT use only the questionnaire's proposed iPhone viewport because its stated aspect ratio does not actually match the documented 941×1672 mockups.
+
+Use two categories:
+
+A. MOCKUP COMPARISON TARGET
+Render/screenshot at exact 941×1672 output dimensions, or an exact proportional equivalent, for objective correspondence with the supplied mockups.
+
+B. REAL DEVICE RESPONSIVE TARGETS
+At minimum:
+
+* iPhone 15 Pro-class viewport: 393×852
+* representative Android phone viewport around 412×915
+* relevant desktop/web editor viewport for web-specific layout
+
+The 941×1672 render is the design-reference target; real device viewports prove responsive behaviour.
+
+S5.6  enforce mockup-derived tokens (y/n):
+YES.
+
+Extract and freeze approved semantic tokens derived from the mockups.
+
+Enforce those tokens at runtime/render level.
+
+Allow intentionally documented component exceptions; do not permit arbitrary hex/spacing drift throughout screens.
+
+S6.1  role routing (confirm standing rule):
+CONFIRM:
+
+Orchestrator/planner/judge:
+Claude Sonnet through Claude subscription.
+
+Builder:
+FreeLLMAPI.
+
+Deep reviewer/planning:
+Claude Opus through Claude subscription.
+
+Bounded fallback:
+after 3 genuine FreeLLMAPI provider failures on the same WorkItem, attempt 4 may use the verified ChatGPT/Codex Luna subscription route, then routing returns to FreeLLMAPI.
+
+Prohibited:
+
+* OpenRouter
+* Token Harbor
+* metered API fallbacks
+* OpenRouter Luna
+* silent routing changes
+
+Every fallback must store its explicit reason.
+
+S6.2  the 3 openai-codex attempts — authorised fallback or drift:
+UNPROVEN.
+
+Do not pretend records can establish something they do not record.
+
+For control/remediation purposes, classify these as `UNVERIFIED_ROUTE_CHANGE`, and treat them as route drift until evidence demonstrates the fallback preconditions occurred.
+
+Before new dispatch:
+
+* add an explicit escalation reason to every non-default attempt;
+* record preceding provider failures;
+* enforce attempt number;
+* make an unauthorised provider switch impossible.
+
+Do not accuse the old system of a confirmed violation without evidence, but do fix the control gap.
+
+S6.3  fix packets before scaling (confirm):
+CONFIRM.
+
+Every worker packet should contain at least:
+
+* one bounded objective
+* exact requirement IDs
+* exact relevant files
+* exact mockup/reference path
+* exact desired token/material values where applicable
+* exact acceptance command/check
+* explicit definition of success
+* scope boundaries
+* constraints that must not be changed
+* prior failed approaches relevant to this WorkItem
+* output/evidence requirements
+
+Packet quality is the first lever.
+
+S6.4  MAX_WORKERS stays 1 until >=60% (confirm):
+CONFIRM.
+
+`MAX_WORKERS=1` until a valid representative benchmark measures ≥60%.
+
+Do not override this because work appears slow.
+
+S6.5  keep controller.py (y/n):
+YES.
+
+Keep the existing deterministic controller.
+
+Do not replace it with another AI supervisor.
+
+Only add capabilities when an observed failure requires them.
+
+S6.6  stale WorkItems (a re-evidence / b archive+clean / c leave):
+(b) Archive and start a clean campaign queue.
+
+Preserve historical rows/evidence.
+
+Re-enter the genuinely unfinished/uncovered P0 capabilities as new, correctly specified WorkItems.
+
+Never use the old `INTEGRATED` state as acceptance evidence.
+
+S6.7  campaign budget / phase-gate cadence:
+No arbitrary wall-clock hard stop.
+
+Phase gate approximately every 5 days OR at phase completion, whichever is sensible first.
+
+Each gate reports:
+
+* accepted requirements
+* rejected requirements
+* screenshots/contact sheet
+* benchmark/pass-rate movement
+* unresolved blockers
+* cumulative provider usage where available
+* next bounded phase
+
+Kill criteria remain the hard safety stop.
+
+S6.8  reporting cadence + channel:
+Written phase-gate report in the project plus a visual contact sheet.
+
+Keep durable reports on disk so session death does not erase campaign state.
+
+Do not spam progress reports for every tiny WorkItem.
+
+S6.9  watchdog/service config + empirium-cao must not touch repo (confirm):
+CONFIRM.
+
+`empirium-cao.service` must never operate on `/home/ash/Desktop/nailify`.
+
+Do NOT start `nailed-it-controller.service` in its current unreconciled state.
+
+First:
+
+* archive/reconcile old WorkItems
+* establish the new ledger/queue
+* verify release-state logic
+* confirm an empty queue cannot falsely mean SHIPPED
+
+Only then enable the Nailed It controller.
+
+After that, persistent execution with systemd `Restart=always` and appropriate user linger is acceptable.
+
+S6.10 unattended overnight allowed (y/n, blackout hours):
+YES.
+
+Unattended overnight execution is allowed.
+
+No blackout hours.
+
+However, unattended operation does NOT authorise:
+
+* spending money
+* publishing externally
+* account changes
+* destructive data deletion
+* bypassing human gates
+* changing provider policy
+* weakening acceptance
+
+S6.11 what needs human intervention:
+Human intervention is required for:
+
+* spending incremental money
+* publishing/releasing externally
+* developer-account changes
+* credentials/account ownership changes
+* deleting real user data
+* irreversible destructive operations
+* changing the fundamental product scope
+* weakening a frozen acceptance contract
+* accepting subjective phase-level visual quality
+* repeated blocker after the bounded retry/escalation policy is exhausted
+
+Everything else should be decided autonomously from the charter, requirement ledger and decision register.
+
+S6.12 kill criteria:
+Stop autonomous dispatch and escalate if any occurs:
+
+1. Three consecutive phase gates produce no accepted material visual/product improvement.
+2. Protected harness acceptance is intentionally weakened without approval.
+3. `main` is unexpectedly made undemoable/broken.
+4. Unauthorised paid provider/spend route is used.
+5. User data is lost or a destructive migration occurs.
+6. The controller repeatedly dispatches the same ineffective work without changing the identified root cause.
+7. The representative worker benchmark remains <30% after the allowed decomposition/packet-remediation rounds.
+8. Release state is marked SHIPPED without required evidence.
+9. A major architectural path is proven infeasible and the campaign continues pretending it is solved rather than escalating.
+
+S7.1  re-run benchmark on a visual task (y/n):
+YES.
+
+The previous 36% is useful evidence, but it is not a valid estimate for a materially different visual/rendering task class.
+
+S7.2  benchmark task:
+Use:
+
+“Implement the approved typography-token system and apply it completely to one bounded representative screen until the visual/runtime typography acceptance check passes.”
+
+It should include:
+
+* font loading
+* semantic typography tokens
+* one representative real screen
+* no raw per-component typography hacks
+* rendered font verification
+* visual screenshot evidence
+
+Run the benchmark from equivalent clean starting states.
+
+S7.3  decision rules (confirm):
+CONFIRM:
+
+≥60%:
+Proceed with `MAX_WORKERS=1` and normal bounded campaign execution.
+
+30–59%:
+Improve worker packet/acceptance contract; run one further valid round.
+DO NOT add workers.
+DO NOT add supervisor layers.
+
+<30%:
+Fix decomposition/task size.
+DO NOT add orchestration.
+
+Hard cap:
+
+* 40 valid attempts
+* 48 hours
+* maximum one extra benchmark round
+
+If the benchmark still cannot support execution, escalate rather than building orchestration around a broken worker loop.
+
+S7.4  freeze-before-attempt-1 (confirm):
+CONFIRM.
+
+Task definition, starting state and acceptance contract are frozen before attempt 1.
+
+A material definition change invalidates/ends the round and begins a separately identified round.
+
+S8.1  phase order (confirm/amend; AR earlier?):
+AMEND because AR is one of the product's defining features and should be de-risked earlier.
+
+Use:
+
+P0 — Campaign sanitation / infrastructure
+
+* archive stale WorkItems
+* repair release-state risk
+* SDK upgrade in isolation
+* visual harness foundation
+* worker benchmark
+* freeze new ledger
+
+P1 — Visual foundation
+
+* typography
+* palette
+* backgrounds/material system
+* glass
+* spacing/component primitives
+
+P2 — Skia renderer
+
+* canonical nail representation
+* lighting/material system
+* saved-design migration
+* renderer fixtures
+
+P3 — AR risk-burn vertical slice
+
+* prove native hand-tracking path
+* prove nail anchoring
+* prove 2.5D perspective
+* segmentation/occlusion
+* shadow
+* fixture test
+* determine whether 2.5D is viable
+
+This phase exists specifically so we do not discover near the end that the core AR premise cannot work.
+
+P4 — Reanimated + gesture system
+
+* direct manipulation
+* motion tokens
+* panels/toolbars
+* microinteractions
+* reduced motion
+
+P5 — Eight editor studios
+
+* Shape
+* Ombré
+* Marble
+* Patterns
+* Brush
+* Text
+* Gems
+* Layers
+
+P6 — AR completion/productisation
+
+* integrate full design model
+* stability
+* polish
+* all fingers
+* device behaviour
+* visual human gate
+
+P7 — Photographic catalogue/content
+
+* renderer-generated catalogue
+* curated/compressed interim assets
+* Explore/Home/My Nails presentation
+
+P8 — Accessibility, performance, reliability and final visual hardening
+
+* budgets
+* memory
+* edge cases
+* responsive devices
+* final contact sheet
+* release gate
+
+S8.2  curate+compress nail presets (y/n):
+YES.
+
+Curate roughly 40 excellent assets as an initial maximum rather than blindly shipping the whole 297 MB directory.
+
+Optimise dimensions/compression appropriately for actual displayed sizes.
+
+Never bundle the raw source directory.
+
+Track provenance/licensing if those assets are not wholly ours.
+
+S8.3  S2 deps pre-approved, others ask (confirm):
+CONFIRM.
+
+Dependencies explicitly required by the approved architecture in S2 are pre-authorised.
+
+Anything materially new outside that set requires justification/approval rather than dependency creep.
+
+Developer-only testing utilities may be proposed as part of a harness WorkItem, but still record why they are necessary.
+
+S8.4  AR FIXTURE VIDEO — can you record 30s of a rotating hand (y/n):
+YES.
+
+Treat one approximately 30-second hand fixture as a required human contribution for AR acceptance.
+
+Capture:
+
+* front-facing hand
+* gradual left/right rotations
+* some finger flex
+* some approach/recede movement
+* stable static hold
+* ordinary lighting
+* all five nails clearly visible where practical
+
+Do not mark the AR fixture contract complete until the actual clip exists.
+
+S8.5  live preview surface on Tailscale (y/n):
+YES.
+
+Provide a private live preview reachable over Tailscale.
+
+It should be easy to open from a phone without needing the entire development environment.
+
+Do not expose a development server publicly to the internet unnecessarily.
+
+S8.6  before/after visual report per phase (y/n):
+YES.
+
+Every visual phase produces a concise before/after contact sheet.
+
+Use fixed fixtures/viewports/designs wherever possible so changes are meaningfully comparable rather than cherry-picked.
+
+S9.1  answer format:
+One complete document — this one.
+
+S9.2  DEFAULT mechanic (confirm):
+CONFIRM, although this completed sheet intentionally replaces most defaults with explicit decisions.
+
+Where a future field genuinely remains `DEFAULT`, the questionnaire author's documented recommended default applies.
+
+S9.3  Stage-0 pack in full in chat, change-table on rejection (confirm):
+CONFIRM.
+
+Produce the entire Stage-0 pack, including:
+
+* decision register
+* scope
+* requirement ledger
+* deferred requirements
+* acceptance predicates
+* harness specification
+* benchmark specification
+* campaign-state reconciliation
+* role/provider governance
+* worker-packet contract
+* phase plan
+* release predicate
+* human gates
+* risk register
+
+Present it in full for audit.
+
+If I object to part of it, respond with:
+concern → affected section → exact proposed revision → downstream impact
+
+Do not replace the pack with another vague summary.
+
+S9.4  what starts execution:
+Two distinct approvals:
+
+1. Stage-0 pack approved.
+2. Explicit `GO`.
+
+Approval of the plan by itself does not begin autonomous execution.
+
+S9.5  this chat's role (a plan-only / b plan+execute / c plan+supervise):
+(a) Plan-only / goal-authoring chat.
+
+This chat produces the authoritative campaign package/goal.
+
+A clean execution context then runs the campaign.
+
+Keep planning authority and implementation execution sufficiently separate to preserve independent review and avoid the planner quietly rewriting its own requirements to match implementation.
+
+S9.6  save to Obsidian vault (y/n):
+YES.
+
+Save:
+
+* questionnaire
+* this completed answer sheet
+* Stage-0 pack
+* final goal document
+* major design-decision register
+* eventual campaign retrospective
+
+alongside the existing autonomous-production knowledge so the lessons survive individual chat/session lifetimes.

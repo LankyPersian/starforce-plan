@@ -1,0 +1,3180 @@
+# NAILED IT — FORENSIC AUTONOMOUS PROJECT PROGRESS AUDIT
+
+You are conducting an **independent, exhaustive, evidence-based audit** of the current Nailed It / Nailfy project.
+
+This is **NOT an implementation session**.
+
+Do **not** continue building the application.
+
+Do **not** repair defects.
+
+Do **not** refactor code.
+
+Do **not** alter project state.
+
+Do **not** mark WorkItems complete.
+
+Do **not** restart or interfere with healthy workers merely to inspect them.
+
+Do **not** change provider routing.
+
+Do **not** modify the controller.
+
+Do **not** create fake evidence.
+
+Do **not** rely on previous completion claims.
+
+Your task is to inspect the **actual machine, repository, controller, durable project state, worktrees, Git history, logs, provider state, test evidence, screenshots, builds and application runtime**, and produce a forensic report describing **exactly where this project is currently up to**.
+
+The audit must answer:
+
+> **If we froze the project at this exact moment, what has actually been built, what has actually been verified, what is currently being worked on, what remains, what is blocked or waiting, how healthy is the autonomous system, and how far are we from a genuinely shippable Nailed It MVP?**
+
+---
+
+# 1. PROJECT IDENTITY
+
+The expected project root is:
+
+```text
+~/Desktop/nailfy
+```
+
+The user-facing product is:
+
+```text
+Nailed It
+```
+
+The folder may intentionally remain named:
+
+```text
+nailfy
+```
+
+Do not rename anything.
+
+First determine the real absolute paths.
+
+Find:
+
+* repository root,
+* React Native / Expo app root,
+* `.hermes/`,
+* authoritative product charter,
+* controller code,
+* controller database,
+* state/event files,
+* worker worktrees,
+* evidence directories,
+* logs,
+* QA records,
+* Git repository,
+* any OS service definition controlling the autonomous project.
+
+Do not assume the originally intended paths still exactly match reality.
+
+---
+
+# 2. PRIMARY AUDIT PRINCIPLE
+
+## NEVER TRUST A CLAIM WHEN THE UNDERLYING REALITY CAN BE INSPECTED
+
+Examples:
+
+If a file says:
+
+```text
+AR complete
+```
+
+inspect the implementation.
+
+If a WorkItem says:
+
+```text
+DONE
+```
+
+inspect its Attempt, evidence, tests, review and integrated commit.
+
+If a QA file says:
+
+```text
+PASS
+```
+
+inspect the underlying test output.
+
+If an autonomy report says:
+
+```text
+controller healthy
+```
+
+inspect:
+
+* process state,
+* heartbeat,
+* database activity,
+* latest transitions,
+* service manager state.
+
+If a screenshot says the UI works, determine:
+
+* what Git SHA produced it,
+* when it was captured,
+* whether later changes invalidate it.
+
+If a feature exists in source code, determine whether it is:
+
+```text
+coded
+integrated
+reachable
+runtime-tested
+visually-tested
+release-verified
+```
+
+These are different states.
+
+---
+
+# 3. SOURCE OF TRUTH
+
+Locate the full authoritative product charter.
+
+Likely paths include:
+
+```text
+~/Desktop/nailfy/.hermes/source/PRODUCT_CHARTER.md
+```
+
+or another preserved copy of the V3 master specification.
+
+Also inspect, where present:
+
+```text
+AGENTS.md
+
+.hermes/MASTER_PLAN.md
+.hermes/REQUIREMENTS.md
+.hermes/REQUIREMENTS.json
+.hermes/ARCHITECTURE.md
+.hermes/DECISIONS.md
+.hermes/KNOWN_ISSUES.md
+.hermes/QA_MATRIX.md
+.hermes/CHANGELOG.md
+.hermes/CHECKPOINT.md
+.hermes/REVIEW_QUEUE.md
+
+.hermes/state/project.db
+.hermes/state/events.jsonl
+.hermes/state/controller-heartbeat.json
+
+.hermes/evidence/
+.hermes/reports/
+.hermes/logs/
+.hermes/attempts/
+.hermes/packets/
+.hermes/autonomy/
+```
+
+Also inspect:
+
+```text
+README.md
+package.json
+app.json
+app.config.*
+eas.json
+src/
+assets/
+tests/
+```
+
+And all relevant Git history.
+
+The **full product charter** has precedence over summaries.
+
+Do not audit only against `MASTER_PLAN.md`.
+
+Do not audit only against the current WorkItem queue.
+
+The requirements extraction itself may contain omissions.
+
+The final audit must compare the actual application back against the original source specification.
+
+---
+
+# 4. NON-DESTRUCTIVE AUDIT MODE
+
+Remain read-only wherever possible.
+
+Commands that inspect state are permitted.
+
+Examples:
+
+```bash
+pwd
+find
+ls
+tree
+git status
+git log
+git diff
+git branch
+git worktree list
+git show
+git rev-parse
+ps
+systemctl --user status
+journalctl --user
+sqlite3 SELECT queries
+cat
+grep
+rg
+npm scripts
+package inspection
+test-result inspection
+log inspection
+```
+
+Running tests/builds is permitted if it does not mutate production/project state in a meaningful way.
+
+Launching the application for inspection is permitted.
+
+Capturing audit screenshots is permitted.
+
+Do not commit audit changes into the product branch.
+
+If temporary audit artifacts are absolutely necessary, place them outside the canonical project or in a clearly isolated temporary audit directory.
+
+---
+
+# 5. ESTABLISH THE EXACT SNAPSHOT FIRST
+
+Before interpreting anything, record:
+
+```text
+audit timestamp
+hostname
+OS
+current user
+project absolute path
+app root
+current Git branch
+HEAD SHA
+git status
+untracked files
+dirty files
+active worktrees
+controller PID
+controller service state
+controller heartbeat timestamp
+project database location
+current Project state
+```
+
+Include this at the beginning of the report.
+
+Also record:
+
+```text
+Node version
+npm/pnpm/yarn version
+Expo version
+React Native version
+React version
+Hermes Agent version
+Python version if controller uses Python
+```
+
+Do not silently omit anything that cannot be found.
+
+Mark it:
+
+```text
+NOT FOUND
+UNKNOWN
+NOT CONFIGURED
+UNVERIFIED
+```
+
+as appropriate.
+
+---
+
+# 6. DETERMINE WHETHER THE AUTONOMY SYSTEM IS ACTUALLY IN CONTROL
+
+This is one of the most important parts of the audit.
+
+The intended architecture is:
+
+```text
+PRODUCT CHARTER
+      ↓
+REQUIREMENTS
+      ↓
+DEPENDENCY-AWARE WORK GRAPH
+      ↓
+DURABLE PROJECT STATE
+      ↓
+LIVE DETERMINISTIC CONTROLLER
+      ↓
+DISPOSABLE HERMES WORKERS
+      ↓
+DETERMINISTIC TESTING
+      ↓
+INDEPENDENT REVIEW
+      ↓
+MERGE / INTEGRATION
+      ↓
+RELEASE GATES
+      ↓
+SHIPPED
+```
+
+Determine whether this is actually the live execution path.
+
+Do not merely determine whether code implementing such a system exists.
+
+Answer separately:
+
+### A. Is an autonomy kernel implemented?
+
+### B. Is that autonomy kernel currently running?
+
+### C. Is that controller actually authoritative?
+
+### D. If the initiating Hermes conversation disappeared right now, would further project transitions still occur?
+
+### E. Is anything essential still dependent on a long-lived Hermes/Astra session?
+
+This distinction is critical.
+
+---
+
+# 7. CONTROLLER AUDIT
+
+Locate the controller.
+
+Inspect:
+
+* source path,
+* entry point,
+* process manager,
+* startup configuration,
+* restart behavior,
+* database connection,
+* reconciliation loop,
+* dispatch mechanism,
+* lease handling,
+* provider handling,
+* review handling,
+* merge handling,
+* acceptance evaluator.
+
+Determine:
+
+```text
+Is controller process currently alive?
+Who launched it?
+Who keeps it alive?
+Does systemd/launchd/Task Scheduler/etc. own it?
+Does Restart= or equivalent exist?
+When was it last restarted?
+How many times has it restarted?
+Has it crashed recently?
+Is heartbeat advancing?
+When was the latest controller transition?
+```
+
+Inspect service logs.
+
+Look for:
+
+* exceptions,
+* repeated crashes,
+* stuck loops,
+* runaway retries,
+* database locks,
+* worker-launch failures,
+* provider failures,
+* shell errors,
+* permission errors,
+* worktree failures,
+* merge failures,
+* stale-heartbeat warnings.
+
+Report concrete examples.
+
+---
+
+# 8. PROJECT DATABASE AUDIT
+
+Inspect the authoritative project database directly.
+
+Do not rely solely on rendered Markdown projections.
+
+Identify database schema.
+
+List tables.
+
+Expected conceptual entities may include:
+
+```text
+Project
+Requirement
+RequirementSource
+WorkItem
+Dependency
+Attempt
+Lease
+Artifact
+Evidence
+Review
+Event
+ProviderEvent
+Decision
+ReleaseGate
+```
+
+Use whatever actual names exist.
+
+For each major table, report:
+
+```text
+row count
+important statuses
+newest record
+oldest relevant record
+obvious anomalies
+```
+
+Determine current project global state.
+
+Examples might include:
+
+```text
+BOOTSTRAPPING
+RUNNING
+WAITING_PROVIDER
+WAITING_RETRY
+WAITING_DEPENDENCY
+WAITING_REVIEW
+WAITING_INTEGRATION
+WAITING_EXTERNAL
+DIAGNOSING
+RECONCILING
+RELEASE_CANDIDATE
+SHIPPED
+```
+
+Use the actual project's states.
+
+---
+
+# 9. REQUIREMENTS LEDGER AUDIT
+
+Determine:
+
+```text
+How many requirements exist?
+How many are P0?
+How many P1?
+How many P2?
+How many mandatory?
+How many deferred?
+How many complete?
+How many incomplete?
+How many accepted?
+How many lack evidence?
+How many lack WorkItems?
+How many have contradictory status?
+```
+
+Check whether two independent requirement-extraction passes actually occurred.
+
+Find evidence of:
+
+```text
+extraction pass A
+extraction pass B
+reconciliation
+stable requirement IDs
+source mapping
+```
+
+If the requirement ledger claims all source material was reconciled, verify that claim against the product charter.
+
+Sample the source extensively.
+
+Look especially for requirements related to:
+
+* builder,
+* AR,
+* navigation,
+* persistence,
+* migration,
+* Explore,
+* My Nails,
+* Home,
+* onboarding,
+* settings,
+* share/export,
+* visual quality,
+* transitions,
+* haptics,
+* accessibility,
+* performance,
+* error states,
+* permissions,
+* assets,
+* fake-flow removal,
+* local-first architecture,
+* app icon,
+* splash,
+* runtime QA.
+
+Identify any charter requirement that appears to have disappeared during requirement extraction.
+
+Create a section:
+
+```text
+POSSIBLE REQUIREMENT-EXTRACTION OMISSIONS
+```
+
+Do not silently repair them.
+
+---
+
+# 10. WORKITEM AUDIT
+
+Determine:
+
+```text
+total WorkItems
+queued
+ready
+leased
+implementing
+validating
+review pending
+rework
+integration pending
+done/accepted
+blocked
+waiting
+recovery needed
+cancelled
+```
+
+Use actual state names.
+
+For active WorkItems include:
+
+```text
+ID
+title
+requirements
+Attempt
+worker
+provider
+model
+worktree
+lease started
+lease expiry
+last heartbeat
+last meaningful activity
+current blocker
+```
+
+Check for stale leases.
+
+Check for WorkItems marked active without workers.
+
+Check for workers running without corresponding WorkItems.
+
+Check for duplicate WorkItems targeting the same requirement.
+
+Check for circular dependencies.
+
+Check for orphan WorkItems.
+
+Check for completed WorkItems whose dependencies were not completed.
+
+Check whether very large WorkItems have escaped decomposition.
+
+Highlight suspicious examples.
+
+---
+
+# 11. ATTEMPT AUDIT
+
+Determine:
+
+```text
+total Attempts
+successful
+rejected
+interrupted
+expired
+provider-failed
+engineering-failed
+abandoned
+currently active
+```
+
+Calculate where possible:
+
+```text
+first-attempt acceptance rate
+average Attempts per accepted WorkItem
+rework ratio
+provider-failure ratio
+engineering-failure ratio
+```
+
+Identify repeatedly failing WorkItems.
+
+For the worst repeated failures, explain:
+
+```text
+what the task is
+number of attempts
+models/providers used
+failure reasons
+whether decomposition/escalation occurred
+current status
+```
+
+Look for cases where workers repeatedly perform identical unsuccessful approaches.
+
+---
+
+# 12. LEASE / RECOVERY AUDIT
+
+Inspect actual lease implementation.
+
+Determine whether:
+
+* leases have expiration times,
+* workers refresh them,
+* controller detects expiry,
+* stale workers are recoverable,
+* partial commits are preserved,
+* replacement workers receive recovery context,
+* WorkItem survives Attempt death.
+
+Inspect historical events for real examples.
+
+Report:
+
+```text
+worker deaths recovered
+worker deaths not recovered
+expired leases
+replacement Attempts created
+lost work if any
+```
+
+Do not accept commissioning test claims alone.
+
+Look for real production events after commissioning.
+
+---
+
+# 13. PROVIDER / MODEL ROUTING AUDIT
+
+This project is intended to minimize marginal LLM cost while continuing autonomously.
+
+The intended hierarchy is approximately:
+
+```text
+Tier A:
+FreeLLMAPI / other authorized zero-cost models
+
+Tier B:
+already-linked ChatGPT / Codex subscription capacity
+
+Tier C:
+metered paid APIs NOT automatically authorized
+```
+
+Inspect the actual Hermes/provider configuration.
+
+Do not reveal API keys or secrets in the report.
+
+Report only:
+
+```text
+provider name
+configured/not configured
+authenticated/not authenticated
+models visible
+role
+cost class
+recent use
+health
+cooldown status
+```
+
+Determine:
+
+### FreeLLMAPI
+
+* configured?
+* endpoint works?
+* available models?
+* successful Requests?
+* 429 history?
+* current cooldown?
+* what types of WorkItems use it?
+
+### ChatGPT/Codex subscription route
+
+* configured?
+* authenticated?
+* successfully used?
+* which models?
+* what tasks triggered escalation?
+* current availability?
+
+### Other providers
+
+Identify any.
+
+Determine whether any provider potentially incurs metered monetary cost.
+
+Check actual provider history for accidental paid inference.
+
+Report:
+
+```text
+UNAUTHORIZED METERED INFERENCE FOUND: YES/NO
+```
+
+If yes:
+
+* provider,
+* model,
+* approximate invocation count,
+* available cost evidence,
+* cause.
+
+Do not change configuration during the audit.
+
+---
+
+# 14. PROVIDER RECOVERY BEHAVIOR
+
+Inspect whether provider failures actually lead to:
+
+```text
+retry
+fresh context
+alternate model
+alternate authorized provider
+Codex/subscription escalation
+cooldown
+automatic resume
+```
+
+Look for historical evidence.
+
+Identify any case where a 429 or quota error caused the entire project to stop.
+
+Determine whether `WAITING_PROVIDER` genuinely resumes automatically.
+
+---
+
+# 15. HERMES WORKER LAUNCHING
+
+Inspect how workers are launched.
+
+Determine:
+
+```text
+interactive vs non-interactive
+task packet usage
+query-file usage
+provider explicitly selected?
+model explicitly selected?
+working directory?
+worktree isolation?
+timeout?
+heartbeat?
+structured result?
+commit expectation?
+```
+
+Inspect representative task packets.
+
+Determine whether worker context is genuinely bounded or whether every worker receives the enormous charter unnecessarily.
+
+Look for context bloat.
+
+Look for stale conversational resumption.
+
+Look for dependence on one long-running Astra/Director.
+
+---
+
+# 16. WORKTREE / ISOLATION AUDIT
+
+Run:
+
+```bash
+git worktree list
+```
+
+Inspect all active/recent worker worktrees.
+
+For each:
+
+```text
+path
+branch
+WorkItem
+status
+clean/dirty
+last commit
+age
+active/inactive
+safe to recover?
+```
+
+Identify:
+
+* abandoned worktrees,
+* dirty untracked work,
+* orphan branches,
+* merged worktrees not cleaned,
+* workers sharing canonical checkout,
+* concurrent workers modifying overlapping files.
+
+Determine whether parallelism is actually isolated.
+
+---
+
+# 17. GIT HISTORY AUDIT
+
+Inspect Git carefully.
+
+Report:
+
+```text
+baseline SHA
+current canonical SHA
+number of commits since autonomous build began
+recent commit history
+active branches
+unmerged branches
+dirty canonical files
+```
+
+Determine whether commit discipline is coherent.
+
+Inspect representative commits.
+
+Check:
+
+* meaningful commit messages,
+* traceability to WorkItems,
+* huge unrelated commits,
+* commits containing broken code,
+* generated junk,
+* accidental node_modules/build artifacts,
+* dangerous secrets,
+* unresolved merge markers.
+
+Search for:
+
+```text
+<<<<<<<
+=======
+>>>>>>>
+```
+
+where appropriate.
+
+Do not expose secret values.
+
+---
+
+# 18. INTEGRATION / MERGE QUEUE AUDIT
+
+Determine whether accepted worker branches are merged through a controlled integration process.
+
+Inspect:
+
+```text
+pending merges
+failed merges
+conflicts
+post-merge tests
+integration reviews
+```
+
+Determine whether any WorkItem is marked accepted but has never been integrated into canonical HEAD.
+
+Likewise determine whether code has been merged without the WorkItem being accepted.
+
+Create lists for both anomalies.
+
+---
+
+# 19. TESTING INFRASTRUCTURE AUDIT
+
+Inspect actual test scripts/configuration.
+
+List available commands.
+
+Examples may include:
+
+```text
+lint
+unit tests
+store tests
+migration tests
+AR math tests
+integration tests
+Expo doctor
+web build
+Android build
+iOS build
+E2E
+```
+
+Do not assume all exist.
+
+Run appropriate safe validation if practical.
+
+Record:
+
+```text
+command
+exit code
+duration
+pass/fail
+important warnings
+Git SHA tested
+```
+
+Separate:
+
+```text
+tests known to pass historically
+```
+
+from:
+
+```text
+tests freshly verified during this audit
+```
+
+---
+
+# 20. BASELINE BUILD HEALTH
+
+Determine whether the **current canonical branch** can actually be installed/built.
+
+Inspect:
+
+```text
+package manager lockfile
+dependency consistency
+Expo compatibility
+native dependency configuration
+lint state
+test state
+web/dev state
+Android state
+iOS state where environment permits
+```
+
+Report exact current health.
+
+Do not call the build healthy solely because previous build logs exist.
+
+---
+
+# 21. APPLICATION RUNTIME AUDIT
+
+Launch the app using the strongest practical local target.
+
+Inspect actual user-facing behavior.
+
+Do not merely read source files.
+
+Determine whether the application:
+
+* boots,
+* reaches onboarding/home,
+* navigates without red screens,
+* displays correct Nailed It branding,
+* persists state,
+* exposes prototype/debug behavior,
+* crashes in major flows.
+
+Capture audit screenshots if appropriate.
+
+---
+
+# 22. PRODUCT COMPLETION MATRIX
+
+Audit the actual product against the charter.
+
+For every major area classify each requirement as:
+
+```text
+NOT STARTED
+SCAFFOLDED
+PARTIALLY IMPLEMENTED
+IMPLEMENTED BUT UNVERIFIED
+DETERMINISTICALLY VERIFIED
+RUNTIME VERIFIED
+VISUALLY VERIFIED
+RELEASE-READY
+BLOCKED/WAITING
+DEFERRED BY CHARTER
+```
+
+Do not collapse all of these into "done/not done."
+
+---
+
+# 23. BRANDING
+
+Audit:
+
+```text
+Nailed It branding
+old Nailify visible branding
+app display name
+headers
+onboarding
+share text
+exports
+settings/about
+permissions copy
+icon
+splash
+```
+
+Search visible strings for:
+
+```text
+Nailify
+Nailfy
+Preview build
+simulation
+simulated
+coming soon
+placeholder
+```
+
+Classify remaining legacy identifiers as:
+
+```text
+safe internal identifier
+user-visible defect
+unknown
+```
+
+---
+
+# 24. INFORMATION ARCHITECTURE
+
+Audit actual availability and quality of:
+
+```text
+Home
+Explore
+Create
+Try On
+My Nails
+Settings
+Help/About
+```
+
+For each determine:
+
+* route exists?
+* reachable?
+* usable?
+* polished?
+* fake?
+* placeholder?
+* runtime tested?
+* visual evidence?
+* responsive?
+* errors?
+
+---
+
+# 25. HOME
+
+Audit:
+
+* header/brand,
+* Continue Editing,
+* Create CTA,
+* Try On CTA,
+* curated inspiration,
+* style/occasion shortcuts,
+* recent designs,
+* empty states.
+
+Determine whether Home feels like a real consumer beauty application or still resembles scaffolding/admin UI.
+
+Support conclusions with screenshots or concrete source/runtime evidence.
+
+---
+
+# 26. EXPLORE
+
+Audit:
+
+* real search field,
+* title/tag search,
+* filters,
+* color,
+* shape,
+* occasion/theme,
+* finish/category,
+* curated collections,
+* adaptive grid,
+* detail page/sheet,
+* Apply/Edit,
+* Try On,
+* Save/Favorite,
+* Share if visible.
+
+Check whether search genuinely changes results.
+
+Check whether any button is decorative only.
+
+---
+
+# 27. CREATE FLOW
+
+Audit:
+
+```text
+Blank Set
+Start from Template
+Continue Draft
+```
+
+Determine whether the central Create flow is concise and working.
+
+Look for remnants of fake AI creation flows.
+
+---
+
+# 28. MY NAILS / LOCAL PROJECT LIBRARY
+
+Audit:
+
+```text
+Drafts
+Finished Sets
+Saved Inspiration
+individual presets if implemented
+captures if implemented
+```
+
+Test where practical:
+
+* create,
+* autosave,
+* close,
+* reopen,
+* rename,
+* duplicate,
+* delete,
+* sort,
+* preview thumbnail.
+
+Determine whether data survives app restart.
+
+---
+
+# 29. DESIGN DATA MODEL
+
+Inspect actual schema.
+
+Determine:
+
+```text
+schemaVersion
+DesignProject shape
+hands.L
+hands.R
+Nail model
+Base
+Layer kinds
+migration code
+normalization
+legacy compatibility
+```
+
+Compare implementation against charter intentions.
+
+Identify any dangerous schema drift.
+
+---
+
+# 30. LEGACY STORAGE MIGRATION
+
+Inspect handling of keys such as:
+
+```text
+nailify-design
+nailify-app
+nailify-ar-fit
+```
+
+Determine whether old designs:
+
+* migrate,
+* remain recoverable,
+* are overwritten,
+* can crash loading,
+* are silently reset.
+
+Inspect migration tests.
+
+Determine idempotency.
+
+This is high-risk.
+
+Do not infer safety from code comments.
+
+---
+
+# 31. BUILDER — OVERALL UX
+
+This is the principal product feature.
+
+Inspect the live editor.
+
+Determine whether it follows the intended model:
+
+```text
+focused single nail
+compact finger strip
+Left/Right hand
+bottom tool dock
+contextual sheets
+progressive disclosure
+whole set remains alive
+```
+
+Determine whether the editor still looks crowded or developer-oriented.
+
+---
+
+# 32. BUILDER — TEN-NAIL STATE
+
+Verify:
+
+* all five fingers,
+* both hands,
+* independent designs,
+* switching fingers preserves edits,
+* left/right state remains distinct,
+* copy operations don't mutate references accidentally.
+
+---
+
+# 33. SHAPE / LENGTH
+
+Audit available shapes.
+
+Audit:
+
+```text
+Square
+Squoval
+Round
+Oval
+Almond
+Coffin/Ballerina
+Stiletto
+other quality shapes
+```
+
+Audit length UX:
+
+```text
+Short
+Medium
+Long
+Extra Long where implemented
+fine adjustment if implemented
+```
+
+Check individual vs apply-to-hand/all behavior.
+
+---
+
+# 34. BASE COLOR SYSTEM
+
+Verify actual support for:
+
+* curated swatches,
+* full picker,
+* HEX,
+* recent colors,
+* solid,
+* gradient,
+* angle,
+* opacity/sheerness,
+* reset.
+
+Check undo/history behavior during continuous color changes.
+
+---
+
+# 35. MATERIALS / FINISHES
+
+Inspect actual visual rendering for:
+
+```text
+Gloss
+Matte
+Jelly/Sheer
+Pearl/Shimmer
+Chrome/Metallic
+Glitter
+```
+
+And optionally:
+
+```text
+Holographic
+Cat-eye
+```
+
+Determine whether these effects are genuinely visually distinct.
+
+A button existing is not sufficient.
+
+Use screenshots/renders where useful.
+
+---
+
+# 36. FRENCH BUILDER
+
+Verify:
+
+```text
+Classic
+Micro
+Deep
+V
+Diagonal/Side
+```
+
+and controls such as:
+
+* tip color,
+* thickness/depth,
+* curve if implemented,
+* apply current/hand/all,
+* continued editability.
+
+Determine whether French is procedural/editable or merely flattened artwork.
+
+---
+
+# 37. GRADIENT / OMBRÉ
+
+Audit:
+
+* two-color linear,
+* direction,
+* smooth blend,
+* tip/base presets,
+* baby-boomer if implemented,
+* radial/aura if implemented.
+
+Assess visual quality, not merely state fields.
+
+---
+
+# 38. ART LIBRARY
+
+Determine:
+
+```text
+total art assets
+quality assets
+categories
+search
+recent
+favorites if applicable
+recolor slots
+default scale/position
+```
+
+Compare approximately against the charter's intended substantial library.
+
+Identify broken/duplicate/placeholder assets.
+
+---
+
+# 39. ART TRANSFORMS
+
+Runtime-test where practical:
+
+```text
+select
+move
+pinch scale
+rotate
+opacity
+duplicate
+delete
+reorder
+recolor
+snap
+```
+
+Check normalized coordinate behavior.
+
+---
+
+# 40. DRAWING
+
+Audit:
+
+* brush color,
+* size,
+* opacity,
+* smoothing,
+* eraser,
+* clipping,
+* history behavior,
+* performance.
+
+Determine whether per-point state updates produce performance problems.
+
+---
+
+# 41. TEXT
+
+Determine whether the text tool:
+
+* genuinely works,
+
+or:
+
+* has been removed cleanly.
+
+There must not be a visible fake/coming-soon text tool.
+
+If implemented, inspect:
+
+```text
+text entry
+fonts
+size
+color
+rotation
+opacity
+move
+scale
+```
+
+---
+
+# 42. PATTERNS / DETAILS
+
+Audit any implementation of:
+
+```text
+dots
+stripes
+checker
+leopard/tortoise
+zebra/cow
+marble
+```
+
+And visual detail quality for:
+
+```text
+glitter
+foil
+chrome
+gems
+pearls
+charms
+```
+
+Determine what is P0-real versus decorative placeholder.
+
+---
+
+# 43. LAYERS
+
+Verify:
+
+```text
+preview
+meaningful name
+selection
+reorder
+visibility
+lock
+duplicate
+delete
+opacity
+```
+
+Check whether layers are hidden from beginner UX until needed.
+
+---
+
+# 44. UNDO / REDO
+
+Test representative edits.
+
+Determine:
+
+* stack size,
+* interaction grouping,
+* gesture history spam,
+* delete undo,
+* reorder undo,
+* copy undo,
+* reset undo,
+* persistence behavior.
+
+---
+
+# 45. WHOLE SET OPERATIONS
+
+Verify:
+
+```text
+copy focused nail to hand
+copy to all 10
+mirror L→R
+mirror R→L
+chosen fingers
+reset finger
+reset hand
+view set
+accent nail
+alternating
+ombré across hand
+French across hand
+```
+
+Determine which genuinely work.
+
+---
+
+# 46. INDIVIDUAL NAIL PRESETS
+
+If present, inspect:
+
+* save,
+* name,
+* reopen,
+* apply,
+* deep clone behavior,
+* mutation isolation.
+
+If absent and P1/deferred, classify correctly rather than calling it a blocker.
+
+---
+
+# 47. TEMPLATE / INSPIRATION ASSETS
+
+Inspect asset pipeline.
+
+Determine:
+
+```text
+how many raw source images exist
+how many were curated
+how many app-ready optimized images exist
+bundle size
+duplicates
+malformed generations
+metadata quality
+```
+
+Check whether the app accidentally bundles the entire original ~300 MB source collection.
+
+Report actual asset/bundle sizes.
+
+---
+
+# 48. EXPORT / SHARING
+
+Test or inspect:
+
+```text
+full-set image
+single nail if supported
+save to photo library
+AR capture
+share sheet
+salon reference
+```
+
+Check whether output is a polished render rather than raw UI screenshot.
+
+Check for fake QR/share functionality.
+
+---
+
+# 49. AR — ARCHITECTURE
+
+This is the second principal product feature.
+
+Inspect actual AR implementation.
+
+Determine:
+
+* web tracker,
+* native tracker,
+* camera library,
+* landmark model,
+* custom/native modules,
+* platform abstraction,
+* placement logic,
+* smoothing,
+* rendering,
+* capture.
+
+State exactly what exists.
+
+---
+
+# 50. AR — NATIVE REALITY CHECK
+
+The previous prototype had a native hand-tracker stub.
+
+Determine whether that stub has genuinely been replaced.
+
+Search for:
+
+```text
+stub
+mock
+simulation
+fake landmark
+hard-coded hand
+```
+
+Inspect the actual native execution path.
+
+Determine whether a real native hand-landmark model is connected.
+
+Do not mark native AR complete based on web MediaPipe.
+
+---
+
+# 51. AR LANDMARKS / PLACEMENT
+
+Inspect:
+
+* 21 landmarks,
+* handedness,
+* confidence,
+* fingertip/distal-joint anchors,
+* position,
+* scale,
+* rotation,
+* mirroring,
+* orientation.
+
+Inspect placement tests.
+
+Look for obvious coordinate-system errors.
+
+---
+
+# 52. AR SMOOTHING
+
+Determine algorithm:
+
+```text
+EMA
+One Euro
+other
+none
+```
+
+Inspect configuration and tests.
+
+Where deterministic prerecorded frame sequences exist, inspect their results.
+
+Determine whether lost tracking is handled gracefully.
+
+---
+
+# 53. AR PER-FINGER DESIGN
+
+Verify that AR uses the same canonical design data as the builder.
+
+Ensure there is not a separate stale AR design model.
+
+Trace:
+
+```text
+builder state
+→ saved design
+→ current try-on design
+→ finger mapping
+→ renderer
+```
+
+---
+
+# 54. AR UI
+
+Audit actual camera screen:
+
+```text
+current design
+hand detection state
+camera switch
+adjust fit
+design selector
+capture
+edit return
+hand selector if relevant
+```
+
+Check for developer HUD/debug controls leaking into consumer UI.
+
+---
+
+# 55. CAMERA PERMISSIONS
+
+Inspect:
+
+* contextual request,
+* denial,
+* retry,
+* system settings route,
+* unavailable state,
+* no infinite loop.
+
+Inspect Android and iOS configuration.
+
+---
+
+# 56. AR PRIVACY
+
+Determine whether camera frames stay on-device.
+
+Inspect network/upload paths.
+
+Confirm there is no hidden server upload for hand tracking.
+
+Check privacy/help copy against reality.
+
+---
+
+# 57. AR CAPTURE
+
+Determine whether camera image + overlay capture is actually reliable.
+
+Inspect implementation.
+
+Check whether view-shot is incorrectly assumed to capture native camera surfaces.
+
+If compositing is implemented, inspect it.
+
+State exact verified status by platform.
+
+---
+
+# 58. AR PERFORMANCE
+
+Inspect:
+
+* detection frequency,
+* overlay update mechanism,
+* React re-render frequency,
+* bridge usage,
+* frame resizing,
+* throttling,
+* memory concerns.
+
+Use runtime metrics if already available.
+
+Do not invent FPS.
+
+---
+
+# 59. ONBOARDING
+
+Audit length, visuals, copy and functionality.
+
+Determine whether it accurately sells:
+
+```text
+Design
+Try On
+Save/Salon
+```
+
+Check:
+
+* no forced fake account,
+* no camera request during onboarding,
+* no scaffold copy.
+
+---
+
+# 60. SETTINGS / HELP
+
+Audit only real settings:
+
+```text
+appearance
+haptics
+reduced motion
+permissions
+clear local data
+Help/About
+version/build
+privacy/terms links
+```
+
+Identify any settings that merely toast instead of changing state.
+
+---
+
+# 61. FAKE / PROTOTYPE BEHAVIOR SWEEP
+
+Search entire project for:
+
+```text
+TODO
+FIXME
+stub
+simulated
+simulation
+mock
+placeholder
+coming soon
+Preview build
+fake
+hard-coded demo
+RevenueCat
+Firebase
+AI Studio
+Paywall
+QR
+```
+
+Classification must distinguish:
+
+```text
+dev-only safe
+dead code
+future integration safely hidden
+user-visible P0 defect
+```
+
+List every P0-relevant occurrence.
+
+---
+
+# 62. AUTH / BACKEND
+
+Determine actual state of:
+
+```text
+Firebase
+authentication
+cloud persistence
+```
+
+The charter permits a local-first guest MVP.
+
+Therefore absence of cloud auth is not automatically a defect.
+
+The defect would be fake sign-in or a dependency on unavailable backend credentials.
+
+---
+
+# 63. SUBSCRIPTIONS / PAYWALL
+
+Determine whether:
+
+* paywall is visible,
+* fake products exist,
+* purchase simulation exists,
+* RevenueCat is configured,
+* fake save limits exist.
+
+A fully unlocked MVP is valid.
+
+Fake monetization is not.
+
+---
+
+# 64. AI STUDIO
+
+Determine whether fake AI generation still exists in user-facing navigation.
+
+It should not block the MVP.
+
+If hidden/deferred, classify accordingly.
+
+---
+
+# 65. DESIGN SYSTEM / VISUAL QUALITY
+
+Inspect:
+
+* colors,
+* typography,
+* spacing,
+* radii,
+* shadows,
+* borders,
+* motion,
+* touch sizes,
+* icons.
+
+Determine whether tokens are centralized.
+
+Identify inconsistent one-off styling.
+
+Evaluate screenshots against the intended aesthetic:
+
+```text
+premium beauty/editorial
+warm
+quiet
+confident
+feminine without childishness
+clean
+modern
+nail art as visual focus
+```
+
+Do not give generic praise.
+
+Point to concrete screens/components.
+
+---
+
+# 66. NAVIGATION / MOTION
+
+Inspect actual transitions.
+
+Check:
+
+```text
+tabs
+modal sheets
+builder entry
+finger switching
+art placement
+deletion
+AR transition
+return from AR
+reduced motion
+```
+
+Determine whether Reanimated or another implementation is configured correctly if present.
+
+---
+
+# 67. HAPTICS
+
+Check real usage.
+
+Identify:
+
+* selection,
+* snapping,
+* save/export,
+* destructive actions.
+
+Check setting toggle.
+
+Ensure continuous actions do not spam haptics.
+
+---
+
+# 68. RESPONSIVE DESIGN
+
+Inspect representative widths, ideally including approximately:
+
+```text
+320–360
+390–430
+tablet width where supported
+```
+
+Capture screenshots if practical.
+
+Look for:
+
+* overlap,
+* clipped text,
+* inaccessible buttons,
+* bottom-sheet problems,
+* safe-area problems,
+* keyboard obstruction.
+
+---
+
+# 69. ACCESSIBILITY
+
+Inspect:
+
+* icon labels,
+* roles,
+* touch targets,
+* selected states,
+* contrast,
+* color-only information,
+* dynamic font behavior,
+* reduced motion,
+* screen-reader ordering.
+
+Do not claim certification.
+
+Give actual implementation status.
+
+---
+
+# 70. EMPTY / ERROR / LOADING STATES
+
+Audit at least:
+
+```text
+My Nails empty
+Explore no results
+camera denied
+hand not found
+save failure
+old/corrupt design
+image loading
+```
+
+Identify raw errors exposed to users.
+
+---
+
+# 71. APP ICON / SPLASH
+
+Inspect:
+
+* 1024x1024 source,
+* Expo config,
+* adaptive Android icon,
+* splash,
+* branding,
+* first-screen color matching.
+
+Check for old Nailify branding.
+
+---
+
+# 72. PERFORMANCE AUDIT
+
+Look for likely runtime issues.
+
+Builder:
+
+* unnecessary rerenders,
+* large state subscriptions,
+* un-memoized thumbnails,
+* SVG cost,
+* continuous gesture state.
+
+AR:
+
+* high-frequency global state,
+* JS bridge saturation,
+* unthrottled inference,
+* unnecessary allocations,
+* logging each frame.
+
+Assets:
+
+* oversized images,
+* massive bundle,
+* synchronous parsing.
+
+Report measured evidence where available and suspected risks separately.
+
+---
+
+# 73. PRIVACY / SECURITY BASICS
+
+Inspect:
+
+* secrets accidentally committed,
+* API keys in mobile source,
+* unnecessary permissions,
+* raw photo logging,
+* verbose production logs,
+* unsafe storage paths,
+* hidden network uploads.
+
+Do not print actual secret values.
+
+Report only locations/types and severity.
+
+---
+
+# 74. DOCUMENTATION ACCURACY
+
+Compare:
+
+```text
+README
+AGENTS
+ARCHITECTURE
+CHECKPOINT
+KNOWN_ISSUES
+QA_MATRIX
+MASTER_PLAN
+```
+
+against actual runtime/code/state.
+
+Identify stale claims.
+
+Examples:
+
+```text
+docs say complete, code says stub
+docs say pending, code already implemented
+checkpoint points to old commit
+QA references obsolete screenshots
+```
+
+---
+
+# 75. EVIDENCE PROVENANCE AUDIT
+
+Inspect evidence records.
+
+For samples across major requirements verify they identify:
+
+```text
+Requirement
+WorkItem
+Attempt
+Git SHA
+timestamp
+result
+artifact
+review
+```
+
+Check for circular evidence.
+
+Bad example:
+
+```text
+worker says feature passes
+→ evidence records worker says it passes
+```
+
+Better:
+
+```text
+test runner exit 0
+runtime screenshot
+database state
+independent review
+```
+
+Identify self-authored or weak evidence.
+
+---
+
+# 76. VISUAL EVIDENCE AUDIT
+
+Find screenshots/videos.
+
+For each important artifact determine:
+
+* when generated,
+* associated commit,
+* screen/device width,
+* whether current code has changed since.
+
+Reject stale screenshots as final proof.
+
+---
+
+# 77. REVIEW SYSTEM AUDIT
+
+Determine:
+
+```text
+reviews created
+accepted
+rejected
+pending
+```
+
+Check whether reviewer is actually independent from implementer.
+
+Inspect representative review packets.
+
+Determine whether reviewer feedback actually produces rework.
+
+Look for accepted WorkItems without reviews where review is required.
+
+---
+
+# 78. RELEASE GATE AUDIT
+
+Locate final release predicates.
+
+Determine what can set:
+
+```text
+SHIPPED
+```
+
+Inspect code.
+
+Make sure a chat response cannot set it casually.
+
+Inspect current gate state.
+
+For every failing release predicate report:
+
+```text
+predicate
+requirement(s)
+reason
+current remediation WorkItem
+```
+
+If no remediation exists, flag it.
+
+---
+
+# 79. CHECK WHETHER THE CONTROLLER CAN FALSELY COMPLETE
+
+Specifically test the logic statically/dynamically enough to answer:
+
+Could the project become `SHIPPED` because:
+
+* queue is empty?
+* no WorkItem is currently runnable?
+* workers stopped?
+* README says complete?
+* all WorkItems were marked done without evidence?
+* commissioning JSON says pass?
+* an LLM says done?
+* a stale release gate passes?
+* requirements are missing from the ledger?
+
+Report findings.
+
+---
+
+# 80. PROGRESS VELOCITY
+
+Use event/Git/database history to reconstruct project progress.
+
+Report, where data supports it:
+
+### Last hour
+
+```text
+accepted WorkItems
+integrated WorkItems
+rejections
+provider failures
+worker deaths
+```
+
+### Last 6 hours
+
+Same.
+
+### Last 24 hours
+
+Same.
+
+### Since autonomous build began
+
+Same.
+
+Also calculate:
+
+```text
+requirements completed over time
+WorkItems accepted over time
+current ready backlog
+current blocked backlog
+```
+
+Do not treat token consumption as progress.
+
+---
+
+# 81. DETERMINE WHETHER THE PROJECT IS MAKING FORWARD PROGRESS
+
+Classify current autonomous state as one of:
+
+```text
+HEALTHY FORWARD PROGRESS
+PROGRESSING WITH FRICTION
+SLOW / HIGH REWORK
+WAITING LEGITIMATELY
+PARTIALLY STALLED
+STALLED
+AUTONOMY NOT ACTUALLY AUTHORITATIVE
+UNKNOWN
+```
+
+This classification must be justified with facts.
+
+This classification is about the engineering system, not the app's quality.
+
+---
+
+# 82. COMPLETION ESTIMATE — USE EVIDENCE, NOT TOKEN COUNTS
+
+Provide completion percentages, but make them transparent estimates rather than pretending precision.
+
+Produce separate estimates for:
+
+```text
+Autonomy infrastructure
+Requirements/decomposition
+App foundation
+Builder
+AR
+Home/Explore/My Nails shell
+Persistence/data safety
+Assets/content
+Visual polish
+Testing/QA
+Release readiness
+```
+
+For each give:
+
+```text
+estimated %
+what counts as complete
+what major work remains
+confidence: HIGH/MEDIUM/LOW
+```
+
+Then give:
+
+```text
+Overall implementation completeness
+Overall verified completeness
+Overall release readiness
+```
+
+Do not average blindly.
+
+Weight P0 appropriately.
+
+Builder and AR carry substantially more importance than optional P1 work.
+
+---
+
+# 83. P0 GAP ANALYSIS
+
+Create a complete list of every remaining P0 gap.
+
+For each include:
+
+```text
+Requirement ID
+Description
+Current state
+Evidence
+Current WorkItem
+Dependency
+Severity
+Estimated engineering shape:
+small / medium / large / unknown
+```
+
+Do NOT estimate calendar time.
+
+---
+
+# 84. BLOCKERS VS ORDINARY WORK
+
+Separate:
+
+## TRUE EXTERNAL BLOCKERS
+
+Something requiring:
+
+* unavailable credentials,
+* legal identity,
+* unavailable signing ownership,
+* inaccessible physical hardware where no meaningful substitute exists,
+* explicit user authorization for irreversible external action.
+
+## INTERNAL ENGINEERING WORK
+
+Examples:
+
+* failing tests,
+* merge conflicts,
+* coding defects,
+* package problems,
+* missing implementation,
+* poor UI,
+* weak AR,
+* broken build,
+* reviewer rejection,
+* provider cooldown,
+* worker crash.
+
+Do not call ordinary engineering failures blockers.
+
+---
+
+# 85. WAITING STATES
+
+For every current waiting state report:
+
+```text
+what is waiting
+why
+when it became waiting
+next retry/recheck
+what wakes it
+whether unrelated work can proceed
+```
+
+Determine whether waiting states actually have automatic wake/retry mechanisms.
+
+---
+
+# 86. KNOWN ISSUES ACCURACY
+
+Inspect `.hermes/KNOWN_ISSUES.md`.
+
+Classify entries:
+
+```text
+accurate
+resolved but stale
+understated
+overstated
+P0 hidden as non-blocking
+not reproducible
+```
+
+Search for significant problems absent from KNOWN_ISSUES.
+
+---
+
+# 87. CURRENT WORK — EXACTLY WHAT IS HAPPENING RIGHT NOW
+
+This section is mandatory.
+
+At audit time answer:
+
+```text
+What is the controller doing?
+What workers are alive?
+What WorkItems are being attempted?
+What reviewers are running?
+What builds/tests are running?
+What provider/model is each using?
+What worktrees are dirty?
+What is pending integration?
+What is waiting?
+What will the controller do next if nobody touches the machine?
+```
+
+This should make the current system understandable without opening a terminal.
+
+---
+
+# 88. TEN-MINUTE MANDATORY USER STORY STATUS
+
+Audit each step individually:
+
+1. Open Nailed It.
+2. Complete/skip onboarding.
+3. Tap Create.
+4. Start blank set.
+5. Choose almond.
+6. Choose medium/long.
+7. Soft-pink index.
+8. Add white flower.
+9. Move/resize flower.
+10. Add gold accent/gem.
+11. Copy nail.
+12. French variation.
+13. Glitter/chrome accent.
+14. View whole set.
+15. Undo/redo.
+16. Name/save.
+17. Exit to My Nails.
+18. Reopen exact design.
+19. Try On.
+20. Camera permission.
+21. Detect hand.
+22. Correct per-finger designs.
+23. Stable movement/rotation.
+24. Adjust fit.
+25. Capture/share.
+26. Return to editor intact.
+27. Restart app and find saved design.
+
+For each classify:
+
+```text
+PASS — freshly runtime verified
+PASS — previously evidenced
+IMPLEMENTED BUT NOT VERIFIED
+PARTIAL
+FAIL
+UNAVAILABLE IN AUDIT ENVIRONMENT
+```
+
+Do not use one global PASS.
+
+---
+
+# 89. CHARTER RECONCILIATION
+
+After auditing the implementation and requirement ledger, reread the complete product charter from start to finish.
+
+Perform a final independent reconciliation.
+
+Look specifically for:
+
+* requirements omitted from ledger,
+* implementation that drifted from intent,
+* visual direction lost during engineering,
+* "optional" interpretations that contradict P0,
+* features marked complete based only on code existence.
+
+Create:
+
+```text
+CHARTER → REQUIREMENT → WORKITEM → IMPLEMENTATION → EVIDENCE
+```
+
+spot checks across all major product areas.
+
+---
+
+# 90. ANTI-PATTERN SEARCH
+
+Explicitly determine whether any of these failures are happening:
+
+```text
+long-lived LLM pretending to be persistence
+controller exists but is not authoritative
+scope compression
+WorkItem marked done after worker claim
+implementer self-review
+mock recovery tests only
+fake commissioning
+circular evidence
+shared checkout concurrency
+stale leases
+infinite retry loop
+provider thrashing
+unbounded context packets
+excess manager agents
+queue empty interpreted as complete
+FAIL interpreted as termination
+stale screenshot evidence
+P0 defects hidden as known issues
+unauthorized paid inference
+fake product functionality
+```
+
+For each output:
+
+```text
+NOT FOUND
+PRESENT
+POSSIBLE
+UNVERIFIED
+```
+
+and evidence.
+
+---
+
+# 91. DO NOT FIX FINDINGS DURING THIS AUDIT
+
+This is crucial.
+
+If you discover:
+
+```text
+broken controller
+critical bug
+false completion
+unmerged work
+P0 defect
+provider misconfiguration
+stale lease
+missing requirement
+```
+
+document it.
+
+Do not repair it during this audit unless the act of merely inspecting would otherwise cause destructive data loss.
+
+We want a clean snapshot of the project's actual state.
+
+---
+
+# 92. REQUIRED FINAL REPORT STRUCTURE
+
+Return one comprehensive report using exactly this broad structure.
+
+# NAILED IT CURRENT-STATE FORENSIC AUDIT
+
+## 1. Executive Summary
+
+In plain English tell me:
+
+* what exists,
+* what works,
+* what does not,
+* whether autonomy is genuinely active,
+* what the project is doing right now,
+* how close the MVP really is.
+
+Keep this section understandable to a non-developer.
+
+---
+
+## 2. Snapshot
+
+Include:
+
+```text
+Audit time
+Repository
+App root
+Branch
+HEAD
+Git status
+Project state
+Controller state
+Controller PID
+Heartbeat
+Active workers
+Active reviews
+Pending integration
+Provider state
+```
+
+---
+
+## 3. Autonomy System
+
+Cover:
+
+* control plane,
+* process manager,
+* project DB,
+* controller authority,
+* recovery,
+* worker launching,
+* leases,
+* reviewer lifecycle,
+* merge queue,
+* release gate.
+
+Give each:
+
+```text
+PASS
+PARTIAL
+FAIL
+UNVERIFIED
+```
+
+with evidence.
+
+---
+
+## 4. Autonomous Continuation Test
+
+Answer directly:
+
+> If this Hermes audit session and every other interactive Hermes chat vanished immediately after this report, would the Nailed It project continue working toward completion?
+
+Answer:
+
+```text
+YES
+PARTIALLY
+NO
+UNVERIFIED
+```
+
+Then explain exactly why.
+
+---
+
+## 5. Provider / Cost System
+
+Report:
+
+* FreeLLMAPI,
+* zero-cost routes,
+* Codex/ChatGPT subscription fallback,
+* metered providers,
+* recent use,
+* cooldowns,
+* failures,
+* accidental spend.
+
+---
+
+## 6. Requirements
+
+Report totals and traceability.
+
+Include omissions found during charter reconciliation.
+
+---
+
+## 7. Work Graph
+
+Report WorkItem state totals.
+
+Highlight active, blocked, stale and repeated-failure items.
+
+---
+
+## 8. Current Live Work
+
+Explain what is happening **right now**.
+
+---
+
+## 9. Git / Worktrees / Integration
+
+Explain repository health and unintegrated work.
+
+---
+
+## 10. Testing and Build Health
+
+Show commands/evidence and latest results.
+
+---
+
+## 11. Product Status
+
+Separate subsections:
+
+### Branding / navigation
+
+### Home
+
+### Explore
+
+### Create
+
+### My Nails
+
+### Builder
+
+### Shape / length
+
+### Base colors / gradients
+
+### Finishes
+
+### French
+
+### Art
+
+### Drawing
+
+### Text
+
+### Layers
+
+### Whole-set tools
+
+### Persistence / migration
+
+### Export / salon
+
+### AR architecture
+
+### Native hand tracking
+
+### AR visual quality
+
+### AR permissions
+
+### AR capture
+
+### Settings / Help
+
+### Onboarding
+
+### Assets
+
+### Accessibility
+
+### Performance
+
+### Visual polish
+
+For every subsection use:
+
+```text
+Current state
+What actually works
+What is incomplete
+Evidence
+Important defects
+```
+
+---
+
+## 12. Mandatory User Story
+
+Use the 27-step matrix.
+
+---
+
+## 13. P0 Definition-of-Done Matrix
+
+Reproduce every applicable P0 acceptance item and classify:
+
+```text
+VERIFIED PASS
+IMPLEMENTED / UNVERIFIED
+PARTIAL
+FAIL
+WAITING_EXTERNAL
+```
+
+Include evidence.
+
+---
+
+## 14. Remaining P0 Work
+
+Full exhaustive list.
+
+---
+
+## 15. P1 / Deferred Work
+
+Separate this from P0.
+
+Do not make optional work look like a release blocker.
+
+---
+
+## 16. Current Bugs / Regressions
+
+Rank by:
+
+```text
+CRITICAL
+HIGH
+MEDIUM
+LOW
+```
+
+This severity concerns engineering/product impact, not political/evaluative ranking.
+
+---
+
+## 17. Autonomy Failure Risks
+
+Anything that could cause unattended development to stop or falsely complete.
+
+---
+
+## 18. Cost / Provider Risks
+
+Anything that may cause:
+
+* unnecessary subscription exhaustion,
+* accidental paid API usage,
+* provider deadlock,
+* retry storms.
+
+---
+
+## 19. Data-Loss Risks
+
+Focus on:
+
+* schema migrations,
+* local storage,
+* autosave,
+* project deletion,
+* duplicate/reference bugs.
+
+---
+
+## 20. AR Risks
+
+Focus on native integration and real runtime evidence.
+
+---
+
+## 21. Visual / UX Issues
+
+Use actual screenshot evidence wherever possible.
+
+---
+
+## 22. Documentation Drift
+
+List claims that no longer match reality.
+
+---
+
+## 23. Anti-Pattern Results
+
+Use the anti-pattern checklist above.
+
+---
+
+## 24. Progress Metrics
+
+Report:
+
+```text
+requirements complete
+requirements verified
+WorkItems accepted
+WorkItems remaining
+rework rate
+first-attempt acceptance
+regressions
+active work
+blocked/waiting work
+provider failures
+recovered worker failures
+```
+
+Only where supported by evidence.
+
+---
+
+## 25. Completion Estimate
+
+Produce this table:
+
+| Area                    | Implemented | Verified | Release-ready | Confidence | Major remaining work |
+| ----------------------- | ----------: | -------: | ------------: | ---------- | -------------------- |
+| Autonomous controller   |             |          |               |            |                      |
+| Requirements/work graph |             |          |               |            |                      |
+| Foundation/navigation   |             |          |               |            |                      |
+| Builder                 |             |          |               |            |                      |
+| AR                      |             |          |               |            |                      |
+| Local persistence       |             |          |               |            |                      |
+| Home/Explore/My Nails   |             |          |               |            |                      |
+| Assets/content          |             |          |               |            |                      |
+| Visual polish           |             |          |               |            |                      |
+| Testing/QA              |             |          |               |            |                      |
+| Overall MVP             |             |          |               |            |                      |
+
+Percentages are informed estimates, not mathematical certainty.
+
+Explain how you derived them.
+
+---
+
+## 26. What the Controller Will Do Next
+
+Without changing anything, infer from durable state:
+
+```text
+next eligible WorkItem
+next pending review
+next integration
+next retry
+next gate
+```
+
+Explain what should happen automatically after this audit session ends.
+
+---
+
+## 27. Bottom-Line State
+
+Conclude using this exact format:
+
+```text
+AUTONOMY:
+[healthy / degraded / stalled / not authoritative / unknown]
+
+PRODUCT IMPLEMENTATION:
+[X% estimated]
+
+VERIFIED PRODUCT:
+[X% estimated]
+
+RELEASE READINESS:
+[X% estimated]
+
+P0 REQUIREMENTS REMAINING:
+[number]
+
+ACTIVE WORKITEMS:
+[number]
+
+WAITING/BLOCKED WORKITEMS:
+[number]
+
+CRITICAL PRODUCT DEFECTS:
+[number]
+
+CRITICAL AUTONOMY DEFECTS:
+[number]
+
+UNAUTHORIZED METERED LLM SPEND DETECTED:
+[yes / no / unknown]
+
+CURRENT PROJECT STATE:
+[state]
+
+IF EVERY INTERACTIVE HERMES SESSION ENDS NOW:
+[project continues automatically / partially continues / stops / unknown]
+
+SHIPPED:
+[YES / NO]
+```
+
+If `SHIPPED` says YES, independently prove all deterministic release conditions rather than trusting the stored state.
+
+---
+
+# 93. IMPORTANT AUDIT LANGUAGE
+
+Be exact.
+
+Prefer:
+
+```text
+Implemented but no runtime evidence found.
+```
+
+over:
+
+```text
+Basically complete.
+```
+
+Prefer:
+
+```text
+WorkItem NAIL-AR-018 is marked accepted, but its evidence points to SHA abc123 while canonical HEAD is def456.
+```
+
+over:
+
+```text
+AR seems okay.
+```
+
+Prefer:
+
+```text
+Controller heartbeat is current, but no WorkItem transition has occurred for 3h 14m despite three READY tasks.
+```
+
+over:
+
+```text
+Controller may be stuck.
+```
+
+Prefer:
+
+```text
+No physical-device evidence was found.
+```
+
+over:
+
+```text
+AR probably works.
+```
+
+---
+
+# 94. DO NOT CONFUSE ACTIVITY WITH PROGRESS
+
+Do not praise:
+
+* high token usage,
+* many agents,
+* long uptime,
+* many files,
+* many attempts,
+* many logs.
+
+Measure:
+
+* accepted requirements,
+* integrated product features,
+* valid evidence,
+* shrinking P0 backlog,
+* successful runtime journeys,
+* recoverable failures,
+* real release readiness.
+
+---
+
+# 95. FINAL INSTRUCTION
+
+Do not give me a proposed implementation plan.
+
+Do not continue coding.
+
+Do not ask me what you should do next.
+
+Do not repair the system.
+
+Give me the **truthful forensic snapshot**.
+
+I want to understand:
+
+> **What has the autonomous system actually accomplished, what is it actually doing right now, what genuinely remains before Nailed It is a polished usable MVP, and is the autonomous machinery itself healthy enough to finish the job without me?**
+
+Inspect first.
+
+Verify claims independently.
+
+Cross-reference the full charter.
+
+Use durable state, runtime evidence, Git history, real process state and actual application behavior.
+
+Then deliver the complete audit.

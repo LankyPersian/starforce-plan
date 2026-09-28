@@ -1,0 +1,931 @@
+# =====================================================================
+# TEMPORARY CHAT-PROJECT DEAD-MAN WATCHDOG
+# PROJECTS:
+#   1. Empirium OS — chat "Analyze prompts with Opus 5"
+#   2. Nailify — chat "Implement Nailed It MVP V2"
+#
+# PURPOSE:
+# WHILE THE FULL META-ORCHESTRATOR CONTINUITY SYSTEM IS BEING COMPLETED,
+# INSTALL A SIMPLE INDEPENDENT CRON-BASED FALLBACK THAT PREVENTS THESE
+# TWO ACTIVE PROJECTS FROM QUIETLY STOPPING.
+# =====================================================================
+
+You are installing a TEMPORARY SECONDARY DEAD-MAN WATCHDOG for two currently
+running project chats.
+
+This is deliberately independent of the large supervisor-continuity work
+already occurring elsewhere.
+
+DO NOT interfere with:
+
+    empirium-studio-workforce
+
+That project is already registered with the proper Empirium Supervisor and is
+currently supervisor-launched.
+
+This watchdog concerns ONLY:
+
+PROJECT 1
+
+    logical name:
+        empirium-os
+
+    product:
+        Empirium OS
+
+    current chat title:
+        Analyze prompts with Opus 5
+
+PROJECT 2
+
+    logical name:
+        nailify
+
+    product:
+        Nailify
+
+    current chat title:
+        Implement Nailed It MVP V2
+
+IMPORTANT CURRENT INCIDENT:
+
+    Empirium OS appears to have STOPPED AGAIN.
+
+Therefore after installing the watchdog, immediately investigate and wake/resume
+Empirium OS if it is genuinely incomplete and inactive.
+
+Do not merely install the cron job and wait for its first scheduled run.
+
+=====================================================================
+1. OBJECTIVE
+=====================================================================
+
+I want a simple fallback invariant:
+
+    PROJECT ENABLED
+    +
+    PROJECT NOT FINISHED
+    +
+    PROJECT NOT PAUSED
+    +
+    NO GENUINE HUMAN BLOCKER
+    +
+    NO VALID FUTURE RETRY WAIT
+    +
+    NO ACTIVE CONTROLLER/WORK
+
+        =>
+
+    WAKE / RESUME THAT PROJECT.
+
+This watchdog exists because AI chats repeatedly produce useful intermediate
+reports and then stop rather than continuing.
+
+The watchdog must make:
+
+    "the chat stopped"
+
+different from:
+
+    "the project finished."
+
+=====================================================================
+2. DO NOT TRUST CHAT TITLE AS PERMANENT IDENTITY
+=====================================================================
+
+The titles:
+
+    Analyze prompts with Opus 5
+    Implement Nailed It MVP V2
+
+are DISCOVERY HINTS.
+
+Use them now to locate the real corresponding Hermes/Studio/chat/session
+records.
+
+Discover, using actual local source/storage/config:
+
+    chat ID
+    session ID
+    conversation ID
+    project ID if one exists
+    execution/controller ID
+    workspace/repository root
+    actual resume mechanism
+    model/profile
+    last activity
+    current process if any
+
+Do not guess database/table/file locations.
+
+Inspect Hermes source/config first.
+
+Once positively identified, store stable IDs in the watchdog registry.
+
+Future checks should primarily use stable IDs, not title text.
+
+Titles may remain as human-readable labels.
+
+=====================================================================
+3. FIRST DISCOVER HOW A HERMES CHAT IS ACTUALLY RESUMED
+=====================================================================
+
+Before writing wake logic, determine the REAL supported continuation mechanism.
+
+Search the locally installed Hermes/Studio source and CLI for mechanisms such
+as:
+
+    resume session
+    continue conversation
+    send message to conversation
+    reopen execution
+    run chat
+    invoke agent against existing conversation
+    conversation ID
+    session ID
+    gateway API
+    internal HTTP endpoint
+    CLI resume command
+
+Do NOT invent a command.
+
+Do NOT automate mouse-clicking the browser if a stable local API/CLI/database
+route exists.
+
+Preferred order:
+
+1. supported Hermes/gateway continuation API;
+2. supported Hermes CLI/session-resume mechanism;
+3. existing internal endpoint used by the UI;
+4. fresh controller invocation from durable checkpoint if existing session
+   genuinely cannot be programmatically resumed.
+
+Avoid brittle UI automation.
+
+=====================================================================
+4. DETERMINE WHAT "RUNNING" MEANS
+=====================================================================
+
+Do not merely ask:
+
+    "does the chat exist?"
+
+Determine whether useful execution is actually occurring.
+
+For each project, capture where available:
+
+    controller/session ID
+    process PID
+    process start fingerprint
+    current run ID
+    last activity timestamp
+    last model/tool action timestamp
+    last meaningful progress timestamp
+    active child executions
+    queued work
+    retry/wait state
+
+Classify project as one of:
+
+    ACTIVE
+    IDLE_BUT_SESSION_ALIVE
+    STOPPED
+    WAITING_RETRY
+    WAITING_HUMAN
+    PAUSED
+    FINISHED
+    UNKNOWN
+
+UNKNOWN must NOT automatically be interpreted as FINISHED.
+
+=====================================================================
+5. CREATE A SMALL WATCHDOG REGISTRY
+=====================================================================
+
+Create something similar to:
+
+    /home/ash/.config/empirium-chat-watchdog/projects.json
+
+Use actual resolved IDs.
+
+Conceptually:
+
+{
+  "schemaVersion": 1,
+  "projects": [
+    {
+      "id": "empirium-os",
+      "label": "Empirium OS",
+      "discoveryTitle": "Analyze prompts with Opus 5",
+      "chatId": "<DISCOVER>",
+      "sessionId": "<DISCOVER>",
+      "root": "<DISCOVER>",
+      "enabled": true
+    },
+    {
+      "id": "nailify",
+      "label": "Nailify",
+      "discoveryTitle": "Implement Nailed It MVP V2",
+      "chatId": "<DISCOVER>",
+      "sessionId": "<DISCOVER>",
+      "root": "<DISCOVER>",
+      "enabled": true
+    }
+  ]
+}
+
+Do not put passwords, tokens or API keys in this registry.
+
+=====================================================================
+6. PROJECT CONTROL FILE
+=====================================================================
+
+For each project maintain a tiny deterministic watchdog record.
+
+Suggested location:
+
+    ~/.local/state/empirium-chat-watchdog/projects/<project-id>.json
+
+Conceptual schema:
+
+{
+  "projectId": "empirium-os",
+  "enabled": true,
+
+  "terminal": false,
+  "terminalReason": null,
+
+  "paused": false,
+
+  "humanBlocker": null,
+
+  "retryNotBefore": null,
+
+  "lastObservedActivityAt": null,
+  "lastMeaningfulProgressAt": null,
+
+  "lastWakeAttemptAt": null,
+  "lastWakeResult": null,
+
+  "consecutiveWakeFailures": 0
+}
+
+=====================================================================
+7. DO NOT USE A SIMPLE LLM-CHECKED "DONE" BOX
+=====================================================================
+
+Ash originally suggested:
+
+    Luna checks a box when finished.
+
+Do NOT let a single conversational statement:
+
+    "done"
+
+permanently disable the watchdog.
+
+Use a stronger completion marker.
+
+For now, project terminal state requires:
+
+    terminal = true
+
+AND a completion record containing:
+
+    projectId
+    completionReason
+    completedAt
+    exact current revision/commit where applicable
+    definitionOfDoneEvidence
+    verifier
+
+Where a project has deterministic tests/release criteria, verify them.
+
+If no deterministic release gate currently exists, require at least:
+
+    agent claims complete
+    +
+    explicit final verification/review result
+
+before setting terminal=true.
+
+The watchdog itself must never infer FINISHED merely from:
+
+    chat process exited
+    final assistant response
+    no activity
+    "I've completed the task"
+    exit code 0
+
+Those mean only that execution stopped.
+
+=====================================================================
+8. WATCHDOG SCRIPT
+=====================================================================
+
+Create:
+
+    /home/ash/.local/bin/empirium-chat-watchdog
+
+Prefer a small deterministic implementation:
+
+    Python
+or
+    Node.js
+
+No LLM inside the watchdog.
+
+Responsibilities:
+
+FOR EACH ENABLED PROJECT:
+
+1. load registry/control state;
+
+2. if terminal == true:
+       independently validate terminal record still applies where practical;
+       do nothing;
+
+3. if paused == true:
+       do nothing;
+
+4. if genuine humanBlocker exists:
+       do nothing;
+
+5. if retryNotBefore > now:
+       do nothing;
+
+6. inspect actual Hermes/session/process state;
+
+7. determine whether project is actively doing useful work;
+
+8. if ACTIVE:
+       record observation;
+       do nothing;
+
+9. if STOPPED/QUIESCENT and project incomplete:
+       invoke the project's supported WAKE/RESUME path;
+
+10. record exact result.
+
+=====================================================================
+9. IMPORTANT: IDLE SESSION != ACTIVE PROJECT
+=====================================================================
+
+A chat merely existing is insufficient.
+
+If the chat/controller exists but:
+
+    no active task
+    no tool call
+    no child
+    no progress
+    no legitimate wait
+
+for longer than a conservative configurable threshold:
+
+classify:
+
+    QUIESCENT.
+
+Then wake it.
+
+Initial temporary thresholds may be conservative, e.g.:
+
+    check every 2 minutes
+
+and:
+
+    quiescence threshold approximately 5–10 minutes
+
+but derive sensible values from actual Hermes execution timing.
+
+Do not kill an active long-running tool command.
+
+Inspect child process/tool activity where possible.
+
+=====================================================================
+10. WAKE INSTRUCTION
+=====================================================================
+
+When an incomplete project needs waking, the continuation message/invocation
+must NOT merely say:
+
+    "continue"
+
+Use a strong generic continuation instruction such as:
+
+------------------------------------------------------------
+
+You are being automatically resumed by the project dead-man watchdog.
+
+The project is still marked INCOMPLETE.
+
+Do not return control to Ash merely because the previous invocation ended.
+
+First reconstruct current state from:
+
+- this conversation/session;
+- durable project files;
+- Git;
+- task state;
+- previous outputs;
+- tests;
+- pending reviews;
+- active/failed workers.
+
+Then determine the next executable action.
+
+If the previous invocation ended by saying:
+
+    "the next step is X"
+
+EXECUTE X.
+
+Do not merely explain X again.
+
+If a task failed:
+
+diagnose and repair/retry.
+
+If a reviewer rejected:
+
+create and execute rework.
+
+If a difficult technical issue exists:
+
+inspect source/logs and use available expert AI/subagents where authorized.
+
+Only stop normal execution for:
+
+    verified project completion;
+    genuine human-only blocker;
+    explicit user pause;
+    valid future retry/wait condition.
+
+Otherwise continue doing the work.
+
+Before voluntarily ending while incomplete, persist:
+
+    exact current state
+    exact next action
+    any retry/wait reason.
+
+------------------------------------------------------------
+
+Add project-specific context/IDs as appropriate.
+
+=====================================================================
+11. EMPIRIUM OS — IMMEDIATE PRIORITY
+=====================================================================
+
+Empirium OS has reportedly STOPPED AGAIN.
+
+After installation/discovery, investigate it immediately.
+
+Find the session corresponding to:
+
+    Analyze prompts with Opus 5
+
+Determine:
+
+    last activity
+    last assistant result
+    whether it declared completion
+    whether there is a next action
+    whether a child/model call failed
+    whether Opus/session limit occurred
+    whether execution merely returned normally
+    whether the project is actually complete
+
+If:
+
+    incomplete
+    AND no genuine blocker
+    AND not currently active
+
+WAKE IT IMMEDIATELY.
+
+Do not wait for cron.
+
+Log:
+
+    EMPIRIUM_OS_EMERGENCY_WAKE
+
+with:
+
+    previous last activity
+    reason considered stopped
+    resume mechanism
+    result
+
+=====================================================================
+12. NAILIFY
+=====================================================================
+
+Resolve and monitor the session titled:
+
+    Implement Nailed It MVP V2
+
+Do not disturb it if it is genuinely active.
+
+If it later stops while incomplete:
+
+wake/resume automatically using the same mechanism.
+
+=====================================================================
+13. DO NOT TOUCH EMPIRIUM STUDIO WORKFORCE
+=====================================================================
+
+Explicit exclusion:
+
+    empirium-studio-workforce
+
+The proper deterministic supervisor already controls this project.
+
+The temporary chat watchdog must not:
+
+    relaunch it
+    send messages to it
+    pause it
+    kill it
+    modify its state
+    interpret its release gate
+    create another controller
+
+If discovered in Hermes state, ignore it.
+
+=====================================================================
+14. CRON FALLBACK
+=====================================================================
+
+Install ONE cron entry, not one cron entry per project.
+
+Use `flock` or equivalent so watchdog invocations cannot overlap.
+
+Preferred approximate cadence:
+
+    every 2 minutes
+
+Conceptually:
+
+    */2 * * * * flock -n <lock> /home/ash/.local/bin/empirium-chat-watchdog
+
+Use actual paths and environment required on this VPS.
+
+Do not assume interactive shell PATH.
+
+Use absolute paths where practical.
+
+Capture stdout/stderr to a bounded log or journal-safe location.
+
+=====================================================================
+15. WATCHDOG FOR THE WATCHDOG
+=====================================================================
+
+Cron itself is merely a fallback.
+
+At each run also verify the main Empirium Supervisor service:
+
+    empirium-workforce-supervisor.service
+
+If it is unexpectedly inactive:
+
+attempt:
+
+    systemctl --user start empirium-workforce-supervisor.service
+
+Then verify health.
+
+However:
+
+the chat watchdog must NOT manage individual projects already owned by that
+supervisor.
+
+This is only service-level recovery.
+
+=====================================================================
+16. THUNDERING-HERD / DUPLICATE WAKE PROTECTION
+=====================================================================
+
+Never wake the same project every two minutes while a previous wake is still
+starting.
+
+Use a per-project lock/cooldown.
+
+Record:
+
+    wakeInProgress
+    wakeAttemptId
+    wakeStartedAt
+
+Before another wake:
+
+verify previous wake did not successfully produce a controller.
+
+Recommended behavior:
+
+WAKE REQUEST
+    ↓
+grace window
+    ↓
+recheck actual state
+    ↓
+only retry if still stopped.
+
+No duplicate Meta-Controllers.
+
+=====================================================================
+17. FAILED WAKE ESCALATION
+=====================================================================
+
+If one wake attempt fails:
+
+    record failure
+    retry later.
+
+If several consecutive wake attempts fail:
+
+    inspect reason.
+
+Classify:
+
+    AUTH_REQUIRED
+    SESSION_LIMIT
+    HERMES_UNAVAILABLE
+    SESSION_NOT_FOUND
+    CONTROLLER_LAUNCH_FAILED
+    UNKNOWN
+
+For recoverable cases:
+
+    bounded retry/backoff.
+
+For genuine login/human action:
+
+    humanBlocker.
+
+Do NOT endlessly spawn processes.
+
+Do NOT silently switch to paid APIs.
+
+=====================================================================
+18. LOGGING
+=====================================================================
+
+Create:
+
+    ~/.local/state/empirium-chat-watchdog/events.jsonl
+
+Record meaningful events only:
+
+    WATCHDOG_STARTED
+    PROJECT_DISCOVERED
+    PROJECT_ACTIVE
+    PROJECT_QUIESCENT
+    WAKE_REQUESTED
+    WAKE_SUCCEEDED
+    WAKE_FAILED
+    PROJECT_WAITING
+    PROJECT_BLOCKED_HUMAN
+    PROJECT_TERMINAL
+    SUPERVISOR_RESTARTED
+
+Do not append a heartbeat line every two minutes forever if nothing changes.
+
+Bound/rotate logs.
+
+=====================================================================
+19. COMMANDS
+=====================================================================
+
+Provide simple commands, for example:
+
+    empirium-chat-watchdog status
+
+    empirium-chat-watchdog check
+
+    empirium-chat-watchdog pause empirium-os
+
+    empirium-chat-watchdog resume empirium-os
+
+    empirium-chat-watchdog pause nailify
+
+    empirium-chat-watchdog resume nailify
+
+    empirium-chat-watchdog wake empirium-os
+
+    empirium-chat-watchdog wake nailify
+
+    empirium-chat-watchdog logs
+
+Do not require editing JSON manually for normal operation.
+
+=====================================================================
+20. TEST THE ACTUAL WAKE PATH
+=====================================================================
+
+Before declaring success, prove with a disposable/safe test that:
+
+1. active project is NOT duplicated;
+
+2. stopped/incomplete project is detected;
+
+3. watchdog invokes correct resume mechanism;
+
+4. resumed controller performs a real next action;
+
+5. next cron tick sees it active and does NOT duplicate it;
+
+6. terminal project is left alone;
+
+7. paused project is left alone;
+
+8. retryNotBefore is respected;
+
+9. human blocker is respected;
+
+10. main Empirium Supervisor projects are excluded.
+
+=====================================================================
+21. SPECIAL "AGENT JUST GAVE A SUMMARY" TEST
+=====================================================================
+
+This is critical.
+
+Create a safe disposable test where an AI/controller ends with:
+
+    "The next action is to perform X."
+
+and then exits.
+
+Project remains incomplete.
+
+Expected:
+
+    watchdog observes stopped project
+    → resumes project
+    → continuation reads previous state
+    → EXECUTES X
+
+It must not merely answer:
+
+    "Yes, X is the next action."
+
+This is the behaviour this fallback exists to defeat.
+
+=====================================================================
+22. COMPLETION SEMANTICS
+=====================================================================
+
+Do not make the checkbox concept a raw boolean an LLM can casually flip.
+
+Use:
+
+    COMPLETE CLAIM
+        ↓
+    VERIFY
+        ↓
+    TERMINAL MARKER
+
+If verification later becomes invalid due to new changes:
+
+clear/reject terminal state and resume monitoring.
+
+There should always be a manual operator override available, but the default
+must fail toward:
+
+    unfinished
+
+rather than:
+
+    silently finished.
+
+=====================================================================
+23. SECURITY / BILLING
+=====================================================================
+
+No new paid inference.
+
+Do not expose:
+
+    API keys
+    subscription tokens
+    passwords
+
+in registry/log files.
+
+Do not modify:
+
+    AppArmor
+    firewall
+    DNS
+    system-wide security
+
+for this temporary watchdog.
+
+Do not require sudo for normal watchdog operation.
+
+=====================================================================
+24. DELIVERABLES
+=====================================================================
+
+Produce:
+
+    ~/.local/bin/empirium-chat-watchdog
+
+    ~/.config/empirium-chat-watchdog/projects.json
+
+    ~/.local/state/empirium-chat-watchdog/
+
+    cron entry
+
+and:
+
+    ~/.local/state/empirium-chat-watchdog/INSTALLATION_REPORT.md
+
+The report must contain:
+
+- exact discovered chat/session IDs;
+- actual resume mechanism;
+- actual project roots;
+- cron entry;
+- quiescence threshold;
+- duplicate-wake protection;
+- current status of Empirium OS;
+- current status of Nailify;
+- whether Empirium OS required emergency wake;
+- whether that wake succeeded;
+- confirmation empirium-studio-workforce is excluded.
+
+=====================================================================
+25. FINAL RESPONSE
+=====================================================================
+
+Return:
+
+WATCHDOG:
+ACTIVE / FAILED
+
+CRON:
+INSTALLED / FAILED
+
+CHECK INTERVAL:
+<value>
+
+EMPIRIUM OS:
+ACTIVE / WOKEN / WAITING / HUMAN_BLOCKED / COMPLETE / UNKNOWN
+
+EMPIRIUM OS CHAT ID:
+<id>
+
+EMPIRIUM OS SESSION ID:
+<id if applicable>
+
+EMPIRIUM OS EMERGENCY WAKE:
+PASS / NOT_REQUIRED / FAIL
+
+NAILIFY:
+ACTIVE / WOKEN / WAITING / HUMAN_BLOCKED / COMPLETE / UNKNOWN
+
+NAILIFY CHAT ID:
+<id>
+
+NAILIFY SESSION ID:
+<id if applicable>
+
+EMPIRIUM STUDIO WORKFORCE:
+EXCLUDED — CONTROLLED BY MAIN SUPERVISOR
+
+NEXT AUTOMATIC CHECK:
+<time>
+
+HUMAN ACTION REQUIRED:
+NONE
+or exact unavoidable action.
+
+=====================================================================
+26. BEGIN NOW
+=====================================================================
+
+First:
+
+1. discover the two exact chats by their supplied titles;
+2. resolve stable IDs;
+3. investigate why Empirium OS stopped;
+4. install the watchdog;
+5. perform an immediate check;
+6. wake Empirium OS if incomplete/stopped;
+7. verify Nailify is still active;
+8. install cron;
+9. test duplicate-wake protection;
+10. leave the watchdog running.
+
+Do not stop after saying:
+
+    "Empirium OS appears stopped and should be resumed."
+
+If it can be resumed safely:
+
+    RESUME IT.
+
+BEGIN.

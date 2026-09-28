@@ -1,0 +1,677 @@
+# EMPIRIUM SUPERVISOR — TARGETED V2 RELIABILITY HARDENING
+# Existing installation is accepted. Incremental changes only.
+
+You previously installed and extensively tested the Empirium deterministic
+supervisor.
+
+NEW EVIDENCE NOW ESTABLISHES THAT THE CORE INSTALLATION WORKS.
+
+Do NOT rebuild it.
+Do NOT replace it.
+Do NOT repeat already-proven work unnecessarily.
+Do NOT register the real Empirium Studio build until the targeted additions
+below pass.
+
+======================================================================
+0. ACCEPTED BASELINE — TREAT THESE AS PROVEN
+======================================================================
+
+The following are now accepted facts based on live evidence against the
+actual running systemd user service:
+
+SOURCE INTEGRITY
+- starter archive hash matched expected SHA-256;
+- all seven extracted files matched;
+- original source preserved;
+- original five tests passed before modification.
+
+SYSTEM
+- Ubuntu 24.04.4;
+- Node v26.8.1;
+- systemd 255;
+- ash has linger=yes;
+- supervisor is a systemd --user service;
+- supervisor survives user logout/boot semantics through linger.
+
+SUBSCRIPTION CODEX ROUTE
+- codex CLI v0.154.0;
+- authentication mode is ChatGPT subscription;
+- stored API key = false;
+- stored ChatGPT tokens = true;
+- actual available model observed locally is gpt-6-astra;
+- real `codex exec` was successfully launched from the supervisor;
+- direct API billing credentials are not required.
+
+ZERO-PAID ENFORCEMENT
+- OPENAI_API_KEY stripped;
+- ANTHROPIC_API_KEY stripped;
+- OPENROUTER_API_KEY stripped;
+- launch.env cannot reintroduce them;
+- config validation rejects paidEmergency.enabled=true;
+- config validation rejects maxUsdPerProject > 0.
+
+CONCURRENCY
+- cross-process state mutex implemented;
+- stale lock recovery implemented;
+- state reread occurs inside lock;
+- 40-way unit mutation stress passed;
+- 45 concurrent live CLI operations passed;
+- no lost updates were observed.
+
+PROCESS IDENTITY
+- director PID plus /proc start-time fingerprint implemented;
+- PID reuse is not accepted as identity.
+
+DIRECTOR LIFECYCLE
+- duplicate director prevention passed;
+- clean exit -> exactly one relaunch passed;
+- soft stale warning passed;
+- hard stale terminate/relaunch passed;
+- crash-loop BACKOFF passed;
+- no fork bomb occurred.
+
+PROJECT LIFECYCLE
+- pause blocks launch;
+- resume restores launch;
+- false completion test passed;
+- real fixture completion passed;
+- SHIPPED regression reopens project;
+- independent projects remain independent.
+
+LEASES
+- stale lease produces recovery directive;
+- repeated ticks do not create duplicate stale-lease directive.
+
+STATE
+- state survives real systemctl --user restart;
+- corrupt state currently fails closed.
+
+SECURITY/PERMISSIONS
+- config chmod 600;
+- state root chmod 700;
+- no world-writable files;
+- real director /proc environment confirmed forbidden AI API variables absent.
+
+LOGS
+- director log retention is capped at 30.
+
+REAL SUBSCRIPTION SENTINEL
+- real Codex subscription invocation passed;
+- nonce was read correctly;
+- heartbeat succeeded;
+- receipt matched nonce;
+- checkpoint was written;
+- same project was relaunched multiple times;
+- resume semantics worked;
+- completion transitioned to SHIPPED;
+- supervisor stopped relaunching after completion;
+- sentinel project was subsequently removed from production config.
+
+CURRENT PRODUCTION STATE
+- only supervisor-selftest remains registered;
+- real Empirium Studio project is NOT registered;
+- service is active, enabled and healthy.
+
+DO NOT REDO THESE FEATURES.
+
+Regression-test them after the changes below.
+
+======================================================================
+1. OBJECTIVE OF THIS UPDATE
+======================================================================
+
+The supervisor is already a credible liveness watchdog.
+
+This update should close the remaining distinction between:
+
+    PROCESS ALIVE
+
+and:
+
+    PROJECT ACTUALLY ADVANCING
+
+and improve recovery semantics without turning the supervisor into an
+intelligent scheduler.
+
+Implement only the focused improvements below.
+
+======================================================================
+2. ADD A SEPARATE PROGRESS WATCHDOG
+======================================================================
+
+This is the highest-priority new feature.
+
+Current heartbeat logic answers:
+
+    Is the director alive and communicating?
+
+It does not necessarily answer:
+
+    Is useful project work progressing?
+
+An AI process could theoretically heartbeat forever while accomplishing
+nothing.
+
+Introduce durable progress state distinct from heartbeat.
+
+Recommended conceptual fields:
+
+    lastHeartbeatAt
+    lastProgressAt
+    progressSequence
+    lastProgressKind
+    lastProgressSummary
+    lastCheckpointId
+    lastCheckpointAt
+
+Optionally:
+
+    activeOperation
+    activeOperationStartedAt
+    activeOperationExpectedUntil
+
+A HEARTBEAT MUST NOT count as progress.
+
+Examples that may legitimately count as progress:
+
+- Kanban/task state advanced;
+- new implementation worker launched;
+- worker completed;
+- worker failed and failure was classified;
+- new review completed;
+- rework issued;
+- test run completed;
+- requirement advanced;
+- merge/integration completed;
+- checkpoint advanced;
+- provider recovery completed;
+- release gate advanced;
+- substantive blocker classification changed.
+
+Add CLI support conceptually similar to:
+
+    supervisor.mjs progress
+        --project <id>
+        --kind <kind>
+        --summary "<summary>"
+        --checkpoint <optional>
+
+Do not trust arbitrary progress timestamps supplied by a child process.
+Supervisor records receipt timestamp itself.
+
+Maintain monotonically increasing progressSequence.
+
+----------------------------------------------------------------------
+2.1 Soft progress stall
+----------------------------------------------------------------------
+
+Add configurable:
+
+    progressSoftStallSeconds
+
+Example behavior:
+
+heartbeat fresh
++
+no progress for configured interval
+=
+PROJECT_PROGRESS_STALLED
+
+Issue one deduplicated directive.
+
+DO NOT terminate the director yet.
+
+The directive should tell the director to:
+
+- inspect current work;
+- inspect active children;
+- inspect Kanban;
+- inspect provider state;
+- determine whether legitimate long-running work exists;
+- replan if needed;
+- checkpoint diagnosis.
+
+----------------------------------------------------------------------
+2.2 Hard progress stall
+----------------------------------------------------------------------
+
+Add:
+
+    progressHardStallSeconds
+
+At hard threshold:
+
+First inspect whether the director has explicitly registered a legitimate
+long-running operation.
+
+If:
+
+    activeOperation != null
+and
+    activeOperationExpectedUntil > now
+and
+    process remains healthy
+
+then continue monitoring.
+
+Do not kill a director merely because:
+
+- compilation is long;
+- large test suite is running;
+- asset conversion is running;
+- deterministic batch job is legitimately slow.
+
+If there is no legitimate declared long operation:
+
+issue:
+
+    DIRECTOR_CONTEXT_RECYCLE_REQUIRED
+
+The desired recovery sequence is:
+
+1. request checkpoint;
+2. give a short grace period;
+3. terminate director safely;
+4. allow supervisor to launch a fresh director;
+5. fresh director reconstructs state from durable artifacts.
+
+This deliberately uses fresh context as a recovery strategy.
+
+======================================================================
+3. ADD DIRECTIVE ACKNOWLEDGEMENT
+======================================================================
+
+The current append-only directive JSONL mechanism correctly produces
+recovery instructions.
+
+Add explicit consumption/acknowledgement semantics.
+
+Every directive should possess:
+
+    directiveId
+    sequence
+    projectId
+    createdAt
+    kind
+    payload
+
+Maintain durable acknowledgement state.
+
+Suitable approaches include:
+
+A.
+    acknowledgedDirectiveSequence
+
+where strict sequence processing is guaranteed,
+
+or:
+
+B.
+    ACK records keyed by directiveId
+
+if independent acknowledgement is safer.
+
+Whichever design is selected must survive:
+
+- supervisor restart;
+- director restart;
+- crash while handling a directive.
+
+Director logic becomes:
+
+1. read pending directives;
+2. handle one;
+3. persist resulting project/checkpoint state;
+4. ACK directive;
+5. continue.
+
+A previously acknowledged directive must not execute again after every
+director restart.
+
+A directive which was not acknowledged before a crash must remain visible.
+
+Design directive operations to be idempotent where practical.
+
+Add CLI conceptually similar to:
+
+    supervisor.mjs directives
+    supervisor.mjs directive-ack --project <id> --directive-id <id>
+
+Do not rely on editing/removing lines from historical JSONL.
+
+======================================================================
+4. SAFE PROCESS-TREE CONTAINMENT
+======================================================================
+
+Current PID + process-start fingerprint protection is accepted.
+
+Extend director lifecycle containment so that killing a director cannot
+leave abandoned Codex processes or grandchildren behind.
+
+A director may create:
+
+    launcher
+      └── codex
+           └── child
+                └── grandchild
+
+When a HARD termination occurs:
+
+1. validate tracked director identity;
+2. validate PID/start-time fingerprint;
+3. identify its process group/cgroup/session;
+4. gracefully SIGTERM tracked execution tree;
+5. wait configurable grace period;
+6. confirm descendants are gone;
+7. use SIGKILL only if necessary;
+8. never target unrelated processes.
+
+Do not use unsafe patterns such as:
+
+    pkill codex
+    killall node
+
+or process-name matching.
+
+Preferred outcome:
+
+each director launch has an isolated process lifecycle boundary.
+
+Evaluate, in order of simplicity/safety:
+
+- dedicated process group/session;
+- existing systemd user transient scope if it naturally fits.
+
+Do not introduce a large container orchestration stack for this.
+
+Add a test director which creates:
+
+parent
+→ child
+→ grandchild
+
+Hard stale recovery must leave zero tracked descendants.
+
+Also create an unrelated process during the test and prove it survives.
+
+======================================================================
+5. MAKE THE SUPERVISOR FULLY MODEL-AGNOSTIC
+======================================================================
+
+The supervisor architecture is already mostly generic.
+
+Complete the cleanup.
+
+Current historical names include things such as:
+
+    luna-master
+    LUNA_RECOVER_OR_REPLACE_CHILD
+    empirium-luna-director
+
+The currently verified backend is actually:
+
+    adapter: codex-subscription
+    effective model: gpt-6-astra
+
+Therefore model identity must not be encoded into supervisor semantics.
+
+Preferred terms:
+
+    meta-director
+    DIRECTOR_RECOVER_OR_REPLACE_CHILD
+    empirium-ai-director
+
+However:
+
+DO NOT perform a dangerous global rename.
+
+Backward compatibility matters.
+
+A safe migration may support aliases such as:
+
+    luna-master -> meta-director
+
+and:
+
+    empirium-luna-director
+        compatibility symlink/wrapper
+    empirium-ai-director
+        canonical name
+
+Update the command cheat sheet eventually, but keep compatibility for
+anything already referring to:
+
+    /home/ash/.local/bin/empirium-luna-director
+
+The supervisor should eventually support config of the form conceptually:
+
+    adapter: codex-subscription
+    model: gpt-6-astra
+    role: meta-director
+
+Another project could later use:
+
+    adapter: claude-subscription
+    model: <verified model>
+
+or:
+
+    adapter: freellmapi
+    model: <verified free model>
+
+without changing supervisor.mjs.
+
+The supervisor must NOT directly become an LLM API client.
+
+Adapters launch processes.
+
+======================================================================
+6. ADD SUBSCRIPTION-LAUNCH ATTESTATION
+======================================================================
+
+Environment stripping has already been proven live.
+
+Keep it.
+
+Add a small preflight/attestation artifact so configuration can distinguish:
+
+    verified subscription-backed
+from
+    unknown billing route.
+
+For Codex store evidence approximately like:
+
+    adapter
+    executablePath
+    executableVersion
+    authenticationMode
+    effectiveModel
+    storedApiKey
+    subscriptionTokensPresent
+    verifiedAt
+    expiresAt / revalidation interval
+    verificationCommand/method
+
+Expected current result:
+
+    adapter = codex-subscription
+    authenticationMode = chatgpt
+    storedApiKey = false
+    subscriptionTokensPresent = true
+    effectiveModel = gpt-6-astra
+
+Do NOT put tokens or credentials in the artifact.
+
+This is metadata only.
+
+If attestation becomes:
+
+    missing
+    stale beyond configured tolerance
+    API-key authenticated
+    unknown billing
+
+do NOT silently start a different model.
+
+Use explicit state such as:
+
+    BLOCKED_AUTH_ATTESTATION
+
+A future Claude subscription launcher should implement its own equivalent
+attestation.
+
+The supervisor core only checks adapter attestation contract.
+
+======================================================================
+7. APPARMOR / USER-NAMESPACE SECURITY REVIEW
+======================================================================
+
+The actual fix is now known:
+
+    kernel.apparmor_restrict_unprivileged_userns=0
+
+persisted at:
+
+    /etc/sysctl.d/99-empirium-codex-userns.conf
+
+This globally relaxes Ubuntu's AppArmor restriction on unprivileged user
+namespaces.
+
+DO NOT pretend this is a scoped change.
+
+Investigate whether there is a supported narrower mechanism that permits the
+Codex/bubblewrap sandbox while restoring:
+
+    kernel.apparmor_restrict_unprivileged_userns=1
+
+Possible areas to investigate:
+
+- a narrowly scoped AppArmor profile;
+- a supported bubblewrap/AppArmor accommodation;
+- Codex-supported sandbox mechanism appropriate for Ubuntu 24.04.
+
+DO NOT blindly invent AppArmor rules.
+
+DO NOT break the now-working Codex subscription route just to improve a
+theoretical security score.
+
+Procedure:
+
+1. document current working state;
+2. research/test a narrow approach in isolation;
+3. only if it is proven to work:
+       restore global restriction;
+       install narrow exception;
+       rerun real Codex sentinel;
+4. if no safe supported narrower approach can be proven:
+       KEEP current working setting;
+       explicitly document security tradeoff;
+       mark:
+           APPARMOR_USERNS_EXCEPTION = ACCEPTED_LOCAL_RISK
+       do not block the entire project indefinitely.
+
+Never conceal the fact that this sysctl is currently global.
+
+Also preserve the other systemd improvement already made:
+
+    ProtectHome=read-only
+    +
+    ReadWritePaths=/home/ash/.codex
+
+This narrow `.codex` writable exception is preferable to making all of HOME
+writable.
+
+======================================================================
+8. LAST-KNOWN-GOOD HOT CONFIG
+======================================================================
+
+Current invalid-config fail-closed behavior is correct at cold startup.
+
+Preserve it.
+
+But once the daemon is supervising real projects, an accidental malformed
+config edit should not unnecessarily remove the last working supervision
+policy.
+
+Introduce:
+
+    ACTIVE_VERIFIED_CONFIG
+    CANDIDATE_CONFIG
+
+On reload:
+
+IF candidate validates:
+    atomically activate it
+
+IF candidate fails:
+    emit CONFIG_REJECTED
+    record exact validation reason
+    retain previous verified active config
+    continue supervising projects
+
+Zero-paid enforcement can NEVER be bypassed by this mechanism.
+
+A candidate attempting:
+
+    paidEmergency.enabled=true
+
+must be rejected.
+
+A candidate containing forbidden launch.env credentials must be rejected.
+
+Cold start with no known-good config:
+
+    invalid config -> fail closed
+
+Do not silently invent defaults.
+
+======================================================================
+9. LAST-KNOWN-GOOD STATE SNAPSHOT
+======================================================================
+
+Current behavior:
+
+    corrupt primary state -> fail closed
+
+is much safer than silently inventing a new state.
+
+Improve it by retaining exactly one or a very small number of verified
+previous snapshots.
+
+For example:
+
+    supervisor-state.json
+    supervisor-state.prev.json
+
+Use atomic writes.
+
+Add integrity metadata/checksum.
+
+Recovery:
+
+PRIMARY valid:
+    load primary
+
+PRIMARY corrupt
++
+PREVIOUS integrity-valid:
+    preserve corrupt primary for forensic analysis
+    emit STATE_PRIMARY_CORRUPT
+    recover previous
+
+PRIMARY corrupt
++
+PREVIOUS corrupt:
+    fail closed
+
+Never automatically create a blank project state over corrupted real data.
+
+Keep this implementation simple.
+
+======================================================================
+10. BOUND CONTROL-PLANE STORAGE
+======================================================================
+
+Director logs already have a 30-file retention cap.
+
+Audit the remaining long-running control files:

@@ -1,0 +1,3479 @@
+HERMES MASTER IMPLEMENTATION PROMPT — NAILED IT MVP V2
+
+You are Hermes Agent acting as the autonomous product-engineering lead, senior React Native engineer, interaction designer, mobile QA lead, and technical project supervisor for an existing application.
+
+Your job is not to give me advice, make a plan and stop, or build a separate proof of concept. Your job is to take the existing project on my Desktop from its current state to a polished, genuinely usable MVP, making the changes yourself, validating them, recovering across sessions, and continuing until the Definition of Done in this prompt is met or you hit a truly external blocker that cannot be solved without credentials, hardware, or a human decision.
+
+Read this entire prompt before changing code.
+
+0. THE ONE-SENTENCE MISSION
+
+Transform the existing Nailify prototype into Nailed It: a premium, user-friendly mobile nail-design app whose core experiences are:
+
+an excellent individual nail + full set designer,
+
+a convincing live AR try-on on the user's real hand,
+
+a beautiful, coherent, production-quality mobile app shell around those two core features.
+
+The MVP should feel like something a real consumer could download and enjoy, not a developer demo, wireframe, debug tool, or UI kit showcase.
+
+1. WHERE THE PROJECT IS AND HOW TO TREAT IT
+
+The project will be located at:
+
+~/Desktop/nailfy
+
+Important: the folder is intentionally named nailfy. Do not rename the folder unless there is a compelling technical reason.
+
+The existing ZIP this prompt was derived from had this approximate structure:
+
+~/Desktop/nailfy/app/ — real Expo / React Native app
+
+~/Desktop/nailfy/mockup/ — older HTML prototype
+
+~/Desktop/nailfy/nail presets/ — around 194 generated nail-look images, roughly 297 MB total
+
+~/Desktop/nailfy/nailed it mock up inspo/ — around 16 visual-reference/mockup images, roughly 25 MB total
+
+~/Desktop/nailfy/README.md
+
+~/Desktop/nailfy/CLAUDE_NAIL_EDITOR_PROMPTS.md
+
+Do not blindly assume that exact structure still exists. Inspect first. Determine the actual app root by locating package.json, app.json, and src/.
+
+The current project is valuable. Do not start from scratch. Do not create a new React Native project next to it. Do not throw away the existing renderer, design state, or AR placement logic just because a redesign is easier. Refactor and migrate the existing project.
+
+If the repository has no Git history, create Git history before major work:
+
+add a sensible .gitignore,
+
+initialize Git,
+
+make a clean baseline commit such as chore: baseline before Nailed It v2 redevelopment,
+
+optionally create a local source-only backup archive excluding node_modules, caches, build outputs, and generated temp files.
+
+Never delete the original inspiration/preset source folders. Curate and optimize copies for the app bundle instead.
+
+2. SOURCE-OF-TRUTH ORDER
+
+When information conflicts, use this order:
+
+This prompt for the desired product and acceptance criteria.
+
+The actual source code for what currently exists and how it works.
+
+User-owned visual inspiration files in nailed it mock up inspo/ and usable nail imagery in nail presets/.
+
+Existing README / old prompt packs only as historical context.
+
+The existing README may overstate implemented functionality. Treat visible stubs, TODOs, simulated flows, and actual runtime behavior as the truth.
+
+3. KNOWN STARTING STATE — VERIFY, DO NOT JUST TRUST
+
+The source this prompt was written against was an Expo React Native application using approximately:
+
+Expo SDK 51
+
+React Native 0.74.x
+
+React 18
+
+React Navigation v6
+
+Zustand + AsyncStorage
+
+react-native-svg
+
+react-native-gesture-handler
+
+expo-camera
+
+expo-haptics
+
+react-native-view-shot
+
+MediaPipe Tasks Vision on web
+
+Important current architecture/components that existed and should be inspected before replacement:
+
+src/screens/DesignStudioScreen.js
+
+src/screens/ARTryOnScreen.js
+
+src/screens/HomeScreen.js
+
+src/screens/CatalogueScreen.js
+
+src/screens/ProfileScreen.js
+
+src/screens/OnboardingScreen.js
+
+src/screens/AIStudioScreen.js
+
+src/screens/DesignPreviewScreen.js
+
+src/screens/SendToSalonScreen.js
+
+src/screens/PaywallScreen.js
+
+src/components/NailSvg.js
+
+src/components/studio/EditorCanvas.js
+
+src/components/StudioPanels.js
+
+src/state/useDesignStore.js
+
+src/state/useAppStore.js
+
+src/state/useArStore.js
+
+src/data/shapes.js
+
+src/data/nailArt.js
+
+src/data/seedDesigns.js
+
+src/ar/placement.js
+
+src/ar/HandTracker.web.js
+
+src/ar/HandTracker.js
+
+src/theme/index.js
+
+src/theme/motion.js
+
+The existing source had approximately:
+
+9 SVG nail shapes
+
+3 fixed length levels
+
+6 material categories
+
+around 47 coded/recolorable nail-art assets in 10 categories
+
+per-finger left/right hand state for 10 nails
+
+art and freehand-stroke layers
+
+move / scale / rotate placed art
+
+color-slot recoloring
+
+duplicate / reorder / delete layers
+
+50-step undo/redo
+
+smart set operations such as copy-to-all, accent, ombré, French, alternating
+
+web MediaPipe hand tracking using 21-point hand landmarks
+
+shared AR placement math
+
+native hand-tracker file that was still a stub
+
+Firebase integration still stubbed
+
+RevenueCat integration still simulated
+
+AI generation still simulated/local
+
+sign-in still simulated
+
+search still largely a pressable placeholder
+
+some settings still placeholder toasts
+
+text tool visibly saying "coming soon"
+
+app branding still saying Nailify in many places
+
+no finalized app icon/splash asset package
+
+Verify all of this in the actual ~/Desktop/nailfy copy. If the code has advanced since then, preserve the better implementation.
+
+4. NON-NEGOTIABLE PRODUCT PRIORITIES
+
+This is an MVP, but "MVP" does not mean ugly, unfinished, or fake. It means a narrow product with a polished core.
+
+Prioritize in this exact order:
+
+P0 — MUST BE EXCELLENT
+
+Individual nail designer.
+
+Full five-finger / ten-finger set creation using the individual nail designer.
+
+Live AR try-on using the user's actual camera and real hand tracking on supported mobile devices.
+
+Save, reopen, duplicate, rename, and continue editing designs locally.
+
+High-quality app navigation, visual design, transitions, responsive layouts, touch ergonomics, empty states, errors, permissions, and polish.
+
+A real Home / Explore / Create / Try-On / My Nails app experience around the builder.
+
+Real export/share paths that do not lie about having completed an action.
+
+P1 — BUILD IF THEY STRENGTHEN THE CORE WITHOUT DESTABILIZING P0
+
+richer templates and curated inspiration
+
+salon-ready design summary / reference export
+
+more sophisticated nail effects
+
+saved individual-nail presets/components
+
+visual search inside the local library
+
+improved set-generation shortcuts
+
+appearance / haptics / accessibility settings
+
+P2 — DEFER FROM THIS MVP UNLESS ALREADY NEAR-COMPLETE AND ZERO-RISK
+
+Do not let these distract from the core:
+
+social network/community feed
+
+creator monetization
+
+salon marketplace/directory
+
+appointment booking
+
+commerce/shop
+
+subscriptions/paywall
+
+cloud accounts if they are not needed to make the app usable
+
+production AI generation if credentials/back-end are not already available
+
+messaging
+
+notifications requiring server infrastructure
+
+complex 3D sculpting
+
+full professional salon CRM
+
+Do not expose half-built P2 features to users. Remove them from navigation or label them internally as future work. A smaller app where every visible button works is far more valuable than a larger app full of simulations and "coming soon" pages.
+
+5. THE CORE PRODUCT IDEA
+
+The product is called Nailed It.
+
+The promise is:
+
+Design it. Try it. Wear it.
+
+A user should be able to open the app with no design experience, create a beautiful set of nails quickly, refine individual fingers in detail, see the design convincingly on her own hand using the camera, save the set, and share/show it to a nail technician.
+
+The design editor should ultimately feel like:
+
+Canva simplicity + a lightweight Procreate/Figma-style editing engine, specialized for nails.
+
+The key principle is progressive disclosure:
+
+a beginner sees a calm, simple interface,
+
+advanced controls appear only when relevant,
+
+the underlying engine can be powerful without showing 40 controls at once.
+
+Never turn the phone screen into a cramped desktop editor.
+
+6. AUTONOMY — DO THE WORK, DO NOT WAIT FOR ME
+
+Unless a decision truly requires my credentials, legal identity, paid account, physical device access, or a binary product decision with no safe default:
+
+choose a sensible default,
+
+record it in project decisions,
+
+continue.
+
+Do not repeatedly ask "Should I...?" for implementation details.
+
+Do not stop after an audit and ask permission to begin.
+
+Do not return a giant list of recommendations instead of editing code.
+
+Do not wait because one external integration is blocked. Continue independent tasks and leave the integration clearly isolated.
+
+Do not claim a feature is finished merely because code was written. Validate it.
+
+If you encounter a risky architectural choice, research the currently supported React Native / Expo approach, choose the lowest-risk maintainable option, document the rationale, and proceed.
+
+7. MULTI-SESSION / MULTI-WORKER RESILIENCE
+
+I want this project to survive model/session limits and worker failures without losing direction.
+
+Use the following operating model even if your exact orchestration API differs.
+
+7.1 Persistent project control files
+
+Create a project-local directory:
+
+~/Desktop/nailfy/.hermes/
+
+At minimum maintain:
+
+.hermes/MASTER_PLAN.md
+
+.hermes/CHECKPOINT.md
+
+.hermes/WORK_QUEUE.json
+
+.hermes/DECISIONS.md
+
+.hermes/KNOWN_ISSUES.md
+
+.hermes/QA_MATRIX.md
+
+.hermes/REVIEW_QUEUE.md
+
+.hermes/CHANGELOG.md
+
+.hermes/ARCHITECTURE.md
+
+Also create/update ~/Desktop/nailfy/AGENTS.md with a concise persistent version of the critical instructions in this prompt, because Hermes can use project context files across sessions. Keep it short enough to be useful, but include:
+
+mission,
+
+path,
+
+no rewrite rule,
+
+P0 priorities,
+
+quality bar,
+
+checkpoint/resume procedure,
+
+build/test commands discovered for this project,
+
+important architecture decisions,
+
+current blockers.
+
+Do not paste this entire master prompt into AGENTS.md; distill it.
+
+7.2 Astra supervisor role
+
+Treat the coordinating session as Astra, the supervisor.
+
+Astra owns:
+
+the work queue,
+
+task assignment,
+
+lease recovery,
+
+merge/integration decisions,
+
+validation gates,
+
+reviewer queue,
+
+final Definition of Done.
+
+Astra should not allow two workers to make conflicting large edits to the same files simultaneously.
+
+If parallel delegation is available, isolate work using Git branches/worktrees or explicit non-overlapping file ownership. If it is not available, run the same queue sequentially.
+
+7.3 Worker leases
+
+Each worker task in WORK_QUEUE.json should have fields equivalent to:
+
+task id
+
+title
+
+priority
+
+phase
+
+status: queued | leased | implementing | validating | review_pending | done | blocked | recovery_needed
+
+assigned worker/session
+
+lease timestamp
+
+lease expiry
+
+files/modules expected to be touched
+
+acceptance criteria
+
+dependencies
+
+last checkpoint
+
+validation result
+
+reviewer state
+
+A lease should be refreshed when meaningful work is happening.
+
+If a worker session dies or disappears and its lease expires:
+
+Astra marks the task recovery_needed.
+
+Astra creates a recovery directive containing the task goal, last commit, dirty files, last checkpoint, tests already run, and known risks.
+
+A new worker reads that directive, Git diff/status, relevant code, and continues from the existing work.
+
+Do not restart the feature from zero unless the previous partial implementation is unsalvageable and the reason is documented.
+
+7.4 Astra restart procedure
+
+If the Astra/supervisor session ends:
+
+New Astra must begin by reading, in order:
+
+AGENTS.md
+
+.hermes/CHECKPOINT.md
+
+.hermes/MASTER_PLAN.md
+
+.hermes/WORK_QUEUE.json
+
+.hermes/DECISIONS.md
+
+.hermes/KNOWN_ISSUES.md
+
+.hermes/REVIEW_QUEUE.md
+
+git status
+
+git log --oneline -20
+
+any uncommitted diff
+
+Then continue. Do not ask me to re-explain the project.
+
+The intended lifecycle is explicitly:
+
+Astra session dies
+→ supervisor notices/restarts
+→ new Astra session
+→ reads checkpoint and Git state
+→ continues.
+
+7.5 Reviewer / Opus lifecycle
+
+Use a strong independent reviewer role for high-risk or milestone work. If an Opus-class review session is available, use it for:
+
+design schema migrations
+
+AR/native camera architecture
+
+large navigation changes
+
+persistence/data-loss risks
+
+final builder review
+
+final release review
+
+If reviewer capacity/session limit is reached:
+
+do not mark work approved,
+
+leave review item pending,
+
+continue unrelated safe implementation tasks,
+
+when capacity returns, start a new review session,
+
+give it the pending diff + acceptance criteria + prior comments,
+
+continue the review from the recorded state.
+
+Lifecycle:
+
+Opus hits session limit
+→ review remains pending
+→ capacity returns
+→ new Opus review session
+→ reads review checkpoint/diff
+→ continues.
+
+If Opus is not available at all, use the strongest independent reviewer available and record that substitution.
+
+7.6 Checkpoint cadence
+
+Write a checkpoint:
+
+after every meaningful completed subtask,
+
+before a risky migration,
+
+before ending any session,
+
+after a build/test milestone,
+
+after discovering an important blocker,
+
+at least every ~20 minutes during long uninterrupted implementation.
+
+CHECKPOINT.md must always make it possible for another session to answer:
+
+What are we building?
+
+What is already done?
+
+What is currently in progress?
+
+What files are dirty?
+
+What last passed?
+
+What is broken?
+
+What exact next action should happen?
+
+7.7 Commit discipline
+
+Make small coherent commits at stable milestones. Examples:
+
+chore: establish Nailed It project baseline
+
+refactor: add versioned nail design schema migration
+
+feat: rebuild single nail editor shell
+
+feat: add editable French nail generator
+
+feat: implement native hand landmark pipeline
+
+feat: rebuild AR try-on consumer UI
+
+feat: add local project library
+
+polish: unify navigation motion and empty states
+
+Do not commit known-broken code unless it is an explicit recovery checkpoint, and label that clearly.
+
+8. PHASE 0 — AUDIT AND BASELINE BEFORE REDESIGN
+
+Before changing product behavior:
+
+Locate the true app root.
+
+Record platform/Node/npm versions.
+
+Run current install and baseline validation.
+
+Launch the app on every practical target available in the environment.
+
+Capture screenshots or screen recordings of major current screens if tooling allows.
+
+Inventory routes, stores, components, design model, asset library, and AR flow.
+
+Search all source for:
+
+TODO
+
+FIXME
+
+stub
+
+simulated
+
+mock
+
+coming soon
+
+placeholder
+
+hard-coded demo user data
+
+fake purchase/login messages
+
+Inspect nail presets/ and nailed it mock up inspo/ visually, preferably using contact sheets so you can understand the collection efficiently.
+
+Identify which existing modules are KEEP / MODIFY / REPLACE / REMOVE FROM MVP.
+
+Write the result into .hermes/ARCHITECTURE.md and .hermes/MASTER_PLAN.md.
+
+Do not spend days documenting. The audit should be enough to prevent accidental rewrites and then implementation should begin.
+
+9. BRAND MIGRATION — NAILIFY → NAILED IT
+
+The user-facing brand is Nailed It.
+
+Replace visible product branding consistently:
+
+onboarding
+
+headers
+
+splash
+
+app display name
+
+share text
+
+export text
+
+design attribution
+
+empty states
+
+settings/about
+
+camera permission wording where practical
+
+README/user-facing docs
+
+Do not break installed-data compatibility merely to rename internal keys.
+
+It is acceptable, and often preferable, to keep legacy technical identifiers such as:
+
+AsyncStorage key names like nailify-design
+
+bundle/package identifiers like app.nailify.mobile
+
+until there is a deliberate release migration reason to change them.
+
+Do not change store/bundle IDs casually because they can affect upgrades and signing.
+
+Add schema/version migration rather than deleting user data.
+
+10. VISUAL DIRECTION
+
+Use the provided nailed it mock up inspo/ directory as a mood board, not a pixel-perfect specification.
+
+The target aesthetic is:
+
+premium beauty/editorial
+
+feminine without becoming childish
+
+warm, quiet, confident
+
+clean enough that nail art itself provides the visual excitement
+
+modern iOS/Android app quality
+
+strong photography and material rendering
+
+restrained motion
+
+A good default visual language:
+
+warm cream/off-white primary surfaces
+
+blush and dusty rose as controlled brand accents
+
+deep wine/ink for primary text
+
+occasional soft champagne/rose-gold accent
+
+crisp neutral grays for secondary controls
+
+minimal use of gradients; gradients should have purpose
+
+elegant editorial serif for selected display headings/brand moments
+
+highly readable modern sans serif for body, controls, and labels
+
+rounded but not bubbly component geometry
+
+subtle shadows and borders rather than heavy floating glass everywhere
+
+Avoid:
+
+emoji as UI icons
+
+bright generic SaaS gradients
+
+neon unless it is actual nail artwork
+
+excessive translucent glass panels
+
+tiny gray text
+
+five competing card styles on one page
+
+overuse of pink backgrounds
+
+debug-style numeric controls as the default consumer UI
+
+UI copied literally from generated mockups if it does not function well
+
+Create a coherent design-token system rather than hard-coding one-off values across screens.
+
+Define tokens for:
+
+brand colors
+
+neutrals
+
+semantic states
+
+surfaces
+
+typography
+
+spacing
+
+radii
+
+shadows
+
+borders
+
+motion duration/easing
+
+touch target sizes
+
+z-index/layers where relevant
+
+If custom/bundled fonts are added, use permissively licensed fonts and make loading/fallback robust. Do not let font loading cause a blank screen.
+
+11. GLOBAL UX RULES
+
+Apply these everywhere:
+
+Minimum touch target: 44x44 pt; prefer 48x48 for primary touch controls.
+
+Respect safe areas on iOS and Android.
+
+No critical control may sit behind the home indicator, status bar, keyboard, or camera cutout.
+
+Android hardware/back gesture must behave correctly.
+
+No screen should require precision tapping on tiny icons.
+
+Every destructive action that could lose meaningful work should either be reversible by undo or confirmed.
+
+Do not spam confirmation dialogs for reversible actions.
+
+Inputs must avoid being hidden by the keyboard.
+
+Text should survive small phone widths and reasonable dynamic font scaling.
+
+Use concise user copy, not engineering terminology.
+
+Do not show raw errors to consumers.
+
+All async actions need clear loading/success/error states.
+
+Offline core design functionality must continue to work.
+
+Camera permissions are requested contextually when Try-On is used, not unnecessarily on first launch.
+
+If the user denies permission, show a proper explanation and a route to system settings.
+
+If a feature genuinely is not supported, say so cleanly; do not silently fake it.
+
+Never expose "simulation" messaging in a production UI.
+
+12. TARGET INFORMATION ARCHITECTURE
+
+The primary app should have five obvious destinations:
+
+Home
+
+Explore
+
+Create — visually central action
+
+Try On
+
+My Nails
+
+Use route names that make architectural sense internally, but the visible labels should be consumer-friendly.
+
+12.1 Home
+
+Purpose: orient the user and get her creating quickly.
+
+Include:
+
+compact Nailed It brand/header
+
+"Continue editing" card when a draft exists
+
+large Create/New Set call to action
+
+Try On shortcut
+
+curated/trending inspiration row
+
+style/occasion shortcuts such as Minimal, French, Floral, Chrome, Wedding, Bold
+
+recently saved or recently viewed designs if data exists
+
+small contextual tips, not a dashboard full of metrics
+
+Do not make Home feel like an admin dashboard.
+
+12.2 Explore
+
+Purpose: inspiration and reusable starting points.
+
+Must have a real search field, not a fake pressable placeholder.
+
+Search/filter at least by:
+
+text/title/tags
+
+color/style where metadata exists
+
+shape
+
+occasion/theme
+
+finish/category
+
+Include curated collections and templates.
+
+Use a polished two-column or adaptive grid with strong image/nail previews.
+
+Tapping a design opens a proper detail page/sheet with:
+
+large preview
+
+full-set preview
+
+name/style metadata
+
+Apply/Edit This Design
+
+Try On
+
+Save/Favorite locally
+
+optionally Share
+
+No Pro lock unless subscriptions are actually being shipped in this MVP.
+
+12.3 Create
+
+The central create action should either open the builder immediately or a very small creation menu containing only useful choices such as:
+
+Blank Set
+
+Start from Template
+
+Continue Draft
+
+optionally "From Inspiration" if a real implementation exists
+
+Do not send users into a separate fake AI studio.
+
+12.4 Try On
+
+Camera-first consumer flow.
+
+It should immediately answer:
+
+what design is currently being tried on,
+
+whether the hand is detected,
+
+how to switch designs,
+
+how to capture/share,
+
+how to adjust fit if needed.
+
+It must not resemble a calibration/debug screen.
+
+12.5 My Nails
+
+Replace the prototype-like Profile emphasis with a useful personal library.
+
+Sections can include:
+
+Drafts
+
+Finished Sets
+
+Saved Inspiration
+
+Individual Nail Presets if implemented
+
+AR Captures if stored
+
+Actions:
+
+open
+
+rename
+
+duplicate
+
+share/export
+
+delete
+
+A lightweight account/profile header is fine if real authentication exists; otherwise do not invent a fake social identity.
+
+12.6 Settings
+
+Provide a real settings screen accessible from My Nails or Home.
+
+Include only settings that work:
+
+appearance if supported
+
+haptics toggle
+
+reduced motion / follow system
+
+camera/photo permissions status link if practical
+
+clear local data, behind confirmation
+
+Help/About
+
+app version/build
+
+Privacy and Terms links if configured
+
+If there is no live subscription, do not show "Manage Subscription".
+
+12.7 Help / About
+
+A small polished screen is sufficient:
+
+what Nailed It does
+
+basic builder gestures
+
+how AR works / privacy note
+
+app version
+
+contact/support link if configured
+
+13. ONBOARDING
+
+Rebuild onboarding so it sells the actual product rather than demonstrating scaffolding.
+
+Use 2–4 concise visual screens at most.
+
+Suggested story:
+
+Design nails your way — show beautiful editable nail/set imagery.
+
+See them on your hand — show AR try-on concept.
+
+Save the set / take it to your salon — show finished result.
+
+Then enter the app.
+
+Do not force account creation for the local-first MVP.
+
+Do not ask camera permission here. Ask when the user opens Try On.
+
+If you include taste personalization, keep it extremely short and skippable, for example:
+
+favorite shapes
+
+preferred length
+
+3–5 looks they like
+
+Only add it if it materially personalizes Home/Explore.
+
+Remove any copy that says sign-in is simulated or this is a preview build.
+
+14. THE MAIN NAIL BUILDER — THIS IS THE HEART OF THE PRODUCT
+
+This is the highest-priority product surface.
+
+The existing Studio became too crowded by simultaneously showing a top toolbar, 10-nail strip, vertical tool rail, large canvas, floating inspector, layer stack, and bottom sheet. Do not continue that direction.
+
+The new editor should be calm and focused.
+
+14.1 Core layout
+
+Default portrait phone layout:
+
+Top bar
+
+Contain only what deserves permanent visibility:
+
+Back
+
+editable design name or compact title
+
+Undo
+
+Redo
+
+Save/done state
+
+optional overflow menu
+
+Do not put theme pickers, salon buttons, share buttons, debug controls, and secondary modes permanently into the top bar.
+
+Main canvas
+
+The nail is the visual hero.
+
+large single focused nail
+
+centered
+
+high-quality neutral workbench/background
+
+enough breathing room for transforms
+
+selection/bounding UI only when needed
+
+tap empty space to deselect
+
+pinch canvas to zoom if implemented
+
+double tap can fit/reset view if useful
+
+The user should immediately understand which nail she is editing.
+
+Finger/set strip
+
+Show current hand/fingers near the canvas, but compactly.
+
+Requirements:
+
+Thumb / Index / Middle / Ring / Pinky representation
+
+Left/Right hand switch
+
+currently focused finger unmistakable
+
+mini live render of each nail
+
+different designs visibly different
+
+changed state should not need a technical icon
+
+tapping a nail switches focus smoothly
+
+optionally horizontal swipe to move between fingers
+
+A "View Set" action can expand to a whole-hand/full-set overview.
+
+Bottom tool dock
+
+Use a simple persistent tool dock with roughly 5–7 high-level categories, for example:
+
+Base
+
+Art
+
+Draw
+
+Effects
+
+Shape
+
+Layers
+
+More
+
+Text can live under Art or More if it keeps the dock calmer.
+
+Selecting a category opens a contextual bottom sheet/drawer. The canvas must remain visible whenever possible.
+
+14.2 Progressive disclosure
+
+The beginner should never be confronted with all advanced controls.
+
+Example:
+
+tap Art → browse art
+
+tap a flower → it appears on nail and becomes selected
+
+the sheet now shows context controls for that flower: color, size, rotation, opacity, duplicate, delete
+
+advanced Layer controls remain one tap away
+
+Do not force users to understand layers to make a basic design.
+
+14.3 Nail selection model
+
+Preserve the existing per-finger model and left/right hands.
+
+The editor works on one focused nail at a time, but the entire 10-nail set stays alive in state.
+
+Edits must affect only the focused nail unless the user explicitly chooses a set/global operation.
+
+15. BUILDER DATA MODEL — EXTEND, MIGRATE, DO NOT BREAK OLD DESIGNS
+
+The current nail model was approximately:
+
+{ shape, length, material, matte, base, layers }
+
+Existing layer kinds were approximately:
+
+art
+
+stroke
+
+Preserve backwards compatibility but introduce a versioned design schema.
+
+At minimum define a project-level schema version such as schemaVersion: 2.
+
+A practical MVP model can remain JSON serializable and should conceptually support:
+
+DesignProject
+  id
+  schemaVersion
+  name
+  createdAt
+  updatedAt
+  hands
+    L[5]
+    R[5]
+  preview metadata
+  optional tags/source/templateId
+
+Nail
+  shape
+  length
+  material/system
+  finish/effect settings
+  base
+  layers[]
+
+Base
+  type
+  colors / color stops
+  angle / center as relevant
+  opacity
+
+Layer
+  common: id, kind, opacity, visible, locked, transform
+  art
+  stroke
+  text
+  procedural/pattern/effect where justified
+
+Do not over-engineer classes or introduce a database-style abstraction for a local JSON design object.
+
+Create robust migration/normalization so old data in the current AsyncStorage keys still opens.
+
+The existing keys such as:
+
+nailify-design
+
+nailify-app
+
+nailify-ar-fit
+
+should not simply be deleted.
+
+Add migration tests/fixtures for at least:
+
+old legacy pattern-style nail
+
+current base+layers nail
+
+new schema v2 nail
+
+16. NAIL SHAPE AND LENGTH
+
+The shape chooser should use visual nail thumbnails, not just text.
+
+Keep existing good shapes and add/normalize useful consumer shapes, targeting roughly:
+
+Square
+
+Squoval
+
+Round
+
+Oval
+
+Almond
+
+Coffin/Ballerina
+
+Stiletto
+
+Flare/Duck where appropriate
+
+Arrow/Mountain style if retained
+
+optionally Lipstick if a high-quality path can be produced
+
+Do not add ugly shapes just to increase count.
+
+Length must be friendlier than three arbitrary numeric indices.
+
+MVP interface:
+
+Short
+
+Medium
+
+Long
+
+Extra Long if visually credible
+
+continuous or stepped length slider underneath for refinement
+
+Internally, preserve compatibility with old 0/1/2 values through normalization.
+
+Every nail can have its own shape and length.
+
+Provide explicit "Apply to hand" and "Apply to all" actions from shape/length where appropriate, but never silently change all ten nails.
+
+17. BASE COLOR SYSTEM
+
+MVP base color needs to feel excellent.
+
+Implement:
+
+curated default swatches
+
+full color picker
+
+HEX input
+
+recent colors
+
+favorite/save color if cheap to implement
+
+solid base
+
+two-color gradient
+
+gradient angle/direction
+
+base opacity for sheer looks
+
+reset to default/clear
+
+Useful preset palettes:
+
+Nudes
+
+Pinks
+
+Reds
+
+Pastels
+
+Darks
+
+Brights
+
+Metallic-compatible bases
+
+If implementing an image eyedropper is low risk, add it later; do not delay the core builder for it.
+
+Color changes should update continuously without creating hundreds of undo snapshots. Snapshot once at interaction start and commit the continuous changes into that edit.
+
+18. FINISH / MATERIAL EFFECTS
+
+The current material model is too simplistic if different materials barely look different.
+
+For MVP, make at least these finishes visually distinct in editor thumbnails, final render, and AR:
+
+Gloss
+
+Matte
+
+Jelly/Sheer
+
+Pearl/Shimmer
+
+Chrome/Metallic
+
+Glitter
+
+If feasible without destabilizing rendering, add:
+
+Holographic/Iridescent
+
+Cat-eye/magnetic approximation
+
+Do not create 20 finish buttons that render almost identically.
+
+Material rendering should react to nail color and preserve art layers.
+
+For SVG implementation, improve gradients/highlights/texture overlays carefully. Use defs/clip paths and deterministic IDs. Avoid expensive random particle generation every render; generate seeded/deterministic distributions where needed.
+
+A finish should be applicable:
+
+globally to the nail base,
+
+and later optionally to selected art, but selected-art finish is not required for P0 if it complicates the schema.
+
+19. FRENCH NAIL BUILDER
+
+French tips are common enough to deserve a first-class tool rather than only a static sticker.
+
+Implement a dedicated French control under Effects or Base.
+
+MVP French styles:
+
+Classic
+
+Micro French
+
+Deep French
+
+V French
+
+Diagonal/Side French
+
+Controls:
+
+tip color
+
+base color remains independently editable
+
+thickness/depth
+
+curve/smile-line intensity where technically practical
+
+apply to current nail
+
+apply to hand/all
+
+French should conform to the nail shape cleanly.
+
+It should remain editable after application. Do not rasterize it into a dead image.
+
+20. GRADIENT / OMBRÉ
+
+At minimum support:
+
+two-color linear gradient
+
+direction/angle
+
+smooth blend
+
+tip-to-base presets
+
+base-to-tip presets
+
+classic ombré/baby-boomer style preset if feasible
+
+The visual quality matters more than many modes.
+
+If radial/aura gradient is easy within the renderer, add:
+
+radial/aura
+
+center position
+
+radius/softness
+
+Otherwise leave it as a documented P1 after linear gradient is excellent.
+
+21. ART / DECAL LIBRARY
+
+The existing coded art library is a strong foundation. Improve it rather than replacing it with non-editable PNGs.
+
+Target a minimum of ~80 genuinely useful, clean, recolorable assets for MVP if quality can be maintained. Existing ~47 can be retained and polished.
+
+Prioritize categories users actually want:
+
+Florals
+
+Hearts/Bows/Coquette
+
+Celestial/Stars
+
+Lines/Swirls
+
+French/Tip shapes
+
+Geometric
+
+Abstract
+
+Chrome/Metal accents
+
+Gems/Pearls
+
+Animal/Tortoise/Leopard
+
+Fruit/Fun icons
+
+Texture/Foil accents
+
+Each art asset should have:
+
+stable key
+
+display name
+
+category/tags
+
+centered coordinate system consistent with current renderer
+
+sensible default scale
+
+sensible default position
+
+recolorable slots where useful
+
+clean behavior when clipped to the nail
+
+optimized SVG nodes
+
+Art library UI must support:
+
+categories
+
+real text search
+
+recent items
+
+optionally favorites
+
+a clean preview tile
+
+no emojis as preview icons
+
+Tapping an item places it in a sensible visible location and selects it immediately.
+
+22. ART TRANSFORMS AND SELECTION
+
+Placed art must feel tactile and predictable.
+
+Support:
+
+tap to select
+
+drag to move
+
+pinch to scale
+
+rotate gesture
+
+inspector slider fallback for exact scale/rotation
+
+duplicate
+
+delete
+
+layer forward/backward
+
+opacity
+
+recolor slots
+
+Selection affordance:
+
+subtle bounding box or handles around selected item
+
+handles must not obscure tiny art
+
+show only when selected
+
+selected object should not jump when the gesture starts
+
+Coordinate system must remain normalized so the same design renders correctly at different nail sizes and in AR.
+
+Implement smart alignment where reasonable:
+
+center vertical guide
+
+center horizontal guide
+
+soft snap to center
+
+haptic tick on snap
+
+Do not overdo snapping; it must be easy to place art off-center intentionally.
+
+23. DRAWING TOOL
+
+The current freehand stroke support is worth keeping and improving.
+
+MVP controls:
+
+brush color
+
+brush size
+
+opacity
+
+smoothing/stabilization
+
+eraser mode
+
+clear drawing layers with appropriate undo protection
+
+Optional if stable:
+
+detail liner brush
+
+soft/airbrush
+
+glitter/texture brush
+
+The important part is that drawing feels smooth on a phone.
+
+Requirements:
+
+no React state update pattern that causes visible frame drops for every point
+
+record one undo snapshot for the stroke, not one per point
+
+simplify/compress excessive points after the stroke if needed
+
+clipping remains inside nail boundary
+
+24. TEXT TOOL — REMOVE THE PLACEHOLDER
+
+There must be no visible "Text is coming soon" in the finished MVP.
+
+Either implement text properly or remove the tool entirely. Prefer implementation.
+
+MVP text:
+
+input short text / initials
+
+4–8 curated readable/decorative fonts, using bundled/licensed fonts or robust system options
+
+size
+
+color
+
+rotation
+
+opacity
+
+move/scale like other layers
+
+alignment where relevant
+
+Optional:
+
+letter spacing
+
+curved/path text
+
+Do not build a desktop typography suite for MVP.
+
+25. PATTERNS
+
+Create a small procedural/pattern set rather than relying only on giant pre-drawn decals.
+
+High-value MVP patterns:
+
+dots
+
+stripes
+
+checker
+
+leopard/tortoise
+
+simple zebra/cow
+
+simple marble
+
+Where possible provide controls for:
+
+color(s)
+
+scale
+
+rotation
+
+density/spacing
+
+If a procedural implementation would be much less reliable than the current full-nail SVG assets, keep the SVG pattern but expose useful colors/scale and call it a pattern in UI.
+
+26. GLITTER / FOIL / CHROME DETAIL QUALITY
+
+Nail effects need visual richness because this app is selling beauty.
+
+For glitter:
+
+multiple particle sizes
+
+deterministic particle positions
+
+controllable density if practical
+
+subtle reflective highlight, not flat circles
+
+For foil:
+
+irregular fragment shapes
+
+metallic gradients/highlights
+
+color option such as gold/silver/rose
+
+For chrome:
+
+curved-looking highlight bands that respond visually to nail geometry
+
+not just a gray linear gradient
+
+Do not destroy performance with hundreds of animated SVG nodes in every filmstrip thumbnail. Use simplified thumbnail rendering where needed.
+
+27. GEMS / PEARLS / CHARMS FOR MVP
+
+True 3D physics is not required, but premium-looking 2.5D gem assets are valuable.
+
+Include a curated set of:
+
+clear crystal
+
+colored crystal
+
+pearl
+
+tiny metal stud
+
+bow/heart/star charm if asset quality is strong
+
+They behave as art layers with:
+
+move
+
+scale
+
+rotate
+
+opacity
+
+color variants when appropriate
+
+Give them convincing SVG highlights/shadows so they read as dimensional.
+
+Do not implement full 3D mesh editing unless the rest of the MVP is already complete.
+
+28. LAYERS
+
+Layers should exist for advanced control but should not dominate the initial editing experience.
+
+A dedicated Layers sheet should support:
+
+preview/icon
+
+name
+
+select
+
+drag/reorder or clear move up/down controls
+
+show/hide
+
+lock/unlock if straightforward
+
+duplicate
+
+delete
+
+opacity
+
+Layer names should be meaningful, e.g.:
+
+"White Daisy"
+
+"Gold Foil"
+
+"Brush Stroke"
+
+"MIA"
+
+not only raw IDs.
+
+For locked layers, direct gestures should not move them.
+
+29. UNDO / REDO / EDIT HISTORY
+
+Preserve the existing undo/redo architecture, but make it robust.
+
+Requirements:
+
+at least 50 meaningful edits
+
+continuous sliders/gestures produce one history entry per interaction, not per frame
+
+adding/deleting/reordering is undoable
+
+copy-to-hand/all is undoable
+
+resetting a nail is undoable
+
+clearing significant content is undoable
+
+Do not persist the entire history forever if it bloats storage; persist current design state and reset history sensibly on app restart.
+
+30. WHOLE-SET CREATION
+
+The user must be able to build a coherent five- or ten-nail set without tedious repetition.
+
+Implement:
+
+edit each finger individually
+
+copy focused nail to current hand
+
+copy focused nail to all 10
+
+mirror left hand to right hand
+
+mirror right hand to left hand
+
+duplicate a single nail design to chosen fingers
+
+reset one finger
+
+reset one hand
+
+view whole set
+
+Keep/improve smart set concepts:
+
+Same on all
+
+Accent nail
+
+Alternating
+
+Ombré across hand
+
+French across hand
+
+A generated smart set should remain fully editable per finger afterward.
+
+Provide a set-preview screen/sheet that shows both hands or two rows of five nails cleanly.
+
+31. SAVED INDIVIDUAL NAIL PRESETS
+
+If implementation is reasonably contained, support saving one focused nail as a reusable preset/component.
+
+User flow:
+
+finish nail
+
+"Save nail preset"
+
+give it a short name or accept default
+
+preset appears in My Nails or builder preset shelf
+
+can apply it to one chosen finger, a hand, or all nails
+
+Deep-clone the preset when applying it. Editing a finger later must never mutate the saved preset or other fingers accidentally.
+
+32. TEMPLATES AND EXISTING PRESETS
+
+Use the existing seed designs and image directories intelligently.
+
+Do not bundle all ~297 MB of raw nail preset imagery into the app.
+
+Instead:
+
+visually inspect and curate a strong subset, perhaps 24–50 looks,
+
+remove duplicates/weak images,
+
+optimize selected images to sensible mobile dimensions and modern formats supported by the stack,
+
+create thumbnails where useful,
+
+attach metadata such as title/style/colors/occasion/shape,
+
+keep source originals outside the app bundle.
+
+Use editable designData templates wherever possible.
+
+If an inspiration image cannot be represented as editable design data, present it as inspiration only and do not falsely imply every detail is editable.
+
+Templates should open the builder as a copy/new project, not mutate the source template.
+
+33. PROJECT SAVE / DRAFT SYSTEM
+
+The current app largely has one persistent working design plus shallow saved IDs. Replace that with a real local design library.
+
+Create a local project repository/store supporting:
+
+create project
+
+autosave
+
+rename
+
+save/update
+
+duplicate
+
+delete
+
+reopen
+
+sort by updated date
+
+thumbnail/preview generation
+
+draft vs finished state if useful
+
+Each project should store:
+
+stable ID
+
+name
+
+design JSON
+
+schemaVersion
+
+timestamps
+
+preview metadata/thumbnail reference where appropriate
+
+Autosave should be debounced and reliable.
+
+If the app crashes or is killed, the last edits should be recoverable.
+
+Do not require cloud auth for this MVP.
+
+If Firebase remains in the codebase, isolate it behind a repository interface or future integration point, but do not let a missing Firebase configuration break local use.
+
+34. BUILDER EXIT / SAVE UX
+
+Because autosave exists, leaving the editor should not constantly interrupt with "Save changes?" dialogs.
+
+Preferred behavior:
+
+edits autosave
+
+top bar shows subtle Saved / saving state when relevant
+
+Back returns to previous context
+
+if a brand-new unnamed/empty project is abandoned, clean it up or ask only when necessary
+
+Do not let accidental navigation destroy work.
+
+35. EXPORT AND SHARING
+
+MVP needs useful export.
+
+At minimum:
+
+share a polished full-set image
+
+save image to photo library if permission granted
+
+share AR capture if capture works correctly
+
+optionally share a single nail render
+
+Generate output designed for sharing rather than taking a raw screenshot of UI chrome.
+
+A full-set share image can include:
+
+clean background
+
+5 or 10 nail renders
+
+small design name
+
+discreet "Nailed It" mark
+
+Do not watermark aggressively.
+
+Keep or improve Send-to-Salon as a secondary feature if it already works. Rename/refocus it as something like "Salon Reference" if that is clearer.
+
+A salon reference can show:
+
+full set
+
+finger-by-finger miniatures
+
+shape/length
+
+main colors
+
+finish
+
+notable art/effects
+
+Do not pretend to estimate pricing or booking unless real data exists.
+
+36. AR TRY-ON — SECOND CORE PILLAR
+
+The AR experience must move from prototype/debug state to a consumer-ready feature.
+
+The current shared placement logic is valuable; keep it if sound.
+
+The current web tracker using MediaPipe is useful. The native stub must be replaced for a real mobile MVP.
+
+36.1 Native tracker requirement
+
+Research and choose a current, maintained on-device hand-landmark stack compatible with the actual Expo/React Native versions in the repository.
+
+Likely architecture may involve:
+
+a development build rather than Expo Go,
+
+VisionCamera/frame processors or an equivalent current camera pipeline,
+
+MediaPipe hand landmark detection or another reliable on-device landmark model,
+
+a small native/custom Expo module if necessary.
+
+Do not blindly install an abandoned hand-tracking plugin.
+
+Do not upgrade the entire Expo stack only because the latest version exists. Upgrade only if required for compatibility/security and do it intentionally with validation.
+
+The native tracker should expose a clean platform-independent structure approximately containing:
+
+handedness
+
+confidence
+
+21 normalized landmarks
+
+timestamp
+
+Then feed those landmarks into shared placement logic.
+
+36.2 Finger anchors
+
+Use anatomically appropriate pairs, such as fingertip plus adjacent distal joint, to determine:
+
+nail position
+
+finger direction/rotation
+
+approximate scale
+
+Typical MediaPipe hand points:
+
+thumb tip 4 / IP 3
+
+index tip 8 / DIP 7
+
+middle tip 12 / DIP 11
+
+ring tip 16 / DIP 15
+
+pinky tip 20 / DIP 19
+
+Verify actual coordinate conventions rather than blindly copying these numbers.
+
+36.3 Handedness and mirroring
+
+Correctly handle:
+
+left hand vs right hand
+
+front camera mirroring
+
+rear camera orientation
+
+device rotation/orientation assumptions
+
+Do not let designs swap hands or mirror text/art incorrectly.
+
+36.4 Smoothing
+
+Raw landmark tracking will jitter. Implement smoothing.
+
+Use a suitable approach such as:
+
+exponential moving average
+
+adaptive One Euro filter
+
+another low-latency stable filter
+
+Goals:
+
+overlay feels attached to nail
+
+minimal visible jitter
+
+not so much smoothing that the nail visibly trails the finger
+
+Keep existing user-facing smoothing setting only if it genuinely improves use. Otherwise choose a good default and hide technical tuning.
+
+36.5 Confidence/lost tracking behavior
+
+When confidence falls:
+
+do not teleport nails randomly
+
+briefly hold/interpolate previous position
+
+fade gracefully if tracking is lost
+
+hide overlays after a short timeout if no reliable hand exists
+
+show a subtle "Show your hand" hint if needed
+
+Do not flash giant error pills during normal hand movement.
+
+36.6 One/two hands
+
+At minimum, one hand with all five nails must be excellent.
+
+If two-hand detection is supported reliably, overlay both hands using the user's L/R designs.
+
+If two hands are unstable, prioritize one-hand quality and allow a simple Left/Right hand selector for MVP.
+
+36.7 Per-finger design
+
+AR must read the same hands.L[5] / hands.R[5] design state as the builder.
+
+No separate AR-only copy of the nail art.
+
+Changing an index finger in the builder must cause the index finger AR overlay to use that nail.
+
+36.8 AR fit/calibration
+
+The current global/per-nail fit store is a good foundation, but expose it elegantly.
+
+Normal try-on should work without opening calibration.
+
+Provide a small "Adjust Fit" action that can reveal:
+
+overall size
+
+position toward tip/cuticle
+
+sideways offset
+
+small rotation
+
+Allow per-finger adjustment only in an advanced subview.
+
+Persist fit settings locally.
+
+Offer Reset.
+
+36.9 AR visual rendering
+
+Nails must look like nails attached to a hand, not flat stickers.
+
+Improve:
+
+contact shadow
+
+highlight/gloss
+
+shape scale
+
+rotation alignment
+
+slight depth/offset placement
+
+clipping/edges
+
+If perspective/warping can be added reliably with the chosen rendering stack, do it. If not, excellent 2D transforms are preferable to unstable fake perspective.
+
+36.10 Performance
+
+Target:
+
+camera preview smooth enough to feel live
+
+tracking roughly 15–30 FPS if that is the practical model rate
+
+overlay rendered smoothly between detections
+
+no React re-render of the entire screen for every landmark frame if avoidable
+
+Use worklets/shared values/native animation state where appropriate.
+
+Resize/process camera frames at the smallest resolution that maintains reliable tracking.
+
+36.11 AR UI
+
+AR screen should be camera-first.
+
+Suggested composition:
+
+Top:
+
+Back
+
+small current design name
+
+camera switch if applicable
+
+subtle help/fit action
+
+Center:
+
+camera + nail overlay
+
+very subtle detection guidance when needed
+
+Bottom:
+
+small design/set carousel
+
+shutter/capture button
+
+Edit action returning to builder
+
+optional hand selector if only one hand at a time
+
+Do not show debug coordinates, tracker internals, or technical calibration by default.
+
+36.12 Permissions
+
+Camera permission flow:
+
+ask only on Try On
+
+clear reason
+
+denial state with Retry/Open Settings
+
+restricted/unavailable state
+
+no infinite permission loop
+
+Photo-library permission only when saving media.
+
+36.13 Privacy
+
+Hand tracking should be on-device for MVP unless explicitly architected otherwise.
+
+Do not upload camera frames to a server simply for AR tracking.
+
+State this accurately in Help/Privacy UI if you mention it.
+
+36.14 AR capture
+
+Verify on a physical/development device whether react-native-view-shot actually captures the camera preview plus overlay on each platform.
+
+If it does not, do not ship a fake capture.
+
+Implement a reliable composition approach appropriate to the stack. This may mean:
+
+taking a real camera photo,
+
+applying the current nail transforms/art to a composited result,
+
+saving/sharing that composite.
+
+If a new graphics dependency is required solely for reliable capture, justify it and validate app-size/performance impact.
+
+37. AR FALLBACKS
+
+In a production build:
+
+never label a fake background as AR,
+
+never silently show simulated hand landmarks.
+
+For unsupported platforms/dev web previews:
+
+use real webcam tracking where supported,
+
+otherwise show a clear unavailable/demo message outside the production path.
+
+Keep simulation tools only behind an explicit developer flag if they are valuable for development.
+
+38. HOME / EXPLORE CONTENT QUALITY
+
+The app cannot look premium if all content is generic colored SVG rectangles.
+
+Use the user's existing nail preset images to make Home and Explore visually rich.
+
+Process:
+
+inspect images
+
+curate best
+
+crop consistently
+
+optimize size
+
+remove obviously malformed AI generations
+
+avoid duplicated looks
+
+create balanced representation of styles/colors
+
+Do not use random external Pinterest/Instagram content without clear rights.
+
+For editable catalogue templates, pair a polished preview with real designData that approximates the look.
+
+For inspiration-only images, label the call to action as "Use as inspiration" or "Create a similar look" only if that action is real. Do not imply pixel-perfect reconstruction if it does not exist.
+
+39. IMAGE / ASSET PIPELINE
+
+Create a maintainable asset structure, e.g. conceptually:
+
+assets/
+  brand/
+  onboarding/
+  inspiration/thumbs/
+  inspiration/full/
+  textures/
+  icons/ (only if custom assets are needed)
+
+Requirements:
+
+optimize image dimensions for phone use
+
+do not bundle huge originals
+
+avoid runtime CDN dependence for core assets
+
+cache appropriately
+
+use expo-image or another compatible image component if it materially improves caching/performance
+
+keep an attribution/source manifest for any third-party asset, though prefer owned/generated/licensed assets
+
+Generate real app icon and splash assets.
+
+Brand icon should be simple enough to read at small size. Avoid putting a full wordmark inside the tiny icon.
+
+Splash should be simple, fast, and match first-screen background to avoid a visible flash.
+
+40. NAVIGATION AND PAGE TRANSITIONS
+
+The old app has some basic motion but not a coherent motion language.
+
+Create one.
+
+If React Native Reanimated is compatible with the actual Expo version and materially improves polish, add/configure it properly. Do not add it half-configured.
+
+Motion guidelines:
+
+standard tap feedback: ~80–150 ms
+
+most component transitions: ~160–240 ms
+
+route/modal transitions: ~220–350 ms
+
+avoid long decorative animations that slow task completion
+
+animate opacity and transforms whenever practical
+
+use spring motion selectively for tactile sheets/selection, not everything
+
+Specific interactions:
+
+tab selection indicator glides/fades cleanly
+
+Explore card opens detail with a coherent scale/fade or native push
+
+entering builder should feel continuous, not a jarring white flash
+
+switching fingers should animate active indicator and optionally a subtle nail crossfade
+
+newly added art scales/fades in at placement point
+
+deleting a layer fades/scales out
+
+bottom sheets move with a controlled spring
+
+saving provides a tiny visual/haptic confirmation near the Save control
+
+entering AR fades/expands into camera smoothly
+
+returning from AR restores builder state exactly
+
+Respect reduced-motion settings. When reduced motion is enabled, use near-instant fades/no large spatial transitions.
+
+41. HAPTICS
+
+Use haptics intentionally:
+
+tool selection: light selection
+
+snap-to-center: small tick
+
+successful save/export: light success
+
+destructive delete: subtle warning only if needed
+
+major primary action: medium impact sparingly
+
+Add a settings toggle to disable haptics if implementation is straightforward.
+
+Do not fire haptics repeatedly during continuous sliders or every AR frame.
+
+42. RESPONSIVE LAYOUT
+
+Test at least representative sizes such as:
+
+~320–360 px narrow phone width
+
+~390–430 px modern phone
+
+tall Android device
+
+tablet/iPad width if supported
+
+web only as a useful dev preview, not as the primary product target
+
+Builder must not overlap on a narrow phone.
+
+For tablets:
+
+center content to a sensible max width
+
+consider side-by-side canvas/tools where it genuinely improves UX
+
+do not simply stretch phone sheets across 1000 px
+
+Orientation can remain portrait-first if that is the current app requirement, but ensure app does not break if platform temporarily reports another layout.
+
+43. ACCESSIBILITY
+
+Implement reasonable MVP accessibility:
+
+accessibility labels/roles for icon-only buttons
+
+selected/disabled states
+
+contrast sufficient for text and controls
+
+no critical information conveyed by color alone
+
+44 pt touch targets
+
+dynamic text should not destroy layouts
+
+reduced motion
+
+meaningful control ordering for screen readers
+
+buttons have concise names such as "Undo", "Try on", "Delete layer"
+
+Do not overpromise full WCAG certification, but do not ignore basic mobile accessibility.
+
+44. ERROR / EMPTY / LOADING STATES
+
+Every major surface needs designed states.
+
+Examples:
+
+My Nails empty
+
+Friendly illustration/render + "Create your first set".
+
+Explore no search results
+
+Show query + clear filters action.
+
+Camera permission denied
+
+Explain and provide Open Settings.
+
+Hand not found
+
+Small visual guidance, not a technical error.
+
+Image save failed
+
+Clear retry/share alternative.
+
+Corrupt/old local design
+
+Attempt migration; if impossible, preserve raw data/back it up, show recoverable error instead of crashing the library.
+
+Asset image loading
+
+Use stable placeholders/skeleton or fade-in without layout jumping.
+
+45. REMOVE PROTOTYPE / FAKE BEHAVIOR
+
+The production-facing MVP must contain zero visible fake flows.
+
+Specifically audit and remove or hide:
+
+"Preview build"
+
+"simulated sign in"
+
+"simulated purchase"
+
+fake RevenueCat success
+
+fake Firebase account
+
+fake AI generation presented as network AI
+
+"Text is coming soon"
+
+placeholder search fields
+
+settings that only show toasts rather than changing anything
+
+developer calibration panels as primary AR UI
+
+fake QR codes presented as real
+
+simulated camera presented as real AR
+
+A developer-only mock mode is acceptable behind __DEV__ or an explicit debug flag, never in the normal production user path.
+
+46. AUTHENTICATION / BACKEND DECISION FOR MVP
+
+Do not let backend credentials block the MVP.
+
+Preferred MVP strategy:
+
+local-first guest use
+
+no required account
+
+local saved projects
+
+local preferences
+
+no fake login
+
+If real Firebase credentials/config already exist and authentication is genuinely working, preserve and polish it.
+
+If they do not, remove sign-in from the required flow and keep backend interfaces ready for future cloud sync.
+
+Never put secret server keys into the mobile bundle.
+
+47. SUBSCRIPTIONS / PAYWALL
+
+Unless RevenueCat is actually configured with real products, entitlements, store builds, and tested purchase/restore flows:
+
+remove Paywall from normal MVP navigation,
+
+do not enforce fake save limits,
+
+do not show simulated purchase success.
+
+Keep well-isolated subscription service code for later if useful.
+
+The MVP can be fully unlocked.
+
+48. AI STUDIO
+
+AI is not one of the three MVP pillars for this build.
+
+If the current AI Studio is only simulated, remove it from user-facing navigation.
+
+Do not spend core schedule implementing cloud image generation before Builder + AR + app polish are excellent.
+
+Architect the design model so editable AI-generated layers could be added later, but do not let speculative AI architecture bloat the MVP.
+
+49. SEND TO SALON
+
+This is useful but secondary.
+
+If the current export path is stable, keep it as a polished "Salon Reference" feature.
+
+Remove fake QR functionality unless a real shareable link exists.
+
+A local/exportable salon reference does not need a backend.
+
+Do not clutter the main Studio with a permanent Send to Salon pill. Put it in Save/Share/overflow after the design is finished.
+
+50. CODE ARCHITECTURE RULES
+
+Do not rewrite the entire app into another framework.
+
+Keep React Native / Expo unless a specific blocker makes that impossible.
+
+Do not migrate all JavaScript to TypeScript merely for aesthetics. TypeScript migration can be incremental if it prevents real bugs, but it is not the product goal.
+
+Refactor oversized files where it improves maintainability.
+
+Desired separation:
+
+screen composition
+
+reusable UI components
+
+nail renderer/model
+
+builder tools
+
+persistence/repositories
+
+AR tracker interface
+
+AR placement/filtering
+
+theme/tokens
+
+data/assets
+
+Avoid one 1000-line Studio screen containing every control.
+
+Avoid circular imports.
+
+Avoid business logic embedded inside visual components when it belongs in store/model helpers.
+
+Use selectors in Zustand to avoid unnecessary re-renders.
+
+Do not put high-frequency AR landmarks into a global persisted Zustand store if doing so forces React to rerender the app each frame.
+
+51. DEPENDENCIES
+
+Prefer the existing stack where it is sufficient.
+
+It is acceptable to add maintained dependencies when they materially improve the product, for example:
+
+React Native Reanimated for production animation/worklets
+
+a maintained bottom-sheet library compatible with the current stack
+
+expo-image for image quality/caching
+
+a maintained color picker if building one from scratch would be worse
+
+native camera/vision dependencies required for hand tracking
+
+For each significant dependency:
+
+check maintenance/current compatibility
+
+avoid abandoned packages
+
+avoid duplicate libraries that solve the same problem
+
+document why it is needed
+
+validate Android/iOS integration
+
+Do not add a huge graphics framework solely to draw one gradient unless there is a real AR/rendering need.
+
+52. PERFORMANCE BUDGET
+
+The builder and AR must feel smooth on a modern midrange phone.
+
+Builder targets:
+
+60 FPS gestures/animations where possible
+
+no full app rerender when dragging one art element
+
+no expensive asset parsing on every frame
+
+memoized nail thumbnails
+
+simplified render path for tiny thumbnails if necessary
+
+AR targets:
+
+responsive camera preview
+
+stable landmark processing
+
+throttled model inference if needed
+
+interpolated overlay between detections
+
+avoid JS bridge bottleneck every frame where current architecture permits worklet/native updates
+
+App targets:
+
+optimized bundled images
+
+no 300 MB asset bundle
+
+no huge synchronous JSON parsing at startup
+
+avoid persisting unnecessary undo history
+
+Profile actual bottlenecks before speculative optimization.
+
+53. PERSISTENCE AND DATA SAFETY
+
+Before changing storage format:
+
+create migration tests or fixtures
+
+back up/retain old keys during migration until new data is confirmed
+
+make migration idempotent
+
+do not crash if some keys are missing or malformed
+
+Never overwrite a user's existing design with a default simply because parsing failed.
+
+If migration fails, log locally in development and preserve original raw value for recovery.
+
+54. PRIVACY / SECURITY BASICS
+
+Keep API secrets off-device.
+
+Request only permissions actually used.
+
+Camera frames for hand tracking should stay local unless a future feature explicitly says otherwise.
+
+Do not collect analytics containing raw images/hands without explicit design and consent.
+
+Do not log user photos or design content to console in production.
+
+Sanitize user-supplied names/text enough to avoid rendering/path issues.
+
+Configure release logs to avoid verbose debug output.
+
+55. TESTING INFRASTRUCTURE
+
+The existing app had very little formal testing. Add enough automated validation to make continued work safe without spending the whole project building test infrastructure.
+
+At minimum establish:
+
+linting
+
+syntax/build check
+
+Expo doctor / dependency consistency check
+
+unit tests for pure model/migration functions
+
+unit tests for AR placement/filtering math where possible
+
+basic store tests for copy/mirror/undo/save project behavior
+
+If Jest setup is reasonable for the current Expo version, use it.
+
+If a simple mobile E2E framework can be added quickly and run in the environment, add a smoke flow, but do not delay core work for elaborate E2E infrastructure.
+
+56. MANUAL QA MATRIX
+
+Maintain .hermes/QA_MATRIX.md and run meaningful manual checks.
+
+At minimum cover:
+
+Builder
+
+new blank project
+
+rename
+
+each finger selection
+
+left/right switch
+
+base color
+
+gradient
+
+shape
+
+length
+
+each major finish
+
+add art
+
+move/scale/rotate
+
+recolor
+
+duplicate/delete
+
+reorder
+
+draw
+
+erase
+
+text
+
+undo/redo
+
+copy to hand/all
+
+mirror
+
+smart set
+
+save/close/reopen
+
+duplicate project
+
+delete project
+
+Explore
+
+search
+
+filter
+
+open design
+
+start from design
+
+save inspiration
+
+empty result
+
+AR
+
+first permission grant
+
+permission denial
+
+hand enters/exits frame
+
+each finger overlay
+
+left/right behavior
+
+fast movement
+
+low light if possible
+
+fit adjustment
+
+design switching
+
+return to editor
+
+capture/share
+
+App shell
+
+first launch/onboarding
+
+cold restart
+
+Android back
+
+small-screen layout
+
+keyboard
+
+reduced motion
+
+haptics disabled
+
+offline core usage
+
+57. BUILD VALIDATION
+
+Discover actual platform/environment and run the strongest checks available.
+
+At minimum during development:
+
+clean install as necessary
+
+package manager integrity
+
+npx expo-doctor or version-appropriate equivalent
+
+lint
+
+tests
+
+web/dev build as a fast smoke check where useful
+
+For native AR milestone:
+
+create a real dev build, not only Expo Go
+
+run Android if Android emulator/device is available
+
+run iOS if macOS/Xcode/device is available
+
+do not claim native AR is complete based only on web behavior
+
+At final release candidate:
+
+clean build from scratch
+
+no dependency warnings that indicate real breakage
+
+no red screen / unhandled promise issues in main flows
+
+no console flood from AR frames
+
+Record exact commands and outcomes in .hermes/QA_MATRIX.md / final report.
+
+58. PHASED IMPLEMENTATION ORDER
+
+Use this order unless the audit reveals a dependency reason to change it.
+
+Phase 0 — Baseline
+
+audit
+
+backup/Git
+
+state files
+
+build current app
+
+screenshots
+
+Phase 1 — Foundation
+
+Nailed It brand rename
+
+new tokens/visual system
+
+navigation architecture
+
+remove fake/stubbed user paths from visible MVP
+
+app icon/splash foundation
+
+motion infrastructure
+
+Phase 2 — Design model + local project library
+
+schema v2
+
+migration
+
+project save/autosave/reopen/duplicate/delete
+
+preserve existing nail renderer compatibility
+
+Phase 3 — Builder UX rebuild
+
+calm single-nail editor layout
+
+finger strip
+
+tool dock/sheets
+
+selection and gestures
+
+undo/redo
+
+base/shape/length
+
+Phase 4 — Builder depth/content
+
+finishes
+
+French
+
+gradients
+
+expanded art library
+
+draw/eraser
+
+text
+
+layers
+
+smart set operations
+
+curated templates
+
+Phase 5 — AR
+
+native tracking architecture
+
+landmark feed
+
+smoothing
+
+per-finger overlay
+
+fit UX
+
+consumer AR screen
+
+permission flows
+
+capture/share
+
+Phase 6 — App shell completion
+
+Home
+
+Explore search/filter/detail
+
+My Nails
+
+Settings/About
+
+onboarding
+
+standard states
+
+Phase 7 — Asset/polish/performance/accessibility
+
+curated images
+
+optimize bundle
+
+microinteractions
+
+responsive edge cases
+
+accessibility
+
+haptics/reduced motion
+
+loading/error/empty states
+
+Phase 8 — Hardening
+
+final test sweep
+
+migration test
+
+native build verification
+
+dead code/stub cleanup
+
+docs
+
+review pending items
+
+release checklist
+
+Do not wait until Phase 8 to test. Validate every phase.
+
+59. KEEP / MODIFY / REPLACE GUIDANCE FROM THE KNOWN CODEBASE
+
+Use your audit to confirm, but the likely direction is:
+
+KEEP AND EXTEND
+
+NailSvg rendering concept
+
+existing SVG nail shape paths that look good
+
+normalized per-finger design state
+
+art asset model
+
+undo/redo concept
+
+EditorCanvas gesture concept
+
+useArStore global/per-nail fit idea
+
+shared placement.js if the math is sound
+
+web MediaPipe implementation if stable
+
+export helpers that genuinely work
+
+well-made reusable UI primitives
+
+MODIFY HEAVILY
+
+useDesignStore into a version-aware editor/project architecture
+
+art library/category system
+
+nail material rendering
+
+filmstrip
+
+layer UI
+
+theme/motion
+
+navigation
+
+catalogue data presentation
+
+VISUALLY / UX-WISE REPLACE
+
+current crowded DesignStudioScreen composition
+
+current AR debug-like HUD
+
+prototype Home layout
+
+prototype Profile layout
+
+simulated onboarding/account flow
+
+separate fake AI Studio from navigation
+
+fake Paywall flow from navigation
+
+REMOVE FROM NORMAL MVP PATH
+
+any fake login
+
+fake purchases
+
+fake AI network behavior
+
+"coming soon" text tool
+
+fake search
+
+simulated camera masquerading as production AR
+
+60. BUILDER MICRO-INTERACTION SPEC
+
+Be deliberate about details:
+
+On press, asset tiles compress very slightly then release.
+
+When art is added, it appears at ~95% scale and settles to 100% over ~150–220 ms.
+
+Selection border appears without shifting the asset.
+
+On center snap, guide fades in and haptic ticks once.
+
+When changing finger, the new focused nail crossfades/settles instead of blinking.
+
+Undo causes a subtle content settle, not a giant bounce.
+
+Color swatches show selected state with both border/check/size change so selection is not color-only.
+
+Continuous color picking updates live.
+
+Bottom sheet remembers reasonable height per tool but should not cover the whole nail unless the user expands it.
+
+Dragging sheet should feel native.
+
+When a user adds a tool then returns to canvas, selection remains clear.
+
+Deleting selected layer selects the next logical remaining layer or clears selection.
+
+Reordering layers updates canvas immediately.
+
+"Apply to all" must say exactly what will change.
+
+Save feedback should not use a generic intrusive toast for every autosave.
+
+61. COPY / LANGUAGE STYLE
+
+Use concise beauty-product language.
+
+Good examples:
+
+Create a set
+
+Start from a blank set
+
+Try on
+
+Adjust fit
+
+Apply to all nails
+
+Copy to this hand
+
+Save to My Nails
+
+Continue editing
+
+Use this look
+
+No designs yet
+
+Avoid:
+
+"canvas object"
+
+"landmark tracker"
+
+"apply designData"
+
+"location mockup"
+
+"preview scaffold"
+
+"AI network stub"
+
+overly cute copy on every screen
+
+62. APP ICON / SPLASH / LAUNCH QUALITY
+
+Before final completion:
+
+create a real 1024x1024 app icon source
+
+generate platform-appropriate icon config
+
+create splash/launch artwork
+
+ensure splash background exactly matches first rendered app background
+
+ensure no old Nailify text appears during launch
+
+update app display name to Nailed It
+
+verify Android/iOS identifiers are not accidentally broken
+
+If changing scheme from nailify would break existing links and is unnecessary for MVP, keep technical scheme and document it.
+
+63. DEVELOPMENT / DEBUG MODE
+
+Keep useful engineering tools without exposing them to users.
+
+Behind __DEV__ or a dedicated developer setting you may retain:
+
+simulated AR scene
+
+landmark visualization
+
+AR calibration diagnostics
+
+FPS/debug stats
+
+reset local storage
+
+seed data reload
+
+Production paths must hide these.
+
+64. LOGGING
+
+Use structured, restrained development logging.
+
+Do not log every camera frame.
+
+For important failures log:
+
+storage migration failure
+
+tracker initialization failure
+
+camera permission/runtime error
+
+export failure
+
+unrecoverable asset/model load failure
+
+Production UI gets a human-readable recovery message.
+
+65. WHAT NOT TO DO
+
+Do not:
+
+build a completely new app in another folder
+
+replace editable nail JSON with flattened PNG-only designs
+
+make every nail effect an external AI-generated image
+
+hard-code all 10 nails independently in components
+
+use dozens of unmaintained dependencies
+
+add social/community/commerce before the builder and AR are excellent
+
+keep visible fake Pro/paywall logic
+
+leave buttons that only toast "coming soon"
+
+put 50 controls on the Studio screen simultaneously
+
+use emojis instead of a coherent icon system
+
+use placeholder lorem ipsum or dummy user identities in production screens
+
+destroy existing persisted designs
+
+claim physical-device AR success without testing an actual native/dev build
+
+stop at a report when implementation can continue
+
+66. QUALITY BAR / VISUAL REVIEW QUESTIONS
+
+At each milestone, inspect the app and ask:
+
+Does this look like a beauty app a customer would pay attention to, or a developer tool?
+
+Is the nail itself the visual hero?
+
+Can a new user create something attractive in under a minute?
+
+Can an advanced user make every finger different?
+
+Is any control too small or too technical?
+
+Are there any fake or dead controls?
+
+Does every screen have a clear primary action?
+
+Are photo/assets sharp and consistent?
+
+Is typography coherent?
+
+Are route transitions smooth?
+
+Does the app feel like one product rather than ten differently styled screens?
+
+Does AR look attached to the hand rather than floating?
+
+Can I leave and reopen without losing work?
+
+If the answer is no, keep iterating.
+
+67. MANDATORY ACCEPTANCE TEST — 10-MINUTE USER STORY
+
+Before calling the MVP done, a fresh user should be able to complete this flow without developer knowledge:
+
+Install/open Nailed It.
+
+Finish/skip onboarding.
+
+Tap Create.
+
+Start a blank set.
+
+Choose almond nails.
+
+Choose a medium/long length.
+
+Make the index nail a soft pink base.
+
+Add a white flower.
+
+Reposition and resize it by touch.
+
+Add a small gold accent/gem.
+
+Copy the nail to another finger.
+
+Change another finger to a French variation.
+
+Make one accent nail glitter/chrome.
+
+View the whole set.
+
+Undo and redo an edit.
+
+Save the set as a named design.
+
+Exit to My Nails.
+
+Reopen it and verify the exact design is preserved.
+
+Tap Try On.
+
+Grant camera permission.
+
+Put a hand into frame.
+
+See the correct per-finger designs track the nails/fingers.
+
+Move/rotate the hand and see stable tracking.
+
+Adjust fit if needed.
+
+Capture/share or save a result.
+
+Return to the editor with state intact.
+
+Close/relaunch the app and find the design still in My Nails.
+
+No fake success is allowed in this story.
+
+68. DEFINITION OF DONE
+
+Do not declare "done" until all applicable P0 items below are true.
+
+Product
+
+User-facing brand is Nailed It.
+
+App launches into polished onboarding/home, not scaffolding.
+
+Home, Explore, Create, Try On, My Nails all work.
+
+Real search works in Explore.
+
+No visible placeholder/coming soon/simulated messaging.
+
+Builder
+
+Focused individual nail editing is clear and uncluttered.
+
+All 10 nails can hold different designs.
+
+Shape and length work.
+
+Solid color and gradient work.
+
+Major finishes are visibly distinct.
+
+French builder works.
+
+Art library is substantial and high-quality.
+
+Art can be moved/scaled/rotated/recolored/duplicated/deleted/reordered.
+
+Drawing and erasing work.
+
+Text either truly works or is absent; no placeholder.
+
+Layers work.
+
+Undo/redo works without history spam.
+
+Copy/mirror/set helpers work.
+
+Save/autosave/reopen works.
+
+Existing old stored designs migrate safely.
+
+AR
+
+Camera permissions are production quality.
+
+Native supported build uses real hand landmarks; no native stub.
+
+Correct per-finger designs render.
+
+Hand tracking is smoothed/stable.
+
+Lost tracking degrades gracefully.
+
+Fit controls are available but not intrusive.
+
+AR screen looks like a consumer camera experience.
+
+Capture/share path is verified or clearly disabled if platform truly cannot support it; no fake output.
+
+Visual / UX
+
+Cohesive premium design system.
+
+Real app icon/splash.
+
+High-quality curated visual assets.
+
+No emoji UI icons.
+
+Navigation transitions are coherent.
+
+Bottom sheets / finger switching / adding art have polished motion.
+
+Small phone layouts are usable.
+
+Basic accessibility and reduced motion work.
+
+Engineering
+
+Git history/checkpoints exist.
+
+No critical TODO/stub is reachable in P0 flows.
+
+Lint/build/test pipeline passes to the extent supported by environment.
+
+Pure migration and AR placement logic has automated coverage.
+
+Native build is tested where environment permits.
+
+README reflects actual behavior.
+
+.hermes/QA_MATRIX.md records final validation.
+
+.hermes/KNOWN_ISSUES.md contains only genuine remaining issues, not hidden unfinished P0 work.
+
+69. FINAL REVIEW PROCESS
+
+Before final handoff:
+
+Run an independent code review of the entire P0 diff.
+
+Specifically inspect data migration, AR frame pipeline, permission handling, storage, and deletion paths.
+
+Search again for TODO/FIXME/stub/simulated/coming soon/placeholder.
+
+Search visible strings for "Nailify" and decide deliberately whether each remaining internal occurrence is safe.
+
+Search visible strings for "Pro" / purchase / subscription and make sure no fake commercial flow remains.
+
+Run clean install/build/tests.
+
+Run the mandatory user story.
+
+Inspect visual screenshots at small and large phone sizes.
+
+Update all project state files.
+
+Make a final release-candidate commit.
+
+70. FINAL HANDOFF DELIVERABLES
+
+When the work is genuinely complete, leave the project itself ready to run and provide a concise final report containing:
+
+what was changed
+
+major architecture decisions
+
+exact run/build commands
+
+what was tested
+
+native AR status by platform
+
+any credentials still needed for optional future features
+
+any remaining non-P0 limitations
+
+location of QA/release docs
+
+final Git commit hash
+
+Also ensure these files exist and are current:
+
+README.md
+
+AGENTS.md
+
+.hermes/CHECKPOINT.md
+
+.hermes/QA_MATRIX.md
+
+.hermes/KNOWN_ISSUES.md
+
+.hermes/ARCHITECTURE.md
+
+.hermes/DECISIONS.md
+
+optional RELEASE_CHECKLIST.md
+
+Do not hand me a "recommended next steps" list while major P0 work is still implementable. Continue working.
+
+71. FIRST ACTIONS TO TAKE NOW
+
+Begin immediately with these actions:
+
+cd ~/Desktop/nailfy
+
+locate the real Expo app root
+
+initialize/inspect Git and create the baseline checkpoint
+
+create .hermes/ control files and concise AGENTS.md
+
+install dependencies if necessary
+
+run the current app/build checks
+
+audit source + inspiration assets
+
+write KEEP / MODIFY / REPLACE findings
+
+create the task queue with leases and review gates
+
+start Phase 1 implementation without waiting for my approval
+
+Remember the priority throughout:
+
+Nail builder first. AR second. Premium app quality everywhere. Everything else is subordinate.
+
+The goal is not "more features." The goal is for the core experience to feel finished, beautiful, intuitive, stable, and real.

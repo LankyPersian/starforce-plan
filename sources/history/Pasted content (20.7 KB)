@@ -1,0 +1,871 @@
+# EMPIRIUM SUPERVISOR — FINAL ORCHESTRATION PROOF REPAIR + GO-LIVE
+# SCOPE: REPAIR PROOF A/D ONLY, RE-RUN A–D, THEN ENABLE REAL META-DIRECTOR
+# DO NOT RESUME APPLICATION CODING UNTIL ALL FOUR PROOFS PASS CLEANLY
+
+You are continuing from an already-successful supervisor registration.
+
+The real Empirium Studio project is now registered correctly:
+
+    projectId: empirium-studio-workforce
+    root: /home/ash/empirium-studio
+    profile: coding-build
+    checkpoint:
+      /home/ash/empirium-studio/
+      AI_WORKFORCE_BUILD/controller/meta-director-checkpoint.json
+
+Completion gate:
+
+    FINAL_RELEASE_GATE.status == PASS
+    FINAL_RELEASE_GATE.exitCode == 0
+
+The real project is currently:
+
+    registered = YES
+    enabled/launched = NO
+    application coding resumed = NO
+    release gate = NOT_READY
+
+KEEP IT THAT WAY until the disposable orchestration proof gate passes.
+
+======================================================================
+1. CURRENT VERIFIED RESULTS
+======================================================================
+
+Supervisor test suite:
+
+    51 passed
+    0 failed
+
+Proof results:
+
+PROOF A
+Meta-Director checkpoint/relaunch:
+    PARTIAL PASS
+
+Checkpoint and fresh-generation resume worked.
+
+However the disposable fixture remained alive/stalled long enough for the
+progress-stall watchdog to cause extra recycle activity.
+
+Therefore the test did not cleanly prove:
+
+    exactly one expected death
+    → exactly one replacement
+    → one successful resume
+
+PROOF B
+Child lease recovery:
+    PASS
+
+Verified:
+
+    lease expired
+    → LEASE_EXPIRED
+    → fresh director consumed directive
+    → directive ACKed
+    → distinct replacement lease created
+
+PROOF C
+Review rejection → durable rework:
+    PASS
+
+Verified:
+
+    REJECT
+    → durable review
+    → durable CHANGES_REQUESTED rework
+    → checkpoint state persisted
+
+PROOF D
+Subscription interruption:
+    FAIL
+
+The disposable fixture rotated/exited before the injected:
+
+    SUBSCRIPTION_LIMIT
+
+classification could become the authoritative exit classification.
+
+It was therefore recorded as a generic crash instead of subscription
+capacity interruption.
+
+Important:
+
+    NO paid fallback occurred.
+
+This is a TEST HARNESS / ORDERING problem unless evidence proves a supervisor
+runtime defect.
+
+Do not redesign the supervisor.
+
+======================================================================
+2. OBJECTIVE
+======================================================================
+
+Perform only the smallest changes necessary to make Proof A and Proof D
+deterministic.
+
+Then rerun ALL four proofs.
+
+Only after:
+
+    A = PASS
+    B = PASS
+    C = PASS
+    D = PASS
+
+may you:
+
+    enable/launched = YES
+
+for:
+
+    empirium-studio-workforce
+
+Then prove the real Meta-Director is under supervisor control.
+
+After that, release the build back into autonomous execution.
+
+======================================================================
+3. DO NOT TOUCH APPLICATION CODE YET
+======================================================================
+
+Until the proof gate is satisfied:
+
+DO NOT:
+
+- modify Empirium application implementation;
+- resume ESB-RUNTIME-001;
+- create real implementation branches;
+- merge rejected commit 898b7ac;
+- dispatch real FreeLLMAPI coding workers;
+- run Opus review of application code;
+- mark requirements complete;
+- alter FINAL_RELEASE_GATE to PASS.
+
+Only work on:
+
+    disposable orchestration fixtures
+    test harnesses
+    supervisor integration proof
+    launcher/adapter fixture behavior
+
+Preserve real project source state.
+
+======================================================================
+4. REPAIR PROOF A — CLEAN EXACTLY-ONE RELAUNCH
+======================================================================
+
+The purpose of Proof A is simple:
+
+    supervisor launches director generation N
+    → director reads checkpoint
+    → heartbeat works
+    → progress is recorded
+    → checkpoint is updated
+    → director intentionally exits
+    → supervisor observes exit
+    → exactly one generation N+1 launches
+    → generation N+1 reads checkpoint
+    → generation N+1 proves RESUME
+    → fixture completes
+    → no further recycle occurs
+
+The previous proof became noisy because progress-stall recovery activated
+during the fixture.
+
+Fix the TEST, not production semantics.
+
+Preferred approach:
+
+Make Proof A complete well inside:
+
+    progressSoftStallSeconds
+    progressHardStallSeconds
+
+The disposable director should:
+
+GENERATION N:
+
+1. heartbeat;
+2. emit progress;
+3. write nonce/checkpoint:
+       phase = BEFORE_RELAUNCH
+4. exit intentionally immediately.
+
+GENERATION N+1:
+
+5. read checkpoint;
+6. verify:
+       phase == BEFORE_RELAUNCH
+7. heartbeat;
+8. emit progress;
+9. write:
+       phase = RESUMED
+10. satisfy disposable completion gate;
+11. exit cleanly.
+
+Then observe for at least:
+
+    2 supervisor tick intervals
+    +
+    relevant launch cooldown
+
+and prove:
+
+    total expected launches = exactly 2
+
+unless the supervisor's current architecture inherently includes one wrapper
+launch that is separately counted.
+
+If so, define the exact expected count from source semantics BEFORE running.
+
+Do not change production progress thresholds merely to make the test pass.
+
+Do not disable the progress watchdog globally.
+
+If a per-fixture long-operation exemption is used, only use it if this matches
+real production semantics and is explicitly bounded.
+
+======================================================================
+5. PROOF A ACCEPTANCE CRITERIA
+======================================================================
+
+Proof A passes only when evidence shows:
+
+[ ] launch generation N occurred;
+
+[ ] PID/fingerprint N recorded;
+
+[ ] N heartbeated;
+
+[ ] N emitted genuine progress;
+
+[ ] N checkpointed BEFORE_RELAUNCH;
+
+[ ] N exited intentionally;
+
+[ ] exactly one expected supervisor recovery/relaunch occurred;
+
+[ ] generation N+1 has a different launch identity;
+
+[ ] N+1 read the SAME durable checkpoint;
+
+[ ] N+1 explicitly identified itself as RESUME;
+
+[ ] N+1 emitted heartbeat;
+
+[ ] N+1 emitted progress;
+
+[ ] completion fixture became true;
+
+[ ] no progress-stall recycle occurred during this controlled proof;
+
+[ ] no third unexpected launch occurred.
+
+If extra launch occurs:
+
+FAIL.
+
+Investigate exactly why.
+
+Do not explain it away.
+
+======================================================================
+6. REPAIR PROOF D — CLASSIFICATION MUST PRECEDE RECOVERY
+======================================================================
+
+The failure was a race:
+
+    fixture process rotated/exited
+        BEFORE
+    SUBSCRIPTION_LIMIT classification became authoritative.
+
+The test must be redesigned so classification is durable BEFORE the supervisor
+makes restart-policy decisions.
+
+Determine the actual adapter/supervisor contract first.
+
+Do NOT invent a parallel test-only behavior that production cannot use.
+
+The goal is to verify this real logical path:
+
+    subscription-backed launcher encounters capacity limit
+    ↓
+    exit/result is classified SUBSCRIPTION_LIMIT
+    ↓
+    classification persisted
+    ↓
+    supervisor sees classification
+    ↓
+    project transitions to WAITING_SUBSCRIPTION_CAPACITY
+    ↓
+    retry/backoff scheduled
+    ↓
+    NO paid fallback
+    ↓
+    project remains incomplete
+    ↓
+    capacity-restored fixture/probe occurs
+    ↓
+    supervisor launches fresh director
+    ↓
+    checkpoint is read
+    ↓
+    project resumes
+
+======================================================================
+7. DETERMINE AUTHORITATIVE FAILURE-CLASSIFICATION ORDER
+======================================================================
+
+Before changing Proof D, inspect actual source.
+
+Determine whether failure classification currently comes from:
+
+A.
+launcher exit code;
+
+B.
+structured launcher result file;
+
+C.
+CLI report-failure command;
+
+D.
+adapter wrapper;
+
+E.
+supervisor post-exit inspection;
+
+F.
+another implemented mechanism.
+
+Document the actual authority.
+
+Then ensure the production sequence is race-safe.
+
+A correct architecture should resemble one of:
+
+OPTION 1
+
+    launcher detects SUBSCRIPTION_LIMIT
+    → writes structured result atomically
+    → exits
+    → supervisor reads result
+    → classifies exit
+
+OPTION 2
+
+    launcher reports SUBSCRIPTION_LIMIT
+    → supervisor persists state
+    → launcher exits
+    → supervisor sees already-classified failure
+
+What is NOT acceptable:
+
+    process exits
+    → generic crash handling immediately executes
+    → classification arrives later
+
+because that creates the exact race Proof D exposed.
+
+If production code genuinely contains this race, fix the smallest relevant
+ordering defect.
+
+If only the fixture contains the race, fix only the fixture.
+
+======================================================================
+8. PROOF D FIXTURE
+======================================================================
+
+Use a disposable subscription-limit fixture.
+
+Do NOT intentionally exhaust the user's real ChatGPT subscription.
+
+Simulate the launch adapter's REAL classified failure mechanism.
+
+Fixture behavior:
+
+1. director launch begins;
+
+2. checkpoint exists;
+
+3. fixture signals the exact production-equivalent:
+
+       SUBSCRIPTION_LIMIT
+
+4. ensure classification is durably persisted;
+
+5. fixture exits;
+
+6. supervisor processes exit.
+
+Expected state:
+
+    WAITING_SUBSCRIPTION_CAPACITY
+
+or the actual canonical equivalent already implemented.
+
+Expected:
+
+    no immediate relaunch storm;
+
+    no generic crash classification;
+
+    no paid fallback;
+
+    no OPENAI_API_KEY;
+
+    no ANTHROPIC_API_KEY;
+
+    no OPENROUTER paid route;
+
+    project remains incomplete.
+
+Then simulate:
+
+    subscription capacity restored
+
+using the real supported recovery/preflight mechanism.
+
+Expected:
+
+    waiting state clears
+    → exactly one fresh director launches
+    → checkpoint is read
+    → director resumes.
+
+======================================================================
+9. PROOF D ACCEPTANCE CRITERIA
+======================================================================
+
+Proof D passes only when:
+
+[ ] classified failure = SUBSCRIPTION_LIMIT or canonical equivalent;
+
+[ ] generic PROCESS_CRASH is NOT the final authoritative classification;
+
+[ ] project enters waiting-capacity state;
+
+[ ] no paid fallback occurs;
+
+[ ] retry/backoff is bounded;
+
+[ ] retry state is durable;
+
+[ ] supervisor restart during waiting does not forget waiting state;
+
+[ ] no rapid relaunch loop occurs;
+
+[ ] simulated capacity restoration clears waiting;
+
+[ ] exactly one fresh director launches;
+
+[ ] fresh director reads previous checkpoint;
+
+[ ] work resumes;
+
+[ ] no manual "continue" operation is required.
+
+======================================================================
+10. REGRESSION CHECK PROOFS B AND C
+======================================================================
+
+Even though B and C already passed, rerun them after the A/D harness changes.
+
+Do not unnecessarily rewrite them.
+
+PROOF B must still show:
+
+    child lease
+    → timeout
+    → LEASE_EXPIRED
+    → exactly one recovery directive
+    → consumed
+    → ACKed
+    → replacement lease with new run identity
+
+PROOF C must still show:
+
+    review REJECT
+    → durable exact-commit review artifact
+    → CHANGES_REQUESTED
+    → durable rework
+    → survives parent restart
+    → fresh Meta-Director discovers rework
+
+======================================================================
+11. RUN PROOFS IN ISOLATED DISPOSABLE PROJECT
+======================================================================
+
+Do not use real Empirium application state as test data.
+
+Use a dedicated disposable project ID, for example:
+
+    empirium-orchestration-proof-final
+
+Use:
+
+    isolated checkpoint
+    isolated logs
+    isolated completion artifacts
+    isolated leases
+    isolated directives
+
+The proof project must never point completion checks at the real:
+
+    FINAL_RELEASE_GATE
+
+After the test:
+
+cleanly unregister/remove only the disposable project.
+
+Keep evidence.
+
+======================================================================
+12. PROOF EVIDENCE
+======================================================================
+
+Create:
+
+    /home/ash/.local/state/empirium-supervisor/
+    install-evidence/
+    final-orchestration-proof/
+
+At minimum store:
+
+    proof-a.md
+    proof-b.md
+    proof-c.md
+    proof-d.md
+    proof-summary.json
+
+Include:
+
+    timestamps
+    project ID
+    generation IDs
+    launch IDs
+    PIDs/fingerprints
+    heartbeat timestamps
+    progress sequence
+    checkpoint hashes
+    lease IDs
+    directive IDs
+    ACKs
+    exit class
+    waiting state
+    retryNotBefore
+    completion transitions
+    relevant event lines
+
+Do not include credentials.
+
+======================================================================
+13. PROOF SUMMARY
+======================================================================
+
+Write machine-readable:
+
+{
+  "proofA": {
+    "status": "PASS|FAIL",
+    "exactRelaunchCountVerified": true,
+    "checkpointResumeVerified": true
+  },
+  "proofB": {
+    "status": "PASS|FAIL",
+    "leaseRecoveryVerified": true
+  },
+  "proofC": {
+    "status": "PASS|FAIL",
+    "durableReworkVerified": true
+  },
+  "proofD": {
+    "status": "PASS|FAIL",
+    "subscriptionLimitClassificationVerified": true,
+    "waitingStateVerified": true,
+    "automaticResumeVerified": true,
+    "paidFallbackObserved": false
+  },
+  "allPassed": true
+}
+
+Do not set allPassed=true unless all four are genuinely PASS.
+
+======================================================================
+14. ONLY AFTER A+B+C+D PASS — ENABLE REAL PROJECT
+======================================================================
+
+Once:
+
+    allPassed = true
+
+proceed immediately.
+
+Do not ask Ash for confirmation unless an actual destructive/human-only
+blocker exists.
+
+Enable the registered real project:
+
+    empirium-studio-workforce
+
+using the installed supervisor's supported mechanism.
+
+Do not invent a new start mechanism.
+
+======================================================================
+15. REAL PROJECT LAUNCH VERIFICATION
+======================================================================
+
+Verify the REAL Meta-Director is launched by the supervisor.
+
+Require evidence:
+
+    project = empirium-studio-workforce
+
+    root = /home/ash/empirium-studio
+
+    profile = coding-build
+
+    launcher = expected canonical adapter
+
+    DIRECTOR_LAUNCHED exists
+
+    PID exists
+
+    PID fingerprint matches
+
+    generation exists if implemented
+
+    heartbeat fresh
+
+    progress fresh
+
+    checkpoint loaded
+
+The build must no longer be controlled by an unrelated Hermes/Claude chat
+session.
+
+======================================================================
+16. REAL META-DIRECTOR FIRST ACTION
+======================================================================
+
+On first real supervised launch:
+
+DO NOT immediately create random new work.
+
+Reconcile:
+
+    forensic audit
+    Git
+    worktrees
+    checkpoint
+    Kanban
+    rejected candidate 898b7ac
+    requirement state
+    leases
+    reviews
+    handoffs
+    evidence
+
+Then persist a new real checkpoint.
+
+Identify the next logical task.
+
+Known current work requiring repair:
+
+    ESB-RUNTIME-001
+
+The previous R3 run is dead.
+
+Do not resurrect R3 identity.
+
+Create the next correct fresh run identity from durable history.
+
+Likely:
+
+    ESB-RUNTIME-001-R4
+
+but derive it from actual state.
+
+======================================================================
+17. RESUME APPLICATION CODING
+======================================================================
+
+Only now may coding resume.
+
+ESB-RUNTIME-001 repair must address at least the independently known rejected
+areas:
+
+- meaningful configured PostgreSQL route tests;
+- documented unconfigured department local fallback;
+- correct employee POST configuration-error semantics;
+- correct 404 missing-entity semantics;
+- compatibility/public API preservation;
+- narrow getPool() contract unless widening justified;
+- fresh runtime evidence bound to exact repair commit.
+
+Implementation route:
+
+    FreeLLMAPI / genuinely free worker
+
+Create:
+
+    dedicated worktree
+    new run ID
+    new lease
+    precise repair brief
+    structured handoff contract
+
+======================================================================
+18. OPUS REVIEW MUST BE DURABLE
+======================================================================
+
+After deterministic verification:
+
+submit exact repair commit for independent Opus review through subscription
+route.
+
+Persist:
+
+    exact commit
+    verdict
+    findings
+    evidence references
+    timestamp
+
+If REJECT:
+
+    automatically create CHANGES_REQUESTED rework.
+
+Do not stop.
+
+If Opus subscription hits capacity:
+
+    WAITING_SUBSCRIPTION_CAPACITY
+
+for that review path.
+
+Continue independent runnable work.
+
+Retry automatically later.
+
+Do NOT let Opus session capacity kill the Meta-Director.
+
+======================================================================
+19. FROM THIS POINT, PROJECT RUNS AUTONOMOUSLY
+======================================================================
+
+After real launch verification, continue indefinitely until deterministic
+completion.
+
+The loop is:
+
+    reconcile
+    → read directives
+    → monitor leases
+    → repair failed runs
+    → dispatch ready work
+    → verify
+    → review
+    → rework rejects
+    → integrate approvals
+    → update requirements
+    → checkpoint
+    → release gate
+    → continue
+
+No manual continue required.
+
+======================================================================
+20. NEVER AGAIN RUN THE REAL BUILD OUTSIDE SUPERVISOR
+======================================================================
+
+Do not create an unsupervised replacement Meta-Director through:
+
+    Hermes chat
+    Claude chat
+    raw manual codex exec
+    standalone shell loop
+    Conductor one-shot session
+
+The supervisor-controlled project is now the canonical Meta-Director launch
+path.
+
+Other tools may be used by the Meta-Director as subordinate execution/review
+resources.
+
+They are not the durable controller.
+
+======================================================================
+21. HUMAN BLOCKER RULE
+======================================================================
+
+Only stop and ask Ash if a genuinely human-only action is necessary.
+
+Examples:
+
+    interactive account authentication
+    unavoidable sudo authorization
+    irreversible destructive choice
+    truly missing user-owned mandatory input
+
+Do NOT stop for:
+
+    worker timeout
+    worker bug
+    test failure
+    Opus rejection
+    provider 429
+    temporary subscription limit
+    merge conflict
+    stale evidence
+    failed Proof fixture that can be repaired autonomously
+
+======================================================================
+22. FINAL RELEASE
+======================================================================
+
+Continue until:
+
+    FINAL_RELEASE_GATE.status == PASS
+    FINAL_RELEASE_GATE.exitCode == 0
+
+The release gate must be tied to the exact release commit.
+
+No model may fake it.
+
+Supervisor then transitions the real project to SHIPPED according to its
+deterministic completion contract.
+
+Only then stop normal project execution.
+
+======================================================================
+23. IMMEDIATE EXECUTION ORDER
+======================================================================
+
+Do this now:
+
+1. inspect current Proof A fixture;
+2. identify exactly why progress-stall recycle happened;
+3. repair fixture to produce clean exactly-one relaunch;
+4. run Proof A;
+5. inspect Proof D classification ordering;
+6. determine whether race is fixture-only or production;
+7. make smallest correct repair;
+8. run Proof D;
+9. rerun Proof B;
+10. rerun Proof C;
+11. generate final proof evidence;
+12. require A+B+C+D PASS;
+13. clean disposable proof project;
+14. enable real empirium-studio-workforce project;
+15. verify real supervisor-launched Meta-Director;
+16. reconcile existing build state;
+17. create fresh ESB-RUNTIME-001 repair run;
+18. resume autonomous build;
+19. continue without waiting for Ash;
+20. stop only at deterministic release PASS or genuine human-only blocker.
+
+BEGIN NOW.

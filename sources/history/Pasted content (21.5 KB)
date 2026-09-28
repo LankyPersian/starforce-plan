@@ -1,0 +1,392 @@
+Let me check if the handover document already exists.The handover document was already created at `/home/ash/repairs/nailify-orchestrator/HANDOVER_PROMPT_20260918T162715Z.md`. Here it is:
+
+---
+
+# Handover prompt — Nailify durable Hermes orchestrator repair
+
+Use this entire document as the starting prompt for the next implementation session.
+
+---
+
+You are taking over an **incomplete implementation and commissioning job**, not an audit-only task. Continue from the existing isolated repair worktree and preserved evidence. Do not restart from scratch, do not weaken the acceptance contract, and do not call the project complete from partial tests or prose summaries.
+
+## Objective
+
+Build and commission a reliable, reusable Hermes software-project orchestrator that:
+
+1. Converts a detailed specification into a durable, source-traceable acceptance contract.
+2. Decomposes that contract into bounded, dependency-aware WorkItems.
+3. Atomically assigns isolated workers with durable ownership, fencing, launch identity, leases, deadlines, and route provenance.
+4. Survives initiating-chat closure, context exhaustion, terminal/browser/SSH closure, controller restart, gateway restart, worker failure, and approved reboot semantics.
+5. Requires validated structured handoff, independent verification, verified idempotent integration, and bounded diagnosis/rework.
+6. Accepts a project only when every mandatory criterion has current evidence at the exact Git SHA/spec hash/policy revision.
+7. Persists blockers honestly. Never fabricate evidence, silently weaken requirements, or label an unavailable physical-device criterion complete.
+8. Works for a second repository through configuration and supported intake commands, without Nailify-specific scheduler logic.
+9. Is implemented and commissioned through the installed service path, not merely designed or unit-tested.
+
+## Authoritative sources — read completely before changing code
+
+- Implementation/commissioning contract:
+  `/home/ash/.hermes/attachments/Pasted content (25-2.0 KB)`
+- Independent audit:
+  `/home/ash/audits/nailify-20260918/MASTER_AUDIT.md`
+- Product authority:
+  `/home/ash/Desktop/nailify/.hermes/source/PRODUCT_CHARTER.md`
+- Existing projections:
+  `/home/ash/Desktop/nailify/.hermes/REQUIREMENTS.md`
+  `/home/ash/Desktop/nailify/.hermes/REQUIREMENTS.json`
+- Frozen repair/acceptance matrix:
+  `/home/ash/work/nailify-orchestrator-repair/.hermes/autonomy/REPAIR_MATRIX.md`
+- Legacy controller and initializer:
+  `/home/ash/Desktop/nailify/.hermes/autonomy/controller.py`
+  `/home/ash/Desktop/nailify/.hermes/autonomy/init_db.py`
+- Legacy unit backup, currently contained:
+  `/home/ash/.config/systemd/user/nailed-it-controller.service.contained-20260918`
+- Primary evidence/checkpoint root:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/`
+
+## Current repository state — verified 2026-09-18T16:27:15Z
+
+- Primary/live checkout: `/home/ash/Desktop/nailify`
+- Isolated repair worktree: `/home/ash/work/nailify-orchestrator-repair`
+- Repair branch: `orchestrator-repair`
+- Current repair HEAD: `d8938c7`
+- Current recent history:
+  - `d8938c7 [verified] add durable SQLite connection policy`
+  - `037543c docs: freeze orchestrator repair acceptance matrix`
+  - `ddd445a feat: escalate after three FreeLLMAPI failures`
+- The repair worktree currently has exactly two untracked files:
+  - `.hermes/autonomy/persistence/migrations.py`
+  - `.hermes/autonomy/tests/test_migrations.py`
+- Do not discard those files. They are the in-progress second TDD slice and are green locally, but they have **not** received independent review and have **not** been committed.
+
+Reinspect all live state before intervening. Audit PIDs and timestamps are historical evidence, not instructions to signal those PIDs.
+
+## Current legacy-controller containment — verified 2026-09-18T16:27:15Z
+
+The unsafe legacy controller repeatedly restarted after an ordinary stop and even after disablement. It blindly integrated unverified work once. It must remain contained.
+
+Current observed state:
+
+- `LoadState=not-found`
+- `ActiveState=inactive`
+- `SubState=dead`
+- `MainPID=0`
+- No matching controller or attempt worker process was observed.
+- `/home/ash/.config/systemd/user/nailed-it-controller.service` is absent.
+- The original unit is preserved at:
+  `/home/ash/.config/systemd/user/nailed-it-controller.service.contained-20260918`
+  (regular file, mode 0600).
+- The earlier runtime mask under `/run/user/1000/systemd/user.control/` is no longer present.
+
+This is reversible containment by moving the unit out of the systemd search path, not a currently installed `/dev/null` mask. **Do not restore, enable, or start this unit without an explicit activation/rollback plan and user approval.** Do not substitute `empirium-autonomy-reconciler.service` or `hermes-gateway.service` for the Nailify controller.
+
+The unsafe legacy controller previously integrated commit:
+`b166c4be1d513a881221a9ea6df6f8a516c813de`
+into the primary checkout. Treat that as historical unsafe integration, not verified orchestrator output.
+
+## Preservation and incident evidence already created
+
+- Initial consistent baseline and rollback evidence:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/`
+- Post-reactivation evidence:
+  `/home/ash/repairs/nailify-orchestrator/20260918T150901Z-post-reactivation/`
+- Post-runtime-mask evidence:
+  `/home/ash/repairs/nailify-orchestrator/20260918T151221Z-runtime-masked/`
+- Natural-exit orphan-worker archive:
+  `/home/ash/repairs/nailify-orchestrator/20260918T151221Z-runtime-masked/orphan-worker-natural-exit/`
+- Main checkpoint:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/REPAIR_CHECKPOINT.md`
+- Baseline hashes:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/SHA256SUMS`
+
+The old database contains a preserved stale `RUNNING` attempt whose process exited naturally. No termination signal was sent because the worker had already exited. Do not silently rewrite this row; use it as a recovery/reconciliation fixture.
+
+Historical orphan identity:
+
+- PID: `2568364` (no longer exists)
+- `/proc` start ticks: `128764567`
+- Working directory:
+  `/home/ash/Desktop/nailify/.hermes/attempts/p0-ar-001-71fb005b`
+- Preserved DB status after process exit: `RUNNING`
+
+## Acceptance contract already frozen
+
+`REPAIR_MATRIX.md` contains:
+
+- 20 audit-finding closure items (`AF-*`)
+- 26 required-behavior items (`RB-*`)
+- 28 commissioning scenarios (`CS-*`)
+- 74 matrix items total
+- 73 are currently marked `OPEN`
+- `CS-28` is `BLOCKED` pending genuine native AR/device evidence
+
+Do not use the raw matrix status as proof that completed code slices are absent; it has not yet been updated for the two persistence slices. However, do not mark items `VERIFIED` without exact-SHA observed evidence. Code presence is only `IMPLEMENTED` at most.
+
+## Completed implementation slice 1 — committed and verified
+
+Commit: `d8938c7 [verified] add durable SQLite connection policy`
+
+Files:
+
+- `.hermes/autonomy/persistence/db.py`
+- `.hermes/autonomy/persistence/__init__.py`
+- `.hermes/autonomy/tests/test_connection_policy.py`
+- package markers under `.hermes/autonomy/`
+
+Implemented behavior:
+
+- Writable SQLite connection with explicit transaction control.
+- `PRAGMA journal_mode=WAL`.
+- `PRAGMA foreign_keys=ON`.
+- `PRAGMA busy_timeout=5000`.
+- `PRAGMA synchronous=FULL`.
+- Read-only URI construction safe for filenames containing spaces, `#`, `?`, and `%`.
+- Read-only mode does not accidentally create a database.
+
+Observed TDD evidence:
+
+- RED: 2 failures and 1 error before implementation.
+- GREEN: 3/3 focused tests passed.
+- `compileall` passed.
+- `git diff --check` passed.
+- Static security scan found no issue.
+- Independent FreeLLMAPI review returned `PASS`.
+
+Evidence artifacts:
+`/home/ash/repairs/nailify-orchestrator/20260918T142536Z/passes/core-01c/`
+
+## In-progress implementation slice 2 — additive migration/schema foundation
+
+Uncommitted files:
+
+- `/home/ash/work/nailify-orchestrator-repair/.hermes/autonomy/persistence/migrations.py`
+- `/home/ash/work/nailify-orchestrator-repair/.hermes/autonomy/tests/test_migrations.py`
+
+TDD state:
+
+1. A failing migration test was created first.
+2. Observed RED was:
+   `ModuleNotFoundError: No module named 'persistence.migrations'`
+3. FreeLLMAPI generated the initial implementation through the verified Mistral route.
+4. Two test-fixture errors were corrected after first execution:
+   - The legacy `work_item` INSERT had 17 placeholders for 16 columns.
+   - The test assumed `rollback()` would undo prior autocommitted statements while the connection uses `isolation_level=None`; the release test was corrected to update the active claim's `released_at` before inserting the replacement.
+   - A `sqlite3.Row` was converted to a tuple for comparison.
+5. Current full local result is 7/7 tests passing.
+
+Verified command and result at handover:
+
+```bash
+cd /home/ash/work/nailify-orchestrator-repair
+python3 -m unittest discover -s .hermes/autonomy/tests -p 'test*.py' -v
+```
+
+Result: `Ran 7 tests ... OK`.
+
+The migration implementation currently provides:
+
+- `LATEST_SCHEMA_VERSION = 2`.
+- `schema_migration(version, name, applied_at)`.
+- Version 1 creation of the existing legacy control tables/indexes for a fresh DB.
+- Version 2 additive creation of:
+  - `specification_revision`
+  - `work_dependency`
+  - `ownership`
+  - `resource_claim`
+  - `launch_intent`
+  - `worker_process`
+- Additive attempt columns for fencing, process identity, launch state, three clocks, requested/actual route data, and billing classification.
+- Partial unique index for one unreleased owner per WorkItem.
+- Partial unique index for one unreleased claim per resource key.
+- Existing legacy `provider`/`model` values are preserved; new route provenance fields remain NULL rather than being fabricated.
+- Migration idempotence and legacy row preservation tests.
+
+Generation and route evidence:
+
+- Test-generation response:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/passes/core-02/test-generation-response.json`
+- Generated test draft (not copied verbatim; it was corrected against the real legacy schema):
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/passes/core-02/test_migrations.py`
+- Implementation generation script:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/passes/core-02/generate_implementation.py`
+- Raw generated implementation:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/passes/core-02/migrations-generated.py`
+- Full response metadata:
+  `/home/ash/repairs/nailify-orchestrator/20260918T142536Z/passes/core-02/implementation-response.json`
+
+Before committing this slice:
+
+1. Read the complete diff and migration module.
+2. Add/fix tests first for any defect found.
+3. Confirm rollback behavior on a deliberately failing migration/DDL statement, especially that failure cannot leave a recorded version with a partial schema.
+4. Confirm migration behavior when called on an already-open connection and document the transaction ownership contract.
+5. Run all seven current tests, `compileall`, `git diff --check`, and a static security scan.
+6. Obtain an independent review; fail closed on malformed/unavailable review.
+7. Fix review findings and rerun affected checks.
+8. Commit only this coherent slice with a clear small commit message.
+
+Do not alter the live `/home/ash/Desktop/nailify/.hermes/state/project.db` while reviewing this slice. Use copies/fixtures only.
+
+## FreeLLMAPI route policy and current project profile
+
+The old NVIDIA-only limitation was explicitly removed by the user. Builders may use **other verified free models through FreeLLMAPI**. This does not authorize metered paid routes, OpenRouter credits, Token Harbour, or silent unknown routes.
+
+Project-specific profile:
+
+- Name: `nailify-build`
+- Profile ID: `2`
+- `auto_include_new_models = false`
+- Current read-back order:
+  1. model DB ID `52`: `groq / openai/gpt-oss-120b`
+  2. model DB ID `183`: `mistral / mistral-code-latest`
+  3. model DB ID `282`: `nvidia / openai/gpt-oss-20b`
+
+Direct free-route commissioning evidence:
+
+`/home/ash/repairs/nailify-orchestrator/20260918T142536Z/passes/core-02/free-route-commission.json`
+
+Observed exact-response probes:
+
+- Groq GPT-OSS 120B: HTTP success, exact `ROUTE_OK`, `_routed_via.platform=groq`, approximately 0.37 s.
+- Mistral Code: HTTP success, exact `ROUTE_OK`, `_routed_via.platform=mistral`, approximately 0.78 s.
+- Zhipu GLM-4.7 Flash: HTTP 503 during probe; excluded from final profile.
+- Cerebras GPT-OSS 120B: HTTP 503 during probe; excluded.
+- Cohere North Mini Code: HTTP 503 during probe; excluded.
+- NVIDIA GPT-OSS 20B remains third fallback; it had earlier upstream abort/429 exhaustion and was not reclassified as healthy by this commissioning run.
+
+The second-slice test generation and implementation both routed through:
+`mistral / mistral-code-latest` with response `_routed_via` captured in the response artifacts.
+
+Never persist credential values in prompts, summaries, logs, or evidence. Refer to all credentials as `[REDACTED]`.
+
+## Previous failed agent paths — do not mistake them for evidence
+
+- Broad isolated Hermes builder attempts under `passes/core-01/` and `passes/core-01b/` timed out or exited 124 with empty/unhelpful logs. They did not produce accepted implementation.
+- A four-task Gemma delegation batch failed entirely with HTTP 503/no usable candidate provider. Its outputs are not evidence.
+- The migration test generator initially suffered 180-second upstream aborts and 429s while the project was incorrectly constrained to a single NVIDIA route. That restriction has been corrected.
+- Direct Docker log access failed due Docker socket permission, and `sudo -n` was unavailable. Do not claim those logs were read.
+
+## Safety and architecture invariants
+
+- Use strict TDD: observe RED before production code, then minimal GREEN, then refactor.
+- Keep commits small and coherent; commit at each verified feature increment.
+- Migrations must be additive, idempotent, rollback-safe, and preserve unknown history as NULL/UNKNOWN.
+- Never destructively rewrite existing live state to make tests pass.
+- Claims must use `BEGIN IMMEDIATE`, durable ownership, monotonically increasing fencing tokens, and partial unique indexes.
+- PID identity must include boot ID, `/proc/<pid>/stat` start ticks, executable, working directory, and cgroup/systemd-unit identity. PID alone is not authority.
+- Durable exit receipts must prevent invented exit codes. Missing receipt means UNKNOWN/RECOVERY_NEEDED, not fabricated failure or success.
+- Lease expiry must fence and reconcile the exact old process tree before releasing conflict capacity.
+- Separate lease/liveness, useful-progress deadline, and absolute deadline.
+- Workers must be isolated with per-attempt worktrees and an OS write boundary. Canonical repo, DB, gate, evidence, credentials, and user units must be read-only/inaccessible from the worker.
+- Worker route policy must fail closed for direct, inherited, auxiliary, and pool fallbacks. Persist requested route, actual hops, request IDs, and billing classification. Unknown cost is `UNKNOWN`, never `FREE`.
+- Structured handoff must include identities, base/candidate SHA range, files, requirements, commands/results, hashes, blockers, and route data. Reject stale, malformed, escaped, contradictory, altered, or out-of-scope handoffs.
+- Independent verification must run verifier-owned commands against the candidate before integration.
+- Integration must be serialized, check clean/unchanged canonical state, handle full commit ranges, record candidate-to-canonical mapping, and recover idempotently from post-Git/pre-DB crashes.
+- Repeated equivalent failures must produce one bounded diagnosis/split/replan task, not an infinite retry loop.
+- An incomplete empty queue, missing dependency, or cycle must become durable diagnosis/blocker state.
+- The final gate is keyed by exact repo SHA, spec hash, and verifier policy revision. Any code/spec/policy change invalidates prior acceptance.
+- Native AR/device evidence remains incomplete until actually observed on the required environment.
+- Never signal a historical PID without revalidating start ticks, executable, cwd, and ownership immediately before the signal.
+
+## Remaining workstreams
+
+### 1. Core durable control plane — in progress
+
+After the migration slice is reviewed and committed, implement via narrow TDD vertical slices:
+
+- Atomic WorkItem ownership and monotonically increasing fencing.
+- Durable resource claims and conflict scopes.
+- Launch intent and crash-window reconciliation.
+- Strong worker/process identity and supervised exit receipts.
+- Lease renewal, useful-progress deadlines, absolute deadlines, exact-tree fencing, and stale-row recovery.
+- Pause/cancel/start/resume lifecycle boundaries and late-result rejection.
+- Per-attempt sandbox/write boundary.
+- Project-scoped route policy and requested/actual route persistence.
+
+### 2. Handoff, verification, and integration — pending
+
+- Versioned handoff schema and validator.
+- Artifact hashing/path containment.
+- Independent verifier command/evidence records.
+- Review rejection → linked defect/rework.
+- Complete-range, serialized, idempotent integration with canonical mapping.
+
+### 3. Requirement authority, gate, diagnosis, and supported operations — pending
+
+- Normalize the complete Product Charter into source spans/hashes, clause kind, mandatory flag, scope, evidence rule, and explicit omission/deferral records.
+- Reconcile normalized ledger independently against the source.
+- Implement current-SHA/spec-hash/policy-revision fail-closed release predicate.
+- Implement failure signatures/thresholds and bounded diagnosis/replan.
+- Implement documented intake, validate, start/resume, pause, cancel, status, blocked-gate, and evidence export commands.
+- Status must distinguish controller health, worker liveness, provider progress, and accepted-product progress.
+
+### 4. Fault commissioning — pending
+
+Execute and preserve real evidence for all 28 `CS-*` scenarios, including:
+
+- Controller restart with live worker.
+- Worker success/nonzero/death and missing receipt.
+- Claim/launch/persist crash windows.
+- Crash after Git integration before DB commit.
+- Two-controller leader fencing.
+- PID reuse, zombie, reboot/stale fence.
+- Live process after lease expiry.
+- Absolute timeout and useful-progress stall.
+- Provider outage/rate limit/timeout and forbidden route.
+- Candidate test/review/runtime/evidence failures.
+- False progress and evidence attacks.
+- Multi-commit, dirty canonical, moved HEAD, conflict.
+- Repeated equivalent failures and empty/cyclic/missing dependency queues.
+- Pause/cancel races.
+- Full negative gate matrix, positive gate, and gate invalidation.
+- Client closure/service ownership and approved reboot semantics.
+
+### 5. Second fresh repository and real FreeLLMAPI commissioning — pending
+
+Use documented configuration/intake only. No scheduler source edits or hidden DB seeding. Run a genuine dependent-slice project through the installed service path, independent verification, integration, and exact-SHA final gate. Capture real route metadata and durable rows/process identities/transitions.
+
+### 6. Nailify live activation — pending and approval-gated
+
+Before any live migration or restoration:
+
+1. Present exact files/DB/unit changes.
+2. Present consistent backup and rollback commands.
+3. State service and data downtime/risk.
+4. Obtain explicit user approval.
+5. Migrate additively.
+6. Observe one real Nailify implementation → handoff → independent verification → integration → next-work transition.
+7. Keep unavailable device evidence explicitly incomplete.
+
+### 7. Independent final review and exact-SHA readiness report — pending
+
+Run a fresh independent review against the complete acceptance contract, repair findings, rerun affected verification, and repeat review until clean. Report separately:
+
+- Reusable orchestrator readiness.
+- Disposable-project end-to-end result.
+- Nailify migration/product readiness.
+- Explicit blocked/unverified native-device criteria.
+
+## Immediate next action
+
+Start with read-only inspection of the two uncommitted migration files and the complete authoritative contract/matrix. Do **not** touch live state. Add a RED test for migration atomic rollback/transaction behavior if the current code does not already prove it. Then make the smallest correction, rerun the seven-test suite plus new tests, compile, diff-check, independently review, and commit the migration slice. Continue autonomously into atomic ownership/fencing unless a genuine external/approval boundary is reached.
+
+Do not stop after writing a plan. Do not finish with only passing unit tests. Preserve evidence for every slice and continue until the full commissioning contract is verified or a genuinely unavailable dependency is durably recorded as blocked.
+
+---
+
+## Concise status at handover
+
+- **Legacy controller:** contained and inactive; original unit preserved outside systemd search path.
+- **Isolated repair branch:** clean except two intended untracked migration files.
+- **Committed slices:** matrix + SQLite connection policy.
+- **Current automated suite:** 7/7 passing.
+- **Current uncommitted slice:** additive versioned migrations and ownership/resource uniqueness foundation.
+- **FreeLLMAPI:** project profile broadened; Groq and Mistral direct free routes verified; Mistral successfully generated the current slice.
+- **Full orchestrator:** **INCOMPLETE**.
+- **Live Nailify activation:** **NOT APPROVED / NOT STARTED**.
+- **Native AR/device acceptance:** **BLOCKED pending genuine device evidence**.
+
+---
+
+The handover prompt covers all authoritative source paths, current state (verified 2026-09-18T16:27:15Z), acceptance contract, what's done, what's in-progress, safety invariants, and remaining workstreams. Ready when you are to continue from it.

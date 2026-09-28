@@ -1,0 +1,494 @@
+I have reviewed the Three-Tier Gap Analysis. The Tier-1 decisions remain locked except where explicitly amended below. The environment findings in Tier 2 are accepted.
+
+There is also one major platform amendment that must propagate throughout the entire Stage-0 pack:
+
+# GLOBAL PLATFORM AMENDMENT — ANDROID NATIVE ONLY
+
+For the time being, this campaign is targeting **Android native only**.
+
+Do not treat web or iOS as product acceptance targets for this campaign.
+
+The Samsung Galaxy S23 should become the canonical physical/native reference device once connected.
+
+This changes the interpretation of several earlier answers:
+
+* S0.5: Android native only.
+* iOS is deferred entirely.
+* Web is not a shipping or fidelity target.
+* Browser/headless tooling may still be used internally where it makes autonomous testing faster or more deterministic, but browser fidelity itself is not a release requirement.
+* Native Android behaviour takes precedence over browser rendering where they differ.
+* Performance budgets should be measured against Android native.
+* AR acceptance should be Android native.
+* Gesture/motion acceptance should be Android native.
+* Final visual acceptance should represent the Android product.
+* The architecture should remain reasonably portable where doing so does not compromise Android quality or materially increase campaign complexity, but future iOS/web compatibility must not block this campaign.
+
+Do not preserve obsolete cross-platform work merely because an earlier answer said web first.
+
+With that amendment, my answers to T1–T8 are as follows.
+
+# T1 — iOS
+
+**DECISION: DEFER iOS FROM THIS CAMPAIGN.**
+
+Do not spend campaign effort or money establishing an iOS build path.
+
+Specifically:
+
+* no Apple Developer account is required for this campaign;
+* do not authorise Apple Developer membership expenditure;
+* do not configure an iOS EAS build solely for this campaign;
+* do not make iOS builds;
+* do not perform iOS AR validation;
+* do not create iOS-specific acceptance gates;
+* do not allow inability to build iOS on Linux to block campaign completion.
+
+The product architecture should avoid gratuitous Android-only coupling where a straightforward shared abstraction is available, but this must not turn into speculative cross-platform engineering.
+
+Android native is the product being built and accepted now.
+
+iOS becomes a separate future campaign after the Android-native product has reached the required quality.
+
+# T2 — Android device
+
+**DECISION: USE THE GALAXY S23 AS THE CANONICAL NATIVE DEVICE AND INSTALL THE REQUIRED ANDROID TOOLING.**
+
+Bring the Galaxy S23 back online and configure the development machine to communicate with it.
+
+The campaign is authorised to install/configure the required Android development tooling, including:
+
+* `adb`;
+* the appropriate Android SDK/platform tools;
+* build tooling required by the selected Expo/RN version;
+* physical-device debugging;
+* development-build installation;
+* log collection;
+* relevant profiling/debugging tools that are part of the normal Android development toolchain.
+
+The Galaxy S23 becomes the canonical device for:
+
+* Android development builds;
+* camera behaviour;
+* native hand tracking;
+* native AR;
+* nail anchoring;
+* segmentation/occlusion;
+* gestures;
+* Reanimated behaviour;
+* frame-rate testing;
+* interaction latency;
+* memory profiling;
+* extended-session stability;
+* visual review;
+* final native acceptance.
+
+Do not substitute an emulator for final AR acceptance.
+
+An emulator may be used for bounded non-camera/non-AR development tasks where useful.
+
+If the S23 is temporarily unavailable, continue work that does not genuinely require it.
+
+Hardware-dependent requirements must remain clearly marked `BLOCKED_HARDWARE` or equivalent until they are actually demonstrated on the physical device.
+
+Never mark a native AR requirement complete merely because the corresponding algorithm works in a browser, fixture, emulator or unit test.
+
+# T3 — SDK target
+
+**DECISION: MIGRATE DIRECTLY TO EXPO SDK 57 / THE CURRENT STABLE TARGET VERIFIED AT CAMPAIGN START.**
+
+The gap analysis establishes that the current app is on Expo SDK 51 and the current measured latest release is SDK 57. Treat this as a substantial migration/port rather than a routine dependency upgrade.
+
+Do not intentionally choose SDK 54 simply to make the migration smaller if that means repeating the migration again shortly afterwards.
+
+The target should be the current stable Expo SDK established immediately before the migration begins. If that remains SDK 57, use SDK 57.
+
+The migration must be isolated.
+
+Before changing dependencies:
+
+1. Freeze the known-good current state.
+2. Record baseline tests/harness results.
+3. Pin a supported Node version.
+4. Create `.nvmrc` or an equivalent explicit runtime contract.
+5. Ensure automated runners/services actually use that pinned runtime rather than the machine's Node 26 installation.
+6. Record the Expo/RN/React/Skia/Reanimated compatibility matrix.
+7. Create a rollback point.
+
+During the migration:
+
+* do not simultaneously redesign screens;
+* do not simultaneously rewrite the renderer;
+* do not simultaneously implement AR;
+* do not simultaneously introduce the eight studios;
+* do not mix unrelated refactors into the SDK port.
+
+The migration's purpose is to establish a stable modern Android-native foundation.
+
+If a direct 51 → 57 migration encounters a real technical problem where temporarily stepping through an intermediate SDK is useful diagnostically, that is allowed as an implementation technique.
+
+An intermediate SDK must not silently become the permanent target simply because completing the migration is inconvenient.
+
+# T4 — SDK migration phase / P0 exit
+
+**DECISION: THE SDK PORT GETS ITS OWN GATED PHASE. DO NOT HIDE IT INSIDE GENERAL P0 SANITATION.**
+
+The gap analysis correctly identifies the SDK jump as unusually risky.
+
+Revise the beginning of the campaign accordingly.
+
+## P0 — Campaign sanitation / control-plane readiness
+
+P0 contains things such as:
+
+* archive/reconcile stale WorkItems;
+* prevent false `SHIPPED`;
+* establish the clean campaign queue;
+* reconcile the requirements ledger;
+* fix provider-route evidence;
+* freeze campaign decisions;
+* establish runtime/tooling prerequisites;
+* verify the controller cannot treat an empty or stale queue as release evidence;
+* prepare benchmark/harness state;
+* make sure `empirium-cao.service` cannot touch this repo;
+* leave the Nailed It controller disabled until reconciliation is actually complete.
+
+P0 does **not** contain the Expo 51 → current migration.
+
+## P1 — Android platform migration
+
+P1 is the isolated Expo/React-Native/Android migration.
+
+Its exit gate should establish, at minimum:
+
+* supported pinned Node runtime;
+* target Expo SDK successfully installed;
+* dependency graph coherent;
+* Android native development build succeeds;
+* app launches on the Galaxy S23;
+* existing core navigation still works;
+* existing persisted data does not get silently destroyed;
+* existing baseline functionality is accounted for;
+* tests/harness are restored to the expected state;
+* no unexplained new fatal errors;
+* no unrelated product redesign mixed into the phase.
+
+Require a clear phase report before moving into the major visual/renderer work.
+
+Because this is infrastructure migration rather than subjective visual design, human review does not need to mean inspecting every dependency diff. Human sign-off should simply confirm that the migration phase is genuinely complete and that the campaign may proceed into product-quality work.
+
+# T5 — Mockup render target
+
+**DECISION: CONFIRM THE GAP ANALYSIS CORRECTION.**
+
+Do **not** render the application at the entire 941×1672 mockup image size simply because that is the PNG size.
+
+The gap analysis has established that the 941×1672 images contain a photographed/styled phone scene and are not themselves 941×1672 app screenshots.
+
+The screen region should be extracted/cropped from each relevant mockup.
+
+Use the actual app-screen region as the reference for visual comparison.
+
+The current measured estimate of approximately 681×1435 may be used as the starting reference, but ideally the harness should detect or manually freeze the precise screen crop for every canonical mockup rather than assuming one universal crop if bezel positioning varies.
+
+The visual acceptance system should therefore work as follows:
+
+1. Identify/crop the true display region from the reference mockup.
+2. Store that crop as the design reference.
+3. Render the Android-native screen at the corresponding logical aspect/viewport.
+4. Normalise scale where required.
+5. Compare like-for-like UI regions rather than comparing the app with the decorative phone/background scene.
+
+The important rule from my previous decision remains:
+
+**design-reference comparison and real-device acceptance are separate concepts.**
+
+However, because this campaign is now Android-native only, the Galaxy S23 is the authoritative real-device surface.
+
+The mockups provide design authority.
+
+The S23 provides runtime/device authority.
+
+Do not contort the Android UI to imitate phone-bezel/background pixels that are outside the application's actual screen.
+
+# T6 — Visual reviewer availability
+
+**DECISION: KEEP OPUS AS THE INTENDED DEEP VISUAL/ACCEPTANCE REVIEWER. REVIEW WORK MUST BE DURABLE AND MAY WAIT FOR OPUS CAPACITY. DO NOT SILENTLY DOWNGRADE IT.**
+
+The execution system must never depend on an individual live model session remaining alive.
+
+If an Opus review is required and subscription capacity is unavailable:
+
+1. Persist the review request as durable state.
+2. Persist all evidence required for that review:
+
+   * requirement IDs;
+   * screenshots/contact sheet;
+   * reference mockups;
+   * implementation commit;
+   * relevant acceptance outputs;
+   * previous reviewer notes if any.
+3. Mark the review `WAITING_PROVIDER` / equivalent.
+4. Continue other work that does not depend on the result where dependency rules permit.
+5. When Opus capacity becomes available, create a fresh review session from the durable review packet.
+6. Complete the pending review.
+7. Resume dependent work.
+
+Do not silently replace an explicitly required Opus review with Sonnet merely because Opus is temporarily unavailable.
+
+Sonnet may still perform its normal orchestrator/planner/judge responsibilities that were already assigned to it, but it must not impersonate an independent Opus review.
+
+There must also be no endlessly-running polling agent consuming resources while waiting for capacity.
+
+The pending review is state, not a permanently-live session.
+
+For subjective phase-level visual acceptance, my human gate still remains binding where the acceptance contract requires it.
+
+Opus review is a high-value independent review mechanism, not a replacement for the previously agreed human visual gates.
+
+# T7 — AR fixture video
+
+**DECISION: RECORD THE FIXTURE USING THE GALAXY S23 AND STORE IT DURABLY IN THE PROJECT'S AR FIXTURE AREA.**
+
+Once the S23 is online, record approximately 30 seconds of a real hand under normal indoor lighting.
+
+The fixture should deliberately contain enough movement to exercise the AR system rather than being a beauty video.
+
+Include approximately:
+
+* several seconds front-facing;
+* slow rotation left;
+* slow rotation right;
+* fingers angled away from camera;
+* fingers angled toward camera;
+* hand moving somewhat closer;
+* hand moving somewhat farther away;
+* some individual finger flex/movement;
+* a stable static hold of several seconds for jitter measurement;
+* natural partial occlusion cases;
+* all nails reasonably visible where practical.
+
+Avoid:
+
+* extreme motion blur;
+* deliberately cinematic lighting;
+* filters/beauty effects;
+* a completely static hand;
+* an environment so dark that the fixture ceases to represent a reasonable user case.
+
+Place the resulting source fixture under something equivalent to:
+
+`nailify/fixtures/ar/`
+
+Use a sensible immutable/source naming convention.
+
+If the fixture is too large for ordinary Git, follow the project's evidence/fixture storage policy rather than carelessly committing a huge video blob.
+
+Record its:
+
+* filename;
+* hash;
+* duration;
+* dimensions;
+* frame rate;
+* provenance;
+* capture device.
+
+The fixture becomes a repeatable deterministic acceptance input.
+
+It supplements physical-device live testing; it does not replace it.
+
+The campaign may implement the fixture harness before I record the actual clip, but the relevant acceptance requirement remains blocked until a real fixture is supplied.
+
+# T8 — Catalogue asset provenance
+
+**DECISION: THE EXISTING 297 MB `nail presets/` DIRECTORY IS INTERIM DEVELOPMENT/REFERENCE MATERIAL ONLY. DO NOT RELY ON IT AS SHIPPABLE PRODUCTION CONTENT.**
+
+Do not assume that filenames which appear to indicate ChatGPT generation are sufficient provenance/licensing evidence for a commercial product.
+
+The existing presets may be used internally for:
+
+* inspiration/reference;
+* temporary development fixtures;
+* renderer comparison;
+* placeholder catalogue development;
+* determining desirable styles/material classes;
+* evaluating image/layout behaviour.
+
+They must not automatically become production catalogue assets.
+
+The primary production strategy remains the one already chosen:
+
+**the application's own renderer should ultimately generate the nail catalogue imagery.**
+
+This is an important product-quality test.
+
+If our renderer cannot produce nail imagery that is good enough to populate the app's own premium catalogue, the renderer probably has not reached the required quality.
+
+Therefore:
+
+1. Existing preset imagery = temporary/reference status.
+2. Build the renderer.
+3. Build canonical nail/material/design presets in the application's actual design model.
+4. Render high-quality catalogue thumbnails/images from those canonical designs.
+5. Use those generated outputs as the principal production catalogue.
+6. Replace temporary external/uncertain-provenance assets before campaign release acceptance.
+
+A curated subset of the old assets may remain only if provenance is later established well enough for commercial distribution and there is a strong reason to retain them.
+
+Do not make campaign success dependent on proving that provenance.
+
+# CONSEQUENTIAL CHANGES TO THE STAGE-0 PACK
+
+Because Android native is now the sole product target, update the Stage-0 pack rather than mechanically copying earlier platform decisions.
+
+At minimum, make the following consequential changes.
+
+## Platform authority
+
+Canonical product runtime:
+**Android native**
+
+Canonical physical device:
+**Samsung Galaxy S23**
+
+Deferred:
+
+* iOS
+* iOS AR
+* App Store
+* iOS EAS build
+* web product fidelity
+
+## Web tooling
+
+Playwright/browser rendering may still be used where it gives cheap deterministic evidence for:
+
+* structural assertions;
+* design-token regression;
+* bounded visual comparisons;
+* component/layout diagnostics;
+* other shared-code checks.
+
+But the browser is now a **test/development surrogate**, not the shipping authority.
+
+A browser-only pass cannot certify an Android-native requirement that depends on:
+
+* native rendering differences;
+* camera;
+* native AR;
+* device performance;
+* native gesture behaviour;
+* memory;
+* native animations;
+* Android permissions/lifecycle;
+* physical-device interaction.
+
+## Visual acceptance
+
+The reference chain is:
+
+**mockup screen crop → desired design language**
+
+and
+
+**Galaxy S23 native render → actual product implementation**
+
+Where automated comparisons are useful, normalise screenshots appropriately.
+
+Final visual judgment concerns how the native Android application actually looks on the target device.
+
+## AR acceptance
+
+Android-native AR must be real.
+
+No web-only AR implementation may satisfy the final campaign's native AR requirement.
+
+Use:
+
+* recorded fixture testing for repeatability;
+* real Galaxy S23 execution for native proof;
+* human side-by-side review for the agreed subjective gate.
+
+## Performance acceptance
+
+Measure the authoritative performance budgets on the Galaxy S23.
+
+Do not use desktop Chromium performance as evidence that Android meets:
+
+* frame-rate budgets;
+* memory budgets;
+* AR FPS;
+* editor interaction latency;
+* extended-session stability.
+
+## Phase plan
+
+Revise the plan approximately to:
+
+### P0 — Campaign sanitation and control-plane readiness
+
+Reconcile historical state, requirements, routing, harness governance and controller release logic.
+
+### P1 — Android platform migration
+
+Expo 51 → current stable target, pinned Node/runtime, Android dev build on S23.
+
+### P2 — Visual foundation
+
+Typography, palette, spacing, materials, backgrounds, glass and reusable visual primitives.
+
+### P3 — Skia renderer
+
+New nail rendering/material architecture and persistence migration.
+
+### P4 — Android AR risk-burn
+
+Native hand tracking, nail anchoring, 2.5D perspective, depth, occlusion, contact shadow, smoothing and fixture/device proof.
+
+This remains intentionally early because AR is still the largest feasibility risk.
+
+### P5 — Motion and gestures
+
+Reanimated, gesture system, transitions and direct manipulation.
+
+### P6 — Eight editor studios
+
+* Shape
+* Ombré
+* Marble
+* Patterns
+* Brush
+* Text
+* Gems
+* Layers
+
+### P7 — AR completion
+
+Full editor-design integration, multiple nails/fingers, robustness and native polish.
+
+### P8 — Catalogue/content
+
+Renderer-produced premium catalogue and associated inspiration/My Nails content.
+
+### P9 — Android hardening
+
+Accessibility, performance, memory, reliability, responsiveness on the target device, final visual quality and release evidence.
+
+# EXECUTION AUTHORITY
+
+These answers close T1–T8.
+
+Use them to produce the full Stage-0 pack requested in the gap analysis.
+
+Do **not** begin implementation merely because these questions are now answered.
+
+The previously agreed two-stage start condition remains:
+
+1. Produce the complete Stage-0 pack for review.
+2. I approve the Stage-0 pack.
+3. I separately give explicit `GO`.
+4. Only then may autonomous execution begin.
+
+The Stage-0 pack should now contain the full decision register, scope/exclusions, requirement ledger, acceptance predicates, harness design, representative benchmark, campaign-state reconciliation, provider governance, worker-packet contract, updated Android-native phase plan, release predicate, human gates and risk register.
+
+Where an earlier answer conflicts with this response, **this response wins**, particularly the Android-native-only platform amendment.

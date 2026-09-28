@@ -1,0 +1,87 @@
+I’ve reviewed V2. It is **much better**, and the 17 major defects from V1 were mostly understood correctly. But I would still make **one short V3 cleanup pass before approving F0**. This is no longer a product-design problem; it is mostly internal consistency and bookkeeping.
+
+The good news is that Hermes correctly preserved the most important corrections: M0 is still only Foundation, the full product ledger is still required before autonomous implementation scales, Project is restored, the M0/Core/Extended distinction is mostly corrected, the benchmark has been moved before the main build, scheduler recovery was separated from browser-closed execution, MATCH/NO_MATCH behavior was added, the benchmark base SHA is frozen, and hard-stop vs soft-pause semantics now exist. 
+
+I would **not ask it to rethink the architecture again**. I would give it a very targeted V3 correction prompt because I found these remaining issues:
+
+1. **The benchmark timeline is still contradictory.** Item 9 inserts `F1.5` before F1, but Item 10’s dependency graph completely omits it and still shows `F0 → F1 → F2...`.   Rename it something unambiguous like **B0 — Worker Benchmark**, and make the graph explicitly `F0 → B0 → launch approval → F1`.
+
+2. **F4 still has the old benchmark as its exit gate.** F4 is now Model/MCP/Memory proof, but its gate still says “Benchmark: 20 attempts, ≥60% accepted.”  That benchmark belongs only in B0. F4 should instead require the actual **product-runtime** proofs: two routes, per-employee attribution, MCP allow/deny, persistent memory write→restart→retrieve→use.
+
+3. **The NEXT STEPS section contradicts itself.** It correctly says pack approval → F0 → benchmark → second launch approval → F1+, but a few lines later it says **“After F0 gate → F1 begins”**.  Remove the latter. F1 must never begin before the benchmark and second explicit launch approval.
+
+4. **There is accidentally a third owner approval hidden in F0.** The F0 exit gate says “Owner approval: architecture frozen,” while the new process says this pack approval authorizes F0 + benchmark, and the second approval comes only after benchmark.  Unless an irreducible product decision emerges, F0 should close through objective criteria + independent review, not require another routine owner sign-off.
+
+5. **CORE vs EXTENDED still leaks in one place.** The CORE continuation row still lists **finance and multi-user**, even though the next row correctly classifies finance-specific functionality, broad multi-tenancy and native mobile as EXTENDED.  Remove finance/multi-user from the CORE continuation wording unless individually promoted later.
+
+6. **The scheduler predicate was fixed, but the following text is corrupted.** Immediately after the missed-run predicate, lines 602–608 suddenly contain the tail end of the free-games MATCH scenario with no heading/GIVEN/WHEN.  Restore a complete explicit **Scenario 1: MATCH** before Scenario 2.
+
+7. **NO_MATCH should not mean “no artifact of any kind.”** It should mean no *promotion/alert artifact*. A successful run still needs a run result/report/evidence saying “checked successfully, no qualifying promotions.” Otherwise the reporting/audit model gets weakened. Adjust that predicate accordingly.
+
+8. **The harness topology is still not actually resolved.** Item 12 currently defines both `/home/ash/empirium-studio/.hermes/autonomy/` and `/home/ash/.hermes/autonomy/` as build-control state, while Item 14 again puts the full campaign state—including a `harness/` directory—under the global path.   Pick **one canonical project campaign state root**. I recommend:
+
+   * versioned acceptance: `/home/ash/empirium-studio/{verify.sh,checks,fixtures,requirements,predicates}`
+   * runtime campaign state: `/home/ash/empirium-studio/.hermes/autonomy/`
+   * global `/home/ash/.hermes/` may contain Hermes service/profile infrastructure, but **not a second copy of this campaign’s project.db/packets/evidence**.
+
+9. **Item 12 contains a duplicated directory tree.** After the first complete `checks/` structure, another `checks/` block appears again.  Delete the duplicate so workers have one canonical topology.
+
+10. **The benchmark description still conflates calibration with benchmarking.** Calibration fixtures prove the harness rejects known-bad implementations. The 20-attempt benchmark measures whether bounded workers can implement the same frozen task successfully. Those are different experiments. Lines 777–783 blur this slightly by saying the calibration fixtures make benchmark attempts comparable.  The benchmark’s comparability actually comes from the frozen task, predicate, deterministic task fixture, packet, route policy and `benchmark_base_sha`.
+
+11. **Make it explicit that benchmark code is isolated experimental work, not the build campaign.** All 20 attempts should use independent worktrees from the same SHA and **must not modify canonical main**. Passing benchmark implementations may be retained as evidence, but should not silently become F1 product code before campaign approval. This is especially important because you were concerned earlier about whether we had started building.
+
+12. **Route B should block the appropriate product gate, not necessarily the worker benchmark.** The pack currently says Route B is an “environmental blocker for benchmark launch.”  The worker benchmark is testing autonomous coding quality. It does not inherently require the finished product to already have two runtime model routes. Unless the frozen benchmark task specifically requires model-routing implementation, Route B should block **F4/M0 product acceptance**, not B0 itself.
+
+13. **Temporary Worker and Crew should not be left as “if required.”** The domain section says they will be added only “if required” after the source audit.  We already know permanent Employee vs Temporary Worker is an important distinction in the product definition, and Crew exists as a separate execution/grouping concept rather than a Department. Add them to the reconciliation checklist explicitly so they cannot disappear again. Their exact M0/Core tier can be decided from the authoritative source pass.
+
+14. **The product ledger mixes product requirements and build-governance requirements.** For example, `M0.42 Git worktree support` and `M0.50 Build governance/harness protection` are build-system requirements, not things the Empirium product itself does.  Keep them mandatory for the Foundation process, but give them a separate namespace such as `BUILD-*` or `GOV-*`. This makes the eventual product completion ledger much cleaner.
+
+15. **Several “resolved” risks are stale from V1.** R20 still says Item 8 contains a placeholder, even though V2 replaced it. R21 still says Project is missing even though V2 restored it.  Rewrite them as the actual remaining risks:
+
+* R20: full cross-source ledger is not yet extracted/frozen;
+* R21: domain completeness is not yet proven; Project restored, other canonical concepts pending reconciliation.
+
+16. **The change log references `U7a`, but Item 18 contains no U7a.** The V4-source recovery task therefore exists in the prose/conflict register but not in the unresolved-work table. Add it explicitly.
+
+17. **The final verification summary is stale.** It still says there are only C1–C17 and R1–R17 despite V2 adding C18/C19 and R18–R21.  This also means the promised V2 self-audit has not actually been completed yet. Fix all counts from the actual document rather than hardcoding old numbers.
+
+18. **One implementation-audit statement is too strong:** “All real, all substantial — none appear to be stubs.” A line count does not establish that.  Change it to something like “substantial source files exist; semantic correctness and completeness remain unverified pending salvage audit.”
+
+19. **F0 must expand the entire product ledger, not merely “full M0 requirements.”** The Next Steps currently says “Ledger v1 expansion to full M0 requirements.”  The binding rule is stronger: before implementation scaling, F0 must compile **M0 + CORE-REQUIRED + EXTENDED traceability across all authoritative sources**, even though only M0 predicates need implementation immediately.
+
+20. **Source conflict resolution step still says C1–C17.** It must include C18 and C19, especially because those are the two critical source-integrity issues. 
+
+So my status is now:
+
+> **V2: structurally sound, not yet approved. One targeted consistency pass required.**
+
+You can send Hermes this:
+
+> Produce `stage-0-pack-v3.md` by editing V2 in place conceptually—do not redesign the plan and do not reopen product questions.
+>
+> Fix only the remaining consistency/integrity defects from the latest audit:
+>
+> 1. Rename the pre-build 20-attempt worker benchmark to `B0 — Worker Benchmark` and place it explicitly between F0 and F1 everywhere, including Item 9, Item 10 and Next Steps.
+> 2. Remove the obsolete 20-attempt benchmark gate from F4. F4 is a product-runtime Model/MCP/Memory proof only.
+> 3. Remove every path saying F1 starts immediately after F0. F1 starts only after B0 passes and the second explicit autonomous-campaign launch approval.
+> 4. Remove routine owner approval from the F0 exit gate. Current pack approval authorizes F0 + B0. Escalate only irreducible product decisions. The next routine owner approval is the campaign launch after B0.
+> 5. Remove finance/multi-user from CORE continuation wording unless explicitly promoted. Keep finance-specific module, broad multi-tenancy and native mobile EXTENDED.
+> 6. Repair Item 11: restore a complete `Scenario 1 — MATCH` section before `Scenario 2 — NO_MATCH`. In NO_MATCH, create no promotion/alert artifact and no alert, but still persist the successful NO_MATCH run/result/report/evidence.
+> 7. Resolve build-state topology completely. Use one project campaign state root only: `/home/ash/empirium-studio/.hermes/autonomy/`. Keep versioned acceptance files in the repo. Remove duplicate project.db/packets/evidence/harness state under `/home/ash/.hermes/autonomy/`; global Hermes directories may contain only global Hermes infrastructure.
+> 8. Remove the duplicated directory tree in Item 12 and reconcile Item 14 to the same topology.
+> 9. Clearly separate calibration fixtures from the worker benchmark. Calibration proves the harness catches bad implementations. B0 measures worker ability on one frozen bounded implementation task.
+> 10. State explicitly that all 20 B0 attempts use isolated worktrees from one identical `benchmark_base_sha`, do not modify canonical main, and are experimental evidence rather than campaign implementation.
+> 11. Route B is an M0/F4 product acceptance blocker, not automatically a B0 worker-benchmark blocker unless the frozen benchmark predicate itself requires two product runtime routes.
+> 12. Add Temporary Worker and Crew explicitly to the F0 domain reconciliation checklist; do not leave them vulnerable to silent omission.
+> 13. Separate BUILD/GOV requirements from PRODUCT M0 requirements in Item 8. Worktree/harness/controller governance should have BUILD-* or GOV-* IDs while remaining mandatory for campaign/Foundation governance.
+> 14. Update R20/R21 to reflect V2 reality rather than old V1 defects.
+> 15. Add the missing V4 recovery item (`U7a` or a correctly numbered replacement) to Item 18.
+> 16. Recalculate all conflict/risk/unresolved counts from the actual V3 document. Remove stale “C1–C17 / R1–R17” claims.
+> 17. Replace “none appear to be stubs” with an evidence-limited statement: source files are substantial in size but semantic completeness remains unverified until salvage audit.
+> 18. F0 ledger work must produce full source coverage across M0-REQUIRED, CORE-REQUIRED and EXTENDED requirements, not only expand M0.
+> 19. Update the F0 conflict-resolution action to include all current conflicts, especially C18/C19.
+> 20. Run a final mechanical self-audit for contradictory phase transitions, stale counts, duplicated paths, stale V1 language and tier inconsistencies. Include a V2→V3 resolution table with every item above marked RESOLVED and the exact section reference.
+>
+> Do not build product functionality. Do not begin B0 yet. Return V3 for final review.
+
+After that, I expect we can probably approve **F0 + benchmark preparation** rather than doing another broad planning cycle.

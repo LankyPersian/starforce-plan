@@ -1,0 +1,789 @@
+# EMPIRIUM META-DIRECTOR CONTINUITY KERNEL
+# FINAL IMPLEMENTATION STEERING PROMPT
+# PURPOSE: MAKE AN LLM INVOCATION ENDING NON-TERMINAL
+
+You have an existing functioning Empirium deterministic supervisor.
+
+DO NOT build a new supervisor.
+DO NOT build a second scheduler.
+DO NOT replace the existing supervisor state architecture.
+DO NOT start another broad architectural rewrite.
+
+Your job is to add the smallest deterministic CONTINUATION KERNEL required to
+guarantee this property:
+
+    PROJECT INCOMPLETE
+    +
+    NO GENUINE HUMAN BLOCKER
+    +
+    NO VALID FUTURE WAIT CONDITION
+
+    =>
+
+    THE PROJECT WILL RECEIVE ANOTHER META-DIRECTOR INVOCATION.
+
+This must remain true even when the current Meta-Director:
+
+- exits successfully;
+- writes a final conversational answer;
+- crashes;
+- hits context limits;
+- says "the next action is X" and terminates;
+- fails a proof;
+- encounters reviewer rejection;
+- encounters a worker timeout;
+- encounters a difficult architecture problem.
+
+====================================================================
+1. FIRST READ THE ARCHITECTURE REVIEW
+====================================================================
+
+Read the supplied continuity architecture review in full.
+
+Extract the useful concepts:
+
+- project liveness invariant;
+- action-debt invariant;
+- progress != heartbeat;
+- quiescence detection;
+- EXIT_INTENT;
+- task/run separation;
+- durable review/rework;
+- model escalation;
+- provider waiting states.
+
+DO NOT blindly implement its proposed new PostgreSQL control plane,
+new supervisor rewrite, or any conflicting scheduler responsibilities.
+
+====================================================================
+2. CURRENT AUTHORITY BOUNDARIES
+====================================================================
+
+Preserve:
+
+DETERMINISTIC SUPERVISOR
+    owns process lifecycle only:
+    - project registration
+    - director liveness
+    - heartbeat
+    - progress staleness
+    - timers
+    - backoff
+    - process recycle
+    - child lease expiry
+    - recovery directives
+    - quiescence wake
+    - deterministic completion observation
+
+META-DIRECTOR
+    owns intelligent orchestration:
+    - planning
+    - task creation
+    - work selection
+    - project manager creation
+    - implementation dispatch
+    - rework
+    - diagnosis
+    - integration decisions
+    - expert escalation
+
+HERMES/KANBAN
+    remains durable build-task authority where already used.
+
+The supervisor MUST NOT:
+
+- choose implementation tasks;
+- write application code;
+- create repair tasks;
+- review changes;
+- select which worker should implement a feature.
+
+It may only wake the Meta-Director and tell it WHY it was woken.
+
+====================================================================
+3. ADD THE CONTINUATION INVARIANT
+====================================================================
+
+For every registered project:
+
+If:
+
+    releaseGate != PASS
+    AND status != PAUSED_BY_USER
+    AND no genuine human blocker
+    AND retryNotBefore is null or <= now
+
+then:
+
+    exactly one Meta-Director must either be alive
+    or be in the process of launching.
+
+There must be no stable state where:
+
+    project incomplete
+    AND no legitimate wait condition
+    AND no director exists.
+
+This is the central invariant.
+
+Implement it deterministically outside the LLM.
+
+====================================================================
+4. CLEAN EXIT MUST NOT MEAN PROJECT COMPLETE
+====================================================================
+
+Current Meta-Director process exit status is NOT project status.
+
+These must remain independent:
+
+    process exited 0
+
+does NOT imply:
+
+    project completed.
+
+On any Meta-Director exit:
+
+1. inspect deterministic release gate;
+2. inspect user pause;
+3. inspect genuine human blocker;
+4. inspect retryNotBefore;
+5. otherwise relaunch exactly one fresh Meta-Director.
+
+Do this regardless of whether the previous director:
+
+    exited 0
+    exited nonzero
+    produced a nice summary
+    said it had finished
+    voluntarily recycled context.
+
+Only the deterministic release gate may suppress relaunch because of
+completion.
+
+====================================================================
+5. IMPLEMENT EXIT_INTENT
+====================================================================
+
+Add a durable per-invocation EXIT_INTENT or equivalent record.
+
+The Meta-Director may write:
+
+    invocationId
+    projectId
+    generation
+    reason
+    checkpointId/hash
+    nextActions[]
+    retryNotBefore
+    humanBlocker
+    projectCompleteClaim
+    writtenAt
+
+Possible reasons:
+
+    CONTEXT_RECYCLE
+    INVOCATION_BUDGET
+    WAITING_RETRY
+    WAITING_HUMAN
+    SHIPPED
+    UNEXPECTED
+
+The supervisor DOES NOT trust:
+
+    projectCompleteClaim
+
+without independently verifying the release gate.
+
+Interpretation:
+
+SHIPPED
+    only accepted if release gate independently PASS.
+
+WAITING_HUMAN
+    only accepted when blocker exists and matches narrow blocker schema.
+
+WAITING_RETRY
+    accepted only with a valid future retryNotBefore.
+
+CONTEXT_RECYCLE / INVOCATION_BUDGET
+    immediate relaunch.
+
+nextActions non-empty
+    immediate relaunch unless a legitimate future retry blocks them.
+
+No EXIT_INTENT
+    treat as unexpected exit and relaunch.
+
+====================================================================
+6. ACTION-DEBT INVARIANT
+====================================================================
+
+For an incomplete project checkpoint, require at least one:
+
+    activeActions.length > 0
+
+or:
+
+    nextActions.length > 0
+
+or:
+
+    pendingReviews.length > 0
+
+or:
+
+    pendingRework.length > 0
+
+or:
+
+    retryNotBefore != null
+
+or:
+
+    genuineHumanBlocker != null.
+
+If NONE are true:
+
+emit:
+
+    ORCHESTRATOR_QUIESCENT_WITH_UNFINISHED_PROJECT
+
+This is a recovery condition.
+
+NOT a terminal condition.
+
+====================================================================
+7. QUIESCENCE HANDLING WITHOUT DUPLICATE DIRECTORS
+====================================================================
+
+DO NOT launch another director while a currently tracked director is alive.
+
+If project is quiescent while director is alive:
+
+1. emit:
+
+       PROJECT_QUIESCENT
+
+   to current generation;
+
+2. give current director a bounded diagnosis grace period;
+
+3. if meaningful progress or a next action appears:
+       clear quiescence;
+
+4. if quiescence remains:
+       request checkpoint;
+       safely recycle current director;
+       wait for confirmed process-tree exit;
+       launch exactly ONE fresh generation.
+
+Never:
+
+    live director A
+    +
+    launch director B
+
+for the same project.
+
+====================================================================
+8. PROGRESS AND HEARTBEAT REMAIN SEPARATE
+====================================================================
+
+Heartbeat:
+
+    process alive.
+
+Progress:
+
+    project meaningfully advanced.
+
+A heartbeat must never automatically advance progress.
+
+If:
+
+    heartbeat fresh
+    progress stale
+
+then:
+
+SOFT THRESHOLD:
+    issue diagnosis directive.
+
+HARD THRESHOLD:
+    if no legitimate long operation:
+        checkpoint/recycle director;
+        launch fresh director.
+
+====================================================================
+9. RETRY WAKE
+====================================================================
+
+If:
+
+    retryNotBefore > now
+
+director may be absent.
+
+Persist the retry time.
+
+When:
+
+    now >= retryNotBefore
+
+and:
+
+    project incomplete
+    not paused
+    no human blocker
+
+supervisor must wake/launch the Meta-Director.
+
+This must survive supervisor restart.
+
+====================================================================
+10. HUMAN BLOCKERS ARE NARROW
+====================================================================
+
+Valid examples:
+
+- interactive subscription login;
+- missing credential only Ash can provide;
+- unavoidable privileged OS authorization;
+- irreversible business/user decision;
+- mandatory private asset unavailable.
+
+NOT human blockers:
+
+- test failure;
+- Proof D failure;
+- architecture uncertainty;
+- reviewer rejection;
+- worker timeout;
+- model error;
+- provider 429;
+- known subscription reset;
+- merge conflict;
+- strange source behavior;
+- hard technical debugging.
+
+Those cause more autonomous work.
+
+====================================================================
+11. EXPERT DIAGNOSTIC ESCALATION
+====================================================================
+
+Add a durable diagnostic-case concept to the Meta-Director layer.
+
+Do NOT put model calls inside the deterministic supervisor.
+
+When Meta-Director encounters a difficult unresolved failure:
+
+create:
+
+    diagnosticCaseId
+    question
+    expectedBehavior
+    observedBehavior
+    relevantFiles
+    relevantLogs
+    hypotheses
+    attempts
+    status
+
+Then use verified available expert resources.
+
+Escalation ladder:
+
+LEVEL 0:
+    Meta-Director local analysis.
+
+LEVEL 1:
+    source/log/test inspection.
+
+LEVEL 2:
+    focused free diagnostic worker(s).
+
+LEVEL 3:
+    strongest VERIFIED subscription-backed expert available.
+
+Possible experts include:
+
+    current Codex/Astra subscription route
+    Claude Opus subscription
+
+GPT-5.6 Sol may be used ONLY if the VPS has an independently verified,
+non-API-billed programmatic route.
+
+Do not infer that ChatGPT subscription alone provides a usable Sol CLI/API.
+
+If no verified Sol route exists:
+    do not block;
+    continue with available expert routes.
+
+LEVEL 4:
+    independent second opinion where useful.
+
+LEVEL 5:
+    reconcile.
+
+LEVEL 6:
+    controlled experiment.
+
+LEVEL 7:
+    create repair work.
+
+NEEDS_ANALYSIS must result in:
+
+    ANALYSIS WORK
+
+not:
+
+    RETURN TO ASH.
+
+====================================================================
+12. REVIEWER AVAILABILITY IS SUBORDINATE
+====================================================================
+
+A review may enter:
+
+    WAITING_SUBSCRIPTION
+
+without freezing unrelated runnable project work.
+
+Persist wait state on the review/provider operation.
+
+Only put the whole project into a waiting state if:
+
+    no other runnable action exists.
+
+Opus is reviewer/advisor.
+
+Opus session death must never own project continuation.
+
+====================================================================
+13. WORKER FAILURE REMAINS TASK-LEVEL
+====================================================================
+
+Meta-Director/wrapper creates worker lease when dispatching.
+
+Supervisor does NOT dispatch workers.
+
+Supervisor observes lease.
+
+On expiry:
+
+    LEASE_EXPIRED
+    → recovery directive.
+
+Meta-Director consumes directive and decides:
+
+    salvage
+    retry
+    create new run
+    split task
+    change free model
+    diagnose.
+
+Do not create rework directly inside supervisor.
+
+====================================================================
+14. DO NOT IMPLEMENT WRITABLE DB FALLBACK
+====================================================================
+
+Do not create a second mutable authority automatically when PostgreSQL is
+unavailable.
+
+Maintain one canonical authority for each layer.
+
+Supervisor control state may continue using its existing durable local store.
+
+Finished Empirium product state may use its accepted PostgreSQL architecture.
+
+Do not silently switch writes between two authorities.
+
+====================================================================
+15. TIME SEMANTICS
+====================================================================
+
+Do not assume UTC prevents clock jumps.
+
+Use monotonic timing where appropriate for:
+
+    heartbeat TTL
+    progress TTL
+    grace periods
+    lock waits
+    active-process timeouts.
+
+Use persisted wall-clock timestamps for:
+
+    retryNotBefore
+    audit events
+    human inspection.
+
+After restart, apply sanity guards around persisted time values.
+
+====================================================================
+16. BUDGETED META-DIRECTOR INVOCATIONS
+====================================================================
+
+Prefer disposable invocations over trying to keep one context alive forever.
+
+Support configurable invocation budget based on:
+
+    elapsed time
+    context pressure
+    action count
+
+Before controlled recycle:
+
+    checkpoint
+    write EXIT_INTENT
+    persist next actions
+    exit.
+
+Supervisor immediately launches successor when project remains runnable.
+
+Do not hard-code 30 or 60 minutes unless evidence supports it.
+
+Make it configurable.
+
+====================================================================
+17. THE MOST IMPORTANT FAILURE-INJECTION TEST
+====================================================================
+
+Create a disposable supervised test.
+
+Director generation N must deliberately:
+
+1. read project;
+2. discover:
+
+       Proof D failed
+
+3. write:
+
+       nextAction = DIAGNOSE_PROOF_D
+
+4. output a perfectly normal final-style summary such as:
+
+       "Proof D failed. The next action is to diagnose the classification race."
+
+5. exit code 0.
+
+THIS IS THE FAILURE MODE WE CARE ABOUT.
+
+Expected deterministic behavior:
+
+6. supervisor sees:
+
+       release gate != PASS
+       no human blocker
+       no future retry
+       director absent
+
+7. supervisor launches generation N+1 automatically;
+
+8. generation N+1 reads:
+
+       nextAction = DIAGNOSE_PROOF_D
+
+9. generation N+1 ACTUALLY performs the diagnostic action;
+
+10. it must not merely restate the next action;
+
+11. it generates progress;
+
+12. project continues without user input.
+
+If this test does not pass:
+
+the continuity problem is NOT solved.
+
+====================================================================
+18. ADDITIONAL FAILURE INJECTION
+====================================================================
+
+Prove:
+
+A. DIRECTOR CLEAN EXIT
+    incomplete → automatic relaunch.
+
+B. DIRECTOR CRASH
+    incomplete → automatic relaunch.
+
+C. CONTEXT RECYCLE
+    checkpoint → exit → automatic successor.
+
+D. PROOF FAILURE
+    failure → diagnosis task → repair/rerun.
+
+E. WORKER TIMEOUT
+    lease expiry → recovery directive → replacement run.
+
+F. REVIEW REJECT
+    durable CHANGES_REQUESTED → rework.
+
+G. REVIEW SESSION LIMIT
+    review waits/retries;
+    project continues other work.
+
+H. ALL CURRENT WORK FINISHES BUT PROJECT INCOMPLETE
+    quiescence detected;
+    Meta-Director wakes and finds next work.
+
+I. WAIT TIMER
+    director absent until retryNotBefore;
+    automatically wakes afterward.
+
+J. SUPERVISOR RESTART
+    liveness policy reconstructs and continues.
+
+No test may require Ash to type:
+
+    continue.
+
+====================================================================
+19. REAL PROJECT SAFETY
+====================================================================
+
+Do all continuity testing with disposable orchestration fixtures first.
+
+Do NOT corrupt:
+
+    /home/ash/empirium-studio
+
+or its existing rejected implementation.
+
+Once all continuity tests pass:
+
+apply continuation policy to:
+
+    empirium-studio-workforce
+
+Do not create a second real project registration.
+
+====================================================================
+20. COMPLETION AUTHORITY
+====================================================================
+
+Only deterministic:
+
+    FINAL_RELEASE_GATE.status == PASS
+    AND FINAL_RELEASE_GATE.exitCode == 0
+    AND exact release SHA matches
+
+may allow the supervisor to stop relaunching because project is complete.
+
+A Meta-Director saying:
+
+    DONE
+    FINISHED
+    SHIPPED
+    NOTHING ELSE TO DO
+
+has zero completion authority.
+
+====================================================================
+21. DEFINITION OF DONE FOR THIS CONTINUITY FIX
+====================================================================
+
+This task is complete only if:
+
+[ ] existing supervisor tests still pass;
+
+[ ] real project registration remains correct;
+
+[ ] clean director exit while incomplete causes relaunch;
+
+[ ] crash causes relaunch;
+
+[ ] EXIT_INTENT implemented or equivalent proven;
+
+[ ] nextAction survives process replacement;
+
+[ ] action-debt invariant enforced;
+
+[ ] quiescence triggers recovery;
+
+[ ] quiescence does not launch concurrent duplicate director;
+
+[ ] retryNotBefore wakes project automatically;
+
+[ ] progress and heartbeat remain separate;
+
+[ ] worker lease responsibility remains outside supervisor scheduling;
+
+[ ] reviewer waiting does not unnecessarily freeze unrelated work;
+
+[ ] expert escalation is autonomous;
+
+[ ] only verified subscription/free expert routes are used;
+
+[ ] no paid API fallback introduced;
+
+[ ] forced "I have given my final answer" test automatically continues;
+
+[ ] zero manual "continue" prompts required.
+
+====================================================================
+22. AFTER CONTINUITY IS PROVEN
+====================================================================
+
+Do not stop and tell Ash:
+
+    "The continuity system is now ready. Next we should resume Proof D."
+
+Instead:
+
+if continuity tests pass and no human blocker exists:
+
+    immediately resume the unfinished orchestration-validation work
+    under the supervisor-controlled real Meta-Director.
+
+That means:
+
+    diagnose Proof D
+    repair it
+    rerun it
+    rerun remaining required proofs
+    continue the Empirium build
+
+The very purpose of this task is to eliminate:
+
+    "next step is X"
+
+as a terminal response.
+
+If you know X and X is authorized:
+
+    DO X.
+
+====================================================================
+23. FINAL RULE
+====================================================================
+
+An LLM invocation ending is NOT a project lifecycle event.
+
+A conversational final answer is NOT a release event.
+
+A worker timeout is NOT a project completion event.
+
+A reviewer rejection is NOT a terminal event.
+
+A failed proof is NOT a terminal event.
+
+For this project:
+
+    ONLY DETERMINISTIC RELEASE PASS ENDS NORMAL EXECUTION.
+
+Everything else is:
+
+    state
+    evidence
+    and another transition.
+
+IMPLEMENT THE CONTINUATION KERNEL,
+PROVE IT WITH FAILURE INJECTION,
+THEN ALLOW THE REAL SUPERVISED META-DIRECTOR TO CONTINUE THE BUILD.

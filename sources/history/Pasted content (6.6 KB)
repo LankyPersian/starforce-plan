@@ -1,0 +1,280 @@
+INVESTIGATION ONLY — DO NOT MODIFY THE REPOSITORY, GIT CONFIGURATION, COMMITS, GITHUB SETTINGS, CREDENTIALS, OR FILES.
+
+I have just archived my Empirium Durable Supervisor to this private GitHub repository:
+
+LankyPersian/empirium-durable-supervisor
+
+The repository belongs to my GitHub account, but the single commit is displaying an unexpected GitHub identity:
+
+Commit author shown as: ash
+Hovering the author shows the GitHub profile/name Andrew Shitov
+I do not know Andrew Shitov and have never knowingly configured him anywhere.
+
+I need you to determine exactly why GitHub is associating this commit with Andrew Shitov.
+
+Critical rules
+Do not change anything.
+Do not run git commit --amend.
+Do not force-push.
+Do not change user.name or user.email.
+Do not delete/recreate the repository.
+Do not modify GitHub authentication.
+Never print access tokens, PATs, SSH private keys, passwords, credential contents or other secrets.
+You are performing a forensic/read-only investigation only.
+1. Identify the repository and execution user
+
+Locate the local checkout that was used to create/push:
+
+LankyPersian/empirium-durable-supervisor
+
+Report:
+
+whoami
+id
+pwd
+git rev-parse --show-toplevel
+git status
+git remote -v
+
+Tell me which Linux user Hermes was running as when the repository was created, if this can be established.
+
+2. Inspect the exact commit metadata
+
+Run:
+
+git log -1 --format=fuller
+
+Then:
+
+git log -1 --format='COMMIT=%H%nAUTHOR_NAME=%an%nAUTHOR_EMAIL=%ae%nAUTHOR_DATE=%aI%nCOMMITTER_NAME=%cn%nCOMMITTER_EMAIL=%ce%nCOMMITTER_DATE=%cI'
+
+Report verbatim:
+
+commit SHA
+Author name
+Author email
+Committer name
+Committer email
+author date
+committer date
+
+Do not redact the author/committer email from your report to me, because that email is likely the key to understanding GitHub's attribution. Do not reveal unrelated credentials or secrets.
+
+3. Determine where Git got that identity
+
+Run:
+
+git config --show-origin --show-scope --get-regexp '^(user\.name|user\.email|user\.useConfigOnly)'
+
+Also inspect each configuration scope separately:
+
+git config --system --list --show-origin
+git config --global --list --show-origin
+git config --local --list --show-origin
+
+Focus particularly on:
+
+user.name
+user.email
+include.path
+includeIf.*
+credential.helper
+
+Report which exact configuration file supplied each user.name and user.email.
+
+Possible locations include:
+
+/etc/gitconfig
+~/.gitconfig
+~/.config/git/config
+<repository>/.git/config
+
+Also investigate any include or includeIf configuration that could indirectly supply an identity.
+
+4. Check runtime/environment overrides
+
+Git identity can be injected without appearing in .gitconfig.
+
+Check for these variables:
+
+env | grep -E '^GIT_(AUTHOR|COMMITTER)_(NAME|EMAIL|DATE)='
+
+Also determine:
+
+git var GIT_AUTHOR_IDENT
+git var GIT_COMMITTER_IDENT
+
+Investigate whether the process/service which created the repository supplied:
+
+GIT_AUTHOR_NAME
+GIT_AUTHOR_EMAIL
+GIT_COMMITTER_NAME
+GIT_COMMITTER_EMAIL
+
+If Hermes used a shell script, supervisor script, systemd unit, worker, deployment script, or automation to perform the commit, inspect that mechanism for Git identity configuration.
+
+Do not print secrets from environment files.
+
+5. Determine which GitHub account actually pushed the repository
+
+This is separate from the commit author.
+
+Report:
+
+git remote -v
+
+If GitHub CLI is installed, run:
+
+gh auth status
+
+And, if authenticated:
+
+gh api user --jq '{login: .login, name: .name}'
+
+I specifically need to know:
+
+A. Which identity Git says authored the commit?
+
+B. Which GitHub account was authenticated when the repository was pushed?
+
+These may be different.
+
+Do not expose any token returned or stored by GitHub CLI.
+
+6. Investigate ash
+
+Search the relevant configuration and repository scripts for the literal values:
+
+ash
+Andrew
+Shitov
+
+Also search for the exact author email discovered in Step 2.
+
+Search appropriate locations such as:
+
+repository files
+.git/config
+Git configuration files
+Hermes launch scripts
+supervisor/controller scripts
+service definitions
+shell profiles
+deployment/automation scripts
+
+Do not conduct a destructive or uncontrolled whole-filesystem scan. Focus on configuration locations relevant to Hermes/Git.
+
+7. Establish the provenance
+
+I want you to work backwards and determine which of these occurred:
+
+Scenario A — Existing VPS Git configuration
+
+A previous user/tool configured:
+
+user.name=ash
+user.email=<email associated with Andrew Shitov>
+
+Scenario B — Hermes configured it
+
+Hermes or one of its scripts explicitly set the author identity.
+
+Scenario C — Environment injection
+
+An environment variable supplied the identity.
+
+Scenario D — Repository-specific configuration
+
+.git/config supplied it.
+
+Scenario E — Different Linux user's Git config
+
+Hermes executed Git under a Linux account with an existing .gitconfig.
+
+Scenario F — GitHub attribution collision/mapping
+
+The commit contains an email address that GitHub currently associates with the Andrew Shitov GitHub account, even though the local name may simply be ash.
+
+Scenario G — Something else
+
+If none of the above explains it, document the actual mechanism.
+
+8. Security check
+
+I also want to know whether there is any evidence that Andrew Shitov has access to my repository or VPS, as opposed to his GitHub account merely being associated with the commit metadata.
+
+Check read-only evidence available to you for:
+
+repository owner
+repository collaborators, if accessible
+deploy keys
+GitHub authentication account
+remote origin
+unexpected SSH keys relevant to GitHub authentication
+GitHub CLI authenticated user
+
+Do not revoke or modify anything.
+
+Importantly, distinguish between:
+
+“GitHub displayed Andrew as the commit author”
+
+and
+
+“Andrew actually has repository/VPS access.”
+
+These are not equivalent.
+
+Final report
+
+Give me a report in this exact structure:
+
+EMPIRIUM GIT IDENTITY INVESTIGATION
+
+1. Repository
+Owner:
+Repository:
+Remote:
+Local path:
+
+2. Commit
+SHA:
+Author name:
+Author email:
+Committer name:
+Committer email:
+
+3. Git configuration
+System identity:
+Global identity:
+Local identity:
+Effective identity:
+Exact config file responsible:
+
+4. Runtime overrides
+GIT_AUTHOR_*:
+GIT_COMMITTER_*:
+
+5. Push authentication
+GitHub account actually authenticated:
+Authentication mechanism:
+
+6. Andrew Shitov attribution
+Exact reason GitHub displays Andrew Shitov:
+
+7. Origin
+Where the unexpected identity originally came from:
+Evidence:
+
+8. Security
+Any evidence Andrew has repository access:
+Any evidence Andrew has VPS access:
+Any evidence his credentials were used:
+
+9. Conclusion
+Explain in plain English exactly what happened.
+
+10. Recommended fix
+Describe the commands/actions that WOULD fix it, but DO NOT EXECUTE THEM.
+
+Do not finish with assumptions. I want evidence for the conclusion.

@@ -1,0 +1,1353 @@
+# NAILED IT — AUTONOMOUS PRODUCTION EXECUTION PROMPT
+
+You are the **execution director** for the Nailed It / Nailify product.
+
+You are running in a fresh **GPT-5.6 Luna Codex subscription session**.
+
+This is **NOT another planning session**.
+
+The planning is finished.
+
+Do not ask me another questionnaire.
+Do not give me another proposed plan and wait for approval.
+Do not tell me what you could build.
+Do not merely audit the repository.
+Do not stop after creating requirements.
+Do not stop after creating WorkItems.
+Do not stop after fixing the autonomous infrastructure.
+
+**Your job is to actually build the product now.**
+
+This prompt is the explicit **GO**.
+
+Begin work immediately and continue autonomously until the Android-native Nailed It product satisfies the release requirements or the only remaining blockers require genuinely unavoidable physical human action.
+
+---
+
+# 1. AUTHORITATIVE PROJECT
+
+Repository:
+
+`/home/ash/Desktop/nailify`
+
+User-facing product name:
+
+**Nailed It**
+
+Keep existing technical identifiers such as `nailify` where changing them provides no product benefit.
+
+The current repository is an existing working MVP.
+
+**Do not start over.**
+
+Preserve useful working foundations and improve/rebuild only where necessary.
+
+The goal is to take the existing MVP and turn it into a **genuinely spectacular, premium-quality nail-design application** that feels like a product people would willingly pay significant money to use.
+
+The defining product capabilities are:
+
+1. an exceptional nail-design editor;
+2. beautiful premium mobile UI/UX;
+3. photorealistic nail rendering;
+4. real Android-native AR try-on;
+5. excellent persistence/project management;
+6. polished motion and interactions;
+7. professional reliability and performance.
+
+---
+
+# 2. READ THE EXISTING KNOWLEDGE — THEN EXECUTE
+
+Before modifying code, silently read and absorb the existing campaign knowledge on disk.
+
+At minimum inspect:
+
+`/home/ash/Desktop/nailify/STAGE0_PACK.md`
+
+`/home/ash/Desktop/nailify/PREFLIGHT_ANSWERS`
+
+`/home/ash/Desktop/nailify/QUALITY_GAP_ANALYSIS.md`
+
+`/home/ash/Desktop/nailify/TIER_GAP_ANALYSIS.md`
+
+`/home/ash/Desktop/nailify/PREFLIGHT_QUESTIONNAIRE.md`
+
+`/home/ash/Desktop/nailify/.hermes/REQUIREMENTS-P0.md`
+
+`/home/ash/Desktop/nailify/AGENTS.md`
+
+`/home/ash/Desktop/nailify/CHECKPOINT.md`
+
+all relevant files beneath:
+
+`/home/ash/Desktop/nailify/.hermes/`
+
+the 30 primary visual mockups:
+
+`/home/ash/Desktop/nailify/initial mock-up images/`
+
+the older secondary inspiration:
+
+`/home/ash/Desktop/nailify/nailed it mock up inspo/`
+
+and the existing nail preset assets:
+
+`/home/ash/Desktop/nailify/nail presets/`
+
+Also inspect the actual repository, Git history, current worktrees, services, SQLite controller state and installed environment.
+
+Where documents conflict with actual current disk/runtime state:
+
+**current verified reality wins.**
+
+Where old documents conflict with this prompt:
+
+**this prompt wins.**
+
+Where older mockups conflict with the 30 newer mockups:
+
+**the newer mockups win.**
+
+Do not spend hours re-auditing facts that were verified very recently unless the current state indicates they have changed.
+
+After this short reconciliation, begin implementation.
+
+---
+
+# 3. MOST IMPORTANT OVERRIDE: ANDROID NATIVE ONLY
+
+This campaign targets:
+
+**ANDROID NATIVE ONLY.**
+
+Canonical physical device:
+
+**Samsung Galaxy S23**
+
+Do not spend campaign effort making iOS production-ready.
+
+Do not spend campaign effort polishing a web product.
+
+iOS is deferred.
+
+Web may be used internally as a cheap testing/rendering surrogate where genuinely useful, but browser behaviour is NOT product authority.
+
+For this campaign:
+
+Android-native rendering wins.
+Android-native performance wins.
+Android-native gesture behaviour wins.
+Android-native camera behaviour wins.
+Android-native AR wins.
+
+Do not allow web or iOS parity work to slow Android completion.
+
+Keep shared architecture reasonably portable where that comes naturally, but do not indulge in speculative future-platform engineering.
+
+---
+
+# 4. PRODUCT EXPERIENCE
+
+Canonical navigation:
+
+**Home / Explore / Create / Try On / My Nails**
+
+`Create` is the prominent central action.
+
+The application should feel like a premium consumer beauty/design product, not a developer demo and not a desktop graphics application squeezed into a phone.
+
+It should be beautiful enough that screenshots could plausibly be used as store marketing material.
+
+The user should be able to:
+
+* discover nail designs;
+* start a new design quickly;
+* design an individual nail;
+* design complete nail sets;
+* edit each nail independently;
+* reuse styles across nails;
+* save projects;
+* reopen projects;
+* duplicate designs;
+* undo/redo;
+* autosave safely;
+* manage layers;
+* export/share designs;
+* preview designs realistically on their actual hand;
+* move naturally between editing and AR;
+* access advanced controls without overwhelming a beginner.
+
+Use progressive disclosure.
+
+A beginner should be able to make something beautiful quickly.
+
+A skilled user should be able to create highly detailed nail art.
+
+---
+
+# 5. VISUAL DESIGN AUTHORITY
+
+The 30 images in:
+
+`initial mock-up images/`
+
+define the primary visual language.
+
+They are binding for:
+
+* quality level;
+* aesthetic direction;
+* materials;
+* typography character;
+* spacing character;
+* hierarchy;
+* colours;
+* polish;
+* perceived luxury;
+* component language.
+
+They are directional rather than blindly pixel-binding where AI-generated mockups contradict each other.
+
+Consistency across the actual application beats reproducing an isolated mockup mistake.
+
+The desired identity is **warm luxury**, not candy-pink toy UI.
+
+Primary direction:
+
+* warm bone / porcelain backgrounds;
+* deep burgundy / wine primary;
+* champagne-gold structural accents;
+* rich dark ink;
+* soft warm rose secondary accents;
+* elegant glass/material surfaces;
+* silk/pearl/satin-like atmosphere;
+* subtle grain and texture;
+* sophisticated depth.
+
+Recommended typography already decided:
+
+* Display serif: **Playfair Display**
+* Script accent: **Allura**
+* UI/body sans: **Montserrat**
+
+Kill the existing pastel/neon identity as a primary product direction.
+
+Do not allow the current neon theme to dictate the redesign.
+
+A well-designed dark mode is Q1, not a reason to duplicate all early visual work.
+
+Functional accessibility always beats decorative mockup fidelity.
+
+---
+
+# 6. THE EDITOR IS THE CORE PRODUCT
+
+The editor must become a serious nail-design environment while remaining approachable.
+
+The eight canonical studios are:
+
+1. **Shape**
+2. **Ombré**
+3. **Marble**
+4. **Patterns**
+5. **Brush**
+6. **Text**
+7. **Gems**
+8. **Layers**
+
+These are not decorative menu items.
+
+They must actually change the design model and renderer.
+
+The editor needs, where relevant:
+
+* colour controls;
+* opacity;
+* gradients;
+* multi-stop colour;
+* direction/angle;
+* scale;
+* position;
+* rotation;
+* pattern density;
+* pattern scale;
+* pattern offset;
+* blend behaviour;
+* brush width;
+* brush hardness/softness;
+* stroke colour;
+* erase;
+* text;
+* font;
+* alignment;
+* text transform;
+* gem/charm placement;
+* gem scale;
+* gem rotation;
+* layer ordering;
+* hide/show;
+* duplicate;
+* delete;
+* per-layer opacity;
+* per-nail editing;
+* smart application to selected nails or whole set;
+* undo/redo;
+* direct manipulation gestures.
+
+Do not fake controls that are disconnected from state or rendering.
+
+Audit editor functionality end-to-end:
+
+**control → state → persistence → renderer → saved project → reload**
+
+Every significant editor control must complete that chain.
+
+---
+
+# 7. REBUILD THE NAIL RENDERER PROPERLY
+
+The existing flat `NailSvg` renderer is not sufficient for the quality target.
+
+Use:
+
+`@shopify/react-native-skia`
+
+as the primary nail/editor renderer.
+
+A full renderer rewrite is authorised.
+
+Preserve/migrate existing saved designs where reasonably possible.
+
+The renderer must be capable of genuinely premium nail materials.
+
+At minimum support convincing classes including:
+
+* glossy polish;
+* matte polish;
+* translucent/jelly;
+* metallic/chrome;
+* glitter;
+* foil;
+* marble;
+* gradients/ombré;
+* patterns;
+* drawn/brush artwork;
+* gems;
+* dimensional charms where feasible.
+
+A nail should possess believable form, not look like a flat coloured vector path.
+
+Build material rendering with multiple independent visual components such as:
+
+* base/body colour;
+* geometry-dependent shading;
+* apex/C-curve lighting;
+* edge falloff;
+* free-edge behaviour;
+* translucency where appropriate;
+* broad specular response;
+* sharp specular response;
+* rim/edge response;
+* subtle material noise;
+* glitter/particle behaviour where appropriate;
+* shadows/contact integration;
+* cuticle/root treatment.
+
+Highlights must respond coherently to nail geometry.
+
+Do not solve realism by painting one static white ellipse over every nail.
+
+The renderer should ultimately be good enough to generate the app's own catalogue thumbnails.
+
+That is an important quality test:
+
+**if the renderer cannot create imagery good enough to advertise the product, it is not finished.**
+
+---
+
+# 8. AR IS A REAL CORE FEATURE
+
+The existing native AR stub is not acceptable.
+
+Implement **real Android-native AR try-on**.
+
+Use the agreed 2.5D path first rather than immediately creating an unnecessary full 3D engine.
+
+The AR pipeline should cover:
+
+camera
+→ permissions
+→ hand/finger tracking
+→ landmarks
+→ correct nail assignment
+→ selected nail design
+→ geometry projection
+→ perspective/orientation
+→ depth
+→ occlusion
+→ lighting/shadow integration
+→ stable rendered overlay.
+
+Use depth information where available.
+
+The nails must not float.
+
+At minimum solve:
+
+* correct finger assignment;
+* x/y anchoring;
+* scale;
+* finger rotation;
+* perspective foreshortening;
+* depth ordering;
+* cuticle/root anchoring;
+* orientation;
+* temporal smoothing;
+* jitter;
+* scale pumping;
+* partial occlusion;
+* away-facing fingers;
+* contact/ambient shadow;
+* visual integration with the actual hand.
+
+The synthetic nail must visibly behave as though attached to the physical nail.
+
+Do not paper over bad tracking with large permanent manual-fit offsets.
+
+Manual fine adjustment may exist as an optional refinement, but it must not be required to make the system basically work.
+
+Target sustained AR performance on the Galaxy S23:
+
+**≥30 FPS**
+
+Do not claim native AR complete because a browser implementation works.
+
+Physical Android proof is authoritative.
+
+If the S23 is temporarily unavailable, continue all work that does not require physical hardware and keep the relevant requirement explicitly blocked rather than faking evidence.
+
+---
+
+# 9. AR FIXTURE
+
+Prepare support for a deterministic recorded AR fixture under:
+
+`fixtures/ar/`
+
+A roughly 30-second real-hand fixture will eventually include:
+
+* front-facing hand;
+* rotations left/right;
+* fingers toward/away from camera;
+* approach/recede motion;
+* finger flex;
+* stable static hold;
+* partial occlusion.
+
+Use it for repeatable jitter/placement/occlusion regression once available.
+
+Do not let absence of the fixture prevent unrelated development.
+
+---
+
+# 10. MOTION AND INTERACTION
+
+Install/use:
+
+`react-native-reanimated`
+
+and the appropriate gesture stack.
+
+Motion should feel intentional and expensive.
+
+Implement:
+
+* native/UI-thread direct manipulation;
+* press feedback;
+* spring selection;
+* smooth panel transitions;
+* bottom-sheet motion;
+* tool selection transitions;
+* list entrance where appropriate;
+* layout movement instead of teleportation;
+* polished navigation transitions;
+* drag/reorder animation;
+* AR/editor state transitions;
+* reduced-motion handling.
+
+Maintain a motion token system rather than arbitrary durations everywhere.
+
+Normal interactions should target smooth 60fps behaviour on the canonical device.
+
+Do not put frame-by-frame visual animation on the JS thread when Reanimated/UI-thread execution is appropriate.
+
+---
+
+# 11. STORAGE AND PROJECT MODEL
+
+Move serious project persistence to:
+
+`expo-sqlite`
+
+Use an explicit versioned schema.
+
+Migrations must be additive/safe.
+
+Do not silently wipe legacy AsyncStorage data.
+
+Saved designs should preserve:
+
+* project metadata;
+* individual nails;
+* nail shape;
+* layers;
+* material parameters;
+* art;
+* colours;
+* text;
+* gems/charms;
+* order;
+* thumbnails where useful;
+* schema version.
+
+Implement reliable:
+
+* autosave;
+* reopen;
+* duplicate;
+* delete;
+* project library;
+* migration;
+* undo/redo compatibility.
+
+Protect against deletion/save races and corrupted partial writes.
+
+---
+
+# 12. CONTENT / CATALOGUE
+
+The existing `nail presets/` directory is reference/interim material.
+
+Do NOT blindly bundle the ~297 MB source directory.
+
+Do not assume uncertain provenance is acceptable for a commercial product.
+
+Use those assets as:
+
+* inspiration;
+* temporary fixtures;
+* visual references.
+
+The preferred final catalogue is generated from canonical designs using the actual renderer.
+
+Curate/compress only what is genuinely appropriate.
+
+---
+
+# 13. ACCESSIBILITY AND MOBILE QUALITY
+
+Functional UI must meet WCAG AA-equivalent contrast expectations.
+
+Include:
+
+* semantic labels;
+* usable font scaling;
+* appropriate touch targets;
+* safe areas;
+* clear focus/selection states;
+* non-colour-only feedback;
+* reduced motion;
+* sensible error states;
+* empty states;
+* loading states;
+* keyboard behaviour where relevant;
+* responsive layouts across practical Android phone sizes.
+
+Decorative script can remain decorative and should not carry critical information.
+
+---
+
+# 14. PERFORMANCE TARGETS
+
+Canonical performance authority:
+
+**Galaxy S23 native build**
+
+Targets:
+
+* cold start to meaningful paint: under ~2 seconds where realistically measurable;
+* normal scrolling/interactions: p95 frame time around or below 16.7ms;
+* editor direct-manipulation latency: under ~50ms;
+* normal editor target: 60fps;
+* AR sustained: ≥30fps;
+* editor memory: target <350 MB;
+* no obvious unbounded memory growth during a 10-minute scripted editor session.
+
+Do not optimise synthetic benchmark numbers at the expense of product quality.
+
+---
+
+# 15. EXPLICITLY OUT OF SCOPE FOR THIS CAMPAIGN
+
+Do not waste time implementing:
+
+* iOS production/build acceptance;
+* web product polish;
+* cloud sync;
+* account/authentication system;
+* social network/feed;
+* in-app purchases;
+* subscription/paywall;
+* salon booking;
+* e-commerce/Shop;
+* production AI image generation;
+* large backend infrastructure unrelated to the Android app;
+* speculative future architecture.
+
+The product should remain structurally capable of future expansion, but this campaign is about making the **Android application excellent**.
+
+---
+
+# 16. SDK / DEVELOPMENT FOUNDATION
+
+Current historical baseline was Expo SDK 51.
+
+The campaign decision is to migrate to the current stable target already identified in planning as SDK 57 unless current verified reality has changed.
+
+Treat this as a **port**, not a casual package upgrade.
+
+The Linux host previously had Node 26, which is unsuitable for the old toolchain and potentially unsuitable for parts of the new one.
+
+Pin an appropriate supported Node runtime explicitly using `.nvmrc` or equivalent.
+
+Make sure systemd/controller/worker environments use the pinned runtime rather than accidentally falling back to machine-global Node.
+
+The Expo migration must happen as an isolated early phase.
+
+Do not combine it with the renderer rewrite.
+
+Install/configure Android development tooling including:
+
+* Android SDK;
+* platform tools;
+* `adb`;
+* required build dependencies.
+
+Create a real Android development build.
+
+The S23 is the final canonical native target once reachable.
+
+---
+
+# 17. AUTONOMOUS BUILD DOCTRINE
+
+The previous project repeatedly failed when the system tried to solve bad convergence by adding more supervisors.
+
+Do NOT repeat that mistake.
+
+The correct architecture is:
+
+**immutable product charter**
+→ **deterministic controller**
+→ **durable state**
+→ **bounded WorkItems**
+→ **disposable workers**
+→ **isolated worktrees**
+→ **acceptance**
+→ **independent review**
+→ **rework if necessary**
+→ **integration**
+→ **release gate**
+
+LLM conversations are disposable.
+
+No individual LLM session is the source of truth.
+
+Durable project state is the source of truth.
+
+Distinguish:
+
+* process alive;
+* worker active;
+* task attempted;
+* task accepted;
+* requirement satisfied;
+* product complete.
+
+These are not the same thing.
+
+Never use any of the following as proof of completion:
+
+* worker says “done”;
+* exit code 0;
+* commit exists;
+* tests pass;
+* controller is alive;
+* queue is empty;
+* many tokens were used;
+* many sessions ran.
+
+Completion requires external evidence against the frozen acceptance requirements.
+
+---
+
+# 18. EXISTING CONTROLLER STATE IS DANGEROUS — RECONCILE FIRST
+
+There is existing autonomous infrastructure beneath `.hermes/`.
+
+Inspect it.
+
+Historically the controller lived at:
+
+`.hermes/autonomy/controller.py`
+
+with durable SQLite state at:
+
+`.hermes/state/project.db`
+
+and there was a known dangerous condition:
+
+old WorkItems were marked `INTEGRATED` before the current acceptance harness existed.
+
+If the controller saw an empty queue plus a green harness, it could falsely mark the project `SHIPPED`.
+
+**Do not start the old controller blindly.**
+
+First:
+
+1. inspect current DB schema/state;
+2. inspect current Git HEAD;
+3. inspect existing WorkItems and attempts;
+4. archive/reconcile historical campaign rows;
+5. preserve useful history;
+6. create a clean active campaign queue;
+7. re-enter genuinely unfinished requirements;
+8. repair the release predicate;
+9. prove an empty queue cannot mean SHIPPED unless every required acceptance predicate is independently satisfied.
+
+Only then enable autonomous dispatch.
+
+---
+
+# 19. TASK ≠ ATTEMPT
+
+Keep WorkItems and attempts separate.
+
+A WorkItem represents desired product state.
+
+An attempt is one implementation try.
+
+Worker failure must not destroy the WorkItem.
+
+Possible attempt outcomes should include distinctions such as:
+
+* accepted;
+* rejected/rework;
+* implementation failure;
+* acceptance failure;
+* provider failure;
+* expired;
+* waiting provider;
+* blocked hardware;
+* blocked human.
+
+Provider rate limits are infrastructure failures, not proof that the implementation task is bad.
+
+---
+
+# 20. FREELLMAPI WORKERS
+
+Use the existing authorised **FreeLLMAPI** routes for grunt implementation work.
+
+Three worker routes may be available.
+
+Treat them as **resilience capacity first**, not an excuse for uncontrolled concurrency.
+
+The historical measured worker pass rate was approximately 36%.
+
+Therefore initially:
+
+`MAX_ACTIVE_IMPLEMENTATION_WORKERS = 1`
+
+First run the agreed representative commissioning/benchmark task using a high-quality bounded packet.
+
+The previous agreed decision rule remains:
+
+* ≥60% accepted-attempt rate → the worker loop is healthy enough to proceed and independent work may be parallelised;
+* 30–59% → improve worker packets/acceptance, not orchestration;
+* <30% → improve decomposition/task size, not orchestration.
+
+Once the worker loop demonstrates ≥60% acceptance on representative work, allow up to 3 simultaneous FreeLLMAPI implementation workers **only when their scopes and files are independent**.
+
+Integration remains controlled/serialized.
+
+Do not allow multiple workers to edit the same area simultaneously.
+
+---
+
+# 21. WORKER PACKET CONTRACT
+
+Every worker receives a bounded context packet containing at least:
+
+* WorkItem ID;
+* requirement IDs;
+* one clear objective;
+* exact files likely relevant;
+* mockup/reference paths where applicable;
+* product constraints;
+* explicit non-goals;
+* exact acceptance commands/predicates;
+* expected evidence;
+* known failed strategies;
+* branch/worktree;
+* what must remain unchanged.
+
+Workers should not receive the entire project history when a bounded packet is sufficient.
+
+Workers produce candidates.
+
+Workers do not declare requirements satisfied.
+
+---
+
+# 22. ISOLATED WORKTREES
+
+Implementation workers operate in isolated Git worktrees/branches.
+
+Never let independent workers blindly share one dirty working tree.
+
+The controller/director integrates only accepted work.
+
+Before integration:
+
+* inspect diff;
+* run requirement-specific acceptance;
+* run relevant regression checks;
+* review evidence;
+* resolve conflicts deliberately.
+
+Keep `main` demoable/stable.
+
+Use the existing `v2-quality` strategy if still appropriate in current state.
+
+---
+
+# 23. ACCEPTANCE HARNESS
+
+The existing authoritative harness historically lived at:
+
+`app/verify.sh`
+
+and:
+
+`app/checks/`
+
+Preserve the principle of **one acceptance authority**.
+
+Extend it rather than creating competing truth systems.
+
+Acceptance must prove behaviour, not mere existence.
+
+Bad acceptance:
+
+“the file contains `fontFamily`.”
+
+Good acceptance:
+
+“the rendered screen actually uses the intended loaded font.”
+
+Bad acceptance:
+
+“AR component exists.”
+
+Good acceptance:
+
+“native camera → hand tracking → projected design overlay works with measurable stability.”
+
+Protect the harness from being weakened merely to make failing implementation pass.
+
+Any substantive weakening of a frozen acceptance predicate must be explicitly justified and independently reviewed.
+
+---
+
+# 24. VISUAL ACCEPTANCE
+
+This is a quality campaign.
+
+A shell script cannot decide whether an app looks expensive.
+
+Use multiple forms of evidence together:
+
+1. deterministic/static conformance checks;
+2. rendered structural checks;
+3. screenshot regression against approved goldens;
+4. perceptual/image metrics where meaningful;
+5. independent vision-model review where available;
+6. actual Android-native screenshots/video;
+7. objective material/AR behaviour checks.
+
+Do not treat an aesthetic model score by itself as a release predicate.
+
+Use the newer mockups as references.
+
+Important correction:
+
+the full source mockup PNG dimensions (`941×1672`) include the styled phone/scenery and are not the literal app viewport.
+
+Compare against the actual cropped screen region rather than squashing the Android UI to the full image dimensions.
+
+---
+
+# 25. REVIEWERS / PROVIDER AVAILABILITY
+
+If the existing system has access to the already-authorised subscription reviewer paths, use them according to the existing project policy.
+
+If a reviewer is temporarily unavailable:
+
+* persist the review request;
+* persist evidence;
+* mark it WAITING_PROVIDER;
+* continue unrelated work.
+
+Never create a permanently-running LLM just to wait.
+
+Never silently route through a metered paid provider.
+
+Do not use:
+
+* OpenRouter;
+* Token Harbor;
+* metered API fallbacks;
+
+unless a later explicit owner instruction overrides this.
+
+This campaign should use the already-authorised subscription/free routes.
+
+---
+
+# 26. WATCHDOG — BUILD A REAL RECOVERY SYSTEM
+
+Set up a **mechanical watchdog**, preferably using systemd rather than a dumb LLM cron loop.
+
+The user wants a recovery check roughly every **10 minutes** because FreeLLMAPI/provider sessions can be throttled or die.
+
+Create/repair something equivalent to:
+
+`nailed-it-controller.service`
+
+`nailed-it-watchdog.service`
+
+`nailed-it-watchdog.timer`
+
+The watchdog interval should be approximately 10 minutes.
+
+The watchdog is **not another orchestrator**.
+
+It should inspect durable state and mechanically recover failures.
+
+Every cycle check things such as:
+
+1. Is the controller alive?
+2. Did the controller crash?
+3. Is a RUNNING attempt's lease expired?
+4. Did a worker disappear?
+5. Has a WorkItem stopped progressing?
+6. Did a provider fail/rate-limit?
+7. Is a provider waiting state eligible for retry?
+8. Are there runnable requirements but no active task?
+9. Is the queue empty while requirements remain unsatisfied?
+10. Is release state claiming completion without release evidence?
+
+Then perform deterministic recovery.
+
+The watchdog must NEVER decide:
+
+“queue empty → SHIPPED.”
+
+---
+
+# 27. LEASES AND HEARTBEATS
+
+Worker attempts should have durable leases.
+
+Store at least:
+
+* WorkItem;
+* attempt ID;
+* provider/model;
+* worktree;
+* start time;
+* lease expiry;
+* heartbeat/progress time;
+* state;
+* failure classification;
+* commit/output;
+* evidence.
+
+If a worker dies:
+
+worker dies
+→ lease expires
+→ attempt classified
+→ WorkItem becomes recoverable
+→ new worker may continue.
+
+No task should be trapped forever because the session that owned it vanished.
+
+---
+
+# 28. PROVIDER LIMIT RECOVERY
+
+FreeLLMAPI provider limits are expected infrastructure events.
+
+Use:
+
+* bounded retries;
+* provider rotation where authorised;
+* cooldown/backoff;
+* durable WAITING_PROVIDER state.
+
+Do NOT solve rate limits by spawning endless supervisors.
+
+Do NOT hammer the same unavailable provider every few seconds.
+
+Do NOT lose task state.
+
+If all worker providers are unavailable:
+
+persist the queue,
+sleep/retry later,
+continue any work the Luna director can reasonably perform itself,
+and resume workers when capacity returns.
+
+---
+
+# 29. LUNA DIRECTOR IS ALSO DISPOSABLE
+
+This Codex/Luna conversation must not itself become a single point of failure.
+
+Persist a concise durable checkpoint containing at least:
+
+* campaign phase;
+* current HEAD;
+* active requirements;
+* active WorkItems;
+* accepted WorkItems;
+* rejected/rework items;
+* blocked hardware items;
+* waiting provider items;
+* current test/harness result;
+* current release blockers;
+* last successful integration;
+* next deterministic action.
+
+If this Luna session dies, a fresh Luna session should be capable of reading:
+
+the charter
+
+* checkpoint
+* DB
+* Git
+* evidence
+
+and continuing.
+
+No manual reconstruction should be necessary.
+
+---
+
+# 30. PLANNER SHOULD SLEEP MOST OF THE TIME
+
+Do not continuously ask an LLM to rethink the whole project.
+
+Planning/replanning should happen only when necessary, for example:
+
+* genuine ambiguity;
+* repeated semantic failure;
+* dependency discovery;
+* integration conflict;
+* architecture proven infeasible;
+* acceptance reveals a new product gap.
+
+Most of the campaign should be deterministic:
+
+next ready WorkItem
+→ dispatch
+→ evaluate
+→ integrate/rework
+→ next.
+
+---
+
+# 31. CAMPAIGN PHASES
+
+Use the existing Stage-0 plan as the detailed source, with this overall sequence unless current evidence requires a bounded adjustment:
+
+### P0 — Sanitation and control-plane repair
+
+* reconcile Git/DB/controller;
+* archive stale campaign state;
+* eliminate false SHIPPED;
+* freeze current requirements;
+* pin runtime;
+* configure recovery;
+* establish clean queue;
+* commission worker loop.
+
+### P1 — Android platform migration
+
+* Expo 51 → approved stable target;
+* compatible Node;
+* Android SDK/adb;
+* real Android dev build;
+* preserve existing behaviour.
+
+### P2 — Premium visual foundation
+
+* fonts;
+* palette;
+* surfaces;
+* backgrounds;
+* glass;
+* spacing;
+* component primitives;
+* navigation shell.
+
+### P3 — Skia renderer
+
+* canonical nail render architecture;
+* materials;
+* persistence compatibility;
+* fixtures.
+
+### P4 — Native AR risk burn
+
+Do this early because it is the highest-risk product premise.
+
+Prove:
+
+* native hand tracking path;
+* nail anchoring;
+* perspective;
+* depth;
+* occlusion;
+* shadow;
+* stability.
+
+If 2.5D is genuinely inadequate, gather evidence and then make the smallest necessary architectural escalation.
+
+### P5 — Motion and gestures
+
+* Reanimated;
+* gesture polish;
+* transitions;
+* direct manipulation.
+
+### P6 — Eight editor studios
+
+* Shape;
+* Ombré;
+* Marble;
+* Patterns;
+* Brush;
+* Text;
+* Gems;
+* Layers.
+
+### P7 — AR product completion
+
+* full renderer/design model integration;
+* all relevant nails/fingers;
+* robustness;
+* camera lifecycle;
+* polished device behaviour.
+
+### P8 — Catalogue / Home / Explore / My Nails
+
+* renderer-produced imagery;
+* inspiration;
+* project library;
+* polished product flow.
+
+### P9 — Hardening
+
+* accessibility;
+* performance;
+* memory;
+* reliability;
+* edge cases;
+* Android device QA;
+* final acceptance/release evidence.
+
+---
+
+# 32. FIX KNOWN PROBLEMS WHEN ENCOUNTERED
+
+Historical analysis identified issues including:
+
+* flat SVG nail rendering;
+* wrong visual identity;
+* no proper custom typography;
+* native AR stub;
+* 2D-only AR placement;
+* discarded depth;
+* weak perspective handling;
+* fake/weak contact shadows;
+* manual-fit compensation;
+* settings typography misuse;
+* inconsistent/fake flows;
+* stale requirements;
+* unsafe completion logic;
+* persistence weaknesses;
+* incomplete integration between editor controls and rendering.
+
+Confirm whether each still exists at current HEAD before changing it.
+
+If already fixed, do not reimplement it.
+
+If still present, fix it as part of the appropriate bounded WorkItem.
+
+---
+
+# 33. DO NOT OVERTEST BLINDLY
+
+Use evidence efficiently.
+
+Do not rerun every expensive test suite after every tiny edit.
+
+Run:
+
+* requirement-specific checks during worker iteration;
+* impacted regression checks before integration;
+* broader gates at meaningful integration boundaries;
+* complete release suite near release.
+
+Reuse very recent trustworthy evidence when the underlying code/dependencies relevant to that evidence have not changed.
+
+---
+
+# 34. DO NOT ASK ME ROUTINE QUESTIONS
+
+Routine implementation decisions are yours.
+
+Do not interrupt me for:
+
+* naming internal helper functions;
+* file organisation;
+* normal package configuration;
+* component structure;
+* small visual details;
+* test implementation;
+* ordinary refactors;
+* routine dependency configuration already within the approved stack.
+
+When a minor decision is unspecified:
+
+choose the solution that best supports:
+
+1. premium product quality;
+2. maintainability;
+3. Android performance;
+4. consistency with the mockups;
+5. future portability where cheap.
+
+Record important decisions durably and continue.
+
+Only stop for me if the remaining work literally requires something only I can provide, such as physically interacting with hardware that is inaccessible to you, credentials that do not exist, spending money, or an irreversible external action.
+
+Even then:
+
+continue every unrelated WorkItem first.
+
+---
+
+# 35. NO FAKE COMPLETION
+
+Never fake or stub a required core capability merely to make the campaign green.
+
+Especially:
+
+* no fake native AR;
+* no simulated hand tracking claimed as real;
+* no disconnected editor controls;
+* no placeholder catalogue claimed final;
+* no dummy persistence;
+* no screenshot-only implementation;
+* no release status derived from empty queue.
+
+If something cannot currently be proven, mark it accurately and continue everything else.
+
+---
+
+# 36. DEFINITION OF RELEASE
+
+The campaign may mark the Android build complete only when, at current accepted HEAD:
+
+* required Android-native navigation works;
+* onboarding/settings required for the product work;
+* Home / Explore / Create / Try On / My Nails work as coherent real flows;
+* editor is genuinely usable;
+* all required studios actually affect the renderer;
+* saved designs persist and reopen safely;
+* undo/redo is reliable;
+* per-nail/set editing works;
+* Skia renderer meets the premium material target;
+* catalogue/content no longer depends on unacceptable placeholders;
+* native Android AR genuinely tracks and anchors nails;
+* required gestures/motion work;
+* accessibility blockers are addressed;
+* performance is acceptable on target hardware where hardware is reachable;
+* no critical known data-loss bug exists;
+* acceptance harness passes;
+* independent evidence supports the required properties;
+* no critical required capability is merely stubbed;
+* no P0/Q0 requirement remains unsatisfied;
+* release status is computed from evidence, not session opinion.
+
+If physical hardware is unavailable and is literally the only remaining blocker, the state must say exactly that rather than pretending SHIPPED.
+
+---
+
+# 37. FINAL OPERATING RULE
+
+Do not return to me after reading this with:
+
+“I have created a plan.”
+
+Do not return with:
+
+“Here are the questions I still need answered.”
+
+Do not return with:
+
+“Would you like me to begin?”
+
+Do not return with:
+
+“The Stage-0 pack is ready for approval.”
+
+**Approval has already been given.**
+
+**This prompt is the GO.**
+
+Start by opening `/home/ash/Desktop/nailify`, inspecting the current HEAD and durable campaign state, reconciling the dangerous stale controller state, and then start implementing the application.
+
+Use the planning artefacts as accumulated knowledge.
+
+Use current disk state as reality.
+
+Use deterministic control for persistence and recovery.
+
+Use FreeLLMAPI workers for bounded grunt work.
+
+Use GPT-5.6 Luna/Codex as the execution director.
+
+Install the 10-minute mechanical watchdog/recovery mechanism.
+
+Keep going through failures, session deaths and provider limits.
+
+Do not build another orchestration research project.
+
+**Build Nailed It.**
+
+Start now.

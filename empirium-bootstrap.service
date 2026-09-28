@@ -1,0 +1,16 @@
+[Unit]
+Description=Empirium Studio bootstrap runner (builds + commissions the build controller)
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+ExecStart=/usr/bin/python3 %h/work/starforce-plan/bootstrap_runner.py
+Restart=on-failure
+RestartSec=30
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target

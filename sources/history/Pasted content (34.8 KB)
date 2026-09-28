@@ -1,0 +1,1451 @@
+# EMPIRIUM — DEFINITIVE AUTONOMOUS BUILD BOOTSTRAP
+
+You are being given one final objective:
+
+**Make the Empirium AI Workforce product continue building autonomously in the background until the complete product reaches its evidence-backed Definition of Done, regardless of whether this Hermes conversation, browser, RDP connection, SSH connection, individual worker, model provider, or Hermes worker session disappears.**
+
+This request is NOT primarily a request to write more application code inside this conversation.
+
+Your FIRST responsibility is to establish and prove a durable autonomous build/control system that is independent of this conversation.
+
+Only after that control system is genuinely running may product implementation continue.
+
+---
+
+# 0. THE FAILURE WE ARE FIXING
+
+Previous attempts repeatedly failed in the same way:
+
+1. Hermes received a large build objective.
+2. Hermes performed substantial implementation.
+3. Tests passed for pieces of the architecture.
+4. Hermes produced reports describing remaining work.
+5. The initiating session ended.
+6. No Director, worker, reconciler, supervisor, or durable build process remained running.
+7. The product therefore stopped unfinished.
+
+This MUST NOT happen again.
+
+The current repository has even explicitly reached states where:
+
+* the autonomy kernel was “commissioned”;
+* deterministic tests passed;
+* WorkItem/Attempt semantics existed;
+* PostgreSQL structures existed;
+* worker death recovery existed;
+* yet the production reconciler was not actually the live execution path;
+* and afterward no autonomy kernel, reconciler, Director, or worker process was running.
+
+Some previous commissioning evidence was also synthetic rather than genuinely operational. Values such as restart success were inserted into reports and later checked by acceptance scripts rather than proven by actually killing and restarting the production process.
+
+That form of evidence is forbidden.
+
+The fundamental rule from this point forward is:
+
+> **An LLM conversation is never the owner of project continuity.**
+
+Linux/systemd + Hermes Gateway + persistent Kanban state + a deterministic build supervisor must own continuity.
+
+Hermes/LLMs are disposable workers.
+
+---
+
+# 1. REQUIRED FINAL ARCHITECTURE
+
+The autonomous build system MUST have these layers:
+
+```text
+LINUX / SYSTEMD
+        │
+        ├── Hermes Gateway service
+        │       │
+        │       └── Hermes Kanban dispatcher
+        │               │
+        │               ├── implementation workers
+        │               ├── testing workers
+        │               ├── QA/review workers
+        │               ├── diagnostic workers
+        │               └── planner workers
+        │
+        └── Empirium Build Supervisor service
+                │
+                ├── reads deterministic product acceptance state
+                ├── reads Kanban state
+                ├── detects stalled/blocked/missing work
+                ├── schedules recovery/diagnosis/rework
+                ├── checks provider availability
+                ├── verifies remaining acceptance predicates
+                ├── ensures failed predicates always map to work
+                └── stops creating work ONLY when final deterministic
+                    product acceptance is genuinely PASS
+```
+
+The initiating Hermes conversation is NOT part of that liveness chain.
+
+Closing this conversation must not stop the build.
+
+Closing Hermes Desktop must not stop the build.
+
+Closing Chrome must not stop the build.
+
+Closing RDP must not stop the build.
+
+Closing SSH must not stop the build.
+
+A worker crash must not stop the build.
+
+A provider outage must not stop the build.
+
+A failed test must not stop the build.
+
+A QA rejection must not stop the build.
+
+A goal-turn limit must not stop the build.
+
+A Gateway crash must not permanently stop the build.
+
+A VPS reboot must not permanently stop the build.
+
+---
+
+# 2. DO NOT USE THESE AS THE PROJECT OWNER
+
+Do NOT use any of the following as the primary mechanism for keeping this build alive:
+
+* `/loop`
+* chat-level `/goal`
+* a single giant Hermes conversation
+* a terminal left open
+* an RDP session
+* SSH
+* `nohup` as the canonical supervisor
+* `tmux` as the canonical supervisor
+* a browser tab
+* Conductor activity
+* an LLM repeatedly telling itself “continue”
+* an in-memory WorkItem repository
+* a JSON file pretending to be runtime state
+* a preview server
+* the existing `run_empirium_freellmapi_autonomous.sh` as the ultimate source of project continuity
+
+Those may be used diagnostically where appropriate, but none of them may be the authoritative liveness mechanism.
+
+`--goal` SHOULD be used for suitable bounded **Kanban worker cards**, not as the global project owner.
+
+---
+
+# 3. AUTHORITATIVE LOCATIONS
+
+Inspect the machine before changing anything.
+
+Known repositories include:
+
+```text
+/home/ash/empirium-studio
+/home/ash/freellmapi
+/home/ash/.hermes/hermes-agent
+```
+
+Known Empirium working branch:
+
+```text
+feat/empirium-studio-workforce
+```
+
+Do not assume these paths blindly if the machine proves otherwise, but these are the expected locations.
+
+The following Empirium artifacts are important and must be discovered/read before backlog generation:
+
+```text
+AI_WORKFORCE_BUILD/source/ORIGINAL_WORKFORCE_SPEC.md
+AI_WORKFORCE_BUILD/CURRENT_CAPABILITY_STATE.json
+AI_WORKFORCE_BUILD/REMAINING_PRODUCT_BACKLOG.json
+AI_WORKFORCE_BUILD/INITIAL_PRODUCT_ACCEPTANCE.json
+AI_WORKFORCE_BUILD/INITIAL_PRODUCT_REPORT.md
+AI_WORKFORCE_BUILD/MARKET_RELEASE_BACKLOG.md
+AI_WORKFORCE_BUILD/AUTONOMY_KERNEL_COMMISSIONING.json
+AI_WORKFORCE_BUILD/AUTONOMY_KERNEL_GATE.json
+
+docs/product/
+docs/decisions/
+
+agent/WORKER_RULES.md
+agent/REVIEW_RULES.md
+agent/ORCHESTRATION_CONSTITUTION.md
+agent/CONTEXT_PACKET_SPEC.md
+```
+
+Also inspect existing Git state, services, Docker containers, databases, Hermes profiles, Kanban boards and provider configuration.
+
+Preserve existing unrelated dirty work.
+
+DO NOT:
+
+```text
+git reset --hard
+git clean -fd
+force checkout over user work
+delete unknown state
+rewrite unrelated branches
+```
+
+Create recovery commits/tags or copies before risky migrations.
+
+---
+
+# 4. ABSOLUTE INFERENCE POLICY
+
+New pay-as-you-go inference budget:
+
+```text
+$0.00
+```
+
+OpenRouter must NOT be used for this autonomous build.
+
+This includes avoiding accidental paid fallback.
+
+Use only:
+
+* FreeLLMAPI routes that are genuinely free;
+* direct free provider routes already available and authorized;
+* local models where appropriate;
+* already-authorized subscription-backed routes only if they do not create metered API charges and are explicitly part of the existing approved setup.
+
+Do not silently reinterpret “free” as “cheap”.
+
+Do not use OpenRouter because another route failed.
+
+Every worker Attempt must record, where available:
+
+* provider;
+* requested model;
+* effective model;
+* route;
+* outcome;
+* cost;
+* task ID/run ID.
+
+A provider outage is a WAIT/RETRY condition.
+
+It is NEVER evidence that the project is complete.
+
+---
+
+# 5. PHASE A — FREEZE AND AUDIT CURRENT STATE
+
+Before making new product changes:
+
+1. Capture exact Git branch, HEAD and working tree state for all relevant repositories.
+2. Capture running Docker containers.
+3. Capture listening ports.
+4. Capture Hermes Gateway state.
+5. Capture any Hermes systemd user service.
+6. Capture any Hermes system-level service.
+7. Capture Kanban board state.
+8. Capture Hermes assignees/profiles.
+9. Capture FreeLLMAPI health.
+10. Capture FreeLLMAPI provider/key availability without exposing credentials.
+11. Capture current Empirium acceptance result.
+12. Capture current PostgreSQL availability.
+13. Capture running Empirium/Hermes processes.
+14. Capture the current production/candidate service revisions.
+15. Save the audit under a durable timestamped control-state directory.
+
+Do not mistake “files exist” for “service running”.
+
+---
+
+# 6. PHASE B — ESTABLISH THE HERMES PERSISTENT EXECUTION LAYER
+
+## 6.1 Exactly one authoritative Gateway dispatcher
+
+Inspect existing Hermes Gateway services first.
+
+Do not accidentally create both a user Gateway and a system Gateway running against the same state.
+
+This VPS is intended to run autonomously while unattended.
+
+Prefer the supported SYSTEM service form on this VPS/headless host.
+
+Use Hermes' own service tooling where possible.
+
+Expected pattern:
+
+```bash
+sudo hermes gateway install --system
+sudo hermes gateway start --system
+sudo hermes gateway status --system
+```
+
+If the installed Hermes version requires an explicit run-as user, configure it to run as:
+
+```text
+ash
+```
+
+If a correct system service already exists, reuse it.
+
+If the machine is already intentionally using a persistent user service, only keep it if boot/logout persistence is genuinely proven.
+
+There must be exactly one dispatcher owner for this build state.
+
+Verify systemd restart behaviour.
+
+Do not merely inspect the unit file.
+
+Actually prove it.
+
+---
+
+# 7. PHASE C — INITIALIZE/VERIFY HERMES KANBAN
+
+Use Hermes Kanban as the durable BUILD execution queue.
+
+Initialize it if necessary:
+
+```bash
+hermes kanban init
+```
+
+Discover actual profiles before assigning anything:
+
+```bash
+hermes kanban assignees --json
+```
+
+Never invent an assignee name and hope it exists.
+
+Create or reuse a dedicated board for this program, for example:
+
+```text
+empirium-autonomous-build
+```
+
+The board must clearly be distinct from disposable experiments.
+
+Configure the Gateway-owned dispatcher:
+
+```yaml
+kanban:
+  dispatch_in_gateway: true
+  dispatch_interval_seconds: 30
+  auto_promote_children: true
+  max_in_progress: 2
+  max_in_progress_per_profile: 1
+  default_workdir: /home/ash/empirium-studio
+```
+
+You may adjust concurrency based on actual machine/provider behaviour, but start conservatively because FreeLLMAPI/provider capacity has previously caused 429/503 failures.
+
+Do NOT run an additional standalone Kanban daemon against the same board.
+
+The Gateway owns dispatch.
+
+---
+
+# 8. PHASE D — CREATE A SEPARATE DETERMINISTIC BUILD SUPERVISOR
+
+This is mandatory.
+
+Do not put the build supervisor under the normal writable product worktree.
+
+Create a stable control location, for example:
+
+```text
+/home/ash/empirium-autobuild-control
+```
+
+The control plane should be a small deterministic program.
+
+Python is acceptable.
+
+It must NOT itself need an LLM to perform normal supervision.
+
+Its responsibility is orchestration/state reconciliation, NOT writing product code.
+
+Create:
+
+```text
+empirium-build-supervisor
+```
+
+and run it as a systemd-managed service.
+
+Preferred system unit:
+
+```text
+empirium-autobuild.service
+```
+
+running as:
+
+```text
+User=ash
+```
+
+Requirements:
+
+```text
+Restart=always
+RestartSec=10
+```
+
+The control service must automatically return after machine reboot.
+
+If system scope is genuinely unavailable, use a correctly persistent user systemd unit with lingering enabled and PROVE reboot/logout persistence.
+
+Do not merely write the unit.
+
+Start it.
+
+Enable it.
+
+Kill it.
+
+Observe systemd restart it.
+
+---
+
+# 9. BUILD SUPERVISOR STATE MACHINE
+
+The supervisor should wake approximately every 30–60 seconds.
+
+It must persist its own small reconciliation metadata under:
+
+```text
+/home/ash/.local/state/empirium-autobuild/
+```
+
+It must be idempotent.
+
+It must tolerate repeated ticks.
+
+The algorithm is conceptually:
+
+```text
+FOREVER:
+
+    verify Gateway health
+
+    verify Kanban dispatcher health
+
+    inspect active Kanban board
+
+    inspect worker/run states
+
+    inspect provider health
+
+    inspect target Git state
+
+    run/read deterministic product acceptance gate
+
+    reclaim/recover stale execution where appropriate
+
+    IF final product acceptance == PASS:
+        run final evidence verification
+        IF final evidence verification == PASS:
+            mark autonomous build COMPLETE
+            enter completed/idle monitoring mode
+        ELSE:
+            create bounded repair WorkItems for failed evidence
+        CONTINUE
+
+    parse every failed acceptance predicate
+
+    ensure every failed predicate has actionable durable work
+
+    IF failed predicate has no active WorkItem:
+        create bounded diagnostic/implementation WorkItem
+
+    inspect blocked cards
+
+    classify each block:
+        provider/transient
+        failed implementation
+        failed test
+        QA rejection
+        goal-turn exhaustion
+        bad model/no progress
+        dependency
+        real human blocker
+
+    provider/transient:
+        schedule retry with bounded exponential backoff
+        continue all unrelated runnable work
+
+    repeated no-progress:
+        do NOT retry the identical route indefinitely
+        create/route diagnosis or use a fresh model/provider path
+        retain previous Attempt history
+
+    failed test:
+        generate rework against same logical requirement
+
+    QA rejection:
+        generate rework against same logical requirement
+
+    goal-turn exhaustion:
+        preserve progress
+        create a continuation/recovery Attempt or bounded follow-up card
+        DO NOT interpret exhaustion as project completion
+
+    crashed worker:
+        reclaim and retry
+
+    disappeared worker:
+        reclaim and retry
+
+    Gateway restarted:
+        reconstruct from durable Kanban state
+
+    true missing credential/irreversible approval:
+        record precise HUMAN_BLOCKED state
+        continue all independent work
+        keep supervisor alive
+        periodically re-evaluate the blocker
+
+    if zero READY/RUNNING cards but acceptance != PASS:
+        this is a CONTROL-PLANE FAILURE CONDITION
+        automatically create a diagnosis/replanning card
+
+    sleep
+```
+
+The most important invariant is:
+
+> **ACCEPTANCE FAIL + NO ACTIVE WORK is not allowed.**
+
+If acceptance is FAIL and the board has no actionable work, the supervisor MUST create recovery/replanning work.
+
+---
+
+# 10. PREVENT DUPLICATE/INFINITE GARBAGE WORK
+
+Use deterministic idempotency keys based on:
+
+```text
+project
+requirement/capability ID
+task class
+candidate revision where relevant
+```
+
+Do not create a new duplicate recovery card every 30 seconds.
+
+Maintain one active card per logical repair unless decomposition genuinely requires multiple independent children.
+
+Preserve Attempt history.
+
+A new Attempt is not a new requirement.
+
+A failed Attempt must not destroy the logical WorkItem.
+
+---
+
+# 11. PROVIDER FAILURE POLICY
+
+We have already observed failures such as:
+
+```text
+HTTP 503
+No candidate model has a configured, usable provider key
+```
+
+That exact class of problem must no longer terminate the project.
+
+Classify outcomes separately:
+
+```text
+INFERENCE_TIMEOUT
+RATE_LIMITED
+AUTH_FAILURE
+PROVIDER_UNAVAILABLE
+ROUTING_EXHAUSTED
+
+LLM_SUCCESS_PRODUCTIVE
+LLM_SUCCESS_NO_PROGRESS
+LLM_SUCCESS_INVALID_WORK
+
+TASK_BLOCKED
+TASK_REQUIRES_REPLAN
+```
+
+Provider failures and model-quality failures are different.
+
+Never penalize a provider merely because a model produced semantically unproductive code.
+
+Never treat transport success as task success.
+
+For provider failures use backoff such as:
+
+```text
+2 min
+5 min
+10 min
+30 min
+60 min
+then periodic 60 min checks
+```
+
+Do not busy-loop.
+
+If all free providers are temporarily unavailable:
+
+* the board remains unfinished;
+* the supervisor remains alive;
+* provider-dependent cards wait;
+* non-provider work continues where possible;
+* the supervisor periodically rechecks availability.
+
+Do not end the project.
+
+---
+
+# 12. REPAIR THE CURRENT FREELLMAPI LIVE STATE
+
+The most recent work showed several repository-side changes existed but live runtime configuration remained unfinished.
+
+Audit and complete this properly.
+
+Known outstanding items have included:
+
+* live FreeLLMAPI process not restarted with new migration/code;
+* `empirium-code` profile not applied to the live database;
+* desired fallback settings not applied live;
+* agentic outcome endpoint not exercised end-to-end;
+* task-level no-progress recovery not fully connected;
+* adaptive routing/timeout behaviour incomplete;
+* complete `timeout → provider failure/rate limit → alternate free route → productive success` trace missing.
+
+Perform this work as bounded Kanban tasks, not as an untracked side quest.
+
+Before restarting the FreeLLMAPI container:
+
+* identify the actual data volume;
+* protect its SQLite/database state;
+* verify backup/recovery path;
+* preserve provider configuration.
+
+After restart:
+
+* verify migration applied;
+* verify `empirium-code` exists;
+* verify enabled free routes;
+* verify credentials are recognized without printing secrets;
+* verify routing works;
+* verify OpenRouter is excluded;
+* verify fallback;
+* verify outcome metadata;
+* verify task-level feedback path.
+
+A repository unit test is not enough.
+
+Exercise the live container.
+
+---
+
+# 13. USE KANBAN GOAL MODE FOR BOUNDED WORKERS
+
+Do NOT put the entire Empirium program into one enormous goal-mode card.
+
+Decompose it.
+
+Cards should normally represent roughly 30–180 minutes of coherent work for a capable worker.
+
+For substantial implementation cards use Kanban goal mode.
+
+Typical configuration:
+
+```text
+--goal
+--goal-max-turns 30
+--max-runtime 3h
+--max-retries 5
+```
+
+Increase runtime for genuinely heavy integration/QA tasks where justified.
+
+The body of every goal-mode card must contain explicit acceptance criteria.
+
+Bad:
+
+```text
+Improve employee page.
+```
+
+Good:
+
+```text
+Implement the persistent Employee dossier required by EMP-003.
+
+Acceptance:
+- opens for every persistent employee;
+- reads canonical PostgreSQL employee identity;
+- displays role, department, current WorkItem, Attempt, requested/effective model, provider and status where available;
+- survives page refresh;
+- no fabricated metrics;
+- browser test passes;
+- screenshot evidence attached;
+- implementer cannot self-approve;
+- independent QA card must accept exact candidate SHA.
+```
+
+The goal judge is supplementary.
+
+The deterministic acceptance evidence remains authoritative.
+
+---
+
+# 14. PLANNER / IMPLEMENTER / REVIEWER SEPARATION
+
+Use stronger free models for:
+
+* architectural planning;
+* diagnosis after repeated failure;
+* cross-repository integration decisions;
+* independent QA/review.
+
+Use faster/cheaper free models for:
+
+* bounded coding;
+* test fixes;
+* mechanical implementation;
+* documentation;
+* straightforward refactors.
+
+Do not let the implementer approve its own work.
+
+Required flow:
+
+```text
+PLAN if required
+    ↓
+IMPLEMENT
+    ↓
+TEST
+    ↓
+RUNTIME / VISUAL / RECOVERY QA as required
+    ↓
+INDEPENDENT REVIEW
+    ↓
+ACCEPT or REWORK
+```
+
+The reviewer evaluates the exact:
+
+* WorkItem;
+* Attempt;
+* candidate Git SHA;
+* test results;
+* artifacts;
+* screenshots;
+* runtime evidence.
+
+---
+
+# 15. WORKTREES AND WRITE OWNERSHIP
+
+Implementation cards should use isolated worktrees where practical.
+
+One implementation WorkItem:
+
+```text
+one primary writer
+one lease
+one isolated worktree
+one bounded diff
+```
+
+Workers must not edit:
+
+* build supervisor code;
+* Kanban database directly;
+* control state;
+* acceptance truth;
+* scheduler code;
+* protected integration branch directly unless they are the designated integrator.
+
+Serialize integration.
+
+Detect conflicting changes before merge/cherry-pick.
+
+---
+
+# 16. BUILD THE COMPLETE BACKLOG FROM AUTHORITATIVE PRODUCT TRUTH
+
+Do not assume the five currently failing Initial Product Acceptance predicates are the entire product.
+
+Read and reconcile:
+
+```text
+ORIGINAL_WORKFORCE_SPEC.md
+CURRENT_CAPABILITY_STATE.json
+REMAINING_PRODUCT_BACKLOG.json
+MARKET_RELEASE_BACKLOG.md
+INITIAL_PRODUCT_REPORT.md
+docs/product/
+existing code
+actual runtime
+```
+
+Build a traceability table:
+
+```text
+Requirement ID
+→ Capability
+→ WorkItem(s)
+→ Attempt(s)
+→ Git revision
+→ Tests
+→ runtime evidence
+→ QA
+→ final acceptance
+```
+
+Every mandatory original requirement must end in one of:
+
+```text
+ACCEPTED
+HUMAN_BLOCKED with precise unavoidable reason
+```
+
+Do not silently drop requirements.
+
+---
+
+# 17. KNOWN CURRENT CORE GAPS
+
+At minimum, the system must continue addressing known unfinished areas including:
+
+```text
+EMP-003
+Dedicated employee dossier/current operation
+
+PRJ-001
+Durable Project/Task/Run workspace
+
+WRK-005
+Production deterministic reconciler continuation
+
+OFF-001
+Living-office runtime
+
+RES-001
+Browser-close/background continuation
+```
+
+But these are not permission to ignore other partial/missing requirements discovered from the authoritative specification.
+
+---
+
+# 18. EMPIRIUM PRODUCT RECONCILER
+
+Separate two concepts clearly:
+
+## Build-time controller
+
+```text
+systemd
+→ Hermes Gateway
+→ Hermes Kanban
+→ Empirium Build Supervisor
+```
+
+This builds Empirium.
+
+## Product runtime controller
+
+```text
+Empirium PostgreSQL
+→ deterministic Empirium reconciler
+→ product WorkItems/Attempts
+→ employees/workforce
+```
+
+This is functionality inside the product.
+
+Do NOT confuse them.
+
+The build system must finish implementing and verifying the product reconciler.
+
+The product reconciler must eventually become the sole scheduling authority for Empirium's own AI workforce execution.
+
+But the product does not need to be responsible for building itself before that functionality is complete.
+
+---
+
+# 19. REAL COMMISSIONING — NO SYNTHETIC EVIDENCE
+
+Delete, replace or invalidate commissioning logic where a report simply contains hard-coded success values such as:
+
+```text
+reconciler_restart: true
+durable_state_reloaded: true
+duplicate_claims: 0
+```
+
+without an actual restart occurring.
+
+For each resilience claim, perform the event.
+
+Required real commissioning includes:
+
+### Worker death
+
+* start a real worker;
+* verify it owns a real card/run;
+* kill the worker process;
+* verify dispatcher detects death;
+* verify run closes appropriately;
+* verify logical task survives;
+* verify replacement worker resumes.
+
+### Gateway death
+
+* capture Gateway PID;
+* ensure ready/running build work exists;
+* terminate the Gateway process;
+* verify systemd restarts it automatically with a new PID;
+* verify dispatcher resumes;
+* verify Kanban state survives;
+* verify work continues.
+
+### Build Supervisor death
+
+* capture supervisor PID;
+* kill it;
+* verify systemd restarts it;
+* verify it reconstructs state;
+* verify duplicate cards are not created.
+
+### Provider outage
+
+* inject/emulate a provider failure safely;
+* verify provider-dependent task moves to appropriate wait/block/retry state;
+* verify no paid/OpenRouter fallback;
+* verify unrelated work continues;
+* verify later retry.
+
+### QA rejection
+
+* deliberately reject one commissioning candidate;
+* verify rework is created;
+* verify a new Attempt occurs;
+* verify later independent approval.
+
+### Stale evidence
+
+* create evidence against SHA A;
+* modify candidate to SHA B;
+* verify SHA A evidence cannot approve SHA B.
+
+### Browser/session loss
+
+* start background work;
+* terminate/close the initiating foreground worker/session where safely testable;
+* verify Gateway + supervisor + board continue.
+
+No human-maintained terminal may be needed for continuity.
+
+---
+
+# 20. BOOT/REBOOT TEST
+
+This is mandatory before declaring the autonomous control plane commissioned.
+
+Safely verify the chosen persistence mechanism survives the equivalent of normal unattended VPS operation.
+
+At minimum prove:
+
+```text
+service enabled at boot
+Gateway restarts automatically
+Build Supervisor restarts automatically
+Kanban state remains
+unfinished cards remain unfinished
+dispatcher resumes
+```
+
+If performing a literal VPS reboot would risk losing access or breaking unrelated production work, do not recklessly reboot.
+
+Instead perform controlled service-level restart testing plus verify enablement targets and boot configuration.
+
+Document exactly what was physically tested versus statically inspected.
+
+Never claim a reboot happened if it did not.
+
+---
+
+# 21. FINAL PRODUCT ACCEPTANCE MUST BE EXTERNAL TO THE LLM
+
+The project is NOT complete because a worker says:
+
+```text
+done
+finished
+looks good
+10/10
+production ready
+```
+
+Completion must be derived.
+
+Create/maintain a deterministic final acceptance gate.
+
+It must inspect real evidence.
+
+At minimum final acceptance must include:
+
+* all mandatory requirements accounted for;
+* required capabilities accepted;
+* full automated test suite;
+* typecheck;
+* production build;
+* target revision recorded;
+* production/candidate service running expected revision;
+* browser/runtime tests;
+* visual evidence where relevant;
+* accessibility checks where relevant;
+* independent QA;
+* persistence;
+* worker-death recovery;
+* Gateway/supervisor recovery;
+* product reconciler recovery;
+* provider failure behaviour;
+* stale evidence protection;
+* no fabricated data;
+* no accidental OpenRouter usage;
+* reported paid inference cost $0.00;
+* no unknown mandatory blocked work;
+* exact commit/build identity.
+
+If the gate reports FAIL:
+
+```text
+FAIL = WORK TO DO
+```
+
+It does NOT mean:
+
+```text
+produce a report and stop
+```
+
+---
+
+# 22. ZERO-WORK SAFETY INVARIANT
+
+Implement this explicit alarm:
+
+```text
+IF
+    final_acceptance != PASS
+AND
+    no cards are READY
+AND
+    no cards are RUNNING
+AND
+    no legitimate future scheduled retry exists
+AND
+    no precise unavoidable human blocker explains all remaining work
+
+THEN
+    automatically create a high-priority CONTROL-PLANE-DIAGNOSIS card.
+```
+
+That card must investigate why work stopped while acceptance remained false.
+
+This invariant specifically exists because previous attempts repeatedly stopped in this exact state.
+
+---
+
+# 23. AUTOMATED RECOVERY FROM BLOCKED CARDS
+
+Do not allow blocked cards to accumulate forever.
+
+For each blocked card inspect:
+
+```text
+task runs
+exit status
+worker log
+provider result
+tests
+comments
+goal exhaustion
+dependencies
+```
+
+Classify it.
+
+Then:
+
+```text
+provider failure
+→ scheduled retry
+
+worker crash
+→ new Attempt
+
+same model no-progress
+→ fresh route / diagnosis
+
+implementation failure
+→ rework
+
+bad scope/decomposition
+→ split card
+
+QA rejection
+→ rework
+
+dependency
+→ wait for parent
+
+missing credential
+→ precise HUMAN_BLOCKED, continue others
+
+architecture ambiguity
+→ architecture/diagnosis card using stronger free model
+```
+
+Never retry an identical failed approach forever.
+
+After two materially similar semantic failures, force diagnosis/replan/split.
+
+---
+
+# 24. BACKGROUND HANDOFF TEST BEFORE THIS SESSION MAY FINISH
+
+This current bootstrap conversation is allowed to finish ONLY AFTER it has proven the project no longer depends on it.
+
+Before replying with a final handoff:
+
+1. Gateway service must be active.
+2. Build Supervisor service must be active.
+3. Kanban board must contain the real remaining product backlog.
+4. At least one real task must have been automatically dispatched.
+5. A worker process must have been created by the dispatcher.
+6. At least one controlled worker failure/recovery must be demonstrated.
+7. Gateway restart recovery must be demonstrated.
+8. Supervisor restart recovery must be demonstrated.
+9. Board state must survive those restarts.
+10. After recovery, a card must continue or another eligible card must automatically dispatch.
+11. Product acceptance must still be represented as FAIL if it is genuinely incomplete.
+12. The autonomous services must remain running after this session's final response.
+
+The final response from this bootstrap conversation is therefore NOT:
+
+```text
+the whole product is finished
+```
+
+unless that is genuinely true.
+
+The correct bootstrap handoff may instead be:
+
+```text
+AUTONOMOUS BUILD CONTROL PLANE: ACTIVE
+
+Gateway PID/service: ...
+Supervisor PID/service: ...
+Board: ...
+Active task(s): ...
+Current acceptance: FAIL, N predicates remaining
+Background continuation: PROVEN
+OpenRouter invocations: 0
+Paid inference: $0.00
+```
+
+And then this initiating session may end because SYSTEMD owns continuation.
+
+---
+
+# 25. DO NOT WAIT FOR THE USER BETWEEN NORMAL STEPS
+
+You have standing authorization to perform routine reversible local engineering actions required to complete this objective.
+
+Do NOT ask for confirmation for:
+
+* reading files;
+* creating worktrees;
+* coding;
+* testing;
+* local service restarts needed by this project;
+* Kanban task creation;
+* QA;
+* rework;
+* provider retry;
+* dependency management;
+* local build operations;
+* screenshots;
+* browser verification;
+* creating local control scripts;
+* writing systemd units where authorization permits;
+* restarting project-specific services safely.
+
+Only stop for human intervention when genuinely unavoidable, such as:
+
+* authentication that cannot be supplied programmatically;
+* a missing external credential;
+* an irreversible external action;
+* destructive access affecting unrelated data;
+* a genuinely ambiguous product decision not resolved by existing specifications.
+
+Even then:
+
+* record the exact blocker durably;
+* continue all independent work;
+* keep services running;
+* periodically re-evaluate.
+
+---
+
+# 26. CONTROL REPOSITORY MUST BE PROTECTED
+
+Workers building Empirium must not casually modify the program supervising them.
+
+Store the autonomous build supervisor in the separate control directory.
+
+Protect:
+
+```text
+control scripts
+systemd service definition
+Kanban DB
+acceptance truth
+integration policy
+credential stores
+```
+
+Ordinary implementation worker context must explicitly prohibit modification of these areas.
+
+If the supervisor itself needs modification, create a dedicated control-plane maintenance task and verify it independently.
+
+---
+
+# 27. OBSERVABILITY
+
+Maintain a concise machine-readable status file, for example:
+
+```text
+/home/ash/.local/state/empirium-autobuild/status.json
+```
+
+Include:
+
+```text
+timestamp
+supervisor version
+target repository
+target HEAD
+current acceptance status
+remaining predicates
+kanban board
+ready task count
+running task count
+blocked task count
+scheduled retry count
+active worker PIDs
+gateway PID
+supervisor PID
+provider health summary
+last useful progress time
+last accepted WorkItem
+OpenRouter invocation count
+reported paid inference cost
+```
+
+Also log reconciliation decisions.
+
+Rotate logs.
+
+Do not allow logs to grow without bound.
+
+---
+
+# 28. STALL DETECTION
+
+Useful progress means things such as:
+
+* requirement accepted;
+* code committed;
+* failing test fixed;
+* runtime evidence created;
+* QA completed;
+* valid replan generated;
+* provider recovered;
+* blocked card transformed into actionable work.
+
+Merely starting another worker is not useful progress.
+
+If there has been no useful progress for a substantial period while acceptance remains FAIL:
+
+```text
+create DIAGNOSTIC card
+```
+
+The diagnostic worker must examine:
+
+* recent failed runs;
+* provider health;
+* Git state;
+* board state;
+* repeated semantic failures;
+* task decomposition;
+* dependency cycles;
+* test failures;
+* service logs.
+
+It must produce an actionable repair or split.
+
+---
+
+# 29. USE EXISTING ASSETS AND USER WORK
+
+Do not regenerate or discard existing approved assets unnecessarily.
+
+Inspect:
+
+```text
+/home/ash/Desktop/AI Taskforce
+```
+
+and other project asset directories.
+
+Use existing Empirium office/worker design assets where they satisfy the product requirements.
+
+If additional asset work is genuinely necessary, create bounded asset WorkItems.
+
+Do not incur paid image-generation/API costs.
+
+---
+
+# 30. COMPLETION BEHAVIOUR
+
+When final acceptance eventually becomes PASS:
+
+1. run all final verification again against the exact final SHA;
+2. ensure no mandatory stale evidence;
+3. ensure no active unmerged implementation workers;
+4. ensure production build passes;
+5. verify browser/runtime;
+6. verify persistence/recovery evidence;
+7. write final machine-readable completion record;
+8. create a final Git tag/checkpoint;
+9. preserve all Kanban/run history;
+10. transition the Build Supervisor into COMPLETED monitoring mode.
+
+Do not delete the control plane immediately.
+
+Leave enough infrastructure to inspect how the product was completed.
+
+Write:
+
+```text
+AUTOBUILD_COMPLETE.json
+```
+
+containing:
+
+```text
+final SHA
+final acceptance gate output
+completion timestamp
+tests
+runtime evidence
+QA evidence
+recovery evidence
+provider/model summary
+OpenRouter invocation count
+paid inference cost
+remaining nonmandatory backlog
+```
+
+---
+
+# 31. FIRST ACTIONS NOW
+
+Do NOT start with another hour of feature coding.
+
+Execute in this order:
+
+```text
+1. Freeze/audit current machine and Git state.
+
+2. Read the authoritative Empirium requirement/backlog artifacts.
+
+3. Inspect existing Hermes Gateway/systemd configuration.
+
+4. Establish exactly one persistent Gateway/dispatcher.
+
+5. Initialize/verify dedicated Empirium autonomous-build Kanban board.
+
+6. Discover real assignee profiles.
+
+7. Build the deterministic Empirium Build Supervisor outside the target repository.
+
+8. Install/enable/start it under systemd.
+
+9. Prove Gateway restart recovery.
+
+10. Prove Supervisor restart recovery.
+
+11. Prove worker-death recovery.
+
+12. Repair/verify live FreeLLMAPI provider availability and configuration.
+
+13. Convert every remaining mandatory product gap into bounded dependency-aware Kanban work.
+
+14. Attach goal mode to appropriate implementation cards.
+
+15. Add independent QA/recovery cards.
+
+16. Start the real backlog.
+
+17. Observe at least one automatic dispatch/recovery cycle.
+
+18. Verify the autonomous system remains alive independently of this conversation.
+
+19. Then hand control permanently to the durable background system.
+
+20. Allow that system to continue until deterministic final product acceptance reaches PASS.
+```
+
+---
+
+# 32. MOST IMPORTANT RULE
+
+Do not repeat the previous pattern.
+
+You are NOT being judged on how much code you manage to write before this conversation ends.
+
+You are being judged on whether, when this conversation ends, the machine itself still knows:
+
+```text
+what remains
+what is ready
+what is running
+what failed
+what should retry
+what requires QA
+what is accepted
+what must happen next
+```
+
+and continues executing those decisions without the user saying:
+
+```text
+continue
+```
+
+ever again.
+
+The product may take hours or days.
+
+That is acceptable.
+
+The autonomous execution system must survive for as long as required.
+
+**The project ends only when deterministic product acceptance is genuinely PASS.**

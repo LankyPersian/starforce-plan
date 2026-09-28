@@ -1,0 +1,673 @@
+I need you to IMPLEMENT AND VERIFY automatic provider/model failover in Hermes Desktop.
+
+This is a real coding task.
+
+Do not just analyse it.
+Do not just give me a plan.
+Do not stop when you identify the bug.
+Do not come back until the fix is implemented, tested, and verified end-to-end.
+
+The current problem is:
+
+During an autonomous coding/chat run, an AI provider can fail with an error such as:
+
+"The AI service rejected the request.
+freellmapi did not accept how this request was built.
+Switch provider or send diagnostics so we can look into it."
+
+Hermes then stops the current run and waits for me to manually click:
+
+"Switch provider"
+
+This is unacceptable.
+
+I want provider/model failure to be a recoverable event INSIDE the same run.
+
+The required invariant is:
+
+MODEL ATTEMPT FAILED
+DOES NOT MEAN
+CHAT FAILED
+DOES NOT MEAN
+TASK FAILED.
+
+If one provider/model fails, Hermes must preserve the current session/work and automatically try another compatible provider/model.
+
+============================================================
+PRIMARY FILE TO INVESTIGATE
+============================================================
+
+A likely critical file is:
+
+~/.hermes/hermes-agent/apps/desktop/src/lib/chat-runtime.ts
+
+The file appears to manage:
+
+- client session state
+- messages
+- model options
+- personality options
+- message conversion
+- attachments
+- runtime chat behaviour
+
+Treat this as a PRIMARY investigation point.
+
+However:
+
+DO NOT assume the entire fix belongs inside chat-runtime.ts.
+
+Trace every relevant imported function and lower-level request/provider component.
+
+Find the ACTUAL point where:
+
+provider/model request fails
+→ Hermes converts that into terminal chat error
+→ UI displays "Switch provider"
+→ execution stops.
+
+I want the root cause identified from source.
+
+============================================================
+FIRST — TRACE THE REAL EXECUTION PATH
+============================================================
+
+Before editing anything, identify:
+
+1. where chat-runtime.ts starts/sends a model request;
+2. how provider/model options are represented;
+3. where selected provider/model is stored;
+4. how requests are built;
+5. where tools/function calls are added;
+6. where reasoning/thinking options are added;
+7. where structured output is added;
+8. where streaming is configured;
+9. where the request reaches the provider;
+10. where provider errors return;
+11. where those errors are normalized;
+12. where session/chat state becomes FAILED/ERROR;
+13. where the red error panel is generated;
+14. where "Switch provider" is implemented;
+15. whether automatic fallback code already exists;
+16. why it does not activate for this failure.
+
+Search for strings/symbols including:
+
+"Switch provider"
+"The AI service rejected the request"
+"did not accept how this request was built"
+freellmapi
+fallback
+retry
+provider
+selectedProvider
+selectedModel
+modelOptions
+error
+failed
+sessionState
+chat-runtime
+
+Record the actual failure path before modifying it.
+
+============================================================
+DESIRED ARCHITECTURE
+============================================================
+
+Separate:
+
+LOGICAL CHAT/RUN
+
+from:
+
+INDIVIDUAL MODEL ATTEMPT.
+
+Conceptually:
+
+RUN
+ ├── Attempt 1
+ │     provider = freellmapi
+ │     model = X
+ │     FAILED
+ │
+ ├── Attempt 2
+ │     provider = free fallback
+ │     model = Y
+ │     FAILED
+ │
+ └── Attempt 3
+       provider = subscription fallback
+       model = Z
+       SUCCEEDED
+
+The RUN itself stays active.
+
+The same:
+
+- session
+- task
+- conversation
+- working directory
+- Git state
+- modified files
+- plan
+- tool results
+- acceptance criteria
+
+must survive the provider switch.
+
+============================================================
+REQUIRED SESSION STATE
+============================================================
+
+If the current system has states similar to:
+
+idle
+running
+error
+
+introduce or map an explicit recovery state such as:
+
+recovering_provider
+
+Desired transition:
+
+RUNNING
+→ RECOVERING_PROVIDER
+→ RUNNING
+
+NOT:
+
+RUNNING
+→ ERROR
+
+unless all compatible fallback routes are exhausted.
+
+============================================================
+PROVIDER ERROR CLASSIFICATION
+============================================================
+
+Create or reuse a normalized provider error classifier.
+
+At minimum distinguish:
+
+PROVIDER_REJECTED_REQUEST
+MODEL_UNAVAILABLE
+PROVIDER_UNAVAILABLE
+RATE_LIMITED
+AUTH_FAILED
+CREDIT_EXHAUSTED
+TIMEOUT
+NETWORK_ERROR
+SERVER_5XX
+BAD_GATEWAY
+UNSUPPORTED_PARAMETER
+UNSUPPORTED_TOOL_CALLS
+UNSUPPORTED_STRUCTURED_OUTPUT
+UNSUPPORTED_REASONING_PARAMETER
+UNSUPPORTED_STREAMING
+CONTEXT_TOO_LARGE
+MALFORMED_RESPONSE
+MODEL_INTERNAL_ERROR
+CONTENT_FILTER
+BUDGET_EXCEEDED
+CANCELLED
+TASK_ERROR
+UNKNOWN_PROVIDER_ERROR
+
+The failure shown in the screenshot/message:
+
+"freellmapi did not accept how this request was built"
+
+must normally classify as a RECOVERABLE provider/request compatibility failure.
+
+It should NOT immediately kill the run.
+
+============================================================
+FALLBACK BEHAVIOUR
+============================================================
+
+On a recoverable provider/model failure:
+
+1. preserve/checkpoint current run state;
+2. record the failed attempt;
+3. classify the error;
+4. determine what capabilities the current request requires;
+5. select another COMPATIBLE route;
+6. switch internally;
+7. resume the same unfinished run;
+8. continue automatically.
+
+Do not require me to press "Switch provider".
+
+============================================================
+REQUEST CAPABILITY PROFILE
+============================================================
+
+Before selecting a fallback, determine whether the request requires:
+
+- tool/function calling;
+- structured JSON output;
+- reasoning parameters;
+- streaming;
+- vision;
+- large context;
+- attachments;
+- long output;
+- any provider-specific feature.
+
+Do NOT switch to a fallback model that cannot support what the current request needs.
+
+============================================================
+FALLBACK ORDER
+============================================================
+
+Use the actual current Hermes/provider configuration.
+
+Do not hard-code stale models unnecessarily.
+
+Preferred conceptual order:
+
+1. same model via another compatible provider if available;
+2. another compatible FREE model/provider;
+3. another compatible subscription-backed route;
+4. paid fallback only if permitted by the existing budget/policy;
+5. otherwise terminal failure.
+
+Automatic fallback should prefer zero marginal cost where possible.
+
+============================================================
+DO NOT BLINDLY RETRY
+============================================================
+
+If the provider rejected the request because it is incompatible:
+
+DO NOT send the identical request to the identical route repeatedly.
+
+Rules:
+
+unsupported tools
+→ choose tool-capable route.
+
+unsupported reasoning parameter
+→ use compatible route or safely adapt unsupported parameter.
+
+unsupported structured output
+→ use compatible route.
+
+rate limited
+→ switch route.
+
+auth failure
+→ mark provider unavailable for this run and switch.
+
+credit exhausted
+→ mark provider unavailable and switch.
+
+provider 5xx
+→ one sensible retry maximum, then switch.
+
+network timeout
+→ one immediate retry maximum, then switch.
+
+malformed response
+→ switch.
+
+context too large
+→ compact safely or select larger-context route.
+
+============================================================
+LOOP PREVENTION
+============================================================
+
+Track attempted provider/model combinations.
+
+Never bounce endlessly:
+
+A → B → A → B → A
+
+Maintain:
+
+attempted routes
+failure class
+retry count
+provider cooldown/health
+
+Suggested provider health states:
+
+HEALTHY
+DEGRADED
+RATE_LIMITED
+UNAVAILABLE
+AUTH_FAILED
+INCOMPATIBLE_WITH_REQUEST
+
+============================================================
+CRITICAL: PRESERVE CURRENT WORK
+============================================================
+
+The current coding run may already have:
+
+- files changed;
+- commands executed;
+- tests run;
+- code written.
+
+DO NOT restart the whole task.
+
+DO NOT reset Git.
+
+DO NOT discard uncommitted work.
+
+DO NOT replay successful non-idempotent operations.
+
+Before fallback preserve enough state to resume AFTER the last successful action.
+
+Examples of things that MUST NOT accidentally happen twice:
+
+- editing the same file from an old state;
+- database migrations;
+- Git commits;
+- task creation;
+- child agent launch;
+- external API mutation;
+- external message sending.
+
+============================================================
+ATTEMPT LOG
+============================================================
+
+Record each model attempt with fields equivalent to:
+
+run/session ID
+attempt number
+provider
+model
+start time
+end time
+status
+failure class
+sanitized provider error
+fallback decision
+next provider/model
+input tokens
+output tokens
+cost
+latency
+
+Do not log secrets.
+
+============================================================
+UI CHANGE
+============================================================
+
+Currently the UI shows a terminal-looking red error and asks me to:
+
+Switch provider.
+
+For a RECOVERABLE failure, change this to something such as:
+
+"Provider failed — recovering automatically"
+
+Then show:
+
+freellmapi
+Request rejected
+
+→ Trying <next provider/model>
+
+The logical run should remain ACTIVE.
+
+Allow the user to inspect details, but do not require manual action.
+
+============================================================
+KEEP MANUAL CONTROLS
+============================================================
+
+Manual options should still exist:
+
+View details
+Force switch provider
+Retry current provider
+Pause
+Cancel
+Open logs
+
+But automatic failover is the normal path.
+
+============================================================
+TERMINAL ERROR
+============================================================
+
+Only show a terminal red failure when:
+
+- every allowed compatible route failed;
+- budget prevents further fallback;
+- a genuine task failure occurred;
+- continuing is unsafe;
+- explicit human approval is required.
+
+Then display:
+
+"All compatible AI routes failed."
+
+Also show:
+
+routes attempted
+failure reasons
+whether current work was preserved
+retry/resume controls
+
+============================================================
+AUTONOMOUS LONG-RUN INVARIANT
+============================================================
+
+Implement this rule in code, not just in prompts:
+
+A provider rejection, rate limit, incompatible request format,
+temporary outage, 5xx, timeout, malformed response or model failure
+must NOT by itself terminate an autonomous run.
+
+The runtime should:
+
+PRESERVE
+→ CLASSIFY
+→ FALLBACK
+→ RESUME
+
+============================================================
+TESTS — MANDATORY
+============================================================
+
+Add deterministic tests for at least:
+
+1. normal primary success
+2. freellmapi-style rejected request → fallback succeeds
+3. first provider rate limited → fallback
+4. timeout → retry once → fallback
+5. provider 500 → fallback
+6. auth failure → provider removed from current fallback chain
+7. credit exhaustion → fallback
+8. unsupported tool calls → tool-capable model selected
+9. unsupported reasoning parameter → compatible model selected
+10. malformed response → fallback
+11. first fallback also fails → second fallback succeeds
+12. all fallbacks fail → terminal error
+13. session ID does not change unexpectedly
+14. logical run remains active during recovery
+15. modified files remain intact
+16. successful tool side effects are not replayed
+17. attempt history contains every provider try
+18. free fallback records zero paid cash
+19. paid fallback respects existing budget
+20. user cancel stops fallback
+21. provider loop prevention works
+22. incompatible route is not selected twice
+23. recovery UI shown during fallback
+24. final red failure only shown after exhaustion
+25. existing Hermes desktop chat behaviour still works
+
+============================================================
+REAL OR SIMULATED REPRODUCTION
+============================================================
+
+After automated tests:
+
+reproduce the current failure safely.
+
+Ideally use the actual freellmapi route if it can be done safely/free.
+
+Otherwise inject/simulate the exact provider rejection.
+
+Demonstrate:
+
+freellmapi request fails
+→ Hermes does NOT stop
+→ recovery state appears
+→ fallback selected automatically
+→ same task continues
+→ existing file modifications remain
+→ run completes successfully.
+
+Capture evidence.
+
+============================================================
+CODE QUALITY
+============================================================
+
+Do NOT implement the solution as:
+
+if (provider === "freellmapi") { ... }
+
+The solution must be provider-agnostic.
+
+Prefer clean abstractions such as:
+
+ProviderErrorClassifier
+RequestCapabilityProfile
+ProviderCapabilityProfile
+FallbackPolicy
+ProviderHealthTracker
+ModelAttempt
+RecoveryCoordinator
+
+but reuse existing Hermes abstractions where equivalents already exist.
+
+Do not introduce unnecessary architecture if Hermes already has suitable components.
+
+============================================================
+PRESERVE CURRENT SOURCE STATE
+============================================================
+
+Before editing:
+
+run Git status.
+
+Record currently changed files.
+
+There is already work in progress.
+
+Do NOT:
+
+reset
+checkout over it
+stash it away without permission
+discard it
+
+Work around and preserve existing modifications.
+
+============================================================
+DEFINITION OF DONE
+============================================================
+
+YOU ARE NOT DONE UNTIL:
+
+[ ] real current failure path traced
+[ ] exact root cause identified
+[ ] chat-runtime.ts role established
+[ ] correct architectural layer chosen
+[ ] provider errors normalized
+[ ] recovery state exists
+[ ] request capabilities identified
+[ ] provider capabilities respected
+[ ] automatic fallback implemented
+[ ] free fallback implemented
+[ ] subscription fallback implemented where configured
+[ ] paid fallback respects policy
+[ ] same run survives provider failure
+[ ] same work state survives
+[ ] existing code changes survive
+[ ] duplicate side effects prevented
+[ ] provider health/cooldown implemented
+[ ] retry loops prevented
+[ ] attempt history/logging implemented
+[ ] recovery UI implemented
+[ ] manual switching remains available
+[ ] terminal failure only occurs after exhaustion
+[ ] all new tests pass
+[ ] existing relevant tests pass
+[ ] freellmapi failure reproduction/simulation passes
+[ ] fix verified end-to-end
+
+============================================================
+FINAL RESPONSE
+============================================================
+
+Do NOT return after planning.
+
+Do NOT return after identifying the bug.
+
+Do NOT return after modifying one file.
+
+Do NOT return because one provider is unavailable.
+
+Continue until implementation and testing are complete.
+
+When genuinely finished respond:
+
+AUTOMATIC PROVIDER FAILOVER — COMPLETE
+
+Root cause:
+<exact explanation>
+
+Primary failure path:
+<files/functions>
+
+Files changed:
+<list>
+
+New recovery architecture:
+<brief explanation>
+
+Fallback order:
+<actual behaviour>
+
+Recoverable errors:
+<list>
+
+Session/work preservation:
+<explanation>
+
+Duplicate-side-effect protection:
+<explanation>
+
+Tests:
+<x passed / x failed>
+
+Freellmapi rejection test:
+PASS
+
+Existing Hermes regression tests:
+<result>
+
+Remaining limitations:
+<only genuine limitations>
+
+Commit:
+<hash if committed>
+
+The final acceptance criterion is:
+
+IF FREELLMAPI OR ANY OTHER COMPATIBLE PROVIDER FAILS DURING AN AUTONOMOUS HERMES RUN, HERMES AUTOMATICALLY SWITCHES TO ANOTHER COMPATIBLE AUTHORIZED MODEL/PROVIDER AND CONTINUES THE SAME RUN WITHOUT REQUIRING ME TO PRESS "SWITCH PROVIDER".
+
+START BY TRACING chat-runtime.ts AND THE CURRENT RED ERROR PATH, THEN IMPLEMENT, TEST, AND VERIFY THE FIX.

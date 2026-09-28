@@ -1,0 +1,1391 @@
+# EMPIRIUM SUPERVISOR — INDEPENDENT POST-INSTALL AUDIT
+# READ-ONLY / HOSTILE VERIFICATION PROMPT
+# PURPOSE: VERIFY THE SUPERVISOR IS ACTUALLY READY BEFORE REGISTERING EMPIRIUM
+
+You are acting as an independent reliability, security, process-supervision,
+and systems-integration auditor.
+
+Your job is NOT to improve the supervisor unless explicitly asked later.
+
+Your job is to determine whether the installed Empirium Supervisor is genuinely
+set up correctly, whether its claims are supported by primary evidence, whether
+its safety guarantees actually hold, and whether it is safe to proceed to
+register the real Empirium Studio meta-orchestrator.
+
+Treat all prior reports, certificates, audit documents, and test summaries as
+CLAIMS TO VERIFY — not as trusted truth.
+
+You must inspect the actual installed files, actual service, actual runtime
+state, actual source code, actual systemd unit, actual configuration, actual
+launcher, actual logs, actual evidence artifacts, and actual OS/process state.
+
+Do not modify production supervisor source during this audit.
+Do not register the real Empirium Studio project.
+Do not start the Empirium Studio build.
+Do not silently "fix" anything during verification.
+
+If a harmless temporary disposable test is necessary, it may be created only
+under the existing self-test/sentinel facilities and must be cleaned up.
+
+======================================================================
+1. AUDIT OBJECTIVE
+======================================================================
+
+Determine whether the current installation deserves the final verdict:
+
+    READY_FOR_EMPIRIUM_META_ORCHESTRATOR
+
+or:
+
+    NOT_READY
+
+The audit must answer six separate questions:
+
+1. Is the supervisor service installed and persistent correctly?
+2. Is its state/configuration safe against concurrency, corruption, restart and
+   stale-process races?
+3. Is the director-launch path truly subscription-backed and zero-paid?
+4. Does it reliably recover a dead or stalled director without duplication?
+5. Can it distinguish process liveness from actual project progress?
+6. Is it safe to attach the real Empirium Studio project now?
+
+======================================================================
+2. KNOWN INSTALLATION PATHS
+======================================================================
+
+Verify these paths actually exist and correspond to the claimed installation.
+
+Supervisor code:
+
+    /home/ash/.local/lib/empirium-supervisor/controller/
+
+Entrypoint:
+
+    /home/ash/.local/lib/empirium-supervisor/controller/supervisor.mjs
+
+Config:
+
+    /home/ash/.config/empirium-supervisor/config.json
+
+Runtime:
+
+    /home/ash/.local/state/empirium-supervisor/
+
+Evidence:
+
+    /home/ash/.local/state/empirium-supervisor/install-evidence/
+
+Certificate:
+
+    /home/ash/.local/state/empirium-supervisor/
+    SUPERVISOR_INSTALLATION_CERTIFICATE.json
+
+Commands guide:
+
+    /home/ash/.local/share/empirium-supervisor/SUPERVISOR_COMMANDS.md
+
+Systemd user unit:
+
+    /home/ash/.config/systemd/user/
+    empirium-workforce-supervisor.service
+
+Legacy/current launcher:
+
+    /home/ash/.local/bin/empirium-luna-director
+
+Possible canonical generalized launcher if V2 introduced it:
+
+    /home/ash/.local/bin/empirium-ai-director
+
+Preserved original source:
+
+    /home/ash/.local/lib/empirium-supervisor/source-original/
+
+======================================================================
+3. AUDIT MODE
+======================================================================
+
+Operate in READ-ONLY mode wherever possible.
+
+Permitted:
+
+- read source;
+- read config;
+- read state;
+- read logs;
+- read systemd unit;
+- inspect /proc;
+- inspect ps/process trees;
+- run status/health/config-validation commands;
+- run existing unit tests;
+- run existing non-destructive self-tests;
+- create a disposable sentinel project if required;
+- stop/restart the supervisor service only if the audit explicitly needs to
+  verify restart behavior and doing so is safe;
+- inspect AppArmor/sysctl state;
+- inspect file permissions;
+- inspect hashes.
+
+Forbidden:
+
+- modifying Empirium Studio;
+- registering the real Empirium project;
+- changing firewall/DNS/public exposure;
+- deleting unrelated data;
+- changing paid-provider settings;
+- introducing new API keys;
+- broadening OS permissions;
+- rewriting supervisor source;
+- changing system-wide security controls merely to make a test pass;
+- using paid inference.
+
+If any current installation claim cannot be proven without modifying production
+state, mark it:
+
+    NOT_VERIFIED_NONDESTRUCTIVELY
+
+and explain why.
+
+======================================================================
+4. PRIMARY EVIDENCE FIRST
+======================================================================
+
+Do not trust summaries where primary evidence is available.
+
+Priority order:
+
+1. actual installed source;
+2. actual systemd unit;
+3. actual config;
+4. actual runtime state;
+5. actual /proc and process state;
+6. actual tests and test output;
+7. actual event/directive logs;
+8. actual evidence files;
+9. installation certificate;
+10. narrative audit reports.
+
+If documentation contradicts live state:
+
+LIVE STATE WINS.
+
+If certificate contradicts source:
+
+SOURCE + LIVE EVIDENCE WIN.
+
+======================================================================
+5. SOURCE INTEGRITY AUDIT
+======================================================================
+
+Verify:
+
+- preserved original starter exists;
+- original archive/source hash if available;
+- original supervisor hash;
+- installed supervisor hash;
+- installed code differs only where expected;
+- no unknown binary/executable files were inserted;
+- no secret values embedded in source;
+- no unexpected network destinations hard-coded;
+- no hidden OpenRouter/OpenAI/Anthropic paid calls;
+- no shell commands that can invoke paid providers implicitly.
+
+Search installed controller source for at least:
+
+    OPENAI_API_KEY
+    ANTHROPIC_API_KEY
+    OPENROUTER_API_KEY
+    openrouter
+    api.openai
+    anthropic
+    paidEmergency
+    maxUsdPerProject
+    child_process
+    spawn
+    exec
+    kill
+    SIGTERM
+    SIGKILL
+    process.kill
+    chmod
+    sudo
+    curl
+    wget
+
+Classify each hit.
+
+Do not assume presence means defect.
+Determine whether it is enforcement, test code, documentation, or live path.
+
+======================================================================
+6. ZERO-PAID-INFERENCE AUDIT
+======================================================================
+
+This is critical.
+
+Required policy:
+
+    authorized paid API spend = $0.00
+
+Verify in source AND config:
+
+- paidEmergency cannot be enabled;
+- maxUsdPerProject cannot exceed 0;
+- launch.env cannot reintroduce forbidden provider keys;
+- child environment strips:
+      OPENAI_API_KEY
+      ANTHROPIC_API_KEY
+      OPENROUTER_API_KEY
+- no automatic fallback can select a paid route;
+- no "emergency paid route" remains reachable in production config.
+
+Inspect live director environment through:
+
+    /proc/<pid>/environ
+
+Verify variable NAMES are absent.
+
+Do not print secret values.
+
+Verify subscription route evidence for Codex.
+
+Required proof should include:
+
+- codex executable path;
+- codex version;
+- auth mode;
+- stored API key false if the CLI exposes this;
+- ChatGPT/subscription token mode true where exposed;
+- actual effective model;
+- no direct OpenAI API billing route.
+
+If V2 attestation exists, inspect and verify it against live CLI state.
+
+If attestation says one thing and live CLI says another:
+
+FAIL THIS SECTION.
+
+======================================================================
+7. SERVICE INSTALLATION AUDIT
+======================================================================
+
+Verify:
+
+    systemctl --user status empirium-workforce-supervisor.service
+
+Check:
+
+- active;
+- enabled;
+- correct ExecStart;
+- correct WorkingDirectory if present;
+- Restart policy;
+- RestartSec;
+- environment;
+- hardening;
+- ReadWritePaths;
+- ProtectHome;
+- no dangerous broad writable paths;
+- no unexpected root service duplicate.
+
+Verify:
+
+    loginctl show-user ash
+
+Confirm:
+
+    Linger=yes
+
+Verify marker if applicable:
+
+    /var/lib/systemd/linger/ash
+
+Check that only one intended supervisor daemon is active.
+
+Search for duplicate manual instances.
+
+======================================================================
+8. PROCESS IDENTITY / DUPLICATION AUDIT
+======================================================================
+
+Inspect source and runtime implementation of process identity.
+
+Verify it uses more than:
+
+    kill(pid, 0)
+
+Required protection should include:
+
+    PID
+    +
+    /proc/<pid>/stat start-time or equivalent fingerprint
+
+Prove current live director fingerprint matches actual process.
+
+If disposable self-test supports it:
+
+simulate PID-fingerprint mismatch without killing an unrelated real process.
+
+Expected:
+
+    supervisor refuses to treat mismatched process as tracked director.
+
+Verify duplicate director prevention.
+
+Run several ticks while the real self-test director is alive.
+
+Expected:
+
+    launchCount does not rise
+    PID remains the same
+    no second director appears
+
+======================================================================
+9. CROSS-PROCESS STATE SAFETY AUDIT
+======================================================================
+
+Inspect mutex/locking implementation.
+
+Verify:
+
+- every state read-modify-write path uses the cross-process mutex;
+- daemon ticks use it;
+- heartbeat uses it;
+- lease-create/heartbeat/complete/fail use it;
+- report-failure/report-success use it;
+- pause/resume use it;
+- progress/directive ACK use it if implemented;
+- stale lock recovery exists;
+- lock recovery cannot trivially steal a genuinely live lock;
+- wait is bounded.
+
+Run existing concurrency stress test.
+
+If safe, repeat a smaller real live stress test:
+
+- concurrent heartbeat;
+- status;
+- report-failure;
+- progress if available.
+
+Expected:
+
+- zero malformed JSON;
+- zero lost updates;
+- daemon remains healthy;
+- supervisor PID identity remains correct.
+
+======================================================================
+10. DAEMON IDENTITY AUDIT
+======================================================================
+
+Verify short-lived CLI commands cannot overwrite daemon identity.
+
+Inspect:
+
+    state.supervisor.pid
+
+before and after:
+
+    heartbeat
+    lease-heartbeat
+    status
+    report-failure
+    progress
+
+Expected:
+
+    daemon PID remains the real long-running daemon PID.
+
+======================================================================
+11. HEARTBEAT SEMANTICS AUDIT
+======================================================================
+
+Verify the system distinguishes:
+
+- process alive;
+- heartbeat fresh;
+- heartbeat stale;
+- process exited;
+- project complete.
+
+These must not be conflated.
+
+Prove:
+
+A. healthy director + fresh heartbeat:
+   no stale directive.
+
+B. alive director + soft stale heartbeat:
+   stale warning emitted;
+   process not immediately killed.
+
+C. hard stale heartbeat:
+   correct tracked director terminated;
+   exactly one replacement launched.
+
+D. project complete:
+   no relaunch.
+
+E. project incomplete + no director:
+   relaunch occurs.
+
+======================================================================
+12. PROGRESS WATCHDOG AUDIT
+======================================================================
+
+If V2 progress tracking has been implemented, inspect it deeply.
+
+Verify:
+
+- heartbeat does NOT advance progress;
+- progress has independent timestamp;
+- progressSequence exists and is monotonic;
+- duplicate progress event IDs do not falsely advance sequence;
+- soft progress stall produces a diagnostic directive;
+- soft progress stall does not kill immediately;
+- hard progress stall can recycle a logically stuck director;
+- legitimate declared long-running operation suppresses premature recycle;
+- expired long-operation exemption no longer suppresses recycle;
+- new progress clears/reset stall status.
+
+If progress watchdog has NOT been implemented:
+
+mark:
+
+    HIGH-SEVERITY MISSING RELIABILITY FEATURE
+
+because the supervisor can currently prove only:
+
+    "director is alive"
+
+not:
+
+    "project is advancing."
+
+======================================================================
+13. PROJECT GENERATION / STALE MESSAGE AUDIT
+======================================================================
+
+If project generations/director launch IDs exist:
+
+verify:
+
+- each recycle creates a new generation or launch identity;
+- late heartbeat from old generation cannot update current liveness;
+- late progress from old generation cannot update current progress;
+- stale ACK cannot acknowledge a directive for the new generation.
+
+If no generation mechanism exists:
+
+assess whether equivalent protection exists.
+
+Do not fail automatically if another design safely prevents stale lifecycle
+mutation.
+
+======================================================================
+14. DIRECTIVE SYSTEM AUDIT
+======================================================================
+
+Inspect directive storage.
+
+Verify:
+
+- directive IDs unique;
+- sequence monotonic/project-scoped;
+- directives durable across restart;
+- consumed directives have ACK semantics if V2 introduced them;
+- ACKed directive does not return as pending;
+- duplicate ACK harmless;
+- unACKed directive survives restart;
+- JSONL history remains intact;
+- rotation does not cause replay.
+
+If no ACK/consumption semantics exist:
+
+mark:
+
+    MEDIUM/HIGH RISK:
+    directive replay after director restart is possible
+
+unless another proven mechanism prevents it.
+
+======================================================================
+15. LEASE AUDIT
+======================================================================
+
+Verify child lease lifecycle.
+
+Check:
+
+- create;
+- heartbeat;
+- expiry;
+- fail;
+- complete;
+- deduplicated LEASE_EXPIRED directive;
+- replacement lease identity if implemented.
+
+If child lease generations exist, verify stale old lease heartbeat cannot
+revive the replacement.
+
+======================================================================
+16. PROCESS-TREE CLEANUP AUDIT
+======================================================================
+
+Inspect how hard stale/forced termination works.
+
+Determine whether only the parent PID is killed or the entire tracked execution
+tree is contained.
+
+Preferred safe behavior:
+
+- tracked process group or equivalent;
+- SIGTERM first;
+- grace period;
+- SIGKILL only remaining tracked descendants;
+- unrelated processes untouched.
+
+If a disposable process-tree fixture exists:
+
+spawn:
+
+    parent
+      → child
+          → grandchild
+
+Trigger hard recovery.
+
+Expected:
+
+    all tracked descendants gone.
+
+Also keep an unrelated process alive.
+
+Expected:
+
+    unrelated process survives.
+
+Any use of broad commands such as:
+
+    pkill codex
+    pkill node
+    killall codex
+    killall node
+
+is a RELEASE BLOCKER.
+
+======================================================================
+17. CRASH LOOP / BACKOFF AUDIT
+======================================================================
+
+Verify restart-history window.
+
+Confirm:
+
+- repeated director crashes reach BACKOFF;
+- no fork bomb;
+- exactly one tracked director at most;
+- BACKOFF state survives supervisor restart if V2 supports persistence;
+- retryNotBefore persists if implemented;
+- jitter exists where appropriate for provider/subscription retry.
+
+Check that subscription-limit/auth failures are not treated as rapid generic
+crash-loop events if V2 exit classification exists.
+
+======================================================================
+18. EXIT CLASSIFICATION AUDIT
+======================================================================
+
+If adapter/launcher exit classification exists, verify it can distinguish at
+least:
+
+    EXPECTED_CHECKPOINT_EXIT
+    PROCESS_CRASH
+    AUTH_REQUIRED
+    SUBSCRIPTION_LIMIT
+    PROVIDER_UNAVAILABLE
+    MODEL_UNAVAILABLE
+    SANDBOX_FAILURE
+    CONFIGURATION_FAILURE
+    UNKNOWN_FAILURE
+
+If it does not exist, document current behavior and risk.
+
+The system must never interpret:
+
+    authentication required
+
+as:
+
+    retry forever every few seconds.
+
+======================================================================
+19. SUBSCRIPTION AUTH EXPIRY AUDIT
+======================================================================
+
+Inspect behavior when Codex subscription auth is unavailable.
+
+If possible via safe fixture/mocked launcher exit classification, verify:
+
+    BLOCKED_HUMAN_AUTH
+
+or equivalent.
+
+Expected:
+
+- state preserved;
+- no paid fallback;
+- no rapid relaunch loop;
+- one deduplicated blocker;
+- automatic continuation possible once auth restored.
+
+Do NOT deliberately destroy the user's real authentication for this test.
+
+======================================================================
+20. COMPLETION GATE AUDIT
+======================================================================
+
+This is critical.
+
+Verify completion semantics are deterministic.
+
+Test:
+
+A. no director + completion false:
+   must NOT become SHIPPED.
+
+B. all completion checks true:
+   becomes SHIPPED.
+
+C. after SHIPPED, regress one completion artifact:
+   project reopens.
+
+D. one project SHIPPED:
+   must not stop unrelated projects.
+
+Also inspect for circular completion logic.
+
+If supervisor requires a file to say:
+
+    SHIPPED
+
+before the supervisor itself can set final SHIPPED status, determine whether
+that creates a circular dependency.
+
+Flag any circular release gate.
+
+======================================================================
+21. CONFIG VALIDATION AUDIT
+======================================================================
+
+Verify config validation checks:
+
+- duplicate project IDs;
+- missing profile;
+- invalid launch.command;
+- failurePolicy shape;
+- completion-check shape;
+- paidEmergency disabled;
+- maxUsdPerProject == 0;
+- forbidden launch.env variables;
+- valid root paths;
+- expected types.
+
+If V2 last-known-good hot reload exists:
+
+verify:
+
+VALID CANDIDATE
+    → promoted.
+
+INVALID CANDIDATE
+    → rejected.
+
+CURRENT GOOD CONFIG
+    → remains active.
+
+Cold boot with no valid config:
+    → fail closed.
+
+======================================================================
+22. STATE CORRUPTION / RECOVERY AUDIT
+======================================================================
+
+Verify authoritative state writes are atomic.
+
+Inspect for:
+
+    temp write
+    validation
+    rename
+
+or equivalent.
+
+Verify corrupt primary behavior.
+
+If V2 previous-state snapshot exists:
+
+PRIMARY corrupt + PREVIOUS valid
+    → recover previous;
+    → emit incident;
+    → preserve corrupt primary.
+
+PRIMARY corrupt + PREVIOUS corrupt
+    → fail closed.
+
+Never:
+
+    silently create blank state.
+
+If crash-consistency tests exist, inspect their output.
+
+======================================================================
+23. FILE PERMISSIONS AUDIT
+======================================================================
+
+Check:
+
+    config.json
+    runtime directory
+    state files
+    directives
+    ACK store
+    attestations
+    launcher
+    service unit
+    evidence
+
+Verify:
+
+- no world-writable files;
+- no chmod 777;
+- private config;
+- no unexpected other group members with write access;
+- launchers not modifiable by unrelated users.
+
+Run:
+
+    find <relevant paths> -perm -002
+
+Expected:
+
+    no unsafe hits.
+
+======================================================================
+24. SECRET LEAK AUDIT
+======================================================================
+
+Search:
+
+- config;
+- state;
+- logs;
+- events;
+- directives;
+- install evidence;
+- certificate;
+- launcher scripts;
+- cheat sheet;
+- attestation files.
+
+Look for secret NAMES and obvious secret material.
+
+Do not print discovered secret values.
+
+Report only:
+
+    secret type
+    path
+    PRESENT/ABSENT
+
+Specifically ensure:
+
+- sudo password not persisted in supervisor state/evidence;
+- ChatGPT token contents absent;
+- API key contents absent;
+- Claude token contents absent;
+- OpenRouter key contents absent.
+
+Normal runtime must not require stored sudo password.
+
+======================================================================
+25. SYSTEMD / SANDBOX AUDIT
+======================================================================
+
+Inspect hardening.
+
+Pay particular attention to:
+
+    ProtectHome=read-only
+
+and:
+
+    ReadWritePaths=/home/ash/.codex
+
+Confirm only the minimum required path was opened.
+
+Verify no broad:
+
+    ReadWritePaths=/home/ash
+
+unless there is explicit justification.
+
+Inspect:
+
+- NoNewPrivileges if present;
+- PrivateTmp if present;
+- ProtectSystem if present;
+- ProtectHome;
+- read/write exceptions;
+- service user;
+- environment.
+
+Do not grade absent optional hardening as a failure unless it creates a real
+risk.
+
+======================================================================
+26. APPARMOR / USER NAMESPACE AUDIT
+======================================================================
+
+Inspect current:
+
+    sysctl kernel.apparmor_restrict_unprivileged_userns
+
+Inspect:
+
+    /etc/sysctl.d/99-empirium-codex-userns.conf
+
+Current historical claim:
+
+    changed from 1 to 0
+
+to allow Codex bubblewrap.
+
+Determine actual current state.
+
+Assess:
+
+- whether the global relaxation remains;
+- whether a narrower exception was installed;
+- whether Codex still works;
+- whether other security boundaries compensate.
+
+Possible conclusions:
+
+    SCOPED_EXCEPTION_OK
+    ACCEPTED_LOCAL_RISK
+    SECURITY_REVIEW_REQUIRED
+
+Do not change this sysctl during audit unless explicitly authorized.
+
+======================================================================
+27. STORAGE / LOG RETENTION AUDIT
+======================================================================
+
+Verify director logs are capped as claimed.
+
+Inspect other potentially unbounded stores:
+
+    events.jsonl
+    directives/*.jsonl
+    ACK logs
+    progress logs
+    retry logs
+    attestation logs
+
+If V2 rotation exists:
+
+verify:
+
+- rotation works;
+- recent active records remain;
+- archived records preserved;
+- directive ACK state not lost;
+- rotation cannot cause replay.
+
+If not bounded, estimate risk.
+
+Do not fail release merely because a small JSONL can grow unless there is no
+reasonable retention plan for a multi-month service.
+
+======================================================================
+28. DISK-PRESSURE FAILURE AUDIT
+======================================================================
+
+Inspect behavior for ENOSPC/write failure.
+
+Verify code does not report successful state persistence when write failed.
+
+If there is a storage-pressure threshold:
+
+inspect it.
+
+If no explicit ENOSPC handling exists:
+
+document as a reliability gap.
+
+Do not intentionally fill the VPS disk.
+
+Use unit fixture/mocked write failure if available.
+
+======================================================================
+29. CLOCK / TIMEOUT AUDIT
+======================================================================
+
+Inspect whether active timeout logic uses monotonic time where appropriate.
+
+Check:
+
+- heartbeat timeout;
+- progress timeout;
+- mutex wait;
+- kill grace;
+- backoff.
+
+Wall-clock timestamps are fine for audit logs.
+
+Flag if a simple backwards wall-clock jump could make a lease immortal or if a
+large forward jump could kill every director immediately without sanity checks.
+
+======================================================================
+30. MULTI-PROJECT ISOLATION AUDIT
+======================================================================
+
+This supervisor must support many projects.
+
+Use disposable test projects if existing test harness permits:
+
+    project-A
+    project-B
+    project-C
+
+Exercise:
+
+    A normal
+    B paused
+    C stalled/recovered
+
+Verify:
+
+- C recovery does not affect A;
+- B stays paused;
+- A continues;
+- logs separate;
+- directives separate;
+- restart history separate;
+- completion separate;
+- backoff separate;
+- one project's config/state fault does not falsely complete another.
+
+======================================================================
+31. SELF-TEST ISOLATION AUDIT
+======================================================================
+
+Verify:
+
+    supervisor-selftest
+
+cannot:
+
+- modify Empirium Studio;
+- consume real Empirium directives;
+- access paid model routes;
+- alter real completion artifacts;
+- share a real project worktree.
+
+Confirm self-test paths are disposable.
+
+======================================================================
+32. COMMAND DOCUMENTATION AUDIT
+======================================================================
+
+Compare:
+
+    SUPERVISOR_COMMANDS.md
+
+to actual source/CLI.
+
+Every documented command should either:
+
+- work;
+- be explicitly marked legacy;
+- or be corrected.
+
+Pay special attention to:
+
+    luna-master
+    meta-director
+
+and:
+
+    empirium-luna-director
+    empirium-ai-director
+
+The docs must not instruct operators to use commands that no longer exist.
+
+======================================================================
+33. CERTIFICATE AUDIT
+======================================================================
+
+Open:
+
+    SUPERVISOR_INSTALLATION_CERTIFICATE.json
+
+For EVERY true boolean or PASS claim, classify:
+
+    VERIFIED_PRIMARY_EVIDENCE
+    VERIFIED_INDIRECTLY
+    NOT_VERIFIED
+    CONTRADICTED
+
+Do not simply restate the certificate.
+
+Create a table:
+
+CLAIM
+CERTIFICATE VALUE
+EVIDENCE
+AUDITOR VERDICT
+
+At minimum audit:
+
+- supervisor_ready;
+- service_enabled;
+- service_active;
+- shared_state_race_addressed;
+- process_identity_addressed;
+- paid_credentials_excluded;
+- paid_fallback_removed;
+- stale_heartbeat_policy_proven;
+- crash_loop_backoff_proven;
+- subscription_route_verified;
+- api_key_route_used=false;
+- relaunch_resume_test_passed;
+- completion_test_passed;
+- live_service_tests_pass;
+- concurrency_test_pass;
+- boot_persistence;
+- observed paid inference = 0;
+- real project not registered.
+
+======================================================================
+34. TEST SUITE AUDIT
+======================================================================
+
+Run the existing full unit suite.
+
+Record:
+
+    command
+    test count
+    passed
+    failed
+    duration
+
+Then inspect whether tests cover actual risk rather than simply existing.
+
+Important coverage:
+
+- concurrent mutation;
+- duplicate daemon;
+- duplicate director;
+- PID reuse;
+- corrupt state;
+- stale lock;
+- paid config rejection;
+- forbidden env;
+- pause/resume;
+- completion false;
+- completion true;
+- completion regression;
+- lease dedup;
+- progress stall if implemented;
+- directive ACK if implemented;
+- process-tree kill if implemented;
+- state rollback if implemented;
+- config LKG if implemented;
+- stale generation if implemented.
+
+Do not count tests twice merely because one is unit and one live.
+
+======================================================================
+35. MINIMUM LIVE SENTINEL AUDIT
+======================================================================
+
+If safe and existing disposable tooling supports it, run one fresh independent
+sentinel.
+
+Do NOT rely only on old evidence.
+
+Use a disposable project.
+
+Prove:
+
+1. supervisor recognizes project;
+2. exactly one director launches;
+3. subscription-backed Codex route used;
+4. forbidden keys absent;
+5. director reads checkpoint;
+6. director heartbeats;
+7. director writes progress if V2 supports it;
+8. director exits;
+9. project remains incomplete;
+10. exactly one replacement launches;
+11. replacement recognizes checkpoint;
+12. same logical project resumes;
+13. completion fixture becomes true;
+14. project becomes SHIPPED;
+15. no further director launches;
+16. clean up test project.
+
+If process-progress watchdog exists, additionally prove:
+
+17. live heartbeat + no progress triggers soft stall;
+18. hard stall recycles director;
+19. new generation resumes.
+
+If doing this would consume significant subscription quota, keep it minimal.
+
+======================================================================
+36. REAL EMPIRIUM REGISTRATION PRECHECK
+======================================================================
+
+Do not register it.
+
+Instead audit readiness.
+
+Verify that the supervisor can support a project config with:
+
+    projectId = empirium-studio-workforce
+
+or equivalent.
+
+Check that the eventual registration will have:
+
+- target root;
+- meta-director profile;
+- verified launcher adapter;
+- heartbeat policy;
+- progress policy;
+- completion checks;
+- failure policy;
+- zero-paid policy;
+- logs;
+- directives;
+- state path.
+
+Identify any missing required values.
+
+======================================================================
+37. SEVERITY DEFINITIONS
+======================================================================
+
+Classify findings:
+
+CRITICAL
+- can cause paid API spend;
+- can kill unrelated processes;
+- can corrupt authoritative state;
+- can falsely mark project complete;
+- can start duplicate directors uncontrollably;
+- can expose secrets.
+
+HIGH
+- can silently stop a multi-day project;
+- can lose durable progress;
+- can repeatedly replay destructive directives;
+- can fail to resume;
+- can permanently wedge the director.
+
+MEDIUM
+- degrades observability/recovery;
+- creates manageable stale state;
+- causes excessive logs;
+- weakens isolation but does not directly break correctness.
+
+LOW
+- naming/documentation inconsistency;
+- minor operational polish.
+
+INFO
+- improvement only.
+
+======================================================================
+38. RELEASE-BLOCKING CONDITIONS
+======================================================================
+
+Return NOT_READY if ANY of these remain:
+
+- paid API route can be selected automatically;
+- forbidden provider credentials reach director;
+- duplicate supervisor possible;
+- duplicate director can launch;
+- state race can lose updates;
+- PID reuse can target unrelated process;
+- hard termination can kill unrelated process;
+- completion can become true while gate false;
+- completion gate is circular/unreachable;
+- state corruption silently resets project;
+- subscription route cannot be proven;
+- real resume/relaunch chain fails;
+- progress watchdog is required by current V2 spec but does not work;
+- directive replay can trigger duplicate destructive effects;
+- real project is already unexpectedly registered/started;
+- secrets are exposed;
+- service will not survive logout/boot conditions as designed.
+
+======================================================================
+39. OUTPUT FILES
+======================================================================
+
+Create:
+
+    /home/ash/.local/state/empirium-supervisor/install-evidence/
+    INDEPENDENT_FINAL_AUDIT.md
+
+Also create machine-readable:
+
+    /home/ash/.local/state/empirium-supervisor/install-evidence/
+    INDEPENDENT_FINAL_AUDIT.json
+
+JSON should contain:
+
+{
+  "auditStatus": "READY_FOR_EMPIRIUM_META_ORCHESTRATOR | NOT_READY",
+  "auditedAt": "...",
+  "supervisorSha256": "...",
+  "configSha256": "...",
+  "serviceActive": true,
+  "serviceEnabled": true,
+  "zeroPaidPolicyVerified": true,
+  "subscriptionRouteVerified": true,
+  "stateConcurrencyVerified": true,
+  "pidIdentityVerified": true,
+  "heartbeatRecoveryVerified": true,
+  "progressWatchdogVerified": true,
+  "directiveAckVerified": true,
+  "processTreeIsolationVerified": true,
+  "completionGateVerified": true,
+  "restartPersistenceVerified": true,
+  "multiProjectIsolationVerified": true,
+  "secretsAuditPassed": true,
+  "realEmpiriumProjectRegistered": false,
+  "criticalFindings": [],
+  "highFindings": [],
+  "mediumFindings": [],
+  "lowFindings": []
+}
+
+Use false/null rather than inventing proof.
+
+======================================================================
+40. FINAL REPORT FORMAT
+======================================================================
+
+Return a concise final summary in this exact structure:
+
+FINAL VERDICT:
+READY_FOR_EMPIRIUM_META_ORCHESTRATOR
+or
+NOT_READY
+
+CONFIDENCE:
+HIGH / MEDIUM / LOW
+
+SERVICE:
+<status>
+
+SUPERVISOR HASH:
+<sha256>
+
+CONFIG HASH:
+<sha256>
+
+SUBSCRIPTION ROUTE:
+<verified route>
+
+EFFECTIVE MODEL:
+<actual model>
+
+PAID API EXPOSURE:
+NONE VERIFIED
+or
+<finding>
+
+HEARTBEAT RECOVERY:
+PASS/FAIL
+
+PROGRESS WATCHDOG:
+PASS/FAIL/NOT_IMPLEMENTED
+
+DIRECTIVE ACK:
+PASS/FAIL/NOT_IMPLEMENTED
+
+PROCESS TREE SAFETY:
+PASS/FAIL
+
+STATE CONCURRENCY:
+PASS/FAIL
+
+STATE RECOVERY:
+PASS/FAIL
+
+COMPLETION GATE:
+PASS/FAIL
+
+MULTI-PROJECT ISOLATION:
+PASS/FAIL
+
+APPARMOR:
+<SCOPED / ACCEPTED_LOCAL_RISK / REVIEW_REQUIRED>
+
+REAL EMPIRIUM PROJECT:
+NOT REGISTERED
+or unexpected state
+
+CRITICAL FINDINGS:
+<count>
+
+HIGH FINDINGS:
+<count>
+
+REQUIRED FIXES BEFORE REGISTRATION:
+<exact items or NONE>
+
+AUDIT FILE:
+<path>
+
+Do not give a vague recommendation.
+
+Either certify it or explain exactly what blocks certification.
+
+======================================================================
+41. FINAL AUDITOR RULE
+======================================================================
+
+Your job is to try to prove the installation WRONG.
+
+Do not reward the previous installer for producing convincing documentation.
+
+Try to find:
+
+- hidden false assumptions;
+- tests that don't test what they claim;
+- race conditions;
+- stale-process bugs;
+- replay bugs;
+- billing-route ambiguity;
+- unsafe kill behavior;
+- false completion;
+- state corruption;
+- documentation drift;
+- security regressions.
+
+If the installation survives that scrutiny, certify it.
+
+If it does not, do not repair it during this audit.
+
+Return the exact defects required for the next steering prompt.
+
+BEGIN THE INDEPENDENT AUDIT NOW.

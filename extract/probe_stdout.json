@@ -1,0 +1,155 @@
+{
+  "auto": {
+    "success_rate": 1.0,
+    "avg_latency": 2.19,
+    "max_latency": 2.55,
+    "errors": [],
+    "tool_call_ok": true,
+    "tool_call_used": true,
+    "tool_call_err": null
+  },
+  "glm-5.3": {
+    "success_rate": 0.0,
+    "avg_latency": null,
+    "max_latency": null,
+    "errors": [
+      "http_503",
+      "http_503",
+      "http_503",
+      "http_503",
+      "http_503"
+    ],
+    "tool_call_ok": false,
+    "tool_call_used": false,
+    "tool_call_err": "http_503"
+  },
+  "glm-5.3-fast": {
+    "success_rate": 0.0,
+    "avg_latency": null,
+    "max_latency": null,
+    "errors": [
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429"
+    ],
+    "tool_call_ok": false,
+    "tool_call_used": false,
+    "tool_call_err": "http_429"
+  },
+  "kimi-k3-fast": {
+    "success_rate": 0.0,
+    "avg_latency": null,
+    "max_latency": null,
+    "errors": [
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429"
+    ],
+    "tool_call_ok": false,
+    "tool_call_used": false,
+    "tool_call_err": "http_429"
+  },
+  "qwen3.6-27b": {
+    "success_rate": 0.0,
+    "avg_latency": null,
+    "max_latency": null,
+    "errors": [
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429"
+    ],
+    "tool_call_ok": false,
+    "tool_call_used": false,
+    "tool_call_err": "http_429"
+  },
+  "qwen3.7-flash": {
+    "success_rate": 0.0,
+    "avg_latency": null,
+    "max_latency": null,
+    "errors": [
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429"
+    ],
+    "tool_call_ok": false,
+    "tool_call_used": false,
+    "tool_call_err": "http_429"
+  },
+  "deepseek-v4-flashfree": {
+    "success_rate": 1.0,
+    "avg_latency": 1.28,
+    "max_latency": 3.2,
+    "errors": [],
+    "tool_call_ok": true,
+    "tool_call_used": true,
+    "tool_call_err": null
+  },
+  "gpt-oss-120b": {
+    "success_rate": 1.0,
+    "avg_latency": 1.08,
+    "max_latency": 2.29,
+    "errors": [],
+    "tool_call_ok": true,
+    "tool_call_used": true,
+    "tool_call_err": null
+  },
+  "nemotron-3-super-120b": {
+    "success_rate": 1.0,
+    "avg_latency": 1.37,
+    "max_latency": 1.78,
+    "errors": [],
+    "tool_call_ok": true,
+    "tool_call_used": true,
+    "tool_call_err": null
+  },
+  "mistral-code": {
+    "success_rate": 1.0,
+    "avg_latency": 0.33,
+    "max_latency": 0.43,
+    "errors": [],
+    "tool_call_ok": true,
+    "tool_call_used": true,
+    "tool_call_err": null
+  },
+  "gemma-4-26b-a4b": {
+    "success_rate": 0.0,
+    "avg_latency": null,
+    "max_latency": null,
+    "errors": [
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429",
+      "http_429"
+    ],
+    "tool_call_ok": false,
+    "tool_call_used": false,
+    "tool_call_err": "http_429"
+  },
+  "mimo-v2.6-flashfree": {
+    "success_rate": 1.0,
+    "avg_latency": 1.14,
+    "max_latency": 3.66,
+    "errors": [],
+    "tool_call_ok": true,
+    "tool_call_used": true,
+    "tool_call_err": null
+  },
+  "codestral-2508": {
+    "success_rate": 1.0,
+    "avg_latency": 0.85,
+    "max_latency": 2.64,
+    "errors": [],
+    "tool_call_ok": true,
+    "tool_call_used": true,
+    "tool_call_err": null
+  }
+}

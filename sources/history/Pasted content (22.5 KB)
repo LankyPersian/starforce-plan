@@ -1,0 +1,707 @@
+Yes. Lock the following **before Stage 2 run 1**. These decisions supersede any ambiguity in the earlier setup, but they do **not** change the already-frozen French predicate, 60% gate, provider policy, or other items you marked complete.
+
+## A. Owner decisions — now locked
+
+**1. Browser-automation fallback benchmark**
+
+Pre-register the fallback now. Do **not** choose a different task after seeing any results.
+
+If headless browser automation and current-SHA screenshots cannot be made reliable during pre-run setup, Stage 2 automatically switches to:
+
+**`FRENCH-DETERMINISTIC-NONVISUAL-V1`**
+
+It remains the French Nail Builder benchmark, but its acceptance contract becomes deterministic rather than screenshot-based.
+
+The fallback ACCEPT predicate is:
+
+* a real French feature representation exists in the design state; it is not implemented solely as a generic decal/sticker;
+* all five required styles exist: Classic, Micro, Deep, V, Diagonal/Side;
+* base colour and tip colour are independently represented and changeable;
+* thickness/depth is represented as an editable parameter;
+* fixed deterministic fixture inputs for the five styles produce five distinguishable geometry/render outputs;
+* changing thickness produces deterministically different geometry;
+* the French geometry remains constrained/clipped to the selected nail geometry;
+* apply-to-current, apply-to-hand and apply-to-all operations produce the expected state mutations;
+* changing another nail and returning preserves the French settings;
+* serialization/normalization round-trips the editable French state;
+* fixed harness tests pass;
+* changed-file lint/static checks pass;
+* the Expo web production bundle/build succeeds and the app entry point can be served/bootstrapped to the extent available without a browser;
+* the attempt does not alter the protected acceptance harness.
+
+**Screenshots and visual-beauty judgment are removed from this fallback benchmark only.**
+
+This does **not** mean the production French feature can later ship without visual QA. The fallback exists only to measure worker first-attempt engineering reliability on a headless machine.
+
+The fallback decision is automatic based solely on pre-run browser capability:
+
+> If a repeatable headless browser journey can boot the frozen baseline and produce a SHA-named screenshot successfully **3 consecutive times before run 1**, use the original visual French benchmark. Otherwise use `FRENCH-DETERMINISTIC-NONVISUAL-V1`.
+
+Once run 1 begins, that choice cannot change.
+
+---
+
+**2. AR feasibility spike**
+
+Run the AR feasibility spike **in parallel with Stage 2**, after the Stage 2 baseline SHA has been frozen.
+
+It must run in a separate scratch clone/branch and must **never modify the Stage 2 benchmark baseline**. Stage 2 does not wait for the spike because French is independent of AR.
+
+Pre-register the architecture decision tree:
+
+**Path A — preferred:** prove a maintained, on-device hand-landmark pipeline can operate with the existing Expo SDK 51 / React Native 0.74.5 stack. A valid proof requires a minimal native/dev project path that:
+
+* installs using maintained dependencies;
+* completes native configuration/prebuild without unresolved dependency incompatibility;
+* compiles on an available supported native build environment, if one exists;
+* exposes the required 21-landmark structure, handedness/confidence/timestamp interface;
+* can feed deterministic prerecorded landmark/frame input into the same tracking adapter/placement pipeline.
+
+If that passes, **stay on the existing Expo/RN generation** for the AR implementation.
+
+**Path B — controlled SDK upgrade:** if the maintained tracker/camera stack cannot support Expo 51/RN 0.74.5 for a documented compatibility reason, test the smallest sensible Expo/RN upgrade in an isolated branch.
+
+The upgrade is accepted only if:
+
+* `expo-doctor`/dependency validation is clean enough to show no genuine compatibility break;
+* all existing deterministic acceptance tests still pass;
+* web build still passes;
+* migration/storage fixtures still pass;
+* existing builder/state behaviour does not regress;
+* native AR dependencies can then be configured/compiled to the strongest extent the environment supports.
+
+If those conditions pass, **the architecture decision is to upgrade deliberately**.
+
+**Path C — minimal custom native module:** use this only if:
+
+1. the maintained pipeline cannot support the current stack, **and**
+2. the controlled SDK upgrade fails the acceptance gate or would cause disproportionate product regression.
+
+Then implement the smallest maintainable native bridge around a current on-device landmark implementation rather than adopting an abandoned wrapper.
+
+This decision order is now owner-approved:
+
+> **current maintained stack → controlled Expo upgrade → minimal custom native module**
+
+The agent does not return to the owner to choose among those three. Evidence chooses.
+
+Only if **all three approaches are demonstrably infeasible** does AR become an owner-level architecture blocker.
+
+The spike must finish **before Stage 3 dispatches the real native-AR WorkItem**, even if Stage 2 itself finishes earlier.
+
+---
+
+**3. French Stage 2 work is intentionally throwaway**
+
+Confirmed explicitly:
+
+> **Stage 2 French implementations are experimental specimens, not product work.**
+
+None of the 20 French branches is merged into the production/canonical application, even if one is excellent.
+
+Their purpose is solely to measure:
+
+* first-attempt acceptance;
+* task-packet quality;
+* model reliability;
+* time-to-result;
+* common failure modes.
+
+Preserve their commits/diffs as evidence, then discard their scratch workspaces.
+
+The real production French feature is implemented later, **after the builder redesign**, against the then-current UI architecture and the same charter requirements.
+
+Do not cherry-pick a Stage 2 implementation merely because it passed. An engineer may later study the experiment artifacts diagnostically, but the production WorkItem begins from the canonical redesigned builder.
+
+This removes the sequencing contradiction.
+
+---
+
+**4. Re-run budget**
+
+The budget is now **per registered benchmark round**, not a lifetime 20-attempt maximum.
+
+Round 1:
+
+* 20 valid attempts;
+* maximum 60 minutes implementation per attempt;
+* verification allowance defined in item 10 below;
+* maximum **24 hours wall clock** for that benchmark;
+* £0 new metered API spend.
+
+One and only one additional benchmark round is pre-authorized.
+
+Therefore the full measurement campaign hard ceiling is:
+
+* **maximum 2 × 20 valid attempts = 40 valid attempts;**
+* **maximum 48 hours wall clock;**
+* £0 new metered inference spend.
+
+The second round is used as follows:
+
+* **12–20 ACCEPT in Round 1:** no second Stage 2 round; Stage 3 gate passes.
+* **6–11 ACCEPT:** revise packet/decomposition while preserving model and acceptance discipline, then run Round 2.
+* **0–5 ACCEPT:** register a different bounded representative task **before inspecting any implementation from that new benchmark**, freeze its predicate/harness, then run Round 2.
+
+If Round 2 still fails the ≥60% Stage 3 threshold, the measurement campaign ends. **Do not authorize a third 20-run experiment automatically and do not compensate by adding orchestration.**
+
+Stage 3 remains gated.
+
+---
+
+**5. Requirement dependency edges**
+
+Yes. The ledger must have an explicit `depends_on` field before Stage 3 dispatch.
+
+Use this dependency graph as the initial owner-approved graph:
+
+```text
+NAIL-P0-SHELL-001  <- []
+NAIL-P0-SHELL-002  <- []
+NAIL-P0-SHELL-004  <- []
+NAIL-P0-SHELL-003  <- [DATA-003, BUILDER-001, SHELL-004, AR-001, AR-003]
+NAIL-P0-SHELL-005  <- [SHELL-002, SHELL-003, SHELL-004, AR-007]
+
+NAIL-P0-DATA-001   <- []
+NAIL-P0-DATA-002   <- [DATA-001]
+NAIL-P0-DATA-003   <- [DATA-001, DATA-002]
+NAIL-P0-DATA-004   <- [DATA-003]
+NAIL-P0-DATA-005   <- [DATA-003]
+
+NAIL-P0-BUILDER-001 <- [DATA-001]
+NAIL-P0-BUILDER-002 <- [DATA-001, BUILDER-001]
+NAIL-P0-BUILDER-003 <- [BUILDER-001]
+NAIL-P0-BUILDER-004 <- [BUILDER-001]
+NAIL-P0-BUILDER-005 <- [BUILDER-004]
+NAIL-P0-BUILDER-007 <- [BUILDER-001]
+NAIL-P0-BUILDER-008 <- [BUILDER-007]
+NAIL-P0-BUILDER-012 <- [BUILDER-001, DATA-001]
+NAIL-P0-BUILDER-009 <- [BUILDER-007, BUILDER-012]
+NAIL-P0-BUILDER-010 <- [BUILDER-001, DATA-001]
+NAIL-P0-BUILDER-011 <- [BUILDER-001, DATA-001]
+NAIL-P0-SET-001     <- [BUILDER-002]
+NAIL-P0-SET-002     <- [BUILDER-002]
+NAIL-P0-BUILDER-006 <- [BUILDER-003, BUILDER-004, SET-001]
+NAIL-P0-SET-003     <- [BUILDER-002, SET-001]
+NAIL-P0-BUILDER-013 <- [
+  BUILDER-003,
+  BUILDER-004,
+  BUILDER-005,
+  BUILDER-006,
+  BUILDER-008,
+  BUILDER-009,
+  BUILDER-010,
+  BUILDER-011,
+  BUILDER-012,
+  SET-001,
+  SET-002,
+  SET-003
+]
+
+NAIL-P0-AR-001 <- []
+NAIL-P0-AR-002 <- [WI-AR-SPIKE-001]
+NAIL-P0-AR-003 <- [AR-002, BUILDER-002, DATA-001]
+NAIL-P0-AR-004 <- [AR-002]
+NAIL-P0-AR-005 <- [AR-004]
+NAIL-P0-AR-006 <- [AR-004]
+NAIL-P0-AR-007 <- [AR-001, AR-003, AR-004, AR-005, AR-006]
+
+NAIL-P0-QUAL-001 <- [BUILDER-001, SHELL-003]
+NAIL-P0-VIS-001  <- [
+  SHELL-001,
+  SHELL-002,
+  SHELL-003,
+  SHELL-004,
+  SHELL-005,
+  BUILDER-001,
+  AR-007,
+  QUAL-001
+]
+
+NAIL-P0-ENG-001 <- []
+```
+
+`WI-AR-SPIKE-001` is a **WorkItem precondition**, not an extra product requirement.
+
+Also add:
+
+```json
+"verification": {
+  "predicate_id": "...",
+  "verification_kind": "...",
+  "command": "...",
+  "evidence_expected": "...",
+  "contract_hash": "..."
+}
+```
+
+to every requirement before it becomes runnable.
+
+The planner may refine **WorkItem** dependencies where implementation reveals genuine technical prerequisites, but it may not silently delete requirement dependencies or derive the entire graph conversationally from scratch.
+
+---
+
+# B. Artifacts required before run 1
+
+**6. Frozen worker packet template**
+
+Create:
+
+`/.hermes/experiments/worker-baseline/WORKER_PACKET_TEMPLATE.md`
+
+with exactly this shape:
+
+```markdown
+# WORKER TASK PACKET
+
+PACKET_VERSION: 1
+PROJECT: Nailed It
+BASELINE_SHA: {{BASELINE_SHA}}
+WORKITEM_ID: {{WORKITEM_ID}}
+ATTEMPT_ID: {{ATTEMPT_ID}}
+PROVIDER: {{PROVIDER}}
+MODEL: {{MODEL}}
+
+## MISSION
+
+{{MISSION}}
+
+## WHY THIS EXISTS
+
+{{WHY_THIS_EXISTS}}
+
+## REQUIREMENT IDS
+
+{{REQUIREMENT_IDS}}
+
+## ACCEPTANCE CONTRACT
+
+You do not decide whether your work passes.
+Acceptance is determined after your session by the protected independent harness.
+
+{{ACCEPTANCE_CRITERIA}}
+
+## RELEVANT ARCHITECTURE DECISIONS
+
+{{ARCHITECTURE_DECISIONS}}
+
+## STARTING STATE
+
+You are working from exactly:
+
+{{BASELINE_SHA}}
+
+Do not assume work from any other attempt exists.
+
+## RELEVANT FILES
+
+{{RELEVANT_FILES}}
+
+## ALLOWED / EXPECTED FILES
+
+You may edit only files reasonably necessary for this WorkItem.
+
+Expected areas:
+
+{{ALLOWED_FILES}}
+
+If another file must be changed, do so only when required for the mission and explain it
+in the result record.
+
+## PROHIBITED CHANGES
+
+You must not:
+
+- modify the protected acceptance harness;
+- modify verify.sh or frozen acceptance predicates;
+- weaken, delete, skip, rename, or bypass tests;
+- change provider/model configuration;
+- modify .hermes/autonomy/;
+- modify experiment records;
+- change unrelated product functionality;
+- add fake/simulated success paths;
+- replace required behaviour with a placeholder;
+- claim acceptance yourself.
+
+Additional task-specific prohibitions:
+
+{{PROHIBITED_CHANGES}}
+
+## REQUIRED TEST / VALIDATION COMMANDS
+
+During implementation you may run:
+
+{{WORKER_TEST_COMMANDS}}
+
+These are developer feedback only.
+Your own test result does not constitute acceptance.
+
+## EXPECTED ARTIFACTS
+
+Produce:
+
+1. coherent implementation;
+2. any task-local tests allowed by the packet;
+3. one coherent Git commit;
+4. machine-readable result file at:
+   {{RESULT_PATH}}
+
+## COMMIT FORMAT
+
+{{WORKITEM_ID}}: <concise description>
+
+## RESULT FORMAT
+
+Return:
+
+{
+  "workitem_id": "{{WORKITEM_ID}}",
+  "attempt_id": "{{ATTEMPT_ID}}",
+  "status_claim": "IMPLEMENTED | NO_CHANGE | BLOCKED",
+  "commit_sha": "<sha-or-null>",
+  "changed_files": [],
+  "commands_run": [],
+  "worker_notes": "<brief factual notes only>"
+}
+
+Your status claim is informational only.
+It cannot set acceptance state.
+
+## KNOWN PRIOR ATTEMPT FAILURES
+
+{{PRIOR_FAILURES}}
+
+For Stage 2 first-attempt measurement this field MUST be:
+
+NONE — fresh independent attempt.
+
+## STOP CONDITION
+
+Stop when you have either:
+
+- produced one coherent implementation commit, or
+- determined that you cannot produce a coherent implementation inside this attempt.
+
+Do not start a second implementation strategy after the attempt limit.
+Do not invoke another agent.
+Do not ask the user for help.
+```
+
+Before run 1:
+
+1. save the exact file;
+2. normalize line endings;
+3. run `sha256sum`;
+4. record the SHA in the experiment manifest;
+5. instantiate every Stage 2 French packet mechanically from this template;
+6. verify the template hash before each attempt.
+
+The **on-disk SHA**, not a hash copied from chat, is authoritative.
+
+---
+
+**7. Acceptance harness creation and independent review**
+
+Add this mandatory pre-run lifecycle:
+
+```text
+LOCKED OWNER PREDICATE
+        ↓
+HARNESS IMPLEMENTER — fresh session
+        ↓
+HARNESS DIFF + PREDICATE + BASELINE
+        ↓
+INDEPENDENT HARNESS REVIEWER — different fresh session
+        ↓
+REJECT ──→ bounded harness rework ──→ fresh review
+        ↓
+ACCEPT
+        ↓
+RUN HARNESS AGAINST BASELINE
+        ↓
+CONFIRM IT DISCRIMINATES
+        ↓
+HASH ALL PROTECTED HARNESS FILES
+        ↓
+FREEZE BASELINE SHA + HARNESS HASH MANIFEST
+        ↓
+ONLY NOW MAY STAGE 2 RUN 1 START
+```
+
+The harness reviewer must answer, using evidence:
+
+* Does every frozen predicate clause have a corresponding real check?
+* Can a missing French implementation incorrectly pass?
+* Can an implementer satisfy a check merely by writing a success marker/file?
+* Does the harness exercise actual product state/render logic rather than a duplicate mock implementation?
+* Are failure cases tested?
+* Does it distinguish the current baseline appropriately?
+* Does it avoid judging requirements outside the benchmark?
+* Does it avoid subjective source-code style judgments?
+* Can a worker weaken it from its allowed workspace?
+* Are all harness artifacts reproducible from a fresh shell?
+
+Protected files then receive a manifest such as:
+
+```json
+{
+  "baseline_sha": "...",
+  "predicate_version": "FRENCH-VISUAL-V1",
+  "packet_template_sha256": "...",
+  "protected_files": {
+    "checks/french_state.test.*": "...",
+    "checks/french_runtime.*": "...",
+    "checks/french_geometry.*": "...",
+    "verify.sh": "...",
+    "experiment-manifest.json": "..."
+  },
+  "independent_review": {
+    "result": "PASS",
+    "reviewer_attempt_id": "...",
+    "evidence_path": "..."
+  }
+}
+```
+
+Before and after every worker attempt, recompute these hashes.
+
+Any worker modification to a protected harness file is automatically:
+
+**`MALFORMED — PROTECTED_HARNESS_MUTATION`**
+
+and counts as a non-ACCEPT engineering attempt.
+
+That closes the self-approval hole.
+
+---
+
+**8. Acceptance contract required before every Stage 3 WorkItem**
+
+Add a hard controller rule:
+
+> **A product WorkItem is not eligible for dispatch unless every mandatory requirement it claims to implement has a frozen acceptance contract and the referenced harness files have verified hashes.**
+
+Create one acceptance-contract record per requirement with at least:
+
+```json
+{
+  "requirement_id": "NAIL-P0-BUILDER-006",
+  "contract_version": 1,
+  "predicate": "observable pass condition",
+  "verification_kind": [
+    "deterministic",
+    "runtime",
+    "visual"
+  ],
+  "commands": [
+    "./verify.sh --only NAIL-P0-BUILDER-006"
+  ],
+  "expected_evidence": [
+    "test-result",
+    "exit-code",
+    "screenshot"
+  ],
+  "baseline_result": "FAIL",
+  "baseline_evidence": "...",
+  "hardware_limit": null,
+  "harness_files": [],
+  "harness_sha256": "...",
+  "independent_review": "PASS",
+  "state": "FROZEN"
+}
+```
+
+Permitted contract states:
+
+```text
+DRAFT
+IMPLEMENTED
+REVIEW_PENDING
+FROZEN
+RETIRED
+```
+
+Only `FROZEN` makes the associated WorkItem runnable.
+
+A requirement that cannot yet be verified receives an explicit contract such as:
+
+```text
+state: FROZEN
+verification_kind: hardware-limited
+dispatch_allowed: true/false as appropriate
+reason: exact missing capability
+substitute_evidence: exact strongest substitute
+release_limitation: exact remaining uncertainty
+```
+
+This means Stage 3 can never recreate the historical failure:
+
+> implement first → decide later what “done” was supposed to mean.
+
+For Stage 2, only the French contract needs to be frozen.
+**Before Stage 3 begins dispatching general product WorkItems, all mandatory P0 requirements must have frozen contracts.**
+
+---
+
+# C. Additional hardening — now decided
+
+**9. Environment-contention rule**
+
+Sample host resources every **15 seconds** for every attempt.
+
+Record:
+
+* total CPU;
+* experiment-worker CPU;
+* foreign/non-experiment CPU;
+* load average;
+* free/available RAM;
+* swap activity;
+* disk free space.
+
+Introduce a new non-engineering outcome:
+
+**`ENVIRONMENT-ABORT`**
+
+An attempt is invalidated and its numbered slot retried when any of these occur:
+
+* foreign processes consume **>50% of total host CPU capacity continuously for 5 minutes**;
+* `MemAvailable` remains below **2 GB for 5 minutes**;
+* the kernel/OOM killer terminates an experiment process;
+* severe sustained swapping clearly prevents normal execution;
+* disk falls below **5 GB free** during the attempt;
+* a known unrelated host process causes termination or service starvation.
+
+`ENVIRONMENT-ABORT`, like `PROVIDER-ABORT`, does **not** enter the 20-attempt engineering denominator.
+
+Ordinary variable VPS load below those thresholds is accepted as experimental noise.
+
+Do not inspect results first and then decide whether contention “felt bad.”
+
+---
+
+**10. Verification-time budget**
+
+Each attempt has two clocks:
+
+```text
+IMPLEMENTATION:
+maximum 60 minutes
+
+INDEPENDENT VERIFICATION:
+maximum 20 additional minutes
+```
+
+Therefore maximum end-to-end slot duration is **80 minutes**.
+
+The worker is killed/stopped at 60 minutes if it has not produced its implementation result.
+
+Verification then runs independently.
+
+If verification exceeds 20 minutes because the **candidate itself** causes a hanging build/test/runtime path, the attempt is a non-accepting engineering result:
+
+**`REWORK — VERIFICATION_TIMEOUT`**
+
+If verification cannot finish because of an independently demonstrated provider/host/infrastructure failure, classify it as the appropriate:
+
+* `PROVIDER-ABORT`, or
+* `ENVIRONMENT-ABORT`
+
+and retry the slot.
+
+The existing 24-hour benchmark ceiling still applies.
+
+---
+
+**11. The ≥60% number is baseline-specific**
+
+Record this explicitly in the experiment report:
+
+> The measured first-attempt acceptance rate is a property of the tuple
+> **{frozen baseline SHA, benchmark task, worker packet version, acceptance harness version, provider, model, environment configuration}**.
+> It is not an eternal score for the worker/model.
+
+The initial ≥60% result authorizes Stage 3's initial execution architecture.
+
+After the **Phase 3 builder redesign**, do a small **10-attempt recalibration** before making any further worker-concurrency increase or treating the original Stage 2 rate as representative of later builder work.
+
+That recalibration:
+
+* does not undo accepted Stage 3 work;
+* does not block continuing with one worker;
+* uses a representative bounded post-redesign WorkItem;
+* uses the same acceptance-first discipline;
+* is used to decide whether scaling beyond one implementation worker remains justified.
+
+Do **not** reuse the French throwaway benchmark as the permanent productivity metric.
+
+---
+
+**12. Remote backup policy**
+
+If authenticated private GitHub access exists, before Stage 2 run 1:
+
+1. create/use a **private** remote;
+2. push the untouched/import baseline commit;
+3. push the pre-experiment tooling/harness baseline commit;
+4. tag or otherwise record the exact frozen experiment baseline SHA.
+
+Do **not** push:
+
+```text
+.hermes/experiments/
+.hermes/logs/
+.hermes/worktrees/
+.hermes/evidence/   # where it contains experiment/runtime evidence
+provider credentials
+environment dumps containing secrets
+temporary attempt branches
+```
+
+Keep experiment evidence in the durable local experiment store and, if desired, a separate private archive/backup—not mixed into the product repository.
+
+During Stage 3:
+
+> **After every accepted canonical integration, push the resulting canonical commit to the private remote.**
+
+Rejected/experimental worker branches remain local evidence and are not routinely pushed.
+
+If GitHub authentication is unavailable, the lack of remote does not block Stage 2/3, provided the local Git baseline and a separate local backup are verified.
+
+---
+
+## Final commissioning gate
+
+The system must refuse to start Stage 2 run 1 until all of these are true:
+
+```text
+[ ] canonical baseline SHA frozen
+[ ] benchmark mode frozen:
+      FRENCH-VISUAL-V1
+      OR automatically selected pre-registered
+      FRENCH-DETERMINISTIC-NONVISUAL-V1
+[ ] model/provider frozen
+[ ] packet template written + hashed
+[ ] French acceptance contract written
+[ ] acceptance harness implemented
+[ ] harness independently reviewed
+[ ] harness proves baseline discrimination
+[ ] harness files hashed and protected
+[ ] environment sampling enabled
+[ ] Git isolation strategy verified
+[ ] experiment budget counters initialized
+[ ] provider-abort and environment-abort rules loaded
+[ ] AR spike launched or queued independently
+```
+
+And Stage 3 must refuse general product dispatch until:
+
+```text
+[ ] Stage 2 gate passed at >=60%
+[ ] every mandatory P0 requirement has explicit dependency edges
+[ ] every dispatched requirement has a FROZEN acceptance contract
+[ ] AR architecture spike is complete before native AR implementation
+[ ] private backup exists where credentials permit, otherwise local backup verified
+```
+
+That closes the remaining loopholes. Most importantly, **the system now knows what to do before it encounters every major branch**—browser failure, low benchmark performance, AR incompatibility, environment contention, acceptance-harness weakness, post-redesign metric drift, and backup availability—rather than asking you to steer it after seeing the outcome.

@@ -1,0 +1,81 @@
+a/work/empirium-os-ai-workforce-audit/RESUME_TASK.md → b/work/empirium-os-ai-workforce-audit/RESUME_TASK.md
+@@ -0,0 +1,89 @@
++# Resume instructions for this audit session
++
++You are RESUMING an in-progress READ-ONLY forensic audit. A prior session already
++completed most of phases 1-27 (see files in this directory: README.md, FILE_MAP.md,
++CONDUCTOR_FORENSICS.md, HERMES_INTEGRATION.md, DATA_MODEL_AUDIT.md, UI_ARCHITECTURE.md,
++TEST_BASELINE.md, MEMORY_KNOWLEDGE_AUDIT.md, MODEL_PROVIDER_AUDIT.md,
++SECURITY_PERMISSIONS.md, DEPLOYMENT_RUNTIME.md, DONOR_CODE_RESEARCH.md, LICENSING.md,
++PERFORMANCE_BASELINE.md, PROMPT_LEARNING_AUDIT.md, VISUAL_ANIMATION_AUDIT.md,
++AGENT_VISUAL_MODEL.md, diagrams/, manifests/{apis,donor-code,relevant-files,routes,
++services,storage,tests}.json, logs/*.txt, test-results/*.txt).
++
++DO NOT redo completed phases. Read the existing files first to absorb what is already
++known, then continue.
++
++## Critical new finding you must investigate and document first
++
++The product repo `/home/ash/work/empirium-desktop` (git branch main) currently has
++SUBSTANTIAL UNCOMMITTED CHANGES that were NOT present at audit start (audit start was
++clean, an interim recheck showed only 2 files changed). As of now `git status --porcelain`
++shows:
++```
++ M package-lock.json
++ M package.json
++ M renderer/index.html
++ M renderer/js/store.js
++ M renderer/layout-shell.html
++ M renderer/router.js
++ M renderer/routes.js
++ M renderer/styles/empirium.css
++?? migrations/
++?? renderer/js/ai-workforce.js
++?? renderer/pages/ai-workforce/
++?? renderer/pages/github-repos/
++?? renderer/styles/ai-workforce.css
++?? scripts/github-repos-route-test.py
++?? test_ai_workforce_integrity.js
++```
++This looks like actual AI Workforce implementation work (matching the
++`ai-workforce-development` Hermes skill's procedure) landed in the product tree,
++apparently from a DIFFERENT session/process, not from this audit (this audit workspace
++is separate and read-only). Diff these files against git HEAD (read-only: `git diff`,
++`git diff --stat`), record exactly what exists now, whether it looks complete/functional,
++and whether it conflicts with or duplicates what this audit's PHASE 25/29 recommends.
++DO NOT stage, commit, revert, stash, or modify any of this. Just report it factually as
++a CURRENT-STATE fact in MASTER_AUDIT.md and IMPLEMENTATION_CONTEXT.md, and flag it
++prominently in OPEN_QUESTIONS.md as something Ash must decide on (keep this partial
++build? revert it? treat it as the starting point for the real implementation instead of
++building from scratch?).
++
++## Remaining deliverables to produce now
++
++1. `RISK_REGISTER.md` (Phase 27)
++2. `OPEN_QUESTIONS.md` — include the uncommitted-changes finding above as the top item
++3. `BUILD_RECOMMENDATION.md` (Phase 29) — evidence-based, challenge the brief's assumed
++   architecture if warranted, and explicitly address the existing uncommitted
++   ai-workforce.js/routes/store work as a factor
++4. `MASTER_AUDIT.md` — synthesis of all phases, cross-referencing the existing files
++   (don't duplicate their full content, summarize + link)
++5. `IMPLEMENTATION_CONTEXT.md` — THE most important deliverable. Must let another AI
++   write the full implementation mission with no re-audit. Follow the 32-point outline
++   from the original brief (this file's parent instructions are in the chat history /
++   original prompt — reconstruct the required sections from README.md and the other
++   completed docs plus your own direct source inspection). Use exact file paths,
++   functions, endpoints, data structures.
++6. Complete `manifests/components.json`, `manifests/models.json`, `manifests/risks.json`
++   (the brief's mandatory machine-readable outputs list) if not already present.
++7. Attempt the mandatory screenshot pack (Phase 14) if the app can be safely reached
++   (check the running ports documented in README.md: Caddy on 100.69.118.112:8082,
++   loopback :8082 python http.server, hermes-studio :3001). If genuinely unsafe/
++   impractical headlessly, document why in TEST_BASELINE.md or README.md instead of
++   fabricating images.
++8. Do a brief red-team self-review pass per the brief and fold results into
++   OPEN_QUESTIONS.md / RISK_REGISTER.md.
++9. Run through the brief's FINAL VALIDATION checklist and note pass/fail per item in
++   MASTER_AUDIT.md.
++
++## Safety (unchanged from original brief)
++
+… omitted 11 diff line(s) across 1 additional file(s)/section(s)

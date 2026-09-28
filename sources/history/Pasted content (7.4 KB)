@@ -1,0 +1,81 @@
+a/browser-captcha-FINISH-PROMPT.md → b/browser-captcha-FINISH-PROMPT.md
+@@ -0,0 +1,191 @@
++# HANDOFF PROMPT — Finish the Hermes Stealth-Browser + CAPTCHA + Agent-Reach Build
++
++**Paste this whole file into a new chat.** You are finishing a partially-completed build on Ash's Ubuntu 24.04.4 VPS (user `ash`, home `/home/ash`, x86_64, headless, no GPU). The master spec is `/home/ash/browser-captcha-system-SPEC.md` (§§1–16) — **read it first with `read_file`**; this prompt only states what is already TRUE on disk, what is MISSING, and exactly how to close each gap.
++
++Ground rules for you, the implementing agent:
++- **Verify before you claim.** Every "done" below was confirmed by command output on 2026-09-17. Re-verify with the given command before trusting it; hardware/services may have changed.
++- **Never fabricate output.** If a step fails, report the real error and stop or route around it — do not invent results.
++- **No secrets in chat or logs.** Never type/echo passwords, cookies, 2FA codes, API keys, card data. Cookie/token configuration uses the tool's own hidden-input flow only.
++- **`sudo` only with Ash's explicit approval, per command.** Nothing in the remaining work requires root except optional `apt` packages; prefer user-level installs.
++- **Ask Ash** before: installing any login-walled channel, exposing any port beyond loopback, anything irreversible.
++- Work autonomously through the reversible local steps; stop at the decision points flagged **[ASK ASH]**.
++
++---
++
++## PART 1 — WHAT IS ALREADY BUILT AND VERIFIED (do not redo)
++
++### 1.1 Fortress stealth Chrome — DONE
++- Unit `/home/ash/.config/systemd/user/fortress-chrome.service`, `ExecStart=/home/ash/.browser-use-venv/bin/tilion-fortress --port 9336`, enabled + **active**.
++- CDP live: `curl -s http://127.0.0.1:9336/json/version` → `Chrome/149.0.7827.232`, UA `Mozilla/5.0 (Windows NT 10.0; Win64; x64) … Chrome/149.0.0.0`.
++- Stray pre-unit Chrome processes were replaced by the unit's own process tree (`MainPID` = `tilion-fortress`).
++- **Verify:** `systemctl --user is-active fortress-chrome.service && curl -s -m5 http://127.0.0.1:9336/json/version | head -c 200`
++
++### 1.2 browser-session binary + daemons — DONE
++- Binary `/home/ash/.local/bin/browser-session` → `browser-session 0.1.0` (15 MB, built/installed).
++- Env file `/home/ash/.config/browser-session/browser-session.env` (0600) with `BROWSER_URL=http://127.0.0.1:9336`, `STATE_FILE/LOGS_DIR/STATES_DIR/TAKEOVER_DIR` under `/home/ash/.local/share/browser-session/`, `TAKEOVER_BASE_URL=` and `CHROME_WS_BASE=` intentionally EMPTY (SIMPLE mode), `MAX_IDLE_HOURS=24`, `RUST_LOG=info`.
++- `browser-session-listener.service` — enabled + **active**.
++- `browser-session-reaper.service` + `.timer` — timer **enabled**, last run 2026-09-16 22:44 UTC, next ~12h.
++- State dir populated: `state.json` (5 sessions recorded), `logs/<sessionId>/` ×5, `states/t7.json` (cookie-state test artifact), `takeover/`, `agent-runs/`.
++- **Verify:** `systemctl --user is-active browser-session-listener.service; systemctl --user list-timers browser-session-reaper.timer --no-pager | head -3; ~/.local/bin/browser-session --version`
++
++### 1.3 Hermes MCP wiring — DONE
++- `~/.hermes/config.yaml` → `mcp_servers.browser-session` block present (command `/home/ash/.local/bin/browser-session`, args `[mcp]`, env as above, `connect_timeout: 30`, `timeout: 120`).
++- The 28 `browser-session` tools are reachable from Hermes (`open_browser_session`, `navigate`, `take_snapshot`, `take_screenshot`, `click`, `type`, `press_key`, `scroll`, `move_mouse`, `wait_for`, `evaluate`, `list_pages`, `switch_tab`, `close_tab`, `new_page`, `list_visits`, `list_console_messages`, `list_network_requests`, `set_stealth`, `get_stealth`, `request_human_takeover`, `await_human_takeover`, `save/load/list/delete_browser_state`, `list_browser_sessions`, `close_browser_session`).
++- **Verify:** `grep -A14 "browser-session:" ~/.hermes/config.yaml`, then call `list_browser_sessions` from Hermes.
++
++### 1.4 browser-use wrapper v2 — DONE
++- `/home/ash/scripts/run_browser_use_task.py` rewritten (11,270 bytes). Backup at `run_browser_use_task.py.bak-20260917-000300`.
++- Flags confirmed by `--help`: `--cdp --headless/--no-headless --model --max-steps --json --out --save-conversation`.
++- JSON contract works end-to-end: `agent-runs/20260917T001231Z.log` and `…001254Z.log` both contain `{"status":"success","captcha_type":"none",…,"summary":"The main heading of https://example.com is 'Example Domain'."}` against `cdp: http://127.0.0.1:9336`.
++- **Verify:** `~/.browser-use-venv/bin/python ~/scripts/run_browser_use_task.py "Go to https://example.com and return the main heading." --json`
++
++### 1.5 Scripts housekeeping — DONE
++- `~/scripts/archive/camofox_browser.py.20260917-000404` and `fortress_browser.py.20260917-000404` (both archived, not deleted).
++- `~/scripts/fortress_status.py` created (health helper).
++
++### 1.6 Skills — DONE
++- `~/.hermes/skills/autonomous-ai-agents/browser-use-integration/SKILL.md` rewritten: routing (MCP for deterministic / wrapper for agentic / agent-reach first for public social), SIMPLE CAPTCHA handoff to Telegram channel `6583879337`, wrapper contract + exit codes (0/2/3/4), loopback-only safety, `request_human_takeover` disabled while `TAKEOVER_BASE_URL` is empty.
++- `browser-use-agent/SKILL.md` reduced to a redirect stub.
++- `~/.hermes/skills/agent-reach/SKILL.md` created: routing table, `agent-reach doctor --json` / `active_backend` authority, credential rules, `~/.agent-reach-venv` install location, "not a browser, not a CAPTCHA solver".
++
++### 1.7 Backups — DONE (partial)
++`~/backup-vps.sh` lines 73–78 now back up: `~/.local/share/browser-session/states`, `~/.config/browser-session`, and all four systemd user units. (Gap: agent-reach config — see 2.9.)
++
++### 1.8 agent-reach — INSTALLED, PARTIALLY HEALTHY
++- `~/.agent-reach-venv/bin/agent-reach` → **Agent Reach v1.5.0** (venv install, correct for PEP 668).
++- `~/.local/bin/yt-dlp` → `2026.08.19`; `~/.local/bin/mcporter` → `0.13.13`.
++- `mcporter list` → `exa (2 tools, 1.1s)` · `1 healthy`.
++- Jina Reader works: `curl -s "https://r.jina.ai/https://example.com"` returns `Title: Example Domain`.
++- `gh` 2.45.0 authenticated as **LankyPersian** (`gh auth status` ✓).
++- `agent-reach doctor` current score: **4/16 channels ✅** — V2EX, RSS/Atom, Jina web, Bilibili-search.
++
++---
++
++## PART 2 — WHAT IS MISSING (your work queue, in order)
++
++### GAP 1 — yt-dlp has no JS runtime configured  *(blocks YouTube channel)*
++`agent-reach doctor` reports `[!] YouTube … yt-dlp 已安装但未配置 JS runtime`.
++```bash
++mkdir -p /home/ash/.config/yt-dlp
++grep -qxF -- '--js-runtimes node' /home/ash/.config/yt-dlp/config 2>/dev/null \
++  || printf '%s\n' '--js-runtimes node' >> /home/ash/.config/yt-dlp/config
++cat /home/ash/.config/yt-dlp/config
++# Evidence required — a real public video, capture title only:
++~/.local/bin/yt-dlp --dump-json "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 2>&1 | head -c 400
++```
++`node` exists at `~/.local/bin/node` and `~/.hermes/node/bin/node`; if yt-dlp can't find it, prepend the dir to PATH in the evidence command rather than editing system PATH. **Pass bar:** `--dump-json` returns JSON containing a `title`, and doctor's YouTube row turns ✅.
++
++### GAP 2 — `feedparser` not importable  *(RSS row is green in doctor but unusable from plain python3)*
+… omitted 113 diff line(s) across 1 additional file(s)/section(s)

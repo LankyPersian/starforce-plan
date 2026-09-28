@@ -1,0 +1,208 @@
+Yes. The easiest way is to run it **directly on your VPS**. You only need **two files**:
+
+* `ASTRA_REVIEW_PACKET.md`
+* `run_astra_review.py`
+
+The packet already contains the dossier, review brief and original master prompt, so you don't need to send Astra all the other files separately.
+
+### 1. Download these two files onto the VPS
+
+[Download the Astra review packet](sandbox:/mnt/data/ASTRA_REVIEW_PACKET.md)
+
+[Download the runner](sandbox:/mnt/data/run_astra_review.py)
+
+Put them somewhere simple, for example:
+
+```text
+/home/ash/astra-review/
+```
+
+If you've downloaded them into Ubuntu's Downloads folder, open Terminal and run:
+
+```bash
+mkdir -p ~/astra-review
+
+cp ~/Downloads/ASTRA_REVIEW_PACKET.md ~/astra-review/
+cp ~/Downloads/run_astra_review.py ~/astra-review/
+
+cd ~/astra-review
+```
+
+Then check:
+
+```bash
+ls
+```
+
+You should see:
+
+```text
+ASTRA_REVIEW_PACKET.md
+run_astra_review.py
+```
+
+---
+
+### 2. Set your OpenRouter API key
+
+**Don't send the key to me and don't put it inside the prompt.**
+
+In the VPS terminal:
+
+```bash
+export OPENROUTER_API_KEY='YOUR_OPENROUTER_KEY_HERE'
+```
+
+For example, it will start something like:
+
+```text
+sk-or-v1-...
+```
+
+The runner specifically looks for the `OPENROUTER_API_KEY` environment variable. 
+
+You can confirm that it is set without displaying the actual key:
+
+```bash
+if [ -n "$OPENROUTER_API_KEY" ]; then echo "OpenRouter key is set"; else echo "Key missing"; fi
+```
+
+You want:
+
+```text
+OpenRouter key is set
+```
+
+---
+
+### 3. Important: change the file paths
+
+The script I generated defaults to `/mnt/data/...`, because that's where files live **inside my ChatGPT environment**, not your VPS. 
+
+You don't actually need to edit the Python file. Just tell it where the files are:
+
+```bash
+export ASTRA_PACKET="$HOME/astra-review/ASTRA_REVIEW_PACKET.md"
+
+export ASTRA_OUTPUT="$HOME/astra-review/EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md"
+```
+
+Now it knows:
+
+```text
+INPUT
+~/astra-review/ASTRA_REVIEW_PACKET.md
+
+        ↓ Astra reviews it
+
+OUTPUT
+~/astra-review/EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md
+```
+
+---
+
+### 4. Run it 🚀
+
+Now simply:
+
+```bash
+python3 run_astra_review.py
+```
+
+You should see something similar to:
+
+```text
+Sending /home/ash/astra-review/ASTRA_REVIEW_PACKET.md (...) to openai/gpt-astra-latest...
+```
+
+Then wait.
+
+**Do not close the terminal while this particular API request is running.**
+
+The request timeout in the script is currently **900 seconds / 15 minutes**. 
+
+When it finishes, it should print:
+
+```text
+Saved Astra result to /home/ash/astra-review/EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md
+```
+
+and it will also print OpenRouter's reported token usage. 
+
+---
+
+### 5. Open Astra's finished prompt
+
+Run:
+
+```bash
+cd ~/astra-review
+
+ls -lh
+```
+
+You should now have:
+
+```text
+ASTRA_REVIEW_PACKET.md
+run_astra_review.py
+EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md
+```
+
+To open the result in VS Code:
+
+```bash
+code ~/astra-review/EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md
+```
+
+Or just inspect the beginning:
+
+```bash
+head -50 ~/astra-review/EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md
+```
+
+---
+
+## So the entire command sequence is basically this
+
+After downloading the two files:
+
+```bash
+mkdir -p ~/astra-review
+
+cp ~/Downloads/ASTRA_REVIEW_PACKET.md ~/astra-review/
+cp ~/Downloads/run_astra_review.py ~/astra-review/
+
+cd ~/astra-review
+
+export OPENROUTER_API_KEY='YOUR_OPENROUTER_KEY'
+
+export ASTRA_PACKET="$HOME/astra-review/ASTRA_REVIEW_PACKET.md"
+export ASTRA_OUTPUT="$HOME/astra-review/EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md"
+
+python3 run_astra_review.py
+```
+
+That's it.
+
+### One important warning about cost
+
+This particular Astra call is **not free**. OpenRouter currently lists GPT-6 Astra at around **$10/M input tokens and $50/M output tokens**, with a 1.05M-token context. ([OpenRouter][1])
+
+Your packet is large, but still nowhere near that context limit. The script also caps Astra's response at **16,000 output tokens**. 
+
+So I would expect this to be roughly **around a dollar-ish at the maximum response size**, rather than some huge bill. Actual cost depends on the exact tokenisation and how much Astra outputs.
+
+The **building afterwards** is where we're planning to use the free models heavily. Astra here is being used once as the expensive principal architect/reviewer.
+
+### If it throws an error
+
+Don't start randomly changing things. Copy the **error message only** here — **not your API key** — and I'll tell you exactly what it means.
+
+Once it successfully produces:
+
+`EMPIRIUM_STUDIO_AUTONOMOUS_MASTER_PROMPT_ASTRA.md`
+
+upload that file back here. That's the one I want to check against everything we've discussed before you unleash Hermes on the multi-day autonomous build.
+
+[1]: https://openrouter.ai/openai/?utm_source=chatgpt.com "OpenAI API and Models | OpenRouter"

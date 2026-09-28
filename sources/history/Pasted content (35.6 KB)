@@ -1,0 +1,553 @@
+▐▛███▛█   Claude Code v2.1.278
+▝▜██████▀  Sonnet 5 · Claude Pro
+  ▝▝ ▝▝    ~\Documents\GitHub\Empirium_Call_Coach
+
+
+❯ /model 
+  ⎿  Kept model as Sonnet 5
+
+❯ We have already audited the current Sales Gym Close implementation. Do NOT do 
+  another broad audit.                                                          
+                                                                                
+  I want you to make one narrow change: fix the remaining Close recovery /      
+  retry requirements.                                                           
+                                                                                
+  CURRENT STATE                                                                 
+                                                                                
+  The Close stage already has these behaviours correctly implemented:           
+                                                                                
+  - fixed Close objection/inquiry curriculum;                                   
+  - required cards must be cleared before the buyer can accept;                 
+  - grading is against the playbook-authored reference;                         
+  - semantic pass threshold is 70;                                              
+  - Close entry card occurs first;                                              
+  - post-entry curriculum is selected/shuffled;                                 
+  - stage-wide follow-up allowance is already:                                  
+    Easy: 0                                                                     
+    Medium: 0                                                                   
+    Hard: 2                                                                     
+    Extreme: 2                                                                  
+                                                                                
+  DO NOT change any of those.                                                   
+                                                                                
+  The problem is that Close still uses the old recovery allowance:              
+                                                                                
+  Easy: 9                                                                       
+  Medium: 2                                                                     
+  Hard: 1                                                                       
+  Extreme: 0                                                                    
+                                                                                
+  That is obsolete.                                                             
+                                                                                
+  ==================================================                            
+  REQUIRED CLOSE FAILURE / RECOVERY RULES                                       
+  ==================================================                            
+                                                                                
+  The intended Close rules are:                                                 
+                                                                                
+  CHARGED FAILURES ALLOWED:                                                     
+                                                                                
+  Easy: 3                                                                       
+  Medium: 3                                                                     
+  Hard: 2                                                                       
+  Extreme: 2                                                                    
+                                                                                
+  REFUSAL / FAILURE OCCURS ON:                                                  
+                                                                                
+  Easy: 4th charged failure                                                     
+  Medium: 4th charged failure                                                   
+  Hard: 3rd charged failure                                                     
+  Extreme: 3rd charged failure                                                  
+                                                                                
+  In other words:                                                               
+                                                                                
+  Easy: allow 3, fail on 4                                                      
+  Medium: allow 3, fail on 4                                                    
+  Hard: allow 2, fail on 3                                                      
+  Extreme: allow 2, fail on 3                                                   
+                                                                                
+  A charged failure should retain the existing Close meaning of a confirmed     
+  substantive failure/error.                                                    
+                                                                                
+  Do NOT make every imperfect utterance consume this budget if the existing     
+  logic intentionally distinguishes a substantive failed attempt from harmless  
+  wording.                                                                      
+                                                                                
+  ==================================================                            
+  SEPARATE OPENING RETRY BUDGET                                                 
+  ==================================================                            
+                                                                                
+  Close must also have a SEPARATE opening-retry allowance:                      
+                                                                                
+  Easy: 3                                                                       
+  Medium: 2                                                                     
+  Hard: 1                                                                       
+  Extreme: 1                                                                    
+                                                                                
+  This must NOT share the charged-failure counter above.                        
+                                                                                
+  The opening retry counter and the normal Close charged-failure counter are    
+  independent pieces of state.                                                  
+                                                                                
+  An opening retry must not accidentally consume one of the later               
+  objection/inquiry recovery attempts unless the architecture explicitly        
+  classifies the same event as both — and it should not normally do so.         
+                                                                                
+  Inspect the current Close opening/entry flow and implement this cleanly in    
+  the existing Close state/controller architecture.                             
+                                                                                
+  ==================================================                            
+  IMPORTANT NON-CHANGES                                                         
+  ==================================================                            
+                                                                                
+  Do NOT:                                                                       
+                                                                                
+  - alter Discovery;                                                            
+  - alter Pitch;                                                                
+  - alter Gatekeeper;                                                           
+  - change the 70% grading threshold;                                           
+  - change authored-reference grading;                                          
+  - change Close objection/inquiry curriculum counts;                           
+  - change challenge randomisation;                                             
+  - change the existing 0/0/2/2 follow-up allowance;                            
+  - weaken the "cannot accept while required cards remain" rule;                
+  - refactor unrelated Sales Gym code;                                          
+  - redesign Close.                                                             
+                                                                                
+  This is a narrow policy/state fix.                                            
+                                                                                
+  ==================================================                            
+  IMPLEMENTATION                                                                
+  ==================================================                            
+                                                                                
+  First inspect:                                                                
+                                                                                
+  - CLOSE_STAGE_POLICY in salesgym-dm-policy.js;                                
+  - deriveCloseDecision and related Close decision/recovery logic;              
+  - Close state/session persistence in server.js;                               
+  - any existing Close opening retry / entry-card state.                        
+                                                                                
+  Replace the obsolete 9/2/1/0 recovery policy with the intended rules above.   
+                                                                                
+  Add the separate opening-retry budget if it does not currently exist.         
+                                                                                
+  Make sure both counters survive whatever normal Close state                   
+  persistence/reconnect path already exists.                                    
+                                                                                
+  Use the existing difficulty names/constants in the repository rather than     
+  creating duplicate representations.                                           
+                                                                                
+  ==================================================                            
+  VERIFICATION                                                                  
+  ==================================================                            
+                                                                                
+  Be conservative.                                                              
+                                                                                
+  Do NOT run the full Sales Gym suite.                                          
+                                                                                
+  Run only the smallest existing Close-focused tests necessary to verify:       
+                                                                                
+  1. Easy allows 3 charged failures and refuses on 4.                           
+  2. Medium allows 3 and refuses on 4.                                          
+  3. Hard allows 2 and refuses on 3.                                            
+  4. Extreme allows 2 and refuses on 3.                                         
+  5. Opening retries are 3/2/1/1.                                               
+  6. Opening retries are tracked separately from ordinary charged failures.     
+  7. Existing 0/0/2/2 follow-up allowances are unchanged.                       
+  8. The 70% authored-reference grading contract remains unchanged.             
+  9. Required Close curriculum still blocks acceptance until cleared.           
+                                                                                
+  If suitable tests already exist, update/add only the narrow assertions        
+  required.                                                                     
+                                                                                
+  Do not run unrelated tests.                                                   
+                                                                                
+  ==================================================                            
+  FINAL RESPONSE                                                                
+  ==================================================                            
+                                                                                
+  Keep your response concise.                                                   
+                                                                                
+  Tell me:                                                                      
+                                                                                
+  1. Where the old 9/2/1/0 rule was implemented.                                
+  2. What you changed it to.                                                    
+  3. How the separate 3/2/1/1 opening retry budget is stored/enforced.          
+  4. Whether 0/0/2/2 follow-up allowances remained untouched.                   
+  5. Which targeted tests you ran and their result.                             
+  6. Exact files changed.                                                       
+                                                                                
+  Do not do another architecture audit.                                         
+
+  Searched for 4 patterns, read 2 files (ctrl+o to expand)
+
+● Checking the owner's 2026-09-14 spec to see what a Close "opening" is, since
+  the code has no opening-retry state yet.
+
+  Searched for 2 patterns, read 3 files, ran 1 shell command (ctrl+o to expand)
+
+● Status: I've located the old 9/2/1/0 table (CLOSE_STAGE_POLICY) and confirmed
+  Close has no opening-retry state yet. Now making the edits.
+
+● Update(mock-server\salesgym-dm-policy.js)
+  ⎿  Added 11 lines, removed 7 lines
+      491  /** Stage-wide Close policy. See CLAUDE.md for the settled dif
+           ficulty table. */
+      492  export const CLOSE_STAGE_POLICY = Object.freeze({
+      493    // `recoveryAllowance` is the number of confirmed substantiv
+           e mistakes the
+      494 -  // rep may RECOVER from. Losing happens on allowance + 1: Me
+          -dium recovers                                                 
+      495 -  // after mistakes 1 and 2 and loses on 3; Hard recovers afte
+          -r 1 and loses on                                              
+      496 -  // 2; Extreme loses on the first. Easy is "highly forgiving 
+          -but finite".                                                  
+      497 -  easy: Object.freeze({ objectionTarget: 1, inquiryTarget: 3, 
+          -recoveryAllowance: 9, followUpCapPerStage: 0, maxNonprogressTu
+          -rns: 24 }),                                                   
+      498 -  medium: Object.freeze({ objectionTarget: 2, inquiryTarget: 2
+          -, recoveryAllowance: 2, followUpCapPerStage: 0, maxNonprogress
+          -Turns: 24 }),                                                 
+      499 -  hard: Object.freeze({ objectionTarget: 4, inquiryTarget: 2, 
+          -recoveryAllowance: 1, followUpCapPerStage: 2, maxNonprogressTu
+          -rns: 24 }),                                                   
+      500 -  extreme: Object.freeze({ objectionTarget: 5, inquiryTarget: 
+          -2, recoveryAllowance: 0, followUpCapPerStage: 2, maxNonprogres
+          -sTurns: 20 })                                                 
+      494 +  // rep may RECOVER from (2026-09-22 owner rule: 3/3/2/2). Lo
+          +sing happens on                                               
+      495 +  // allowance + 1: Easy and Medium lose on the 4th charged fa
+          +ilure, Hard and                                               
+      496 +  // Extreme on the 3rd. A charge is still a confirmed `substa
+          +ntive_error`, not                                             
+      497 +  // every imperfect line.                                    
+      498 +  // `openingRetryAllowance` is a SEPARATE budget (3/2/1/1): r
+          +etries after a                                                
+      499 +  // completed, failed opening attempt. It lives in `state.ope
+          +ning`, never in                                               
+      500 +  // `state.recovery`, and neither budget ever spends the othe
+          +r.                                                            
+      501 +  easy: Object.freeze({ objectionTarget: 1, inquiryTarget: 3, 
+          +recoveryAllowance: 3, openingRetryAllowance: 3, followUpCapPer
+          +Stage: 0, maxNonprogressTurns: 24 }),                         
+      502 +  medium: Object.freeze({ objectionTarget: 2, inquiryTarget: 2
+          +, recoveryAllowance: 3, openingRetryAllowance: 2, followUpCapP
+          +erStage: 0, maxNonprogressTurns: 24 }),                       
+      503 +  hard: Object.freeze({ objectionTarget: 4, inquiryTarget: 2, 
+          +recoveryAllowance: 2, openingRetryAllowance: 1, followUpCapPer
+          +Stage: 2, maxNonprogressTurns: 24 }),                         
+      504 +  extreme: Object.freeze({ objectionTarget: 5, inquiryTarget: 
+          +2, recoveryAllowance: 2, openingRetryAllowance: 1, followUpCap
+          +PerStage: 2, maxNonprogressTurns: 20 })                       
+      505  });
+      506  
+      507  // A Close rebuttal passes on the SAME line as Pitch and Gatek
+           eeper (>= 70/100 on
+
+● Update(mock-server\salesgym-dm-policy.js)
+  ⎿  Added 31 lines
+      655    const concernsById = context.concernsById || new Map();
+      656    const inquiriesById = context.inquiriesById || new Map();
+      657  
+      658 +  // ------------------------------------------------- opening
+          + retry (separate)                                             
+      659 +  // `context.openingFailed` is a COMPLETED, judged-failed ope
+          +ning attempt,                                                 
+      660 +  // supplied by the caller. Its budget (`state.opening`) is i
+          +ndependent of                                                 
+      661 +  // `state.recovery`: this branch returns before the substant
+          +ive-error block                                               
+      662 +  // below, so one utterance can never spend both. Idempotent 
+          +per turn id.                                                  
+      663 +  const priorOpening = state.opening || { used: 0, remaining: 
+          +policy.openingRetryAllowance, passed: false };                
+      664 +  if (context.openingFailed === true && !priorOpening.passed &
+          +& priorOpening.last_turn_id !== turnId) {                     
+      665 +    const used = priorOpening.used + 1;                       
+      666 +    patch.opening = { ...priorOpening, used, remaining: Math.m
+          +ax(0, policy.openingRetryAllowance - used), last_turn_id: turn
+          +Id };                                                         
+      667 +    patch.close_events.push({ kind: "opening_failed", turn_id:
+          + turnId, opening_retries_remaining: patch.opening.remaining })
+          +;                                                             
+      668 +    if (used > policy.openingRetryAllowance) {                
+      669 +      reasons.push("opening_retries_exhausted");              
+      670 +      patch.terminal_outcome = CLOSE_TERMINAL.REFUSED;        
+      671 +      return {                                                
+      672 +        branch: {                                             
+      673 +          move: "close_refuse_appointment", action: "end", ter
+          +minal: true,                                                  
+      674 +          terminal_reason: "close_opening_exhausted",         
+      675 +          skill_outcome: "performance_failed",                
+      676 +          commercial_outcome: CLOSE_TERMINAL.REFUSED,         
+      677 +          fixed_speech_key: "REFUSE"                          
+      678 +        },                                                    
+      679 +        patch                                                 
+      680 +      };                                                      
+      681 +    }                                                         
+      682 +    reasons.push("opening_retry_requested");                  
+      683 +    return {                                                  
+      684 +      branch: { move: "close_opening_retry", action: "continue
+          +", fixed_speech_key: "OPENING_RETRY" },                       
+      685 +      patch                                                   
+      686 +    };                                                        
+      687 +  }                                                           
+      688 +                                                              
+      689    // ---------------------------------------------------------
+           ------- 3. handling
+      690    // Apply BOTH legs of a genuinely mixed turn. A reply to an 
+           inquiry must not
+      691    // disappear because an objection is also open.
+
+● Update(mock-server\salesgym-dm-dialogue.js)
+  ⎿  Added 2 lines
+      824        ? { established: true, relevance: "uncertain", linked_pa
+           in_ids: [], turn_id: null, evidence_source: "carried" }
+      825        : { established: false, relevance: "uncertain", linked_p
+           ain_ids: [], turn_id: null, evidence_source: "none" },
+      826      recovery: { used: 0, remaining: policy.recoveryAllowance }
+           ,
+      827 +    // Opening-retry budget (3/2/1/1) — its own account, never
+          + `recovery`.                                                  
+      828 +    opening: { used: 0, remaining: policy.openingRetryAllowanc
+          +e, passed: false },                                           
+      829      mishandling_events: [],
+      830      follow_ups_used_total: 0,
+      831      nonprogress_turns: 0,
+
+● Update(mock-server\salesgym-dm-dialogue.js)
+  ⎿  Added 1 line, removed 1 line
+      1133      close_events: [...(state.close_events || []), ...(patch.c
+            lose_events || [])]
+      1134    };
+      1135    for (const key of ["active_concern_id", "active_concern_pha
+            se", "active_follow_up_id", "active_inquiry_id",
+      1136 -    "pending_entry_concern_id", "proposal", "recovery", "mish
+           -andling_events", "follow_ups_used_total",                    
+      1136 +    "pending_entry_concern_id", "proposal", "recovery", "open
+           +ing", "mishandling_events", "follow_ups_used_total",         
+      1137      "nonprogress_turns", "terminal_outcome", "not_exercised",
+             "resolved_carried_ids"]) {
+      1138      if (Object.prototype.hasOwnProperty.call(patch, key)) nex
+            t[key] = patch[key];
+      1139    }
+
+● Update(mock-server\salesgym-dm-dialogue.js)
+  ⎿  Added 1 line
+      1166      turnIndex: context.turnIndex,
+      1167      seed: context.seed,
+      1168      closeContext: context.closeContext,
+      1169 +    openingFailed: context.openingFailed === true,           
+      1170      candidates: {
+      1171        concerns: context.eligibleConcerns,
+      1172        prioritised_concerns: context.prioritisedConcerns,
+
+● Update(mock-server\salesgym-dm-dialogue.js)
+  ⎿  Added 5 lines
+      873      hard: ["No. I'm not agreeing to a meeting on that basis. G
+           oodbye."],
+      874      extreme: ["No. We're done here."]
+      875    }),
+      876 +  // Non-terminal fixed line for a failed opening with retries
+          + remaining.                                                   
+      877 +  OPENING_RETRY: Object.freeze({                              
+      878 +    medium: ["Sorry, I didn't quite follow what you're proposi
+          +ng. Could you go over that again?",                           
+      879 +      "I'm not clear what the next step is. Can you explain it
+          + again?"]                                                     
+      880 +  }),                                                         
+      881    INCOMPLETE: Object.freeze({
+      882      easy: ["I'm going to have to leave it there — I've got ano
+           ther call. Thanks."],
+      883      medium: ["I need to go, I'm afraid. We're not getting anyw
+           here with this."],
+
+  Searched for 1 pattern, ran 3 shell commands (ctrl+o to expand)
+
+● Status: source changes are done. The Close tests that pin the old numbers now
+  fail as expected, so I'm updating those assertions. I'm also checking how the
+  flag-off golden file is generated.
+
+  Searched for 1 pattern, ran 3 shell commands (ctrl+o to expand)
+
+● Update(mock-server\test-salesgym-close-stage.mjs)
+  ⎿  Added 46 lines, removed 5 lines
+      403    }
+      404    return { terminalAt: null, branch: last?.branch, state: st }
+           ;
+      405  }
+      406 -check("CL19: Extreme loses on the FIRST confirmed substantive 
+          -mistake", runMistakes("extreme", 3).terminalAt === 1);        
+      407 -check("CL19: Hard recovers after 1 and loses on 2", runMistake
+          -s("hard", 3).terminalAt === 2);                               
+      408 -check("CL19: Medium recovers after 1 and 2 and loses on 3", ru
+          -nMistakes("medium", 4).terminalAt === 3);                     
+      409 -check("CL19: Easy is forgiving but finite", runMistakes("easy"
+          -, 12).terminalAt === 10);                                     
+      406 +check("CL19: Extreme allows 2 charged failures and refuses on 
+          +the 3rd", runMistakes("extreme", 4).terminalAt === 3);        
+      407 +check("CL19: Hard allows 2 charged failures and refuses on the
+          + 3rd", runMistakes("hard", 4).terminalAt === 3);              
+      408 +check("CL19: Medium allows 3 charged failures and refuses on t
+          +he 4th", runMistakes("medium", 5).terminalAt === 4);          
+      409 +check("CL19: Easy allows 3 charged failures and refuses on the
+          + 4th", runMistakes("easy", 12).terminalAt === 4);             
+      410  check("CL19: the loss outcome is an explicit refusal, not an a
+           cceptance followed by a failure event",
+      411 -  runMistakes("extreme", 2).branch.commercial_outcome === "APP
+          -OINTMENT_REFUSED");                                           
+      411 +  runMistakes("extreme", 3).branch.commercial_outcome === "APP
+          +OINTMENT_REFUSED");                                           
+      412  
+      413 +// Opening-retry budget: 3/2/1/1, its own account, never `reco
+          +very`.                                                        
+      414 +check("CL19b: opening retry allowances are 3/2/1/1",          
+      415 +  ["easy", "medium", "hard", "extreme"].map((d) => CLOSE_STAGE
+          +_POLICY[d].openingRetryAllowance).join() === "3,2,1,1");      
+      416 +check("CL19b: recovery allowances are 3/3/2/2 and follow-up ca
+          +ps are still 0/0/2/2",                                        
+      417 +  ["easy", "medium", "hard", "extreme"].map((d) => CLOSE_STAGE
+          +_POLICY[d].recoveryAllowance).join() === "3,3,2,2"            
+      418 +  && ["easy", "medium", "hard", "extreme"].map((d) => CLOSE_ST
+          +AGE_POLICY[d].followUpCapPerStage).join() === "0,0,2,2");     
+      419 +function runOpeningFailures(difficulty, n) {                  
+      420 +  let st = createCloseState({ content, difficulty, closeContex
+          +t: premise, seed: "s" });                                     
+      421 +  for (let i = 0; i < n; i++) {                               
+      422 +    const c = buildCloseTurnContext({ state: st, content, clos
+          +eContext: premise, transcript: [], repInput: `unclear opening 
+          +${i}`, turnId: `o${i}` });                                    
+      423 +    c.openingFailed = true;                                   
+      424 +    const v = validateCloseAssessment(assess({}), c);         
+      425 +    const p = planCloseTurn(st, v.value, c);                  
+      426 +    st = p.nextStateFor("line");                              
+      427 +    if (p.branch.terminal) return { terminalAt: i + 1, branch:
+          + p.branch, state: st };                                       
+      428 +  }                                                           
+      429 +  return { terminalAt: null, state: st };                     
+      430 +}                                                             
+      431 +for (const [d, retries] of [["easy", 3], ["medium", 2], ["hard
+          +", 1], ["extreme", 1]]) {                                     
+      432 +  const r = runOpeningFailures(d, retries + 2);               
+      433 +  check(`CL19b: ${d} allows ${retries} opening retries and ref
+          +uses on failed attempt ${retries + 1}`,                       
+      434 +    r.terminalAt === retries + 1 && r.branch.terminal_reason =
+          +== "close_opening_exhausted"                                  
+      435 +      && r.branch.commercial_outcome === "APPOINTMENT_REFUSED"
+          + && r.branch.skill_outcome === "performance_failed");         
+      436 +  check(`CL19b: ${d} opening failures never touch the charged-
+          +failure counter`,                                             
+      437 +    r.state.recovery.used === 0 && r.state.opening.used === re
+          +tries + 1);                                                   
+      438 +}                                                             
+      439 +const stOpenRetry = runOpeningFailures("medium", 1).state;    
+      440 +check("CL19b: a failed opening with retries left is a non-term
+          +inal retry with its own fixed line, kept in state",           
+      441 +  stOpenRetry.terminal_outcome === null && stOpenRetry.opening
+          +.used === 1 && stOpenRetry.opening.remaining === 1            
+      442 +    && closeTerminalSpeech("OPENING_RETRY", "medium", "s").len
+          +gth > 0);                                                     
+      443 +{                                                             
+      444 +  const c = buildCloseTurnContext({ state: stOpenRetry, conten
+          +t, closeContext: premise, transcript: [], repInput: "again", t
+          +urnId: "o0" });                                               
+      445 +  c.openingFailed = true;                                     
+      446 +  const replay = planCloseTurn(stOpenRetry, validateCloseAsses
+          +sment(assess({}), c).value, c);                               
+      447 +  check("CL19b: replaying the same opening turn id does not sp
+          +end a second retry", replay.nextStateFor("x").opening.used ===
+          + 1);                                                          
+      448 +}                                                             
+      449 +{                                                             
+      450 +  const r = runMistakes("medium", 2);                         
+      451 +  check("CL19b: charged failures never touch the opening-retry
+          + counter", r.state.recovery.used === 2 && r.state.opening.used
+          + === 0);                                                      
+      452 +}                                                             
+      453 +                                                              
+      454  // A clarification / uncertain turn scores low but is NOT an e
+           rror.
+      455  const sClar = createCloseState({ content, difficulty: "extreme
+           ", closeContext: premise, seed: "s" });
+      456  sClar.active_concern_id = "cl-case-study";
+
+● Now the curriculum test's pinned numbers.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Backticks inside a template literal — fixing.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Checking whether this grading-test crash exists at HEAD, using a detached
+  worktree (not git stash).
+
+  Searched for 1 pattern, ran 3 shell commands (ctrl+o to expand)
+
+● Close failure budgets are now 3/3/2/2. The opening-retry budget is stored and
+  enforced, but nothing triggers it yet, so it won't fire in a live session.
+
+  1. Where the old 9/2/1/0 was. CLOSE_STAGE_POLICY.*.recoveryAllowance in
+  mock-server/salesgym-dm-policy.js. deriveCloseDecision refuses when
+  recovery.used > recoveryAllowance. The legacy CLOSE_POLICY table in the same
+  file also holds 9/2/1/0. I left it alone, because it is only used by the
+  SALESGYM_CLOSE_ENGINE=legacy escape hatch and older tests.
+
+  2. What it is now. recoveryAllowance is 3/3/2/2, so refusal comes on the 4th
+  charged failure at Easy and Medium and the 3rd at Hard and Extreme. A charge
+  is still an evidence-supported substantive_error only, as you asked. Low
+  scores and clarifications don't charge.
+
+  3. Opening-retry budget (3/2/1/1).
+  - Policy and state: it is CLOSE_STAGE_POLICY.*.openingRetryAllowance. Close
+    state gets opening: {used, remaining, passed}, set in createCloseState.
+  - Persistence: applyClosePatch now carries opening. Nothing else in the code
+    whitelists Close state fields, so reconnect persistence needs no change.
+  - Enforcement: deriveCloseDecision reads context.openingFailed and returns
+    before the substantive-error block. An opening failure never spends
+    recovery, and a substantive error never spends opening. Replaying the same
+    turn id doesn't charge twice.
+  - Outcomes: while retries remain, the branch is a non-terminal
+    close_opening_retry with a fixed OPENING_RETRY line. When retries run out,
+    it is a fixed REFUSE with reason close_opening_exhausted.
+  - Gap: Close has no opening script assessment, so nothing sets openingFailed
+    yet. The budget works and is tested with a simulated flag, but it stays
+    unused until that assessment exists. Building it is a schema, prompt and
+    opener change, which is well beyond a narrow policy fix.
+
+  4. Follow-up allowances. The stage-wide 0/0/2/2 cap and its logic are
+  untouched, and the tests pin it. The 70 threshold and authored-reference
+  grading are unchanged. The test-salesgym-close-rebuttal-grading.mjs checks I
+  could run passed; its last section (the curriculum-owed check) crashes at HEAD
+  too, so I couldn't run it. Discovery, Pitch and Gatekeeper were not touched.
+
+  5. Tests run (Close-focused only):
+  - test-salesgym-close-stage: 158 passed, 4 failed. The 4 are CL10
+    persona-scoping checks that fail identically at HEAD (145/4 there). New
+    checks CL19/CL19b cover 3/3/2/2, 3/2/1/1, separate counters, retry then
+    refuse, and the replay guard.
+  - test-salesgym-close-curriculum: 165/0. I updated the pinned 9/2/1/0 loss
+    turns to 3/3/2/2.
+  - test-salesgym-close-dialogue: 27/0.
+  - test-salesgym-close-rebuttal-grading: the checks in sections 1–7 before the
+    crash all pass. The crash at line 238 also happens at HEAD, so it is not
+    from my change, and it stops the file before the last check.
+
+  I verified the HEAD baseline in a detached worktree.
+
+  I regenerated close-curriculum-flag-off-golden.json. Its digests include the
+  final state, and that state legitimately changed (new allowances plus the
+  opening field), so it no longer traces to e5a8861.
+
+  6. Files changed:
+  - mock-server/salesgym-dm-policy.js
+  - mock-server/salesgym-dm-dialogue.js
+  - mock-server/test-salesgym-close-stage.mjs
+  - mock-server/test-salesgym-close-curriculum.mjs
+  - mock-server/test-fixtures/close-curriculum-flag-off-golden.json
+  - CLAUDE.md
+  - AGENTS.md (same edit, kept in sync)
+
+  Nothing is committed.
+
+✻ Cooked for 4m 20s · done 12:18 AM

@@ -1,0 +1,194 @@
+You are performing an independent production-readiness audit of a durable Hermes project orchestrator.
+
+Do not assume the existing claims are correct. Inspect the live machine, files, services, processes, databases, logs, and current project state directly. Do not modify anything unless explicitly requested.
+
+## System under audit
+
+Primary project:
+
+    /home/ash/Desktop/nailify
+
+Deterministic controller:
+
+    /home/ash/Desktop/nailify/.hermes/autonomy/controller.py
+
+Authoritative state:
+
+    /home/ash/Desktop/nailify/.hermes/state/project.db
+
+Heartbeat:
+
+    /home/ash/Desktop/nailify/.hermes/state/controller-heartbeat.json
+
+Systemd unit:
+
+    /home/ash/.config/systemd/user/nailed-it-controller.service
+
+Hermes configuration:
+
+    /home/ash/.hermes/config.yaml
+
+Hermes gateway:
+
+    hermes-gateway.service
+
+A separate Empirium reconciler also exists:
+
+    empirium-autonomy-reconciler.service
+
+Do not confuse the Nailify controller with the Empirium reconciler.
+
+## Claimed architecture
+
+The intended path is:
+
+    systemd
+      → deterministic controller
+      → durable SQLite project state
+      → WorkItem eligibility
+      → lease and Attempt
+      → isolated Git worktree
+      → Hermes worker subprocess
+      → FreeLLMAPI
+      → tests/evidence
+      → independent verification
+      → commit integration
+      → next WorkItem
+      → deterministic final acceptance
+
+The controller itself must not depend on an LLM for scheduling, continuation, retry, dependency handling, or completion decisions. Hermes should only be a disposable implementation worker.
+
+## Audit questions
+
+Determine whether the current implementation genuinely satisfies these requirements:
+
+1. Does the controller run independently of the initiating Hermes chat, terminal, browser, SSH session, and gateway session?
+
+2. Is the controller enabled, active, automatically restarted, and protected by systemd linger?
+
+3. Is SQLite the actual authoritative runtime state, or is important state held only in process memory?
+
+4. Does the controller reconstruct active Attempts and workers correctly after a controller restart?
+
+5. Are WorkItems leased atomically so duplicate workers cannot own the same work?
+
+6. Does a worker receive bounded context and work in an isolated Git worktree?
+
+7. Is the worker provider/model explicitly recorded in durable Attempt state?
+
+8. Is FreeLLMAPI actually live and used for the primary worker route?
+
+9. Is OpenRouter absent from the autonomous route?
+
+10. Is any fallback route metered or pay-as-you-go? Distinguish:
+    - metered API usage;
+    - authorized subscription-backed usage;
+    - genuinely free inference.
+
+11. Does a provider failure become WAITING_PROVIDER or an equivalent durable state rather than false completion?
+
+12. Does worker death, timeout, nonzero exit, and missing commit produce durable rework/recovery?
+
+13. Does the controller perform independent QA, or does it trust worker claims and commit existence?
+
+14. Does it validate structured worker output, tests, runtime evidence, browser evidence, and accessibility evidence where required?
+
+15. Can a worker commit be integrated without independent verification?
+
+16. After repeated similar failures, does the controller diagnose, split, or replan instead of retrying the same task indefinitely?
+
+17. What happens when the project is incomplete but there are:
+    - no READY/QUEUED WorkItems;
+    - no RUNNING workers;
+    - no scheduled retry;
+    - no explicit human blocker?
+
+    Does the controller automatically create a diagnosis/replan WorkItem, or does it quietly wait?
+
+18. Is there a deterministic final acceptance predicate tied to:
+    - every mandatory requirement;
+    - current Git SHA;
+    - tests;
+    - runtime/browser/visual evidence;
+    - independent review;
+    - unresolved defects?
+
+19. Can the project be marked complete based only on worker exit code, a commit SHA, or an LLM statement?
+
+20. Does the controller ever become SHIPPED/COMPLETE without satisfying the full product specification?
+
+21. Is process recovery protected against PID reuse by checking process start time, command identity, or an equivalent stronger identity?
+
+22. Does systemd shutdown/restart leave orphan workers? If so, is that intentional and safely recoverable, or is it an implementation defect?
+
+23. Does the controller continue operating when the current worker fails?
+
+24. Does it continue operating when the queue is temporarily empty?
+
+25. Does it stop only on deterministic completion or explicit cancellation?
+
+## Required live tests
+
+Perform read-only inspection first.
+
+Then, if safe and without damaging user work, verify at least:
+
+A. Controller restart recovery:
+   - record the current Attempt ID and worker PID;
+   - restart the controller service;
+   - verify the worker/Attempt remains correctly represented;
+   - verify the new controller heartbeat has a new controller PID;
+   - verify the same durable Attempt is recovered or correctly transitioned.
+
+B. FreeLLMAPI route:
+   - make one minimal real Hermes request through the configured FreeLLMAPI route;
+   - verify the response succeeds;
+   - report only provider/model metadata, never credentials.
+
+C. Failure handling:
+   - inspect an actual prior failed Attempt;
+   - verify the WorkItem was requeued, recovery-marked, or provider-waiting;
+   - verify no false acceptance was created.
+
+Do not fabricate evidence. Do not mark anything PASS merely because a service is alive.
+
+## Important distinction
+
+A live process is not proof of progress.
+A commit is not proof of acceptance.
+An LLM response is not evidence.
+A generated report is not proof of runtime behavior.
+An empty queue is not proof of completion.
+A passing unit test is not proof of autonomous operation.
+
+## Output format
+
+Return:
+
+1. Overall verdict:
+   - READY
+   - READY WITH REQUIRED HARDENING
+   - NOT READY
+
+2. Evidence table:
+
+   | Requirement | Verdict | Live evidence | Risk |
+
+3. Confirmed strengths.
+
+4. Concrete blockers or weaknesses, ranked:
+   - P0: can cause false completion or permanent stoppage
+   - P1: can cause unreliable continuation or recovery
+   - P2: hardening/operational quality
+
+5. State whether the following six improvements are actually required:
+   - zero-work diagnosis/replan
+   - deterministic final acceptance gate
+   - independent QA before integration
+   - mandatory structured worker handoff
+   - repeated-failure diagnosis
+   - stronger process identity tracking
+
+6. Give the smallest safe implementation sequence needed to make the orchestrator genuinely capable of continuing Hermes projects until deterministic final acceptance.
+
+Do not make code changes during this audit.

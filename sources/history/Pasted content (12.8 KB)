@@ -1,0 +1,210 @@
+Complete the Nailed It durable autonomous controller remediation end to end—not another audit, plan, partial patch, or implementation that merely passes a few unit tests.
+
+AUTHORITATIVE PROJECT
+- Repository: /home/ash/Desktop/nailify
+- Controller: .hermes/autonomy/controller.py
+- Database: .hermes/state/project.db
+- Heartbeat: .hermes/state/controller-heartbeat.json
+- Earlier audit: /home/ash/audits/nailify-20260918/MASTER_AUDIT.md
+- Audit archive: /home/ash/audits/nailify-20260918-audit.zip
+- Read AGENTS.md and applicable Hermes skills before working.
+- Treat all observations below as historical leads. Inspect live state again before acting.
+
+OBJECTIVE
+Deliver a durable, supervised, evidence-driven orchestrator that can continue this project without the initiating chat, recover safely from failures, verify work independently before integration, and mark the project SHIPPED only when every mandatory acceptance condition is genuinely satisfied.
+
+The remediation is not complete merely because the controller stays alive, workers commit, the queue empties, or tests pass. Prove the complete lifecycle with real execution.
+
+Separate these two outcomes:
+1. Controller remediation accepted.
+2. Nailed It product accepted.
+Do not conflate them. Missing native-device evidence must prevent product acceptance without preventing an honest assessment of controller remediation.
+
+LAST OBSERVED STATE — REVERIFY
+At approximately 19:28 UTC on 2026-09-18:
+- Canonical HEAD: dfcd02d1ce688b4d263ba10627a8efb7763c9c17, clean worktree.
+- Controller PID 2928975, started 17:32 UTC.
+- Controller source modified 18:18 UTC: running code likely predates on-disk changes.
+- Live process was in session-13022.scope, not a dedicated service cgroup.
+- Named nailed-it-controller.service was inactive in both user/system managers.
+- Heartbeat: WAITING_RETRY, queued=0, running=0, workers=0.
+- Last integration event: 18:29:50 UTC.
+- WorkItems: 1 COMPLETED, 9 INTEGRATED; all nine integrated items still review_state=REQUIRED.
+- SQLite: zero requirements, zero reviews, zero release_gate rows; project canonical_sha=NULL.
+
+CRITICAL CONFIRMED DEFECT
+The current evaluate_release_gate() checked only:
+- all P0 WorkItems integration_state=INTEGRATED;
+- no QUEUED/RECOVERY_NEEDED items;
+- no RUNNING Attempts.
+
+Executing the exact function against an isolated in-memory copy of the live DB marked it SHIPPED despite zero requirements and zero reviews.
+
+Do not blindly restart the controller and activate that gate.
+
+Other observed defects:
+- Integration uses worker exit=0 plus a differing HEAD, then cherry-picks without independent QA.
+- Worker launch precedes durable atomic ownership.
+- ExternalProcess recovery uses PID existence alone and returns exit=1 when the process disappears.
+- Expired workers can remain in CHILDREN and occupy the only slot.
+- Failed worktrees/logs can be force-deleted.
+- Empty incomplete queues repeatedly WAITING_RETRY without diagnosis.
+- No durable repeated-failure diagnosis/replanning.
+- Dispatch occurs before terminal/cancellation checks.
+- Provider flags do not constrain inherited fallback or aggregator routing.
+- Prior FreeLLMAPI configuration included OpenRouter candidates.
+- Actual downstream provider/model changes are not reliably recorded.
+
+AUTHORIZATION AND SAFETY
+You may autonomously perform routine local implementation, isolated tests, evidence generation, skill updates and frequent small commits. Do not keep asking for phase-by-phase approval.
+
+Before consequential live-service changes, destructive cleanup, external/account changes, paid requests or irreversible operations, obtain narrowly scoped approval if not already explicitly authorized in this chat. Batch necessary operational approvals rather than interrupting repeatedly.
+
+Start by capturing read-only live state. Preserve:
+- SQLite consistently, including WAL-backed data;
+- dirty worktrees and uncommitted worker changes;
+- process identities, logs, leases and exit artifacts;
+- service configuration and Git state.
+
+Do not reset, overwrite or delete concurrent work. Do not kill by a historical PID alone. Identify every launcher/cron/supervisor that could write this project before enabling a new owner.
+
+Use reversible, documented migrations and rollback paths. Do not expose credentials in logs or artifacts.
+
+MODEL/ECONOMIC POLICY
+- Implementation/grunt work: FreeLLMAPI pool.
+- No OpenRouter, including indirect pool routing.
+- No metered API fallback.
+- Subscription review/planning may use the approved Claude subscription session/UI when available; do not silently substitute paid API access or CLI piping.
+- Never pretend to change the current chat’s model/provider.
+- If the required route is unavailable, persist an explicit waiting/blocker state and continue any safe local deterministic work.
+- Enforce allowed routes in code/configuration, not prompts alone, and record actual serving routes where observable.
+- Do not burn inference quota just to repeat existing proof unnecessarily.
+
+REQUIRED IMPLEMENTATION
+
+1. Safe control-plane ownership and deployment
+- Establish the actual runtime source, service and project registration.
+- Ensure exactly one authoritative reconciler owns a project using robust singleton/fencing semantics.
+- Install appropriate durable supervision with automatic recovery and verified permissions/write paths.
+- Make loaded code/version observable so source changes cannot masquerade as deployed changes.
+- Gate dispatch before cancelled/completed/paused states.
+- Define safe shutdown, draining and restart behavior.
+
+2. Atomic dispatch, leases and process recovery
+- Atomically claim eligible work and enforce unique active ownership.
+- Eliminate or reconcile every spawn/persistence crash window.
+- Persist process identity stronger than PID alone.
+- Use durable, trustworthy exit receipts so adopted successful workers remain successful.
+- Reconcile surviving and orphaned workers without launching duplicate owners.
+- Fence stale workers from acceptance/integration.
+- Define and implement lease renewal, hard timeout and expiry correctly.
+- Expiry must not leave phantom capacity occupied.
+- Preserve dirty state and evidence before retrying; do not erase useful failed work.
+
+3. Mandatory structured worker handoff
+Require a validated machine-readable handoff containing at least:
+- project, WorkItem and Attempt identity;
+- base SHA, candidate SHA and complete commit range;
+- changed-file scope;
+- requirement links;
+- exact verification commands/results and durable evidence paths;
+- known limitations, blockers and unresolved defects.
+Reject missing, stale, malformed or contradictory handoffs.
+Do not accept a prose success claim as evidence.
+
+4. Independent QA and guarded integration
+- Verify candidate work independently of the implementation worker.
+- Enforce required checks outside worker-controlled claims.
+- Enforce scope and protect control-plane/gate configuration against unauthorized worker changes.
+- Fail closed on missing or failed verification.
+- Preserve review outcomes and convert rejection into durable rework.
+- Integrate the verified commit range, not just an arbitrary final commit.
+- Handle conflicts, already-integrated work and crash recovery idempotently.
+- Bind review/evidence to exact candidate and resulting canonical SHAs.
+- Reverify anything invalidated by integration or subsequent changes.
+- Retrospectively review existing integrated-but-unreviewed work; do not bulk mark it accepted.
+
+5. Authoritative requirements and final acceptance
+- Locate the real specification and charter.
+- Normalize mandatory requirements into the authoritative store with stable IDs, source provenance and explicit acceptance predicates.
+- Do not mistake document headings or unclassified extracted records for accepted requirements.
+- Map requirements to implementation, tests, review, evidence and defects.
+- Persist release-gate evaluations with exact canonical SHA and specification revision.
+- A missing/empty requirements ledger must fail closed.
+- SHIPPED requires every mandatory requirement satisfied, all required reviews/evidence valid for the current candidate, no blocking defects, no unfinished required work, and all required runtime/device/release predicates passing.
+- Queue emptiness, exit status, changed SHA, WorkItem INTEGRATED status or an LLM judgment must never alone establish completion.
+- Existing SHIPPED labels must be validated rather than blindly preserved.
+- Native AR/device validation is real evidence: if unavailable, persist a precise blocker. Never fabricate it or weaken the requirement.
+
+6. Deterministic continuation
+- An incomplete project with no eligible work must create idempotent diagnosis/replan work or a precise actionable blocked/waiting state.
+- Repeated failures must trigger durable diagnosis and changed strategy/task decomposition, not endless identical retries.
+- Persist counters across restarts.
+- Respect provider retry-after/cooldowns with bounded attempts/timeouts.
+- Distinguish provider unavailability, process failure, no-change success, test rejection, lease expiry and genuine progress.
+- External blockers need clear reason, owner, required evidence and resume condition.
+- Recovery must resume automatically when machine-detectable conditions clear.
+- Track accepted product progress, not bookkeeping changes or a fresh heartbeat.
+
+7. Operability and evidence
+- Provide trustworthy status that distinguishes service health, worker activity, accepted progress, blocked work and release acceptance.
+- Preserve structured events, failure diagnostics and artifacts outside disposable worktrees.
+- Document recovery, rollback, route restrictions and safe operational commands.
+- Update relevant reusable skills with any nontrivial lessons discovered.
+
+IMPLEMENTATION METHOD
+- Create an explicit acceptance matrix covering every requirement in this prompt before coding.
+- Work incrementally with focused regression tests and frequent small commits.
+- Parallelize independent work where it is safe; one owner per shared file/schema/interface.
+- Freeze shared contracts before parallel implementation.
+- Keep a durable checkpoint outside disposable worktrees with completed acceptance IDs, current blockers, next action and evidence paths so another session can resume without repeating work.
+- Preserve scope: fix the orchestrator and accurately represent remaining product work rather than rewriting the product unnecessarily.
+- Never weaken gates to make a test or release pass.
+
+MANDATORY VERIFICATION
+Exercise the real implementation on disposable projects/stores first. Test at least:
+- concurrent controllers competing for the same task;
+- crashes before spawn, after spawn and before/after persistence;
+- restart with a living worker;
+- adopted worker success and failure with trustworthy exit status;
+- PID reuse/mismatched process identity;
+- dead worker, hung worker, lease expiry and hard timeout;
+- expired-but-live worker without duplicate dispatch or blocked capacity;
+- stale worker completion after a newer owner exists;
+- missing/invalid handoff;
+- out-of-scope/control-plane modifications;
+- QA failure blocking integration;
+- multiple-commit integration and integration conflict;
+- crashes around integration and acceptance recording;
+- repeated failures causing diagnosis/replanning;
+- provider outage/cooldown and prohibited-route rejection;
+- empty queue with unmet requirements;
+- cancellation preventing dispatch and acceptance;
+- empty/missing requirements ledger rejecting release;
+- stale SHA/spec evidence rejecting release;
+- unresolved required reviews/defects/device evidence rejecting release;
+- genuine complete disposable project reaching acceptance.
+
+Then perform an approved live lifecycle proof:
+- deployed service identity and code version;
+- fresh heartbeat plus actual durable progress;
+- safe controller restart and correct recovery;
+- a real bounded worker result, independent verification and guarded integration;
+- correct persisted acceptance or explicit blocker at current HEAD.
+
+Unit tests alone are not live proof. A successful worker alone is not product acceptance. Recompute final gates after the last code change.
+
+FINAL DELIVERABLE
+Continue until all remediation acceptance criteria are verified or an unavoidable external blocker remains. Do not stop after writing code or handing me commands to run if you can run them safely yourself.
+
+Report:
+1. Controller verdict: ACCEPTED / NOT ACCEPTED, with evidence.
+2. Product verdict: ACCEPTED / BLOCKED / INCOMPLETE, separately.
+3. Acceptance matrix: each criterion, status, exact evidence.
+4. Commits and deployed code SHA.
+5. Tests and live checks actually run, with results.
+6. Current service/process, queue and release-gate state.
+7. Remaining blockers with precise next action and owner.
+8. Evidence bundle and durable resume checkpoint paths.
+
+Be honest about verification tiers: fresh primary evidence, reused evidence, inference and unverified claims. Do not claim “done” from a plausible subset. Do not fabricate output, hide failures or call an idle loop autonomous completion.

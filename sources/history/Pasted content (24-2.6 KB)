@@ -1,0 +1,1185 @@
+# EMPIRIUM — FINAL AUTOPILOT COMPLETION DIRECTIVE
+
+You are continuing an existing Empirium build.
+
+This is NOT a new architecture exercise.
+
+This is NOT another autonomy redesign.
+
+This is NOT another audit-only task.
+
+The production autonomy control plane has already been implemented, commissioned, and is running independently of Hermes sessions.
+
+Your objective now is:
+
+> **Connect the real autonomous product-worker execution layer to the existing production reconciler, then allow the resulting system to autonomously complete the entire Empirium product until the deterministic final acceptance gate genuinely passes.**
+
+From this point forward, the user must not need to repeatedly say:
+
+* continue;
+* carry on;
+* retry;
+* finish it;
+* what next?
+
+The system must continue itself.
+
+---
+
+# 1. CURRENT VERIFIED STATE
+
+Treat the following as the starting point unless live inspection proves something has changed.
+
+Current production autonomy state:
+
+* PostgreSQL-backed production reconciler exists.
+* Durable startup recovery exists.
+* Atomic WorkItem leasing exists.
+* Attempt lifecycle persistence exists.
+* Worker-death recovery exists.
+* Provider timeout/rate-limit waiting and retry exists.
+* QA rejection and automatic rework exists.
+* Stale-evidence rejection exists.
+* Dependency release exists.
+* Deterministic project completion exists.
+* The reconciler continues running when no WorkItems are immediately ready.
+* Real subprocess execution has been commissioned.
+* User-level systemd service exists:
+
+```text
+empirium-autonomy-reconciler.service
+```
+
+* Service is enabled.
+* Service is active.
+* `Restart=always`.
+* Service is independent of Hermes/browser/terminal session lifetime.
+* Real commissioning project passed.
+* 10/10 commissioning WorkItems reached ACCEPTED.
+* Reconciler restart was genuinely exercised.
+* Worker process death while holding a lease was genuinely exercised.
+* PostgreSQL state survived restart.
+* QA rejection/rework was genuinely exercised.
+* Provider-failure states were genuinely exercised.
+* Dependency progression was genuinely exercised.
+* Director session was absent during part of execution.
+* Paid inference during commissioning was $0.00.
+* No synthetic restart-success booleans are accepted as evidence.
+* Current commissioned code includes commit:
+
+```text
+712039d
+commission production autonomy reconciler
+```
+
+DO NOT REBUILD THIS CONTROL PLANE FROM SCRATCH.
+
+DO NOT create a second competing scheduler.
+
+DO NOT replace PostgreSQL with JSON or SQLite.
+
+DO NOT return to chat-driven project continuity.
+
+---
+
+# 2. CURRENT REAL PRODUCT STATE
+
+The Initial Product Acceptance gate is correctly still FAIL.
+
+The following known product predicates have already been converted into durable PostgreSQL WorkItems:
+
+```text
+EMP-003
+PRJ-001
+WRK-005
+OFF-001
+RES-001
+```
+
+They currently wait for a genuine product-capable worker.
+
+The critical current state is:
+
+```text
+WAITING_WORKER
+```
+
+That is the next problem to solve.
+
+Do NOT falsely mark these WorkItems complete.
+
+Do NOT use the deterministic commissioning worker to approve real product work.
+
+Do NOT weaken their acceptance criteria.
+
+---
+
+# 3. THE FINAL MISSING ARCHITECTURAL LINK
+
+Implement and wire the production product-worker executor.
+
+Required path:
+
+```text
+systemd
+    ↓
+production reconciler
+    ↓
+PostgreSQL WorkItem
+    ↓
+lease / Attempt
+    ↓
+REAL PRODUCT WORKER EXECUTOR
+    ↓
+Hermes + FreeLLMAPI
+    ↓
+isolated worktree
+    ↓
+actual engineering work
+    ↓
+tests / runtime / browser / visual evidence
+    ↓
+structured machine-readable handoff
+    ↓
+production reconciler
+    ↓
+independent QA
+    ↓
+ACCEPTED
+or
+REWORK_REQUIRED
+    ↓
+automatic next Attempt
+```
+
+Once this path works, the reconciler must repeatedly use it until the entire product is complete.
+
+---
+
+# 4. PRODUCT WORKER EXECUTOR — REQUIRED BEHAVIOUR
+
+Build the smallest maintainable production worker-execution layer needed to perform real Empirium engineering work.
+
+It must accept a leased WorkItem/Attempt and construct a bounded worker context containing at least:
+
+* project ID;
+* WorkItem ID;
+* Attempt ID;
+* requirement/capability IDs;
+* title;
+* objective;
+* acceptance criteria;
+* dependencies;
+* previous Attempt summaries;
+* existing defects/rejections;
+* relevant source files;
+* relevant product specification excerpts;
+* permitted repository;
+* permitted write scope;
+* prohibited write scope;
+* required test commands;
+* runtime checks;
+* browser checks;
+* visual checks if applicable;
+* accessibility checks if applicable;
+* base SHA;
+* worktree path;
+* branch;
+* expected structured output.
+
+The worker MUST NOT receive an unnecessarily huge whole-project transcript when bounded context is enough.
+
+---
+
+# 5. USE REAL HERMES WORKERS
+
+The executor should invoke real Hermes workers through the existing authorized local installation.
+
+Expected conceptual command:
+
+```bash
+hermes \
+  --provider custom:freellmapi \
+  -m auto:empirium-code \
+  --in <isolated-worktree> \
+  -z "<compiled WorkItem prompt>"
+```
+
+Adapt syntax to the actual installed Hermes version.
+
+Do not blindly copy the example if the installed CLI differs.
+
+Inspect the installed Hermes CLI first.
+
+Use the existing isolated Empirium Hermes profile where appropriate.
+
+Do not accidentally invoke OpenRouter.
+
+Do not silently choose another paid provider.
+
+---
+
+# 6. INFERENCE POLICY
+
+New metered/pay-as-you-go inference budget remains:
+
+```text
+$0.00
+```
+
+OpenRouter is prohibited for this autonomous completion run.
+
+Allowed inference:
+
+* genuinely free FreeLLMAPI routes;
+* genuinely free direct providers already configured;
+* suitable local models;
+* existing non-metered subscription-backed access only where already authorized and appropriate.
+
+No automatic paid fallback.
+
+No “it only costs a few cents”.
+
+No OpenRouter because free routes are temporarily unavailable.
+
+If all approved worker inference is unavailable:
+
+```text
+WorkItem → WAITING_PROVIDER
+```
+
+The reconciler remains alive.
+
+The project remains unfinished.
+
+Retry later.
+
+---
+
+# 7. WORKER OUTPUT CONTRACT
+
+Every product worker must return a structured result.
+
+Use a machine-readable format similar to:
+
+```json
+{
+  "work_item_id": "...",
+  "attempt_id": "...",
+  "outcome": "IMPLEMENTED",
+  "base_sha": "...",
+  "result_sha": "...",
+  "branch": "...",
+  "worktree": "...",
+  "files_changed": [],
+  "tests": [
+    {
+      "command": "...",
+      "exit_code": 0,
+      "passed": true
+    }
+  ],
+  "runtime_evidence": [],
+  "browser_evidence": [],
+  "visual_evidence": [],
+  "accessibility_evidence": [],
+  "known_remaining_defects": [],
+  "provider": "...",
+  "requested_model": "...",
+  "effective_model": "...",
+  "execution_id": "...",
+  "reported_cost_usd": 0
+}
+```
+
+Possible outcomes must distinguish at least:
+
+```text
+IMPLEMENTED
+NO_PROGRESS
+INVALID_WORK
+TEST_FAILED
+RUNTIME_FAILED
+BLOCKED
+REPLAN_REQUIRED
+PROVIDER_UNAVAILABLE
+RATE_LIMITED
+TIMEOUT
+AUTH_FAILURE
+```
+
+Transport success is not implementation success.
+
+LLM output is not evidence by itself.
+
+---
+
+# 8. ISOLATED WORKTREES
+
+Real implementation workers should work in isolated Git worktrees where practical.
+
+One implementation WorkItem should normally have:
+
+```text
+one lease
+one primary writer
+one Attempt
+one isolated worktree
+one bounded diff
+```
+
+Workers must not directly modify:
+
+* production scheduler;
+* reconciler service;
+* control database truth;
+* acceptance gate truth;
+* worker leases;
+* QA acceptance records;
+* integration branch;
+* unrelated repositories;
+* systemd control files;
+
+unless the WorkItem specifically and legitimately concerns that protected component.
+
+---
+
+# 9. DO NOT LET WORKERS SELF-APPROVE
+
+Implementation and approval must remain separate.
+
+Required lifecycle:
+
+```text
+READY
+↓
+LEASED
+↓
+RUNNING
+↓
+IMPLEMENTED_UNVERIFIED
+↓
+TESTING
+↓
+REVIEW_PENDING
+↓
+ACCEPTED
+```
+
+or:
+
+```text
+REVIEW_PENDING
+↓
+REWORK_REQUIRED
+↓
+READY
+↓
+new Attempt
+```
+
+Implementers cannot mark themselves accepted.
+
+A worker saying:
+
+```text
+done
+complete
+fixed
+production ready
+```
+
+has no authority to change acceptance.
+
+Acceptance is derived from evidence.
+
+---
+
+# 10. GOAL MODE
+
+For substantial bounded engineering WorkItems, use Hermes goal mode where it genuinely helps a single worker finish its assigned objective.
+
+Do NOT use `/goal` as global project persistence.
+
+The reconciler already provides global project persistence.
+
+Goal mode is only a worker-level completion aid.
+
+Use reasonable per-WorkItem limits such as:
+
+```text
+20–40 turns
+```
+
+depending on task complexity.
+
+If the goal turn limit is exhausted:
+
+* preserve the worker's progress;
+* classify the Attempt correctly;
+* do not mark the WorkItem complete;
+* create another Attempt, replan, split, or diagnose as appropriate.
+
+Goal exhaustion is not project termination.
+
+---
+
+# 11. NO `/LOOP` AS THE AUTONOMY MECHANISM
+
+Do not depend on `/loop` to keep this project alive.
+
+The durable production reconciler owns continuity.
+
+If `/loop` is useful inside some disposable diagnostic worker it may be used, but it must not be required for background project operation.
+
+---
+
+# 12. CONNECT WAITING_WORKER TO REAL EXECUTION
+
+Implement the actual transition from:
+
+```text
+WAITING_WORKER
+```
+
+to a real executable Attempt.
+
+The production reconciler must be capable of:
+
+1. discovering a runnable WorkItem;
+2. acquiring the lease;
+3. creating the Attempt;
+4. creating the isolated worktree;
+5. compiling bounded context;
+6. launching a Hermes worker subprocess;
+7. recording PID/process identity;
+8. recording provider/model identity;
+9. monitoring execution;
+10. capturing structured output;
+11. capturing Git result SHA;
+12. capturing tests/evidence;
+13. classifying failure;
+14. releasing the worker process cleanly;
+15. moving the WorkItem into testing/review/rework/wait;
+16. automatically processing the next WorkItem.
+
+No Hermes chat must be needed between those steps.
+
+---
+
+# 13. FIRST REAL END-TO-END TEST
+
+Before unleashing the system on the entire backlog, prove one genuine real-product WorkItem.
+
+Prefer:
+
+```text
+EMP-003
+```
+
+unless dependencies or current state make another known WorkItem more appropriate.
+
+The test must use:
+
+* real PostgreSQL WorkItem;
+* real production reconciler;
+* real leased Attempt;
+* real Hermes product worker;
+* real FreeLLMAPI route;
+* real isolated worktree;
+* real repository changes;
+* real tests;
+* real browser/runtime verification if required;
+* real result SHA;
+* real independent QA.
+
+Then deliberately verify unattended continuation.
+
+During or after the first real product WorkItem:
+
+* ensure the initiating Hermes session is not needed;
+* ensure the reconciler service remains active;
+* ensure the worker was launched by the background system;
+* ensure the result was consumed automatically;
+* ensure QA/rework happens automatically if necessary.
+
+The system is considered product-worker commissioned only if a real product WorkItem advances without the user manually telling it to continue.
+
+---
+
+# 14. THEN PROCESS ALL FIVE KNOWN PRODUCT WORKITEMS
+
+After the real-worker path is proven, allow the production reconciler to process:
+
+```text
+EMP-003
+PRJ-001
+WRK-005
+OFF-001
+RES-001
+```
+
+Do not process them by pretending state has changed.
+
+Implement the product requirement each ID actually represents.
+
+---
+
+# 15. EMP-003 — EMPLOYEE DOSSIER
+
+Complete the dedicated persistent Employee dossier/current-operation experience.
+
+At minimum it should truthfully expose relevant durable information such as:
+
+* employee identity;
+* role;
+* department;
+* persistent configuration;
+* current state;
+* current WorkItem;
+* current Attempt;
+* requested model;
+* effective model;
+* provider;
+* execution binding;
+* relevant history;
+* permissions/tool scope where appropriate;
+* QA/review information where useful.
+
+Use canonical PostgreSQL-backed state.
+
+Do not fabricate metrics.
+
+Acceptance must include real browser/runtime evidence.
+
+---
+
+# 16. PRJ-001 — DURABLE PROJECT / TASK / RUN WORKSPACE
+
+Implement the actual persistent Project workspace.
+
+The user must be able to inspect a project and its work hierarchy.
+
+At minimum surface relevant truth for:
+
+```text
+Project
+→ Capability/Requirement
+→ WorkItem/Task
+→ Attempt/Run
+→ evidence
+→ QA
+→ artifacts
+→ history
+```
+
+The workspace must read durable canonical state.
+
+It must not merely project ephemeral Hermes session data.
+
+Acceptance must include real browser/runtime testing.
+
+---
+
+# 17. WRK-005 — PRODUCTION RECONCILER CONTINUATION
+
+Do not accept this simply because the reconciler service exists.
+
+Prove that the production path actually owns real product execution.
+
+Acceptance must include:
+
+* real WorkItem;
+* real Attempt;
+* worker dispatch;
+* process death/recovery where relevant;
+* state survival;
+* automatic next-action continuation;
+* no active Director dependency;
+* exact durable evidence.
+
+The newly attached product-worker executor is part of satisfying this requirement.
+
+---
+
+# 18. OFF-001 — LIVING OFFICE
+
+Complete the real living-office runtime.
+
+The office must be a projection of actual operational state.
+
+Worker visuals may represent states such as:
+
+```text
+idle
+queued
+working
+thinking
+coding
+researching
+testing
+reviewing
+waiting
+blocked
+approval required
+error
+rate limited
+completed
+offline
+```
+
+But visual state must map to durable operational truth.
+
+Do not create fake “busy” animation.
+
+Use the existing Empirium visual assets where appropriate.
+
+The office should eventually represent actual persistent workers and their WorkItems/Attempts.
+
+Acceptance must include visual/browser evidence.
+
+---
+
+# 19. RES-001 — BROWSER-CLOSE CONTINUATION
+
+This is not documentation.
+
+Actually prove it.
+
+Start real work through the normal product/autonomous path.
+
+Then ensure the initiating browser/UI session is no longer responsible.
+
+Verify after the session disappears that:
+
+* reconciler remains active;
+* worker execution continues or resumes;
+* PostgreSQL state remains authoritative;
+* task progresses;
+* QA/rework continues;
+* another WorkItem can subsequently dispatch.
+
+Capture evidence.
+
+Only then mark RES-001 accepted.
+
+---
+
+# 20. AFTER THE FIVE KNOWN PREDICATES, DO NOT AUTOMATICALLY STOP
+
+The five known failures are the current Initial Product Acceptance failures.
+
+They are NOT necessarily the entire original product specification.
+
+Once they pass:
+
+1. rerun Initial Product Acceptance;
+2. read `ORIGINAL_WORKFORCE_SPEC.md`;
+3. read `CURRENT_CAPABILITY_STATE.json`;
+4. read `REMAINING_PRODUCT_BACKLOG.json`;
+5. read `MARKET_RELEASE_BACKLOG.md`;
+6. read product docs;
+7. inspect actual product/runtime;
+8. identify every remaining mandatory requirement.
+
+Build the project to the complete agreed specification, not merely until the five current flags disappear.
+
+---
+
+# 21. TRACEABILITY
+
+Every mandatory requirement must trace through:
+
+```text
+Requirement
+↓
+Capability
+↓
+WorkItem
+↓
+Attempt
+↓
+candidate revision
+↓
+tests
+↓
+runtime/visual/recovery evidence
+↓
+independent review
+↓
+ACCEPTED
+```
+
+No mandatory requirement may disappear merely because no WorkItem exists for it.
+
+---
+
+# 22. ZERO-ACTIVE-WORK INVARIANT
+
+This is essential.
+
+At every reconciliation cycle evaluate:
+
+```text
+IF final product acceptance != PASS
+AND there are no legitimate READY/RUNNING/WAITING_RETRY WorkItems
+AND remaining requirements are not all explained by precise unavoidable HUMAN_BLOCKED states
+
+THEN
+    automatically create CONTROL_PLANE_DIAGNOSIS / REPLAN work.
+```
+
+It must never again reach:
+
+```text
+product incomplete
++
+no workers
++
+no work queued
++
+system quietly stopped
+```
+
+That state is forbidden.
+
+---
+
+# 23. FAILURE HANDLING
+
+## Worker death
+
+```text
+Attempt → INTERRUPTED
+lease released/reclaimed
+WorkItem survives
+new Attempt automatically possible
+```
+
+## Provider unavailable
+
+```text
+Attempt records provider failure
+WorkItem → WAITING_PROVIDER
+retry later
+```
+
+## Rate limit
+
+Use bounded exponential/provider-aware waiting.
+
+Do not burn endless retries.
+
+## Successful LLM but no progress
+
+Do not classify as provider failure.
+
+Record:
+
+```text
+LLM_SUCCESS_NO_PROGRESS
+```
+
+Then:
+
+* avoid identical unproductive route for the next Attempt;
+* refresh bounded context where appropriate;
+* retry using a different free route/model where possible.
+
+## Repeated semantic failure
+
+After two materially similar failures:
+
+```text
+DIAGNOSE
+REPLAN
+or
+SPLIT WORKITEM
+```
+
+Do not perform identical retries indefinitely.
+
+## Failed tests
+
+Rework.
+
+## Failed runtime verification
+
+Rework.
+
+## QA rejection
+
+Rework.
+
+## Dependency unavailable
+
+Wait.
+
+## True missing credential
+
+Precise HUMAN_BLOCKED.
+
+Continue all independent work.
+
+---
+
+# 24. FREELLMAPI
+
+Before heavy autonomous operation, ensure the actual live FreeLLMAPI runtime is healthy.
+
+Verify rather than assume:
+
+* live container/process running;
+* correct database mounted;
+* migrations applied;
+* `empirium-code` profile exists;
+* usable free providers configured;
+* OpenRouter not part of this route;
+* fallback works;
+* route avoidance/no-progress feedback works;
+* provider errors are observable;
+* outcome endpoint/path is connected where designed.
+
+Do not merely verify repository source code.
+
+Verify live behaviour.
+
+---
+
+# 25. REAL EVIDENCE ONLY
+
+Never again use synthetic commissioning claims.
+
+Forbidden evidence includes:
+
+```json
+{
+  "restart_passed": true
+}
+```
+
+when nobody actually restarted anything.
+
+If a requirement says:
+
+```text
+survives restart
+```
+
+restart it.
+
+If a requirement says:
+
+```text
+survives worker death
+```
+
+kill a test worker.
+
+If a requirement says:
+
+```text
+continues after browser closes
+```
+
+remove the browser/session from the execution chain.
+
+If a requirement says:
+
+```text
+QA rejection creates rework
+```
+
+cause a controlled rejection.
+
+Evidence must be derived from observable events, not prefilled expectations.
+
+---
+
+# 26. PROTECT EXISTING WORK
+
+Before significant operations:
+
+* inspect Git state;
+* preserve unrelated dirty files;
+* create recovery commit/tag where appropriate;
+* avoid destructive cleanup.
+
+Never use destructive commands against unknown user work.
+
+---
+
+# 27. AUTONOMOUS OPERATION
+
+Once the real product-worker executor has passed commissioning, hand execution to the production control plane.
+
+Do not continue trying to personally act as the long-running Director inside this initiating session.
+
+The durable system should own:
+
+* work selection;
+* worker launch;
+* retries;
+* rework;
+* provider waiting;
+* dependencies;
+* evidence;
+* QA;
+* acceptance;
+* progression to the next item.
+
+A new intelligent planner/architect may be launched when genuinely needed, but that planner is a disposable worker too.
+
+---
+
+# 28. HUMAN INTERVENTION POLICY
+
+Do not ask the user routine questions.
+
+Do not stop because:
+
+* a test failed;
+* a worker failed;
+* an implementation needs another Attempt;
+* a free provider is temporarily down;
+* a model produced no progress;
+* a UI bug was found;
+* QA rejected work;
+* work needs decomposition;
+* a service needs restarting.
+
+Handle those autonomously.
+
+Only require the user when there is a truly unavoidable external blocker such as:
+
+* missing credentials the machine cannot obtain;
+* irreversible external financial action;
+* destructive action affecting unrelated user data;
+* legal/contractual approval;
+* genuinely unresolved product decision absent from the source specification.
+
+Even then:
+
+* record HUMAN_BLOCKED durably;
+* continue every independent task;
+* leave the reconciler running.
+
+---
+
+# 29. DEFINITION OF DONE
+
+The project is complete ONLY when all of the following are true:
+
+### Autonomy
+
+* reconciler active;
+* real product-worker executor active;
+* work automatically dispatches;
+* retries/rework occur automatically;
+* session/browser/RDP/SSH not required;
+* worker death recovery proven;
+* reconciler restart recovery proven;
+* unattended continuation proven.
+
+### Product
+
+* complete mandatory Empirium specification implemented;
+* known current five predicates accepted;
+* no unresolved mandatory capability remains partial;
+* no mandatory backlog silently omitted.
+
+### Quality
+
+* complete test suite passes;
+* typecheck passes;
+* production build passes;
+* browser/runtime tests pass;
+* visual QA passes where required;
+* accessibility QA passes where required;
+* independent QA passes;
+* no known critical defects.
+
+### Durability
+
+* canonical PostgreSQL state survives restart;
+* WorkItems/Attempts/history remain inspectable;
+* office state is truthful;
+* Projects/Employees remain persistent;
+* no fake activity/state.
+
+### Inference
+
+* no accidental OpenRouter usage;
+* new paid inference cost remains $0.00;
+* provider/model information recorded correctly;
+* provider failure cannot create false completion.
+
+### Evidence
+
+* final exact Git SHA recorded;
+* runtime/build revision matches expected source;
+* final acceptance evidence corresponds to final SHA;
+* stale evidence cannot approve new code;
+* no synthetic completion claims.
+
+---
+
+# 30. FINAL ACCEPTANCE GATE
+
+Maintain a deterministic final product gate.
+
+The gate is the authority.
+
+Not the worker.
+
+Not the Director.
+
+Not this current conversation.
+
+Not a written report.
+
+If:
+
+```text
+FINAL_ACCEPTANCE = FAIL
+```
+
+then:
+
+```text
+MORE WORK EXISTS
+```
+
+The autonomous system continues.
+
+Only:
+
+```text
+FINAL_ACCEPTANCE = PASS
+```
+
+allows the implementation program to transition into completed/monitoring mode.
+
+---
+
+# 31. WHEN THIS CURRENT SESSION MAY STOP
+
+This current initiating Hermes session must not stop immediately after merely writing the worker executor.
+
+Before this bootstrap session relinquishes responsibility, verify:
+
+1. real product-worker executor exists;
+2. production reconciler can launch it;
+3. one real product WorkItem has been attempted;
+4. worker subprocess actually ran;
+5. repository was genuinely changed or the Attempt correctly explained why not;
+6. structured result returned;
+7. reconciler consumed the result;
+8. QA/rework path worked;
+9. at least one next autonomous action occurred;
+10. reconciler remains active;
+11. no foreground Hermes session is required for continuation.
+
+At that point this session SHOULD stop acting as project owner.
+
+The production system must remain alive and continue.
+
+---
+
+# 32. COMPLETION RECORD
+
+When the whole project genuinely reaches final PASS, create a durable final completion record.
+
+For example:
+
+```text
+AI_WORKFORCE_BUILD/AUTOBUILD_COMPLETE.json
+```
+
+Include:
+
+```text
+completion timestamp
+final Git SHA
+final product gate result
+requirements accepted
+tests
+build result
+browser/runtime evidence
+visual evidence
+recovery evidence
+worker/reconciler continuity evidence
+provider/model summary
+OpenRouter invocations
+paid inference cost
+remaining optional/nonmandatory backlog
+```
+
+Also create an appropriate final Git checkpoint/tag.
+
+---
+
+# 33. FINAL OPERATING PRINCIPLE
+
+There must no longer be a concept of:
+
+```text
+Hermes worked for a while and then stopped.
+```
+
+Hermes workers are disposable.
+
+The project is durable.
+
+Workers come and go.
+
+Providers come and go.
+
+Attempts fail.
+
+QA rejects changes.
+
+Processes restart.
+
+The project continues.
+
+The machine must always be able to answer:
+
+```text
+What remains?
+What is runnable?
+What is currently running?
+What failed?
+What should retry?
+What requires rework?
+What requires QA?
+What is blocked?
+What is accepted?
+What happens next?
+```
+
+without requiring the user to tell it.
+
+---
+
+# EXECUTE NOW
+
+Do not return with another architecture proposal.
+
+Do not merely explain what should be built.
+
+Do not stop after an audit.
+
+Start from the current commissioned control plane.
+
+**Implement the real product-worker executor.**
+
+Commission it against a genuine Empirium WorkItem.
+
+Then hand execution to the persistent production reconciler.
+
+Allow it to process the product continuously and autonomously.
+
+Continue repairing, retrying, testing, reviewing, integrating, and progressing until the complete Empirium product reaches deterministic final acceptance.
+
+**The project stops only when the product is genuinely complete.**

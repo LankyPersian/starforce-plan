@@ -1,0 +1,91 @@
+=== auto ===
+  trial0: {'ok': True, 'latency': 2.55068039894104, 'content_len': 6, 'tool_calls': False}
+  trial1: {'ok': True, 'latency': 2.373220205307007, 'content_len': 6, 'tool_calls': False}
+  trial2: {'ok': True, 'latency': 2.39435076713562, 'content_len': 6, 'tool_calls': False}
+  trial3: {'ok': True, 'latency': 1.9844233989715576, 'content_len': 288, 'tool_calls': False}
+  trial4: {'ok': True, 'latency': 1.6470024585723877, 'content_len': 6, 'tool_calls': False}
+  tool_call: {'ok': True, 'latency': 1.8307936191558838, 'content_len': 3, 'tool_calls': True}
+=== glm-5.3 ===
+  trial0: {'ok': False, 'err': 'http_503', 'detail': '{"error":{"message":"No candidate model has a configured, usable provider key. Add provider API keys in the dashboard. All models exhausted. Add more API keys or wait for rate limits to reset. 1 model', 'latency': 0.01369333267211914}
+  trial1: {'ok': False, 'err': 'http_503', 'detail': '{"error":{"message":"No candidate model has a configured, usable provider key. Add provider API keys in the dashboard. All models exhausted. Add more API keys or wait for rate limits to reset. 1 model', 'latency': 0.005999088287353516}
+  trial2: {'ok': False, 'err': 'http_503', 'detail': '{"error":{"message":"No candidate model has a configured, usable provider key. Add provider API keys in the dashboard. All models exhausted. Add more API keys or wait for rate limits to reset. 1 model', 'latency': 0.009078741073608398}
+  trial3: {'ok': False, 'err': 'http_503', 'detail': '{"error":{"message":"No candidate model has a configured, usable provider key. Add provider API keys in the dashboard. All models exhausted. Add more API keys or wait for rate limits to reset. 1 model', 'latency': 0.006266593933105469}
+  trial4: {'ok': False, 'err': 'http_503', 'detail': '{"error":{"message":"No candidate model has a configured, usable provider key. Add provider API keys in the dashboard. All models exhausted. Add more API keys or wait for rate limits to reset. 1 model', 'latency': 0.006930112838745117}
+  tool_call: {'ok': False, 'err': 'http_503', 'detail': '{"error":{"message":"No candidate model has a configured, usable provider key. Add provider API keys in the dashboard. All models exhausted. Add more API keys or wait for rate limits to reset. 1 model', 'latency': 0.007086992263793945}
+=== glm-5.3-fast ===
+  trial0: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models rate-limited after 3 attempts. Soonest cooldown reset ~10m. Attempt trail: custom/glm-5.3-fast key1: out_of_credits; custom/glm-5.3-fast key2: out_of_credits; custom/gl', 'latency': 1.4952330589294434}
+  trial1: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006472349166870117}
+  trial2: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.00688481330871582}
+  trial3: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006270170211791992}
+  trial4: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.007200717926025391}
+  tool_call: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.009197473526000977}
+=== kimi-k3-fast ===
+  trial0: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models rate-limited after 3 attempts. Soonest cooldown reset ~10m. Attempt trail: custom/kimi-k3-fast key1: out_of_credits; custom/kimi-k3-fast key2: out_of_credits; custom/ki', 'latency': 2.0551416873931885}
+  trial1: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.008490800857543945}
+  trial2: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006169795989990234}
+  trial3: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006647348403930664}
+  trial4: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.009999990463256836}
+  tool_call: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.00822138786315918}
+=== qwen3.6-27b ===
+  trial0: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models rate-limited after 3 attempts. Soonest cooldown reset ~10m. Attempt trail: custom/qwen3.6-27b key1: out_of_credits; custom/qwen3.6-27b key2: out_of_credits; custom/qwen', 'latency': 1.2472076416015625}
+  trial1: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006720304489135742}
+  trial2: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.010561704635620117}
+  trial3: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006938457489013672}
+  trial4: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006726503372192383}
+  tool_call: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.0075092315673828125}
+=== qwen3.7-flash ===
+  trial0: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models rate-limited after 3 attempts. Soonest cooldown reset ~10m. Attempt trail: custom/qwen3.7-flash key1: out_of_credits; custom/qwen3.7-flash key2: out_of_credits; custom/', 'latency': 1.5577459335327148}
+  trial1: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.006919145584106445}
+  trial2: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.009217500686645508}
+  trial3: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.0063724517822265625}
+  trial4: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.005932807922363281}
+  tool_call: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~10m.","type":"rate_limit_error","code":"r', 'latency': 0.007709026336669922}
+=== deepseek-v4-flashfree ===
+  trial0: {'ok': True, 'latency': 3.195906639099121, 'content_len': 4, 'tool_calls': False}
+  trial1: {'ok': True, 'latency': 0.9354257583618164, 'content_len': 4, 'tool_calls': False}
+  trial2: {'ok': True, 'latency': 0.7182669639587402, 'content_len': 4, 'tool_calls': False}
+  trial3: {'ok': True, 'latency': 0.6077322959899902, 'content_len': 4, 'tool_calls': False}
+  trial4: {'ok': True, 'latency': 0.9582126140594482, 'content_len': 4, 'tool_calls': False}
+  tool_call: {'ok': True, 'latency': 2.212189197540283, 'content_len': 0, 'tool_calls': True}
+=== gpt-oss-120b ===
+  trial0: {'ok': True, 'latency': 0.4605741500854492, 'content_len': 4, 'tool_calls': False}
+  trial1: {'ok': True, 'latency': 0.19274473190307617, 'content_len': 4, 'tool_calls': False}
+  trial2: {'ok': True, 'latency': 1.0162632465362549, 'content_len': 4, 'tool_calls': False}
+  trial3: {'ok': True, 'latency': 1.4596059322357178, 'content_len': 4, 'tool_calls': False}
+  trial4: {'ok': True, 'latency': 2.2883946895599365, 'content_len': 4, 'tool_calls': False}
+  tool_call: {'ok': True, 'latency': 0.3982100486755371, 'content_len': 0, 'tool_calls': True}
+=== nemotron-3-super-120b ===
+  trial0: {'ok': True, 'latency': 1.6204698085784912, 'content_len': 4, 'tool_calls': False}
+  trial1: {'ok': True, 'latency': 1.7759621143341064, 'content_len': 4, 'tool_calls': False}
+  trial2: {'ok': True, 'latency': 0.9531853199005127, 'content_len': 4, 'tool_calls': False}
+  trial3: {'ok': True, 'latency': 1.236588716506958, 'content_len': 4, 'tool_calls': False}
+  trial4: {'ok': True, 'latency': 1.264512300491333, 'content_len': 4, 'tool_calls': False}
+  tool_call: {'ok': True, 'latency': 2.388523578643799, 'content_len': 0, 'tool_calls': True}
+=== mistral-code ===
+  trial0: {'ok': True, 'latency': 0.37289905548095703, 'content_len': 4, 'tool_calls': False}
+  trial1: {'ok': True, 'latency': 0.36243271827697754, 'content_len': 4, 'tool_calls': False}
+  trial2: {'ok': True, 'latency': 0.433713436126709, 'content_len': 4, 'tool_calls': False}
+  trial3: {'ok': True, 'latency': 0.2139136791229248, 'content_len': 4, 'tool_calls': False}
+  trial4: {'ok': True, 'latency': 0.25183939933776855, 'content_len': 4, 'tool_calls': False}
+  tool_call: {'ok': True, 'latency': 0.3276195526123047, 'content_len': 0, 'tool_calls': True}
+=== gemma-4-26b-a4b ===
+  trial0: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models rate-limited after 3 attempts. Soonest cooldown reset ~9m. Attempt trail: openrouter/google/gemma-4-26b-a4b-it:free key1: rate_limited; openrouter/google/gemma-4-26b-a4', 'latency': 0.4506528377532959}
+  trial1: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~9m.","type":"rate_limit_error","code":"ra', 'latency': 0.006096363067626953}
+  trial2: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~9m.","type":"rate_limit_error","code":"ra', 'latency': 0.006362199783325195}
+  trial3: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~9m.","type":"rate_limit_error","code":"ra', 'latency': 0.008532524108886719}
+  trial4: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for rate limits to reset. Soonest reset ~9m.","type":"rate_limit_error","code":"ra', 'latency': 0.00704646110534668}
+  tool_call: {'ok': False, 'err': 'http_429', 'detail': '{"error":{"message":"All models exhausted: 1 route checked (1 model lacks tool-calling). Add more API keys or wait for rate limits to reset. Soonest reset ~9m.","type":"rate_limit_error","code":"routi', 'latency': 0.007796287536621094}
+=== mimo-v2.6-flashfree ===
+  trial0: {'ok': True, 'latency': 3.6590564250946045, 'content_len': 4, 'tool_calls': False}
+  trial1: {'ok': True, 'latency': 0.45546674728393555, 'content_len': 4, 'tool_calls': False}
+  trial2: {'ok': True, 'latency': 0.35991978645324707, 'content_len': 4, 'tool_calls': False}
+  trial3: {'ok': True, 'latency': 0.5508885383605957, 'content_len': 4, 'tool_calls': False}
+  trial4: {'ok': True, 'latency': 0.681781530380249, 'content_len': 4, 'tool_calls': False}
+  tool_call: {'ok': True, 'latency': 5.369399070739746, 'content_len': 0, 'tool_calls': True}
+=== codestral-2508 ===
+  trial0: {'ok': True, 'latency': 0.7477455139160156, 'content_len': 4, 'tool_calls': False}
+  trial1: {'ok': True, 'latency': 0.2145850658416748, 'content_len': 4, 'tool_calls': False}
+  trial2: {'ok': True, 'latency': 2.6382055282592773, 'content_len': 4, 'tool_calls': False}
+  trial3: {'ok': True, 'latency': 0.25856852531433105, 'content_len': 4, 'tool_calls': False}
+  trial4: {'ok': True, 'latency': 0.4009582996368408, 'content_len': 4, 'tool_calls': False}
+  tool_call: {'ok': True, 'latency': 1.764573335647583, 'content_len': 0, 'tool_calls': True}

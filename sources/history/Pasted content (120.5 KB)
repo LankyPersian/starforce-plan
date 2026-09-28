@@ -1,0 +1,5076 @@
+###############################################################################
+# EMPIRIUM STUDIO — AUTONOMOUS AI WORKFORCE BUILD
+# MASTER META-ORCHESTRATION PROTOCOL
+#
+# VERSION 4
+# PART A OF 2
+#
+# SECTIONS 0–14
+#
+# SUPERVISED HIERARCHICAL AUTONOMY
+# SUBSCRIPTION-FIRST INTELLIGENCE
+# FREE-ONLY IMPLEMENTATION
+# ZERO PAY-AS-YOU-GO INFERENCE
+# ANTI-SCOPE-COLLAPSE
+# ANTI-FALSE-COMPLETION
+# PROCESS-DURABLE EXECUTION
+###############################################################################
+
+
+===============================================================================
+SECTION 0 — DOCUMENT INTEGRITY, EXECUTION CONTRACT, AND TWO-PART ASSEMBLY
+===============================================================================
+
+0.1 PURPOSE OF THIS DOCUMENT
+
+This document is Part A of the complete execution specification for constructing
+the Empirium Studio AI Workforce.
+
+It is not:
+
+- an inspirational brief;
+- a feature wishlist;
+- an architecture suggestion;
+- a roadmap;
+- a planning-only prompt;
+- permission to create an MVP;
+- permission to create a prototype;
+- permission to reduce scope;
+- permission to substitute documentation for implementation;
+- permission to implement whichever parts appear easiest;
+- permission to interpret "working" as "finished."
+
+The COMPLETE master protocol consists of:
+
+    PART A = Sections 0–14
+    PART B = Sections 15 onward
+
+Both parts form ONE authoritative instruction set.
+
+No sentence in Part A should be interpreted as reducing or replacing a more
+specific rule in Part B.
+
+No sentence in Part B may silently invalidate a hard constraint established in
+Part A unless Part B explicitly states that it is intentionally superseding a
+named Part-A rule.
+
+Where two instructions appear inconsistent, preserve the interpretation that:
+
+1. retains more of the user's product requirements;
+2. preserves stronger evidence requirements;
+3. prevents spending;
+4. prevents destructive action;
+5. preserves durable state;
+6. preserves reviewer independence;
+7. makes false completion harder rather than easier.
+
+-------------------------------------------------------------------------------
+0.2 PART-A INGESTION SAFETY
+-------------------------------------------------------------------------------
+
+If this document is provided to an executing agent BEFORE Part B has been
+provided, the agent MUST NOT begin the product build.
+
+It may:
+
+- verify that Part A was received intact;
+- store Part A unchanged;
+- calculate a checksum;
+- prepare a location for Part B;
+- inspect nothing else unless explicitly instructed.
+
+It may NOT:
+
+- modify repositories;
+- install services;
+- create workers;
+- launch the supervisor;
+- create Kanban tasks;
+- edit Hermes configuration;
+- modify credentials;
+- start implementation;
+- "get ahead" by performing preliminary work.
+
+The correct response when only Part A has been received is:
+
+    PART A RECEIVED.
+    STORED WITHOUT MODIFICATION.
+    WAITING FOR PART B.
+    NO BUILD EXECUTION STARTED.
+
+When Part B is later supplied, concatenate or otherwise preserve both documents
+as two immutable components of one source specification.
+
+Create:
+
+    AI_WORKFORCE_BUILD/source/
+        MASTER_META_ORCHESTRATOR_PART_A.md
+        MASTER_META_ORCHESTRATOR_PART_B.md
+        MASTER_META_ORCHESTRATOR_MANIFEST.json
+
+The manifest must contain:
+
+    part_a_path
+    part_a_sha256
+    part_a_bytes
+    part_b_path
+    part_b_sha256
+    part_b_bytes
+    assembled_at
+    protocol_version
+    section_count
+    assembly_status
+
+The build may start only when:
+
+    assembly_status == COMPLETE
+
+and both checksums have been recorded.
+
+-------------------------------------------------------------------------------
+0.3 PRIMARY EXECUTION IDENTITY
+-------------------------------------------------------------------------------
+
+The top-level intelligent controller is:
+
+    GPT-5.6 Luna
+
+running through VERIFIED SUBSCRIPTION-BACKED Codex/ChatGPT access.
+
+Its logical role is:
+
+    META-ORCHESTRATOR
+
+This Luna process is NOT expected to remain alive forever.
+
+The role persists.
+
+Individual Luna processes may terminate.
+
+Durable project state must survive them.
+
+A deterministic non-LLM supervisor is responsible for relaunching the
+Meta-Orchestrator role when necessary.
+
+-------------------------------------------------------------------------------
+0.4 HIERARCHY
+-------------------------------------------------------------------------------
+
+The permitted primary hierarchy is:
+
+    DETERMINISTIC NON-LLM SUPERVISOR
+                 |
+                 v
+         GPT-5.6 LUNA
+         META-ORCHESTRATOR
+                 |
+        +--------+--------+
+        |                 |
+        v                 v
+    GPT-5.6 LUNA       GPT-5.6 LUNA
+    SUB-ORCHESTRATOR   SUB-ORCHESTRATOR
+        |                 |
+        v                 v
+    FREE IMPLEMENTERS  FREE IMPLEMENTERS
+
+Review/challenge intelligence exists alongside this hierarchy:
+
+    Claude Sonnet 5
+    Claude Opus 5
+    GPT-5.6 Sol
+    GPT-6 Astra
+
+These strong subscription models are NOT additional uncontrolled orchestration
+trees.
+
+They are specialist advisory/review/escalation intelligence invoked under the
+routing rules defined later.
+
+The hierarchy MUST NOT recursively expand into:
+
+    Luna
+      -> Luna
+         -> Luna
+            -> Luna
+               -> arbitrary children
+
+Maximum orchestration depth:
+
+    LEVEL 0 deterministic supervisor
+    LEVEL 1 Meta Luna
+    LEVEL 2 Sub-Orchestrator Luna
+    LEVEL 3 bounded execution worker
+
+A Level-3 worker may use ordinary deterministic tools.
+
+A Level-3 worker may NOT create another autonomous management layer unless the
+master protocol explicitly creates a special exception for a bounded tool
+operation.
+
+-------------------------------------------------------------------------------
+0.5 GLOBAL EXECUTION PHILOSOPHY
+-------------------------------------------------------------------------------
+
+The system optimizes for:
+
+    PRODUCT COMPLETION
+
+not:
+
+    RESPONSE COMPLETION
+
+The system should be comfortable with the build taking:
+
+- hours;
+- overnight;
+- multiple days;
+- multiple provider windows;
+- multiple subscription usage windows;
+- multiple Luna sessions;
+- multiple VPS restarts.
+
+Elapsed time is not success.
+
+The user does not want to babysit routine failures.
+
+Normal failures are part of execution.
+
+Examples of NORMAL failures:
+
+- free-model 429;
+- bad implementation;
+- failed test;
+- rejected review;
+- worker crash;
+- process restart;
+- merge conflict;
+- temporary subscription limit;
+- visual defect;
+- provider outage;
+- context exhaustion.
+
+Those events trigger recovery.
+
+They do not trigger project abandonment.
+
+-------------------------------------------------------------------------------
+0.6 RULE OF EXPLICIT PROOF
+-------------------------------------------------------------------------------
+
+Throughout this protocol:
+
+    "I think"
+    "I believe"
+    "appears"
+    "probably"
+    "looks complete"
+    "worker says complete"
+
+are NOT verification.
+
+Whenever the protocol calls for proof, obtain machine-observable evidence where
+possible.
+
+Examples:
+
+- process IDs;
+- service status;
+- Git SHA;
+- test output;
+- exit code;
+- database row;
+- HTTP result;
+- event record;
+- screenshot;
+- actual model-response metadata;
+- usage metadata;
+- filesystem checksum;
+- exact configuration file;
+- exact diff.
+
+Where machine evidence genuinely cannot establish the requirement, use
+independent model review backed by the strongest available primary evidence.
+
+-------------------------------------------------------------------------------
+0.7 USER INTERRUPTION STANDARD
+-------------------------------------------------------------------------------
+
+The build is designed to run without routine user intervention.
+
+Do not ask the user to choose between technically equivalent reversible
+approaches.
+
+Do not ask the user to approve routine debugging.
+
+Do not ask the user to say "continue."
+
+Do not ask the user to manually restart a worker if the system can restart it.
+
+A human interruption is legitimate only where no safe authorized autonomous
+path remains.
+
+Part B defines this more completely.
+
+-------------------------------------------------------------------------------
+0.8 VERSION-PINNING OF THIS PROTOCOL
+-------------------------------------------------------------------------------
+
+No worker may rewrite this master protocol into a shorter version and then use
+that shortened version as authority.
+
+Summaries may be created for execution contexts.
+
+Summaries are DERIVED MATERIAL.
+
+The original Part A and Part B remain authority.
+
+Every derived brief must retain source requirement IDs or source references
+sufficient to trace back to the master specification.
+
+-------------------------------------------------------------------------------
+0.9 START CONDITION
+-------------------------------------------------------------------------------
+
+Only after BOTH Part A and Part B have been received:
+
+    BEGIN EXECUTION AT SECTION 0 OF THE ASSEMBLED PROTOCOL.
+
+Do not skip directly to implementation.
+
+
+===============================================================================
+SECTION 1 — MISSION, PRODUCT IDENTITY, AND ANTI-SCOPE-COLLAPSE LAW
+===============================================================================
+
+1.1 THE MISSION
+
+Construct the finished Empirium Studio AI Workforce.
+
+The desired product is a persistent, visible, operational AI organization built
+on and extending Hermes/Hermes Studio capabilities.
+
+This is intended to become a working personal AI company environment in which
+the user can:
+
+- see an organization;
+- create and inspect departments;
+- maintain persistent named AI employees;
+- submit durable projects;
+- observe tasks and runs;
+- inspect which model performed what work;
+- observe QA and review;
+- inspect knowledge and learning;
+- understand errors and blockers;
+- manage approvals;
+- see truthful model/cost information where available;
+- interact with a high-quality living 2D office;
+- close the browser;
+- return later;
+- find that work continued;
+- see exactly what happened while away.
+
+This is not merely an attractive dashboard.
+
+This is not merely Hermes Studio reskinned.
+
+This is not merely a Kanban board with robot graphics.
+
+This is not merely Conductor with persistent labels.
+
+This is not merely a collection of chats.
+
+This is not merely a multi-agent demo.
+
+-------------------------------------------------------------------------------
+1.2 PRODUCT EXPERIENCE
+-------------------------------------------------------------------------------
+
+The user should eventually be able to experience the system approximately as
+follows:
+
+    User opens Empirium Studio.
+
+    User sees the organization at a glance.
+
+    User sees departments represented as operational organizational units.
+
+    User opens Personal Software.
+
+    User sees permanent employees such as:
+
+        Director
+        Research Architect
+        Developer / Implementation Engineer
+        QA Engineer
+        Learning Analyst
+
+    These employees are persistent identities.
+
+    They have inspectable configuration and history.
+
+    Their visible office characters correspond to their real operational
+    states.
+
+    User assigns work.
+
+    Director interprets the request.
+
+    A durable Project is created.
+
+    Project becomes Tasks.
+
+    Tasks are assigned.
+
+    Execution Runs occur.
+
+    Free implementation intelligence performs coding where appropriate.
+
+    QA occurs independently.
+
+    Rejected work returns for repair.
+
+    Work integrates only after review.
+
+    Knowledge and learning are retained.
+
+    User can close the browser.
+
+    Work continues.
+
+    User returns.
+
+    Project state, task history, runs, review, evidence, model routing and
+    learning remain visible.
+
+That is the type of product being built.
+
+-------------------------------------------------------------------------------
+1.3 ABSOLUTE ANTI-SCOPE-COLLAPSE RULE
+-------------------------------------------------------------------------------
+
+Previous builds failed because a broad specification was transformed into a
+smaller, easier project.
+
+That must be structurally prevented.
+
+No orchestrator, reviewer, architect or implementer may reduce a mandatory
+requirement because it appears:
+
+- technically difficult;
+- visually difficult;
+- expensive in engineering time;
+- poorly supported by current Hermes architecture;
+- inconvenient;
+- uncertain;
+- large;
+- advanced;
+- unfamiliar;
+- likely to take days;
+- difficult for a free model.
+
+Difficulty affects:
+
+    DECOMPOSITION
+
+not:
+
+    REQUIREMENT STATUS.
+
+If requirement X is too large for one worker:
+
+    split X into X.1, X.2, X.3
+
+Do not silently replace X with a weaker Y.
+
+-------------------------------------------------------------------------------
+1.4 FORBIDDEN SUBSTITUTIONS
+-------------------------------------------------------------------------------
+
+Do not silently equate:
+
+    persistent Employee = chat session
+
+    persistent Employee = Hermes profile
+
+    persistent Employee = Conductor worker
+
+    persistent Employee = Codex process
+
+    persistent Employee = model request
+
+    Department = Crew
+
+    Department = folder
+
+    Project = Kanban card
+
+    Project = conversation
+
+    Task = prompt
+
+    Run = worker identity
+
+    QA = worker self-test
+
+    QA = Kanban column name
+
+    Learning = log file
+
+    Knowledge = context window
+
+    Status = animation timer
+
+    Cost = hardcoded number
+
+    Working = character moving
+
+    Completion = no workers currently active
+
+    Completion = all current cards closed
+
+    Completion = passing unit tests
+
+    Completion = attractive screenshots
+
+    Completion = orchestrator says complete
+
+These concepts may map or integrate.
+
+They are not automatically identical.
+
+-------------------------------------------------------------------------------
+1.5 EXISTING WORK MUST BE AUDITED, NOT BLINDLY REBUILT
+-------------------------------------------------------------------------------
+
+The target environment already contains useful implementation.
+
+Before replacing systems, classify existing components as:
+
+    KEEP
+    ADAPT
+    REPLACE
+    DELETE
+    UNKNOWN_PENDING_INVESTIGATION
+
+For each classification record:
+
+    component
+    source location
+    present behavior
+    actual dependencies
+    known tests
+    intended future role
+    reason for classification
+    migration risk
+    rollback implication
+
+Do not rewrite a working subsystem because a worker prefers its own design.
+
+Do not preserve incorrect architecture merely because code already exists.
+
+-------------------------------------------------------------------------------
+1.6 DEFINITION OF "MANDATORY"
+-------------------------------------------------------------------------------
+
+If source material says:
+
+    must
+    should be
+    needs
+    required
+    user wants
+    intended experience
+    final product includes
+
+then requirements extraction must determine whether it constitutes mandatory
+product intent.
+
+When ambiguity concerns a central product characteristic, default toward
+preserving the broader capability until reviewed.
+
+Only explicit user authorization may permanently remove a mandatory
+requirement.
+
+An agent may create:
+
+    BLOCKED
+
+It may NOT autonomously create:
+
+    DEFERRED_BY_USER
+
+unless the user actually deferred it.
+
+-------------------------------------------------------------------------------
+1.7 NO "PHASE 1 COMPLETE" ESCAPE
+-------------------------------------------------------------------------------
+
+The system may internally use phases.
+
+A phase completion does not imply product completion.
+
+Forbidden forms of global completion include:
+
+    MVP COMPLETE
+    CORE COMPLETE
+    PHASE ONE COMPLETE
+    FUNCTIONALLY COMPLETE
+    ESSENTIALLY DONE
+    RELEASE CANDIDATE
+
+unless their exact defined gates have passed.
+
+Only the final deterministic release state defined in Part B represents product
+completion.
+
+-------------------------------------------------------------------------------
+1.8 ARCHITECTURE CANNOT BECOME THE PRODUCT
+-------------------------------------------------------------------------------
+
+Producing:
+
+- diagrams;
+- schemas;
+- interfaces;
+- APIs with stubs;
+- design documents;
+- ADRs;
+- mocks;
+- task boards;
+- agent definitions;
+- test plans
+
+does not satisfy operational requirements.
+
+For example:
+
+    requirement:
+        a persistent employee survives runtime failure
+
+    insufficient:
+        TypeScript interface PersistentEmployee exists.
+
+    sufficient evidence requires:
+        create employee
+        run work
+        kill runtime
+        restart services
+        retrieve same employee identity/history
+        automated/runtime proof
+        independent review
+
+This standard applies across the project.
+
+-------------------------------------------------------------------------------
+1.9 META-ORCHESTRATOR DUTY
+-------------------------------------------------------------------------------
+
+Meta Luna's fundamental responsibility is not to produce code.
+
+Its responsibility is to make omission progressively more difficult.
+
+It must repeatedly ask:
+
+    What is still missing?
+
+    What has only been documented?
+
+    What has only been mocked?
+
+    What has not been tested live?
+
+    What has only been self-reported?
+
+    What requirement has no evidence?
+
+    What UI claims something that the backend cannot prove?
+
+    What functionality disappears after restart?
+
+    What worker died without replacement?
+
+    What review is stale because code changed afterward?
+
+These questions continue until release.
+
+
+===============================================================================
+SECTION 2 — FIXED INPUT ROOT, ASSET PACKAGE, IMMUTABILITY, AND CHAIN OF CUSTODY
+===============================================================================
+
+2.1 AUTHORITATIVE USER INPUT ROOT
+
+The user-supplied source/asset package is located at:
+
+    /home/ash/Desktop/AI Taskforce
+
+The path contains a space.
+
+Always quote it in shell operations.
+
+Correct:
+
+    "/home/ash/Desktop/AI Taskforce"
+
+Incorrect:
+
+    /home/ash/Desktop/AI Taskforce
+
+unless safely escaped.
+
+-------------------------------------------------------------------------------
+2.2 READ-ONLY SOURCE PRINCIPLE
+-------------------------------------------------------------------------------
+
+Treat:
+
+    /home/ash/Desktop/AI Taskforce
+
+as user-owned source material.
+
+Do not:
+
+- rename the folder;
+- delete items;
+- overwrite source images;
+- rewrite uploaded prompts;
+- normalize source files in place;
+- recompress archives in place;
+- unpack archives over their originals;
+- alter timestamps intentionally;
+- organize the user's files by moving them.
+
+Derived material belongs under project-controlled locations.
+
+-------------------------------------------------------------------------------
+2.3 RECURSIVE INVENTORY
+-------------------------------------------------------------------------------
+
+Before implementation, recursively inventory the entire input tree.
+
+Do not assume filenames from old prompts represent everything now present.
+
+For every file collect where practical:
+
+    relative_path
+    absolute_path
+    filename
+    extension
+    mime/type
+    size_bytes
+    sha256
+    modification_time
+    category
+    inferred_use
+    source_or_derived
+    privacy_classification
+    legal/provenance classification
+    duplicate_hash_group
+    notes
+
+Store machine-readable inventory:
+
+    AI_WORKFORCE_BUILD/source/INPUT_INVENTORY.json
+
+Create human-readable companion:
+
+    AI_WORKFORCE_BUILD/source/INPUT_INVENTORY.md
+
+-------------------------------------------------------------------------------
+2.4 ASSET CATEGORIES
+-------------------------------------------------------------------------------
+
+Assets should be classified at minimum into:
+
+    MASTER_PROMPT_SOURCE
+    REQUIREMENTS_SOURCE
+    REVIEW_SOURCE
+    ARCHITECTURE_SOURCE
+    UI_REFERENCE
+    ORGANIZATION_REFERENCE
+    DEPARTMENT_REFERENCE
+    OFFICE_ENVIRONMENT_REFERENCE
+    OFFICE_MODULAR_ASSET_REFERENCE
+    CHARACTER_REFERENCE
+    CHARACTER_PROPORTION_REFERENCE
+    CHARACTER_STATE_REFERENCE
+    ANIMATION_KEYFRAME_REFERENCE
+    STATUS_LANGUAGE_REFERENCE
+    WORKER_DETAIL_REFERENCE
+    PRODUCTION_RUNTIME_CANDIDATE
+    TECHNICAL_ART_SOURCE
+    ROM_OR_DISC_SOURCE
+    PROPRIETARY_RND_SOURCE
+    DOCUMENTATION
+    UNKNOWN
+
+Unknown is acceptable initially.
+
+Unknown must be resolved before an asset is used.
+
+-------------------------------------------------------------------------------
+2.5 EXPECTED VISUAL MATERIAL
+-------------------------------------------------------------------------------
+
+The package has already been populated with extensive visual references.
+
+Examples already supplied include visual material showing:
+
+- premium empty isometric department offices;
+- research environments;
+- mission-control environments;
+- office architecture;
+- modular floors;
+- modular walls;
+- glass partitions;
+- windows;
+- doors;
+- desks;
+- chairs;
+- meeting tables;
+- storage;
+- plants;
+- organization overview UI;
+- Personal Software department dashboard;
+- worker detail panels;
+- department health language;
+- worker status symbols;
+- emotional robot states;
+- attention states;
+- work/thinking states;
+- error/frustration states;
+- fear/recovery states;
+- walking/turning/stopping keyframes;
+- front/side character proportions;
+- numerous character designs.
+
+Do not behave as though visual direction is missing merely because assets have
+not yet been converted into production sprites.
+
+Concept art is evidence of design intent.
+
+Concept art is not necessarily runtime-ready.
+
+-------------------------------------------------------------------------------
+2.6 DO NOT REGENERATE WHAT ALREADY EXISTS
+-------------------------------------------------------------------------------
+
+Before requesting or generating a replacement visual asset:
+
+1. search the input package;
+2. identify existing related material;
+3. determine whether runtime conversion is possible;
+4. determine whether an original asset can be built programmatically;
+5. record why a new source is genuinely necessary.
+
+There is ZERO authorized paid image generation for this build.
+
+Do not call a paid image model because conversion is inconvenient.
+
+-------------------------------------------------------------------------------
+2.7 ORIGINAL VS DERIVED ASSETS
+-------------------------------------------------------------------------------
+
+Maintain provenance.
+
+Recommended derived structure:
+
+    TARGET/
+      assets/
+        empirium-original/
+        generated-programmatic/
+        converted-from-user-reference/
+        rom-derived-private/
+        placeholders-development-only/
+
+Every runtime asset record should eventually identify:
+
+    origin
+    source_hash
+    derivation_process
+    production_status
+    redistributability_status if known
+    replaceability
+    runtime path
+
+-------------------------------------------------------------------------------
+2.8 ROM/DISC MATERIAL
+-------------------------------------------------------------------------------
+
+User-supplied Tron Bonne disc/archive material is source material for private
+clean-room R&D.
+
+Original archive/disc bytes are immutable.
+
+Hash before extraction.
+
+Extract into an isolated research directory.
+
+Do not mix extracted proprietary assets into original Empirium-owned assets.
+
+Do not use leaked source code.
+
+Do not make reverse engineering a blocking dependency for the core product.
+
+Part B defines the detailed R&D workflow.
+
+-------------------------------------------------------------------------------
+2.9 SOURCE DOCUMENT PRIORITY
+-------------------------------------------------------------------------------
+
+When multiple project documents exist, do not simply use the newest filename.
+
+Determine provenance.
+
+At minimum distinguish:
+
+    original user ambition/context
+    earlier implementation prompt
+    Astra review/corrections
+    hardened completion protocol
+    current Part A
+    current Part B
+
+The current combined Part A + Part B controls EXECUTION POLICY.
+
+Earlier source documents still control PRODUCT REQUIREMENTS where they contain
+requirements not explicitly removed by the current protocol.
+
+This distinction is critical.
+
+A newer orchestration prompt does not erase an older product requirement merely
+because the new prompt forgot to restate it.
+
+-------------------------------------------------------------------------------
+2.10 INPUT-INGESTION ACCEPTANCE GATE
+-------------------------------------------------------------------------------
+
+INPUT_INGESTION_GATE may pass only when:
+
+- source root exists;
+- inventory completed;
+- original files were not modified;
+- hashes recorded;
+- source documents identified;
+- visual assets indexed;
+- ROM/archive material identified if present;
+- privacy classification started;
+- duplicates identified;
+- no significant source subtree remains unexplored.
+
+Failure means:
+
+    DO NOT PROCEED AS THOUGH REQUIREMENTS ARE KNOWN.
+
+
+===============================================================================
+SECTION 3 — PRODUCT BOUNDARY, CONTROL/TARGET TOPOLOGY, AND ENVIRONMENT ISOLATION
+===============================================================================
+
+3.1 PRODUCT BOUNDARY
+
+Empirium Studio AI Workforce is a standalone evolution/fork of Hermes Studio.
+
+It is NOT to be implemented inside Empirium OS.
+
+Empirium OS is explicitly out of scope except where read-only contextual
+inspection is genuinely necessary to avoid accidental interference.
+
+Do not modify Empirium OS.
+
+-------------------------------------------------------------------------------
+3.2 TWO PRIMARY APPLICATION CONTEXTS
+
+The build requires conceptually separate contexts:
+
+    CONTROL
+    TARGET
+
+CONTROL is the stable Hermes/Hermes Studio environment used to coordinate,
+observe and recover the build.
+
+TARGET is the separate Empirium Studio application being transformed.
+
+Do not assume historical paths.
+
+Discover reality.
+
+-------------------------------------------------------------------------------
+3.3 CONTROL DISCOVERY PROCEDURE
+
+Determine CONTROL by examining, as needed:
+
+- currently running Hermes Studio processes;
+- systemd units;
+- process working directories;
+- Git repositories;
+- package metadata;
+- application ports;
+- configured Hermes home;
+- gateway config;
+- browser-accessed active installation;
+- recent logs.
+
+Record:
+
+    CONTROL.repo_path
+    CONTROL.branch
+    CONTROL.commit
+    CONTROL.remote_urls
+    CONTROL.dirty_state
+    CONTROL.hermes_home
+    CONTROL.gateway_service
+    CONTROL.studio_service
+    CONTROL.ports
+    CONTROL.database/storage paths
+    CONTROL.version
+    CONTROL.start commands
+    CONTROL.process ids
+
+Do not mutate CONTROL during discovery.
+
+-------------------------------------------------------------------------------
+3.4 TARGET DISCOVERY PROCEDURE
+
+Identify whether a target Empirium Studio fork already exists.
+
+Record equivalent metadata:
+
+    TARGET.repo_path
+    TARGET.branch
+    TARGET.commit
+    TARGET.dirty_state
+    TARGET.remotes
+    TARGET.hermes_home
+    TARGET.service
+    TARGET.dev_port
+    TARGET.production_port
+    TARGET.storage
+    TARGET.version
+
+If multiple candidates exist:
+
+do not guess.
+
+Compare:
+
+- Git history;
+- files;
+- timestamps;
+- application branding;
+- earlier project notes;
+- service configuration;
+- current build state.
+
+Record why one was selected.
+
+-------------------------------------------------------------------------------
+3.5 CONTROL SOURCE PROTECTION
+
+Coding workers receive no CONTROL write authority.
+
+Where filesystem permissions allow, make the intended boundary technically
+enforceable.
+
+At minimum:
+
+- implementation briefs say CONTROL is read-only;
+- worktree paths point only to TARGET;
+- implementation processes use TARGET cwd;
+- tests that need Hermes behavior use isolated test state where possible.
+
+A free implementation model must never accidentally patch the tool being used
+to supervise its own build.
+
+-------------------------------------------------------------------------------
+3.6 TARGET WORKTREE PRINCIPLE
+
+TARGET integration branch is conceptually protected.
+
+Parallel implementation occurs through isolated worktrees/branches.
+
+No implementation worker should casually edit the shared integration checkout.
+
+This lowers:
+
+- race risk;
+- merge ambiguity;
+- cross-worker contamination;
+- accidental overwrite;
+- unreviewed changes.
+
+Detailed Git policy appears in Part B.
+
+-------------------------------------------------------------------------------
+3.7 RUNTIME-STATE ISOLATION
+
+Source isolation alone is insufficient.
+
+Where practical maintain separate:
+
+    CONTROL_HERMES_HOME
+    TARGET_TEST_HERMES_HOME
+
+Do not let target tests overwrite:
+
+- user's stable profiles;
+- CONTROL Kanban data;
+- CONTROL memory;
+- CONTROL agent definitions;
+- production credentials;
+- unrelated jobs.
+
+Similarly, TARGET development should use a distinct service/port identity so a
+test build cannot masquerade as CONTROL.
+
+-------------------------------------------------------------------------------
+3.8 SERVICE-NAME ISOLATION
+
+Use unambiguous service naming.
+
+Examples:
+
+    hermes-control-gateway.service
+
+    empirium-studio-dev.service
+
+    empirium-workforce-supervisor.service
+
+Actual existing names may differ.
+
+Do not rename stable services unnecessarily.
+
+Record service identities centrally.
+
+-------------------------------------------------------------------------------
+3.9 NETWORK BOUNDARY
+
+Do not expose new public ports simply because an implementation worker needs to
+test something.
+
+Prefer:
+
+- localhost;
+- existing authenticated proxy;
+- existing secure access mechanism.
+
+Do not modify:
+
+- firewall;
+- DNS;
+- reverse proxy public exposure
+
+unless specifically authorized later by the user or required under an already
+authorized existing deployment contract.
+
+-------------------------------------------------------------------------------
+3.10 DESTRUCTIVE CHANGE POLICY
+
+Before:
+
+- database migration;
+- major dependency migration;
+- service replacement;
+- storage conversion;
+- config rewrite
+
+create recovery points.
+
+At minimum where applicable:
+
+    Git recovery SHA
+    config backup
+    DB/storage backup
+    rollback notes
+
+"Reversible" means there is an actual path back.
+
+Not merely:
+
+    "Git probably has it."
+
+-------------------------------------------------------------------------------
+3.11 BASELINE CAPTURE
+
+Before significant TARGET modification record:
+
+- build status;
+- test status;
+- existing failing tests;
+- browser console state;
+- app routes;
+- service health;
+- known broken features;
+- asset loading;
+- application screenshots;
+- current storage topology.
+
+This prevents later workers from blaming pre-existing problems on new work or
+ignoring newly introduced regressions.
+
+-------------------------------------------------------------------------------
+3.12 TOPOLOGY GATE
+
+ENVIRONMENT_TOPOLOGY_GATE must fail if:
+
+- CONTROL identity is uncertain;
+- TARGET identity is uncertain;
+- both point to same modifiable checkout unintentionally;
+- tests would mutate CONTROL runtime state;
+- build processes cannot distinguish CONTROL from TARGET;
+- Empirium OS modification risk remains unresolved.
+
+Do not begin parallel coding before this gate passes.
+
+
+===============================================================================
+SECTION 4 — GLOBAL AUTHORITY MODEL AND STRICT SEPARATION OF RESPONSIBILITIES
+===============================================================================
+
+4.1 WHY AUTHORITY MUST BE EXPLICIT
+
+The system contains several mechanisms capable of appearing authoritative:
+
+- systemd;
+- deterministic supervisor;
+- Meta Luna;
+- Luna sub-orchestrators;
+- Hermes gateway dispatcher;
+- native Hermes Kanban;
+- Hermes Studio UI;
+- Conductor;
+- Crews;
+- Git;
+- project database;
+- requirements ledger;
+- review records;
+- release gate.
+
+If authority is ambiguous, agents will create duplicated state machines.
+
+That causes:
+
+- duplicate workers;
+- conflicting status;
+- phantom completion;
+- stale UI;
+- races;
+- lost recovery.
+
+Therefore each authority receives a narrow contract.
+
+-------------------------------------------------------------------------------
+4.2 DETERMINISTIC SUPERVISOR AUTHORITY
+
+The deterministic supervisor owns:
+
+    LIVENESS
+
+It may:
+
+- monitor heartbeat;
+- track process IDs;
+- detect stale directors/managers;
+- hold retry counters;
+- select a configured recovery action;
+- relaunch Meta Luna;
+- emit recovery directives;
+- observe completion-gate result;
+- maintain pause/resume flags.
+
+It may NOT:
+
+- interpret product requirements;
+- create implementation tasks directly unless explicitly instructed by Meta
+  Luna through a narrow deterministic interface;
+- claim Kanban work;
+- decide architecture;
+- approve implementation;
+- merge code;
+- mark SHIPPED.
+
+-------------------------------------------------------------------------------
+4.3 META-LUNA AUTHORITY
+
+Meta Luna owns:
+
+    PROGRAM COHERENCE
+
+Meta Luna determines:
+
+- what workstream should run;
+- dependency ordering;
+- which Luna manager receives a workstream;
+- which strong model should review/challenge;
+- whether evidence is sufficient to advance a phase;
+- whether architecture needs reopening;
+- when to invoke release gates.
+
+Meta Luna does not own:
+
+- implementation code authorship;
+- independent QA approval;
+- final SHIPPED authority.
+
+-------------------------------------------------------------------------------
+4.4 LUNA SUB-ORCHESTRATOR AUTHORITY
+
+A Luna sub-orchestrator owns:
+
+    BOUNDED WORKSTREAM MANAGEMENT
+
+It may:
+
+- inspect;
+- plan within frozen contracts;
+- create implementation cards;
+- monitor child workers;
+- run deterministic checks;
+- request reviews;
+- issue rework.
+
+It may not:
+
+- redefine global architecture unilaterally;
+- write implementation code;
+- self-review;
+- declare project release.
+
+-------------------------------------------------------------------------------
+4.5 HERMES KANBAN AUTHORITY
+
+The verified native durable Hermes Kanban or actual equivalent owns:
+
+    BUILD TASK LIFECYCLE
+
+It should represent:
+
+- implementation task queue;
+- assignment;
+- dependency;
+- active execution;
+- review state where supported;
+- rework;
+- task history.
+
+The build must verify actual installed implementation before assuming names or
+storage.
+
+If Studio has another Tasks board that is not backed by the same lifecycle:
+
+do not treat both as canonical.
+
+One canonical durable build queue only.
+
+-------------------------------------------------------------------------------
+4.6 GATEWAY DISPATCHER AUTHORITY
+
+One dispatcher owns claiming/running Kanban workers.
+
+Do not run two dispatchers against the same board.
+
+The deterministic supervisor is NOT a dispatcher.
+
+Cron is NOT a dispatcher.
+
+Conductor is NOT the durable project dispatcher.
+
+-------------------------------------------------------------------------------
+4.7 CONDUCTOR AUTHORITY
+
+Conductor may be used for:
+
+- bounded missions;
+- temporary multi-agent activity;
+- visualization;
+- exploratory coordination.
+
+Conductor does not own:
+
+- persistent company identity;
+- global build state;
+- final project completion.
+
+-------------------------------------------------------------------------------
+4.8 CREW AUTHORITY
+
+Crew is a named grouping/visibility/execution convenience.
+
+Crew does not equal Department.
+
+Crew membership must not generate duplicate employee identity merely to make a
+UI grouping work.
+
+-------------------------------------------------------------------------------
+4.9 GIT AUTHORITY
+
+Git owns:
+
+    EXACT SOURCE REVISION IDENTITY
+
+Every implementation review should ultimately refer to exact Git state.
+
+If code changes after review:
+
+that review may become stale.
+
+-------------------------------------------------------------------------------
+4.10 REQUIREMENTS LEDGER AUTHORITY
+
+The requirements ledger owns:
+
+    REQUIREMENT COVERAGE STATE
+
+It does not prove functionality by itself.
+
+It references proof.
+
+-------------------------------------------------------------------------------
+4.11 EVIDENCE MANIFEST AUTHORITY
+
+The evidence manifest owns:
+
+    WHERE VERIFICATION PROOF CAN BE FOUND
+
+It must record enough identity to prevent evidence from one revision being
+applied to another incompatible revision.
+
+-------------------------------------------------------------------------------
+4.12 STRONG REVIEW AUTHORITY
+
+Independent strong models may produce review verdicts.
+
+They do not become implementation authority.
+
+Reviewer must not secretly fix code and approve its own fix.
+
+-------------------------------------------------------------------------------
+4.13 RELEASE GATE AUTHORITY
+
+A deterministic release-gate program owns:
+
+    FINAL RELEASE ELIGIBILITY
+
+No LLM manually writes SHIPPED merely because it believes work is complete.
+
+-------------------------------------------------------------------------------
+4.14 AUTHORITY-COLLISION TEST
+
+During bootstrap, create an authority map.
+
+For each mutable state, answer:
+
+    Who creates it?
+    Who updates it?
+    Who reads it?
+    Who is canonical?
+    Who may project it?
+    What happens after restart?
+
+If two systems both claim canonical write authority for the same lifecycle,
+resolve it before broad implementation.
+
+
+===============================================================================
+SECTION 5 — ZERO-PAID-INFERENCE LAW, CREDENTIAL FIREWALL, AND BILLING PROOF
+===============================================================================
+
+5.1 HARD ECONOMIC CONSTRAINT
+
+The user authorizes:
+
+    $0.00 NEW PAY-AS-YOU-GO AI INFERENCE
+
+during this build.
+
+Monthly subscriptions already owned by the user may be used.
+
+Verified permanent/free-tier APIs may be used.
+
+New metered inference charges may not.
+
+This is not a preference.
+
+It is an execution invariant.
+
+-------------------------------------------------------------------------------
+5.2 ALLOWED INTELLIGENCE SOURCES
+
+Potentially allowed after verification:
+
+    GPT-5.6 Luna
+        through subscription-backed Codex/ChatGPT access
+
+    GPT-5.6 Sol
+        through subscription-backed Codex/ChatGPT access
+
+    GPT-6 Astra
+        through subscription-backed Codex/ChatGPT access
+
+    Claude Sonnet 5
+        through Claude Pro / Claude Code subscription access
+
+    Claude Opus 5
+        through Claude Pro / Claude Code subscription access
+
+    FreeLLMAPI routes
+        where effective inference price is zero
+
+    OpenRouter models
+        ONLY explicit zero-price free endpoints/routes
+
+    Other FreeLLMAPI providers
+        ONLY after zero-price verification
+
+-------------------------------------------------------------------------------
+5.3 DISALLOWED SOURCES
+
+Disallowed unless the user later explicitly changes the policy:
+
+    OpenAI API pay-as-you-go
+
+    Anthropic API pay-as-you-go
+
+    paid OpenRouter model
+
+    automatic paid OpenRouter fallback
+
+    paid image-generation API
+
+    paid vision API
+
+    paid embedding/reranking inference
+
+    "cheap" model that is not actually zero-cost
+
+    trial credit being silently consumed
+
+    prepaid OpenRouter balance being consumed
+
+    emergency paid escalation
+
+-------------------------------------------------------------------------------
+5.4 AN API KEY DOES NOT MEAN PERMISSION TO SPEND
+
+The machine may already contain:
+
+    OPENROUTER_API_KEY
+    OPENAI_API_KEY
+    ANTHROPIC_API_KEY
+    other provider credentials
+
+Their existence is not authorization.
+
+Do not delete unrelated credentials.
+
+Instead isolate build processes so they do not inherit credentials they should
+not use.
+
+For example:
+
+- subscription Luna process should not inherit OPENAI_API_KEY if that could
+  cause API-billed execution;
+- Claude subscription review process should not inherit ANTHROPIC_API_KEY if
+  Claude Code might switch to API billing;
+- free workers must not receive unrestricted paid provider secrets.
+
+-------------------------------------------------------------------------------
+5.5 SUBSCRIPTION ROUTE VERIFICATION
+
+Before relying on a subscription model, establish:
+
+    executable
+    executable version
+    authentication mechanism
+    account/subscription state
+    selected model
+    ability to run non-interactively
+    environment inheritance
+    output capture
+    exit behavior
+    usage-limit behavior
+
+Do not assume:
+
+    CLI present == subscription-backed
+
+Prove the route.
+
+-------------------------------------------------------------------------------
+5.6 FREE ROUTE VERIFICATION
+
+A model is not marked FREE merely because its name includes "free" in human
+documentation.
+
+Verify, where available:
+
+    canonical model ID
+    current catalog price
+    provider/endpoint
+    effective returned model
+    usage.cost
+    quota headers
+    request limit
+    route terms
+
+For OpenRouter explicit free variants prefer exact IDs containing the current
+free variant marker where supported.
+
+Do not provide a fallback list containing paid models.
+
+-------------------------------------------------------------------------------
+5.7 FREE REQUEST QUOTA IS A RESOURCE
+
+Free requests are finite.
+
+Do not treat zero monetary price as infinite capacity.
+
+For each route track:
+
+    requests_today
+    successful_requests
+    failed_requests
+    provider_errors
+    average_latency
+    current quota estimate
+    reset estimate if known
+
+A retry storm can destroy a day's available free capacity.
+
+Therefore retry policy must be:
+
+    QUOTA-AWARE
+
+not merely:
+
+    TRY AGAIN MANY TIMES.
+
+-------------------------------------------------------------------------------
+5.8 REQUEST RESERVATIONS
+
+Before dispatching a large batch through a constrained free provider, estimate:
+
+    number of tasks
+    expected attempts
+    current quota
+    remaining day/window capacity
+
+Reserve a portion for:
+
+- repairs;
+- health probes;
+- regression-related fixes.
+
+Do not consume 100% of provider quota on initial implementation attempts.
+
+-------------------------------------------------------------------------------
+5.9 FREE OPENROUTER ROUTING REQUIREMENTS
+
+Where OpenRouter free endpoints are used:
+
+Prefer:
+
+    explicit known free model ID
+
+over:
+
+    openrouter/free
+
+for reproducible important work.
+
+`openrouter/free` may be used for low-risk overflow tasks because its effective
+model can vary.
+
+Do not use nondeterministic router selection for:
+
+- final review;
+- reproducible benchmark;
+- exact implementation comparison;
+- critical architecture decision.
+
+Record actual returned/effective model if available.
+
+-------------------------------------------------------------------------------
+5.10 COST ASSERTION
+
+Maintain:
+
+    MODEL_USAGE.jsonl
+
+For every AI invocation record where available:
+
+    invocation_id
+    timestamp
+    task_id
+    workstream
+    requested_model
+    effective_model
+    provider
+    route_type
+    auth_type
+    expected_cost_class
+    actual_cost
+    tokens_in
+    tokens_out
+    outcome
+
+Expected cost classes:
+
+    SUBSCRIPTION
+    FREE_API
+    UNKNOWN
+    PAID
+
+Policy:
+
+    PAID => BUILD_POLICY_VIOLATION
+
+    UNKNOWN => DO NOT DISPATCH UNTIL RESOLVED
+
+-------------------------------------------------------------------------------
+5.11 PAID-SPEND TRIPWIRE
+
+Create a deterministic spend guard if feasible.
+
+If telemetry reports:
+
+    actual_cost > 0
+
+for an invocation expected to be FREE:
+
+1. stop that route;
+2. mark provider route BILLING_VIOLATION;
+3. do not automatically retry;
+4. inspect configuration;
+5. preserve evidence;
+6. reroute only after zero-cost status is re-established.
+
+Do not continue draining balance because the amount is small.
+
+-------------------------------------------------------------------------------
+5.12 NO EMERGENCY PAID EXCEPTION
+
+Older specifications may contain emergency budgets such as:
+
+    $1.50
+    $2
+    $5
+
+They are superseded for this build.
+
+Current new-paid-inference budget:
+
+    0
+
+The supervisor configuration must reflect this.
+
+-------------------------------------------------------------------------------
+5.13 IMAGE GENERATION
+
+No paid image-generation model is required or authorized merely because the
+project is visual.
+
+The project already has extensive visual references.
+
+Runtime art production should emphasize:
+
+- programmatic asset preparation;
+- vectorization;
+- deterministic sprite/atlas tooling;
+- modular rigs;
+- existing supplied material;
+- original implementation.
+
+If a zero-price image generation service happens to appear, do not immediately
+use it.
+
+First verify:
+
+- truly free;
+- rights;
+- privacy;
+- suitability;
+- reproducibility.
+
+-------------------------------------------------------------------------------
+5.14 BILLING GATE
+
+MODEL_BILLING_GATE passes only when:
+
+- Luna route is verified subscription-backed;
+- Luna sub-orchestrator route is verified subscription-backed;
+- Claude subscription route is verified;
+- FreeLLMAPI routes classified;
+- paid fallbacks disabled;
+- credential isolation defined;
+- UNKNOWN billing routes disabled;
+- usage logging works sufficiently to audit behavior.
+
+
+===============================================================================
+SECTION 6 — MODEL FLEET, CAPABILITY DOCTRINE, AND ROLE-SPECIFIC ASSIGNMENT
+===============================================================================
+
+6.1 DO NOT TREAT ALL MODELS AS INTERCHANGEABLE
+
+The system has access to a heterogeneous model fleet.
+
+Each model has:
+
+- different intelligence;
+- different latency;
+- different context limits;
+- different tool reliability;
+- different coding quality;
+- different visual capabilities;
+- different usage limits;
+- different privacy implications;
+- different strengths.
+
+Therefore routing must be capability-specific.
+
+The statement:
+
+    "Use a strong model"
+
+is insufficient.
+
+The statement:
+
+    "Use a free model"
+
+is insufficient.
+
+-------------------------------------------------------------------------------
+6.2 CURRENT BOOTSTRAP MODEL CLASSES
+
+At protocol authoring time the following broad candidates exist.
+
+THESE ARE BOOTSTRAP CANDIDATES.
+
+Runtime preflight must re-check them.
+
+Do not assume names remain available forever.
+
+-------------------------------------------------------------------------------
+6.3 GPT-5.6 LUNA — META-ORCHESTRATION MODEL
+-------------------------------------------------------------------------------
+
+PRIMARY ROLE:
+
+    persistent logical orchestration
+
+Use Luna for:
+
+- Meta-Orchestrator;
+- Luna workstream managers;
+- queue reconciliation;
+- reading checkpoints;
+- turning approved architecture into worker cards;
+- routine program-level coordination;
+- recovering after previous Luna death;
+- summarizing evidence without changing evidence;
+- identifying next dependency-safe work;
+- deciding whether stronger review intelligence is warranted.
+
+Why Luna is preferred here:
+
+- orchestration happens frequently;
+- coordination requires consistency;
+- latency matters;
+- the model must be economical inside subscription usage;
+- routine orchestration usually does not require the strongest model every time.
+
+Luna should NOT normally be used for:
+
+- production implementation code;
+- final independent approval;
+- deepest architecture dispute;
+- highest-risk security reasoning where stronger subscription models are
+  available.
+
+-------------------------------------------------------------------------------
+6.4 GPT-5.6 SOL — TECHNICAL ESCALATION / SECOND-OPINION MODEL
+-------------------------------------------------------------------------------
+
+Use subscription-backed Sol selectively for:
+
+- difficult cross-cutting architecture analysis;
+- complex integration bug diagnosis;
+- ambiguous distributed-state failure;
+- difficult database/migration reasoning;
+- architecture conflict between Luna managers;
+- code-review second opinion where Claude review produced ambiguity;
+- complex test-failure clustering;
+- high-value independent challenge of a Luna plan.
+
+Sol is NOT a routine worker.
+
+Do not consume Sol merely because a task is important-sounding.
+
+Trigger examples:
+
+    Luna manager failed to resolve architecture after two structured attempts.
+
+    Two workstreams propose incompatible persistent-state contracts.
+
+    Opus rejection indicates a systemic design flaw requiring a second model
+    family's analysis.
+
+    A difficult regression spans UI, gateway, events and persistence.
+
+Sol should ordinarily produce:
+
+    analysis
+    recommendations
+    constraints
+    diagnosis
+
+not implementation code.
+
+Implementation still returns to free coding workers.
+
+-------------------------------------------------------------------------------
+6.5 GPT-6 ASTRA — RARE SYSTEM-LEVEL CHALLENGER
+-------------------------------------------------------------------------------
+
+Treat Astra as scarce, high-value subscription intelligence.
+
+Do not use Astra as another always-on manager.
+
+Use only for exceptional situations such as:
+
+- independent audit of the complete architecture;
+- unresolved disagreement between Sol and Opus;
+- large original-source reconciliation;
+- hard-to-diagnose whole-system behavior;
+- pre-release adversarial audit;
+- extremely complex product-quality assessment;
+- challenging whether the project has repeated the original false-completion
+  failure.
+
+Before using Astra unattended:
+
+verify actual subscription-backed invocation on this installation.
+
+Do not assume availability simply because the account can use Astra elsewhere.
+
+If unattended Astra is unavailable:
+
+continue without it.
+
+Astra is optional escalation intelligence.
+
+It is not a hard dependency unless later explicitly required by a release rule.
+
+-------------------------------------------------------------------------------
+6.6 CLAUDE SONNET 5 — HIGH-THROUGHPUT STRONG REVIEW / DIAGNOSIS
+-------------------------------------------------------------------------------
+
+Sonnet 5 should be treated as strong subscription intelligence that is more
+appropriate than Opus for repeated medium/high-value reasoning.
+
+Preferred uses:
+
+- routine independent code review of non-critical implementation;
+- reviewing FreeLLMAPI worker handoffs;
+- identifying missing tests;
+- debugging diagnosis;
+- browser/tool-based QA reasoning;
+- repository archaeology challenge;
+- test-plan critique;
+- implementation brief critique;
+- medium-risk visual/UX critique;
+- analyzing why a free worker repeatedly fails;
+- reviewing a group of related small changes before escalating only the
+  unresolved issues to Opus.
+
+Although Sonnet 5 is capable of writing code, PROJECT POLICY forbids using
+subscription models as the primary code-writing workforce.
+
+Therefore Sonnet may:
+
+    explain the fix
+
+but must not:
+
+    become the implementation author.
+
+Turn its diagnosis into a new FreeLLMAPI task.
+
+-------------------------------------------------------------------------------
+6.7 CLAUDE OPUS 5 — PRINCIPAL INDEPENDENT REVIEW AUTHORITY
+-------------------------------------------------------------------------------
+
+Opus 5 is the default strongest Claude Pro review model.
+
+Use for:
+
+- architecture approval;
+- requirement reconciliation;
+- dangerous migration review;
+- security-sensitive review;
+- cross-system code review;
+- critical persistence logic;
+- capabilities/approval/budget logic;
+- final visual release review;
+- final source reconciliation;
+- release challenge;
+- difficult worker-failure diagnosis after cheaper reasoning failed.
+
+Opus is not the worker.
+
+Opus should not edit code and then review itself.
+
+Its output should become:
+
+    APPROVE
+    APPROVE_WITH_NONBLOCKING_NOTES
+    REJECT
+    NEEDS_ARCHITECTURE_REVISION
+
+Detailed review contract appears in Part B.
+
+-------------------------------------------------------------------------------
+6.8 FREELLMAPI — IMPLEMENTATION WORKFORCE
+-------------------------------------------------------------------------------
+
+All AI-authored implementation source changes are produced through verified
+zero-cost FreeLLMAPI routes.
+
+FreeLLMAPI is itself an aggregation/routing layer.
+
+Do not assume a single model underneath it.
+
+Maintain an explicit model matrix.
+
+-------------------------------------------------------------------------------
+6.9 NEX-N2.5-PRO FREE — BOOTSTRAP IMPLEMENTATION CANDIDATE
+-------------------------------------------------------------------------------
+
+If still available and verified zero-cost, strongly consider for:
+
+- multi-file application coding;
+- React/UI work;
+- browser-feedback implementation;
+- application iteration;
+- agentic coding tasks;
+- bug-fix + run + inspect loops;
+- visual implementation tasks where screenshot understanding is useful.
+
+Particularly suitable candidate for:
+
+    FREE_FRONTEND_COMPLEX
+    FREE_FULLSTACK_MEDIUM
+    FREE_UI_ITERATION
+
+Do not automatically route every task to it.
+
+Benchmark first.
+
+-------------------------------------------------------------------------------
+6.10 INKLING FREE — LONG-CONTEXT / MULTIMODAL FREE CANDIDATE
+-------------------------------------------------------------------------------
+
+If the free endpoint remains available:
+
+potential strengths include:
+
+- repository-wide reasoning;
+- long-context code analysis;
+- coding;
+- multimodal screenshot/context analysis;
+- research;
+- tool-using tasks.
+
+Potential task classes:
+
+    FREE_REPO_ANALYSIS
+    FREE_CODE_COMPLEX
+    FREE_MULTIMODAL_ANALYSIS
+
+PRIVACY WARNING:
+
+Free Inkling routes may have data-use/logging conditions.
+
+Do not send:
+
+- secrets;
+- credentials;
+- private personal records;
+- personal faces;
+- sensitive user data
+
+to a route whose terms prohibit or log such data.
+
+The privacy classification system must decide whether task context is eligible.
+
+-------------------------------------------------------------------------------
+6.11 NEMOTRON 3 ULTRA FREE — LARGE-CONTEXT REASONING / AUDIT CANDIDATE
+-------------------------------------------------------------------------------
+
+Potential strengths:
+
+- enormous context;
+- orchestration-like reasoning;
+- long repository inspection;
+- deep research;
+- large code-context analysis;
+- planning support;
+- repetitive auditing.
+
+Possible task classes:
+
+    FREE_RESEARCH_LONG
+    FREE_REPO_AUDIT
+    FREE_CODE_LONG_CONTEXT
+    FREE_TEST_ANALYSIS
+
+Do not use merely because it is very large.
+
+Large models can be slower.
+
+Availability may vary.
+
+Free endpoint privacy terms may involve logging.
+
+Do not send prohibited sensitive data.
+
+-------------------------------------------------------------------------------
+6.12 NEMOTRON 3.5 LIGHTNING FREE — HIGH-THROUGHPUT CANDIDATE
+-------------------------------------------------------------------------------
+
+Potentially well suited to:
+
+- repetitive code edits;
+- smaller isolated implementation;
+- test generation;
+- fixture generation;
+- mechanical refactors;
+- source inspection;
+- high-volume bounded tasks.
+
+Potential class:
+
+    FREE_CODE_FAST
+    FREE_TEST_FAST
+    FREE_REFACTOR_FAST
+
+Important:
+
+Some free models support tool calls but do not strictly enforce structured JSON
+response formats.
+
+Therefore never trust textual "JSON" without local schema validation.
+
+-------------------------------------------------------------------------------
+6.13 LING / OTHER FREE VISION MODELS
+-------------------------------------------------------------------------------
+
+Where a verified free vision-capable route exists, it may be useful for:
+
+- screenshot observation;
+- visual defect detection;
+- comparing runtime against references;
+- reading diagrams;
+- checking sprite/reference consistency.
+
+It does not independently decide release acceptance.
+
+Its observations can be given to:
+
+    Sonnet
+    Opus
+    Sol
+    Astra
+
+for stronger reasoning where appropriate.
+
+-------------------------------------------------------------------------------
+6.14 OPENROUTER/FREE ROUTER
+-------------------------------------------------------------------------------
+
+The generic free router may be useful for:
+
+- low-risk overflow;
+- generic research;
+- non-reproducibility-sensitive tasks;
+- provider capacity fallback.
+
+Do NOT use it where exact model reproducibility matters.
+
+For important work, prefer pinned explicit free IDs.
+
+-------------------------------------------------------------------------------
+6.15 LOCAL OR OTHER FREE PROVIDERS
+-------------------------------------------------------------------------------
+
+FreeLLMAPI may expose additional free providers not listed here.
+
+Do not ignore them.
+
+Benchmark them.
+
+A model not named in this prompt may outperform the bootstrap candidates.
+
+Promote based on OBSERVED PERFORMANCE, not brand recognition.
+
+-------------------------------------------------------------------------------
+6.16 MODEL ROLE SUMMARY
+
+The expected strategic pattern is:
+
+    LUNA
+        keeps the build moving
+
+    LUNA SUB-ORCHESTRATORS
+        manage bounded workstreams
+
+    SONNET 5
+        frequent strong review / diagnosis
+
+    OPUS 5
+        principal high-stakes review / architecture approval
+
+    SOL
+        strong independent technical second opinion
+
+    ASTRA
+        rare whole-system escalation / audit
+
+    NEX-N2.5-PRO FREE
+        likely complex implementation/UI candidate
+
+    INKLING FREE
+        likely long-context/multimodal implementation-analysis candidate
+
+    NEMOTRON ULTRA FREE
+        likely long-context analysis/repository candidate
+
+    NEMOTRON LIGHTNING FREE
+        likely high-throughput bounded implementation candidate
+
+    OTHER VERIFIED FREE MODELS
+        capability-specific implementation
+
+This is a starting doctrine.
+
+Section 7 turns it into measured routing.
+
+
+===============================================================================
+SECTION 7 — MODEL PREFLIGHT, BENCHMARKING, PROMOTION, DEMOTION, AND ROUTING
+===============================================================================
+
+7.1 MODEL NAMES ARE NOT ENOUGH
+
+Before mass dispatch, run a model preflight.
+
+The purpose is not to find one "best model."
+
+The purpose is to build:
+
+    MODEL_MATRIX.json
+
+containing observed capabilities.
+
+-------------------------------------------------------------------------------
+7.2 MODEL DISCOVERY
+
+Enumerate all routes exposed by:
+
+- FreeLLMAPI;
+- OpenRouter-free integration;
+- other free providers already configured;
+- Codex subscription tooling;
+- Claude Code subscription tooling.
+
+Do not expose secrets in generated reports.
+
+Record credential presence only as:
+
+    configured / not configured
+
+not credential values.
+
+-------------------------------------------------------------------------------
+7.3 MODEL MATRIX FIELDS
+
+For every route record:
+
+    route_id
+    provider
+    requested_model
+    effective_model
+    auth_class
+    cost_class
+    currently_available
+    last_checked_at
+    context_limit
+    output_limit
+    tool_calling
+    structured_output
+    image_input
+    browser_ability
+    terminal_ability
+    measured_latency
+    success_rate
+    quota_limit
+    quota_remaining_if_known
+    privacy_class
+    data_retention_notes
+    benchmark_scores
+    promotion_state
+    failure_count
+    cooldown_until
+
+-------------------------------------------------------------------------------
+7.4 COST CLASSES
+
+Allowed:
+
+    SUBSCRIPTION_VERIFIED
+    FREE_VERIFIED
+
+Non-dispatchable:
+
+    UNKNOWN_COST
+    PAID
+    TRIAL_CREDIT
+    SUSPECTED_PAID_FALLBACK
+
+-------------------------------------------------------------------------------
+7.5 PRIVACY CLASSES
+
+Classify provider routes approximately as:
+
+    P0_LOCAL_OR_PRIVATE
+        strongest privacy boundary available
+
+    P1_CODE_OK_NO_PERSONAL
+        suitable for sanitized repo code
+        not suitable for personal records/secrets
+
+    P2_PUBLIC_OR_NONCONFIDENTIAL_ONLY
+        logged/research endpoint
+        only non-sensitive context
+
+    P3_DISALLOWED
+        cannot satisfy privacy constraints
+
+Classify task context approximately as:
+
+    D0_PUBLIC
+    D1_INTERNAL_CODE
+    D2_PRIVATE_USER_CONTEXT
+    D3_SECRET_OR_CREDENTIAL
+    D4_PERSONAL_SENSITIVE
+
+Never send D3 to any LLM.
+
+Sanitize secrets before dispatch.
+
+D4 requires an explicitly appropriate route.
+
+-------------------------------------------------------------------------------
+7.6 BENCHMARK SUITE
+
+Use small representative tasks.
+
+Do NOT waste quota on huge artificial benchmarks.
+
+Create benchmark categories such as:
+
+B1 REPOSITORY NAVIGATION
+
+    Give model a small real code slice and ask it to locate relevant behavior.
+
+Evaluate:
+    file selection
+    hallucination rate
+    evidence citations
+
+B2 SMALL TYPESCRIPT REPAIR
+
+    Deliberately use a contained broken test/fixture copy.
+
+Evaluate:
+    diagnosis
+    minimality
+    test result
+
+B3 MULTI-FILE CHANGE
+
+Evaluate:
+    contract adherence
+    collateral changes
+    successful test
+
+B4 TEST AUTHORING
+
+Evaluate:
+    whether tests actually detect target failure
+    edge coverage
+    fake assertions
+
+B5 REACT/UI IMPLEMENTATION
+
+Evaluate:
+    component correctness
+    state binding
+    accessibility
+    visual quality
+
+B6 DEBUG REPAIR
+
+Give failing test/log.
+
+Evaluate:
+    root cause vs symptom patch
+
+B7 STRUCTURED HANDOFF
+
+Evaluate:
+    whether required fields are returned reliably
+
+B8 TOOL USE
+
+Evaluate:
+    correct terminal/browser/tool invocation
+
+B9 LONG-CONTEXT RETRIEVAL
+
+Evaluate:
+    ability to find exact requirements in large context
+
+B10 VISUAL ANALYSIS where supported
+
+Evaluate:
+    actual defects found
+    false positives
+    spatial reasoning
+
+-------------------------------------------------------------------------------
+7.7 SCORE DIMENSIONS
+
+For each benchmark score 0–5:
+
+    correctness
+    contract_adherence
+    tool_reliability
+    test_quality
+    hallucination_resistance
+    minimality
+    context_retention
+    output_structure
+    latency
+    repair_success
+
+Do not convert to one meaningless average only.
+
+Keep dimension scores.
+
+-------------------------------------------------------------------------------
+7.8 PROMOTION
+
+A route may be promoted into a task class only after demonstrating relevant
+capability.
+
+Example:
+
+    model X may be promoted to FREE_TEST_FAST
+
+without being promoted to:
+
+    FREE_FRONTEND_COMPLEX
+
+-------------------------------------------------------------------------------
+7.9 DEMOTION
+
+Demote a model if recent real tasks show:
+
+- repeated hallucinated APIs;
+- tool-call failures;
+- excessive collateral edits;
+- poor adherence;
+- high timeout rate;
+- degraded provider availability;
+- model endpoint changed materially;
+- privacy terms changed.
+
+Do not keep routing work to a once-good model purely because the initial
+benchmark liked it.
+
+-------------------------------------------------------------------------------
+7.10 CIRCUIT BREAKERS
+
+Provider failures must not cause request storms.
+
+For each provider/model maintain:
+
+    consecutive_transport_failures
+    recent_429_count
+    recent_timeout_count
+    rolling_success_rate
+
+Example deterministic behavior:
+
+    1 transient failure
+        ordinary retry with jitter
+
+    2–3 closely grouped transport failures
+        backoff
+
+    repeated 429/5xx
+        open circuit temporarily
+
+    circuit open
+        route to another VERIFIED FREE candidate
+
+    cooldown expires
+        send cheap health probe
+
+    health recovered
+        gradually re-enable
+
+Do not send twenty identical doomed requests in five minutes.
+
+-------------------------------------------------------------------------------
+7.11 QUOTA-AWARE SCHEDULING
+
+Free OpenRouter request allowance may be small.
+
+Therefore tasks should be batched intelligently.
+
+Prefer:
+
+    one well-prepared request
+
+over:
+
+    five weak prompts.
+
+Do not repeatedly ask a model questions that Luna could answer from durable
+state without consuming free provider quota.
+
+Reserve free requests for actual implementation/research value.
+
+-------------------------------------------------------------------------------
+7.12 MODEL ROUTING SCORE
+
+A routing decision may consider:
+
+    required_capability
+    observed_quality
+    current_health
+    quota_remaining
+    expected_context_size
+    privacy_compatibility
+    tool_support
+    latency_requirement
+    previous_task_class_success
+
+Do not route based solely on model size.
+
+-------------------------------------------------------------------------------
+7.13 MODEL AFFINITY LEARNING
+
+Record outcome of each real task.
+
+Example:
+
+    task_class: CSS visual repair
+    model: Nex N2.5 Pro free
+    passed_first_review: yes
+
+or:
+
+    task_class: schema migration
+    model: Lightning
+    review_rejections: 3
+
+Use this history to improve future routing.
+
+Do not automatically rewrite global routing after one anecdote.
+
+Require a meaningful sample or explicit review.
+
+-------------------------------------------------------------------------------
+7.14 STRONG-MODEL ESCALATION MATRIX
+
+Routine coordination:
+    Luna
+
+Routine noncritical review:
+    Sonnet 5
+
+High-risk architecture/review:
+    Opus 5
+
+Cross-family technical second opinion:
+    Sol
+
+Exceptional whole-system challenge:
+    Astra
+
+This order is not absolute.
+
+Use task fit.
+
+But do not jump immediately to Astra because a free worker failed once.
+
+-------------------------------------------------------------------------------
+7.15 MODEL PREFLIGHT GATE
+
+MODEL_PREFLIGHT_GATE fails if:
+
+- Meta Luna subscription route is unverified;
+- free implementation routes are unknown;
+- paid fallback remains possible;
+- effective model identity cannot be logged at all;
+- privacy routing is undefined;
+- no free route has passed basic coding benchmark;
+- Claude review route is unverified;
+- routing matrix has not been created.
+
+No mass implementation before this gate.
+
+
+===============================================================================
+SECTION 8 — MODEL-SPECIFIC BRIEFING, CONTEXT SHAPING, AND PROMPT COMPLEXITY
+===============================================================================
+
+8.1 ONE PROMPT STYLE DOES NOT FIT EVERY MODEL
+
+A major previous mistake was assuming every worker could receive the same large
+brief.
+
+Different models require different scaffolding.
+
+The orchestrator must adapt task presentation while preserving requirements.
+
+-------------------------------------------------------------------------------
+8.2 STRONGER MODEL DOES NOT MEAN BIGGER PROMPT
+
+Do not dump the entire 50,000-line project history into a model because its
+context window allows it.
+
+Large irrelevant context reduces clarity.
+
+Use:
+
+    minimum complete context
+
+not:
+
+    maximum possible context.
+
+-------------------------------------------------------------------------------
+8.3 LUNA META-ORCHESTRATOR CONTEXT
+
+Meta Luna receives:
+
+- durable global status;
+- active workstreams;
+- blockers;
+- requirement coverage summary;
+- evidence gaps;
+- manager leases;
+- provider health;
+- recent decisions;
+- next dependency frontier.
+
+Meta Luna should not ingest every implementation diff on every heartbeat.
+
+Load detailed evidence on demand.
+
+-------------------------------------------------------------------------------
+8.4 LUNA SUB-ORCHESTRATOR CONTEXT
+
+A manager receives:
+
+- workstream mission;
+- exact requirement IDs;
+- global frozen contracts;
+- relevant architecture;
+- relevant source locations;
+- dependency status;
+- file ownership boundaries;
+- current tasks;
+- open review defects;
+- acceptance gate.
+
+Do not send unrelated workstreams.
+
+-------------------------------------------------------------------------------
+8.5 NEX-STYLE AGENTIC CODING BRIEF
+
+For strong agentic free coding models:
+
+provide:
+
+    OBJECTIVE
+    CURRENT BEHAVIOR
+    REQUIRED BEHAVIOR
+    FILE SCOPE
+    ARCHITECTURE CONTRACT
+    TEST COMMANDS
+    BROWSER STEPS where relevant
+    ACCEPTANCE CRITERIA
+    PROHIBITED CHANGES
+    EXPECTED HANDOFF
+
+Allow enough autonomy to inspect related code and iterate.
+
+Do not overconstrain every implementation line.
+
+-------------------------------------------------------------------------------
+8.6 FAST/SMALL FREE MODEL BRIEF
+
+For faster/weaker workers:
+
+make tasks smaller.
+
+Use:
+
+    one outcome
+    narrow file scope
+    precise inputs
+    explicit before/after
+    exact test
+    exact expected output
+
+Avoid broad language such as:
+
+    "improve architecture."
+
+A weaker model should not be expected to infer hidden project philosophy.
+
+-------------------------------------------------------------------------------
+8.7 LONG-CONTEXT FREE MODEL BRIEF
+
+For Inkling/Nemotron-class long-context tasks:
+
+provide:
+
+- an index first;
+- explicit questions;
+- requested evidence format;
+- precise source boundaries.
+
+Do not merely upload an enormous repository and say:
+
+    "figure this out."
+
+Ask targeted retrieval questions.
+
+-------------------------------------------------------------------------------
+8.8 MODEL WITHOUT ENFORCED STRUCTURED OUTPUT
+
+If a route does not enforce response schemas:
+
+never directly deserialize arbitrary returned text into privileged actions.
+
+Use:
+
+    text response
+       -> extraction
+       -> JSON parser
+       -> schema validator
+       -> deterministic validation
+       -> action
+
+If malformed:
+
+request repair or use a local normalization step.
+
+Do not execute shell commands extracted from unvalidated arbitrary output.
+
+-------------------------------------------------------------------------------
+8.9 VISUAL MODEL BRIEF
+
+For screenshot analysis:
+
+include:
+
+- target viewport;
+- reference image;
+- actual screenshot;
+- component name;
+- expected interaction;
+- requirement IDs;
+- what to inspect.
+
+Ask for defect records:
+
+    defect_id
+    location
+    severity
+    observation
+    expected
+    evidence
+    repair criterion
+
+Avoid:
+
+    "Does this look good?"
+
+-------------------------------------------------------------------------------
+8.10 SONNET REVIEW BRIEF
+
+Use Sonnet when review volume is higher and risk is moderate.
+
+Provide:
+
+- concise requirement;
+- diff;
+- tests;
+- exact behavior;
+- suspicious areas.
+
+Ask Sonnet to be adversarial.
+
+Do not let it rewrite code.
+
+-------------------------------------------------------------------------------
+8.11 OPUS REVIEW BRIEF
+
+For Opus, provide primary evidence and ask deeper questions.
+
+Examples:
+
+    "Find architectural violations not covered by tests."
+
+    "Identify any state path where UI can become more authoritative than
+    persisted truth."
+
+    "Identify any requirement that this implementation only approximates."
+
+    "Look for restart/retry edge cases."
+
+Opus should spend intelligence on judgment, not rediscovering basic context that
+Luna could prepare.
+
+-------------------------------------------------------------------------------
+8.12 SOL DIAGNOSTIC BRIEF
+
+When using Sol as second opinion:
+
+present disagreement explicitly.
+
+Example:
+
+    ARCHITECTURE A
+    ARCHITECTURE B
+    CONSTRAINTS
+    TEST EVIDENCE
+    FAILURE
+    OPUS POSITION
+
+Ask:
+
+    locate underlying invariant
+    identify hidden assumption
+    propose bounded resolution
+
+Do not bias it by saying which answer Luna prefers.
+
+-------------------------------------------------------------------------------
+8.13 ASTRA CHALLENGE BRIEF
+
+Astra should usually receive a broad but organized challenge packet.
+
+Use for:
+
+- source specification;
+- architecture;
+- current implementation summary;
+- unresolved issues;
+- release evidence.
+
+Ask it to find omissions.
+
+Do not ask Astra to spend time implementing small fixes.
+
+-------------------------------------------------------------------------------
+8.14 CONTEXT COMPACTION
+
+Context compaction may be used.
+
+Never compact away exact:
+
+- requirement language;
+- monetary limits;
+- security constraints;
+- test failures;
+- exception messages;
+- file paths;
+- command output needed for diagnosis;
+- model identity;
+- evidence refs;
+- approval decisions.
+
+Large raw records remain retrievable.
+
+-------------------------------------------------------------------------------
+8.15 HANDOFFS INSTEAD OF TRANSCRIPT FORWARDING
+
+Do not feed each worker full predecessor chats.
+
+Use structured handoffs.
+
+Preserve raw logs separately.
+
+This reduces:
+
+- token waste;
+- irrelevant assumptions;
+- accidental prompt injection from old model prose;
+- context drift.
+
+-------------------------------------------------------------------------------
+8.16 TASK DECOMPOSITION BY MODEL CAPABILITY
+
+Task sizing should reflect worker capability.
+
+Example:
+
+Bad:
+
+    "Build the entire department cockpit."
+
+Better:
+
+    architecture contract frozen
+
+    Free worker A:
+        department route + shell
+
+    Free worker B:
+        header/status binding
+
+    Free worker C:
+        activity rail
+
+    Free worker D:
+        project panels
+
+    animation worker:
+        office canvas integration
+
+Each independently reviewable.
+
+-------------------------------------------------------------------------------
+8.17 BRIEF QUALITY CHECK
+
+Before dispatch, Luna manager checks:
+
+    Can this worker identify exactly what success means?
+
+    Does it know what not to change?
+
+    Does it know the source contract?
+
+    Does it know how to prove the work?
+
+    Is this task small enough for the selected model?
+
+If not:
+
+rewrite the brief before consuming quota.
+
+
+===============================================================================
+SECTION 9 — DETERMINISTIC SUPERVISOR INSTALLATION AND BOOTSTRAP GATE
+===============================================================================
+
+9.1 SUPERVISOR FIRST
+
+Before large product implementation:
+
+install and prove the deterministic supervisor.
+
+The user has already copied the supplied supervisor package onto the VPS.
+
+Search:
+
+    "/home/ash/Desktop/AI Taskforce"
+
+recursively.
+
+Likely identifying filenames include:
+
+    supervisor.mjs
+    supervisor.config.example.json
+    supervisor.test.mjs
+    director-supervisor-contract.md
+    empirium-luna-director.example.sh
+    *.service
+
+Do not assume exact parent directory.
+
+-------------------------------------------------------------------------------
+9.2 INSPECT BEFORE INSTALL
+
+Review source for:
+
+- network calls;
+- shell construction;
+- process launching;
+- file writes;
+- credentials;
+- destructive operations;
+- expected config;
+- tests;
+- service assumptions.
+
+Record:
+
+    SUPERVISOR_SOURCE_AUDIT.md
+
+Do not rewrite it from scratch unless audit proves a material defect.
+
+-------------------------------------------------------------------------------
+9.3 COPY, DO NOT MUTATE ORIGINAL
+
+Place active controller copy under TARGET:
+
+    TARGET/AI_WORKFORCE_BUILD/controller/
+
+Keep source package unchanged.
+
+If controller files already exist:
+
+diff them.
+
+Do not blindly overwrite more recent work.
+
+-------------------------------------------------------------------------------
+9.4 SUPERVISOR CONFIGURATION MUST BE DATA-DRIVEN
+
+Configuration should include concepts such as:
+
+    supervisor_version
+
+    polling_interval
+
+    project list
+
+    project_id
+
+    project_root
+
+    director launch command
+
+    heartbeat path
+
+    heartbeat_timeout
+
+    relaunch cooldown
+
+    maximum restart burst
+
+    manager lease timeout
+
+    retry policies
+
+    provider circuit-breaker policies
+
+    pause flag
+
+    completion gates
+
+    log path
+
+    directive queue
+
+    zero-paid policy
+
+Avoid hardcoding project-specific paths inside core supervisor source when they
+belong in configuration.
+
+-------------------------------------------------------------------------------
+9.5 SUPERVISOR MUST NOT CONTAIN AN LLM
+
+The supervisor cannot call a model to decide:
+
+    "What should happen?"
+
+Its decisions must be explicit finite policy.
+
+Example:
+
+    IF project.complete == false
+    AND paused == false
+    AND director heartbeat stale
+    AND no active director process
+    AND relaunch cooldown expired
+
+    THEN launch configured director process
+
+Not:
+
+    ask model whether director should be restarted.
+
+-------------------------------------------------------------------------------
+9.6 SUPERVISOR RETRY POLICY
+
+Retry policy concerns LIVENESS and provider state.
+
+It should not directly attempt to fix code.
+
+Examples:
+
+    director process exit
+        -> restart according to policy
+
+    manager lease stale
+        -> emit recovery directive to Meta Luna
+
+    free provider repeated transport failure
+        -> mark route degraded
+        -> enforce cooldown
+        -> inform Meta Luna
+
+    test failure
+        -> do NOT autonomously reinterpret code
+        -> project remains unfinished
+        -> Meta Luna handles next engineering action
+
+-------------------------------------------------------------------------------
+9.7 SYSTEMD INSTALLATION
+
+Use a dedicated systemd service.
+
+Discover correct Node/runtime paths.
+
+Do not blindly paste example absolute paths.
+
+Service should include appropriate:
+
+    User
+    WorkingDirectory
+    ExecStart
+    Restart
+    RestartSec
+    environment/config path
+
+Use security hardening compatible with required Codex auth/cache.
+
+Do not disable hardening globally because one path needs to be writable.
+
+-------------------------------------------------------------------------------
+9.8 START ON BOOT
+
+Enable the supervisor.
+
+Verify:
+
+    systemctl status
+    process exists
+    log output
+    config loaded
+    project registered
+
+If user-level systemd is used:
+
+verify it actually survives logout/restart under the machine's current
+configuration.
+
+Do not assume.
+
+-------------------------------------------------------------------------------
+9.9 DETAILED SUPERVISOR ACCEPTANCE TESTS
+
+TEST SUP-001 — CLEAN START
+
+Procedure:
+
+1. stop supervisor cleanly;
+2. ensure no duplicate instance;
+3. start service;
+4. inspect log;
+5. inspect state file.
+
+Expected:
+
+- exactly one supervisor;
+- configuration valid;
+- no crash loop;
+- target project loaded.
+
+Failure blocks bootstrap.
+
+TEST SUP-002 — DIRECTOR LAUNCH
+
+Procedure:
+
+1. mark project unfinished;
+2. remove active director safely;
+3. allow supervisor cycle.
+
+Expected:
+
+- supervisor identifies missing director;
+- launches exactly one;
+- records process identity;
+- heartbeat begins.
+
+Failure blocks bootstrap.
+
+TEST SUP-003 — DIRECTOR DEATH RECOVERY
+
+Procedure:
+
+1. checkpoint Meta Luna;
+2. kill director process intentionally;
+3. leave completion gate false.
+
+Expected:
+
+- supervisor notices stale/dead process;
+- does not declare project complete;
+- observes cooldown;
+- launches replacement;
+- replacement resumes same project.
+
+Also verify:
+
+- no duplicate root project;
+- no duplicate Kanban board;
+- no requirement reset.
+
+TEST SUP-004 — RAPID CRASH LOOP
+
+Procedure:
+
+make test director exit repeatedly.
+
+Expected:
+
+- supervisor does not spin hundreds of processes;
+- restart burst limit/cooldown activates;
+- directive/error state becomes visible.
+
+TEST SUP-005 — PAUSE
+
+Set project paused.
+
+Kill director.
+
+Expected:
+
+- supervisor does NOT relaunch while paused.
+
+Resume.
+
+Expected:
+
+- normal liveness behavior resumes.
+
+TEST SUP-006 — MANAGER LEASE EXPIRY
+
+Create a synthetic manager lease.
+
+Allow it to expire.
+
+Expected:
+
+- supervisor marks stale;
+- creates recovery directive;
+- does not itself implement manager's tasks.
+
+TEST SUP-007 — SUPERVISOR RESTART
+
+Restart supervisor.
+
+Expected:
+
+- project state loaded from disk;
+- no duplicate state;
+- no task loss.
+
+TEST SUP-008 — SYSTEM RESTART PATH
+
+Where safe, simulate/rehearse service restart order.
+
+Expected:
+
+- supervisor returns;
+- waits for required dependencies if necessary;
+- resumes monitoring.
+
+TEST SUP-009 — FALSE COMPLETION DEFENSE
+
+Stop every AI worker but keep release gate false.
+
+Expected:
+
+- project remains incomplete;
+- supervisor eventually ensures Meta Luna returns.
+
+TEST SUP-010 — TRUE COMPLETION
+
+Use a TEST PROJECT fixture with completion conditions satisfied.
+
+Expected:
+
+- supervisor does not unnecessarily relaunch director after durable complete
+  state.
+
+Do not use the real project to fake completion.
+
+-------------------------------------------------------------------------------
+9.10 SUPERVISOR TEST EVIDENCE
+
+For each acceptance test store:
+
+    test_id
+    timestamp
+    setup
+    command
+    expected
+    observed
+    exit/result
+    logs
+    relevant state files
+    reviewer
+
+No one-word:
+
+    PASS
+
+without evidence.
+
+-------------------------------------------------------------------------------
+9.11 SUPERVISOR BOOTSTRAP GATE
+
+SUPERVISOR_BOOTSTRAP_GATE = PASS only when:
+
+- source inspected;
+- tests pass;
+- service installed;
+- starts automatically;
+- real Meta Luna launcher verified;
+- heartbeat works;
+- death recovery demonstrated;
+- pause demonstrated;
+- manager stale recovery demonstrated;
+- duplicate prevention demonstrated;
+- completion conditions demonstrated on fixture;
+- no paid credentials required for liveness.
+
+Only then may broad product execution begin.
+
+
+===============================================================================
+SECTION 10 — META-LUNA LIFECYCLE, HEARTBEATS, CHECKPOINTS, AND RESUME SEMANTICS
+===============================================================================
+
+10.1 LUNA IS A ROLE, NOT A PROCESS
+
+Never design around:
+
+    one infinitely long conversation.
+
+A Meta Luna invocation is an execution episode.
+
+It may end.
+
+That is normal.
+
+-------------------------------------------------------------------------------
+10.2 DIRECTOR INSTANCE IDENTITY
+
+Each Meta Luna invocation receives:
+
+    project_id
+    director_instance_id
+    started_at
+    parent_supervisor_generation
+    current_git_sha
+    checkpoint_version
+
+Do not treat `director_instance_id` as the project identity.
+
+-------------------------------------------------------------------------------
+10.3 STARTUP PROCEDURE
+
+Every Meta Luna launch begins with recovery.
+
+It must NOT immediately invent new tasks.
+
+Read durable sources in a prescribed order.
+
+Suggested order:
+
+1. controller contract;
+2. supervisor directive queue;
+3. BUILD_STATE.json;
+4. current Part A/Part B checksums;
+5. requirements traceability;
+6. current workstreams;
+7. current leases;
+8. provider/model health;
+9. blockers;
+10. latest decisions;
+11. evidence manifest;
+12. Kanban state;
+13. Git/worktrees;
+14. active processes/services.
+
+Only then choose next action.
+
+-------------------------------------------------------------------------------
+10.4 HEARTBEAT CONTENT
+
+Heartbeat should include enough diagnostic information to determine whether the
+director is alive and making progress.
+
+Example fields:
+
+    timestamp
+    project_id
+    director_instance_id
+    current_phase
+    current_activity
+    last_successful_action
+    next_action
+    active_manager_ids
+    open_blockers_count
+    release_gate_state
+    git_sha
+
+Heartbeat must not contain secrets.
+
+-------------------------------------------------------------------------------
+10.5 HEARTBEAT FREQUENCY
+
+Choose a sensible interval.
+
+It must be significantly shorter than stale timeout.
+
+Example concept:
+
+    heartbeat every 30–60 seconds when actively orchestrating
+
+    stale threshold several heartbeat intervals later
+
+Do not declare Luna dead because one long command took 10 seconds.
+
+The prior architecture's short inactivity assumptions must not be repeated.
+
+-------------------------------------------------------------------------------
+10.6 LONG-RUNNING COMMANDS
+
+If Meta Luna launches a deterministic command expected to take a while:
+
+- supervisor should not confuse absence of model output with director death;
+- heartbeat helper/process should remain valid where technically appropriate;
+- or stale timeout should accommodate command duration.
+
+Do not classify:
+
+    silence
+
+as:
+
+    completion.
+
+-------------------------------------------------------------------------------
+10.7 CHECKPOINT FREQUENCY
+
+Checkpoint after meaningful state transitions.
+
+Examples:
+
+- architecture gate passed;
+- new workstream created;
+- manager launched;
+- review rejection;
+- merge completed;
+- provider route demoted;
+- major blocker encountered;
+- phase transition.
+
+Also checkpoint before anticipated context exhaustion or voluntary exit.
+
+-------------------------------------------------------------------------------
+10.8 CHECKPOINT CONTENT
+
+A checkpoint should include:
+
+    checkpoint_id
+    timestamp
+    project_phase
+    protocol hashes
+    current Git integration SHA
+    workstream states
+    active tasks
+    manager leases
+    open reviews
+    known failures
+    provider states
+    evidence gaps
+    next dependency frontier
+    unresolved decisions
+    human blockers
+    next recommended actions
+
+Do not store raw secrets.
+
+-------------------------------------------------------------------------------
+10.9 RESUME MUST NOT TRUST MODEL MEMORY
+
+A replacement Luna should assume:
+
+    I REMEMBER NOTHING RELIABLY.
+
+It reconstructs state from durable project data.
+
+Even if conversational memory happens to be available, durable state wins.
+
+-------------------------------------------------------------------------------
+10.10 DUPLICATE PREVENTION
+
+Before creating a new:
+
+- project;
+- task;
+- workstream;
+- manager;
+- board;
+
+check whether an equivalent durable object already exists.
+
+Use stable IDs and idempotency keys where practical.
+
+Example:
+
+    workstream_id = WS-LIVING-OFFICE
+
+not:
+
+    "new-living-office-workstream-7"
+
+after every restart.
+
+-------------------------------------------------------------------------------
+10.11 RECOVERY DIRECTIVES
+
+Supervisor directives should be narrow.
+
+Examples:
+
+    DIRECTOR_RESTARTED
+
+    MANAGER_LEASE_STALE: WS-UI
+
+    PROVIDER_CIRCUIT_OPEN: openrouter/inkling-free
+
+    PROJECT_PAUSED
+
+    RELEASE_GATE_STILL_FALSE
+
+Meta Luna decides engineering response.
+
+Supervisor does not.
+
+-------------------------------------------------------------------------------
+10.12 VOLUNTARY LUNA EXIT
+
+Meta Luna is allowed to end a session.
+
+Before doing so:
+
+- flush current decisions;
+- checkpoint;
+- update heartbeat;
+- ensure no in-memory-only task exists;
+- ensure active manager leases are durable;
+- ensure any important worker result has been stored.
+
+The supervisor may later relaunch.
+
+-------------------------------------------------------------------------------
+10.13 SUBSCRIPTION LIMIT EXHAUSTION
+
+If Codex subscription usage temporarily blocks Luna:
+
+do not switch to paid API.
+
+Supervisor should:
+
+- record subscription unavailable;
+- apply cooldown;
+- continue any deterministic operations that do not require Luna;
+- allow active free workers where safe;
+- retry subscription route later.
+
+Do not lose project state.
+
+-------------------------------------------------------------------------------
+10.14 META-LUNA RECOVERY TEST
+
+Perform a controlled recovery after real project state exists.
+
+Test:
+
+- create workstream;
+- launch manager;
+- checkpoint;
+- terminate Meta Luna;
+- allow supervisor relaunch;
+- verify replacement reconstructs workstream and manager state;
+- verify it does NOT duplicate task graph;
+- verify next action is consistent.
+
+Store evidence.
+
+This test is mandatory before trusting multi-day autonomy.
+
+
+===============================================================================
+SECTION 11 — HERMES DURABLE EXECUTION SUBSTRATE, KANBAN, DISPATCHER, CREWS, AND CONDUCTOR
+===============================================================================
+
+11.1 INSPECT INSTALLED HERMES
+
+Do not assume current public documentation exactly matches local installation.
+
+Inspect:
+
+    Hermes version
+    Hermes Studio version
+    gateway version
+    profile commands
+    Kanban capabilities
+    dispatcher behavior
+    database/storage paths
+    review states
+    worktree support
+    goal-mode support
+    profile routing behavior
+    Crew implementation
+    Conductor implementation
+
+Record source/command evidence.
+
+-------------------------------------------------------------------------------
+11.2 BUILD KANBAN AUTHORITY
+
+The build needs one canonical durable task lifecycle.
+
+Prefer native Hermes durable Kanban if local inspection confirms it has the
+required capabilities.
+
+Do not blindly assume Studio's visual Tasks board is the same database.
+
+Prove it.
+
+-------------------------------------------------------------------------------
+11.3 UI KANBAN VERIFICATION TEST
+
+Create a disposable test card through one interface.
+
+Observe native storage/other interface.
+
+Modify status safely.
+
+Determine whether:
+
+    same identity
+    same database
+    same lifecycle
+    same review state
+
+are actually shared.
+
+Record result.
+
+If they are separate:
+
+select one canonical authority.
+
+Do not sync two mutable authorities bidirectionally without a compelling
+architecture reason.
+
+-------------------------------------------------------------------------------
+11.4 ONE DISPATCHER
+
+Exactly one dispatcher owns worker claims on the canonical board.
+
+If the gateway embeds dispatcher functionality:
+
+use that mechanism if locally appropriate.
+
+Do not simultaneously run:
+
+    gateway dispatcher
+    standalone legacy dispatcher
+    custom supervisor dispatcher
+
+against the same tasks.
+
+-------------------------------------------------------------------------------
+11.5 SUPERVISOR RELATIONSHIP
+
+Supervisor watches:
+
+    Is Meta Luna alive?
+    Is project unfinished?
+    Are leases stale?
+
+It does NOT:
+
+    claim code cards.
+
+Kanban dispatcher handles worker assignment.
+
+This separation must be tested.
+
+-------------------------------------------------------------------------------
+11.6 PROFILE ROLE
+
+Profiles are execution lanes.
+
+Profile descriptions should affect routing only according to actual installed
+behavior.
+
+For each profile eventually define:
+
+    stable ID
+    routing description
+    SOUL/system instruction
+    allowed tools
+    denied tools
+    workspace policy
+    model policy
+    reviewer policy
+    data/privacy policy
+    what it must never do
+
+Part B expands role profiles.
+
+-------------------------------------------------------------------------------
+11.7 CREWS
+
+Crews exist primarily for:
+
+- human visibility;
+- convenient group invocation;
+- reusable team views.
+
+They do not replace:
+
+- departments;
+- build workstreams;
+- Kanban.
+
+If Crews have a member limit:
+
+design multiple coherent crews rather than duplicating agent identities.
+
+-------------------------------------------------------------------------------
+11.8 CONDUCTOR
+
+Conductor may be valuable for:
+
+- bounded temporary mission orchestration;
+- visualization;
+- short multi-worker subtasks.
+
+Do not use Conductor mission lifetime as:
+
+    persistent employee lifetime.
+
+Do not use temporary Conductor state as:
+
+    global build completion state.
+
+-------------------------------------------------------------------------------
+11.9 GOAL MODE
+
+If Hermes supports goal-mode cards:
+
+use only where a bounded task benefits from repeated internal iteration.
+
+Example:
+
+    "Fix this E2E failure until these 4 exact assertions pass."
+
+Do not put entire program into one never-ending `/goal`.
+
+Root project state lives durably outside a single model session.
+
+-------------------------------------------------------------------------------
+11.10 KANBAN TASK CONTRACT
+
+Every build task should eventually contain sufficient fields such as:
+
+    task_id
+    requirement_ids
+    workstream
+    objective
+    context
+    dependencies
+    file ownership
+    acceptance criteria
+    test requirements
+    evidence requirements
+    implementer class
+    reviewer class
+    retry count
+    current state
+    result commit
+
+Part B provides detailed card template.
+
+-------------------------------------------------------------------------------
+11.11 BUILD STATES
+
+Use a state model that distinguishes:
+
+    BACKLOG
+    READY
+    QUEUED
+    IN_PROGRESS
+    WAITING_DEPENDENCY
+    WAITING_PROVIDER
+    WAITING_REVIEW
+    CHANGES_REQUESTED
+    BLOCKED_HUMAN
+    FAILED
+    APPROVED
+    INTEGRATED
+    CANCELLED
+
+Adapt to actual Hermes state names while retaining semantic distinctions.
+
+Do not collapse:
+
+    provider waiting
+    implementation failure
+    human blocker
+
+into one generic "blocked."
+
+-------------------------------------------------------------------------------
+11.12 DEPENDENCY SAFETY
+
+Do not allow downstream implementation to invent contracts while an upstream
+architecture task is unresolved.
+
+Examples:
+
+    event schema before multiple UI workers depend on it
+
+    Project/Task/Run identity before dashboards bind to it
+
+    office-state adapter contract before animation worker hardcodes states
+
+Use dependencies.
+
+-------------------------------------------------------------------------------
+11.13 DISPATCH CONCURRENCY
+
+Start conservatively.
+
+For example:
+
+    max active Luna managers: 2
+
+    max implementation worker per overlapping file region: 1
+
+    total free workers:
+        based on VPS resources + provider quota
+
+Increase only after observing stability.
+
+Do not create 30 workers simply because spawning them is possible.
+
+-------------------------------------------------------------------------------
+11.14 KANBAN RECOVERY TEST
+
+Test:
+
+- create card;
+- worker claims;
+- kill worker;
+- restart gateway if safe;
+- verify card remains;
+- verify state understandable;
+- verify replacement can continue;
+- verify history preserved.
+
+Failure blocks confidence in unattended execution.
+
+
+===============================================================================
+SECTION 12 — DURABLE CONTROL DIRECTORY, MACHINE-READABLE STATE, ATOMICITY, AND PROVENANCE
+===============================================================================
+
+12.1 CONTROL DIRECTORY PURPOSE
+
+Create one durable program-control root:
+
+    TARGET/AI_WORKFORCE_BUILD/
+
+This is not merely documentation.
+
+It is the restart/reconciliation spine of the build.
+
+-------------------------------------------------------------------------------
+12.2 REQUIRED STRUCTURE
+
+At minimum:
+
+AI_WORKFORCE_BUILD/
+|
++-- source/
+|   +-- MASTER_META_ORCHESTRATOR_PART_A.md
+|   +-- MASTER_META_ORCHESTRATOR_PART_B.md
+|   +-- MASTER_META_ORCHESTRATOR_MANIFEST.json
+|   +-- INPUT_INVENTORY.json
+|   +-- original/
+|
++-- controller/
+|   +-- supervisor.mjs
+|   +-- supervisor.config.json
+|   +-- director-supervisor-contract.md
+|   +-- prompts/
+|   +-- runtime/
+|   +-- directives/
+|   +-- leases/
+|
++-- BUILD_STATE.json
++-- BUILD_STATE.md
++-- WORKSTREAMS.json
++-- WORK_LEASES.json
++-- REQUIREMENTS_PASS_A.json
++-- REQUIREMENTS_PASS_B.json
++-- REQUIREMENTS_RECONCILIATION.md
++-- REQUIREMENTS_TRACEABILITY.json
++-- REQUIREMENTS_TRACEABILITY.md
++-- SOURCE_COVERAGE.json
++-- MODEL_MATRIX.json
++-- MODEL_USAGE.jsonl
++-- PROVIDER_RETRY_LOG.jsonl
++-- IMPLEMENTATION_PROVENANCE.jsonl
++-- EVIDENCE_MANIFEST.json
++-- PHASE_LEDGER.json
++-- DECISIONS.md
++-- RISKS.md
++-- BLOCKERS.md
++-- REUSE_MATRIX.md
++-- FILE_OWNERSHIP.md
++-- ASSET_MANIFEST.json
++-- ASSET_MANIFEST.md
+|
++-- checkpoints/
++-- worker-briefs/
++-- worker-results/
++-- review-packets/
++-- reviews/
++-- screenshots/
++-- test-results/
++-- benchmark-results/
++-- evidence/
++-- handoffs/
+
+Part B may add additional mandatory files.
+
+-------------------------------------------------------------------------------
+12.3 JSON STATE MUST BE MACHINE-VALID
+
+Machine state files must validate against schemas.
+
+Do not allow a language model to casually append prose into JSON.
+
+Use local deterministic validation.
+
+Where possible create schemas for:
+
+    BUILD_STATE
+    WORKSTREAM
+    LEASE
+    REQUIREMENT
+    EVIDENCE
+    MODEL_ROUTE
+
+-------------------------------------------------------------------------------
+12.4 ATOMIC WRITES
+
+Critical state should not be corrupted by process death mid-write.
+
+Prefer:
+
+    write temp
+    fsync/flush where reasonable
+    rename atomically
+
+or use a durable database where appropriate.
+
+Do not repeatedly overwrite a 5 MB control JSON directly without safeguards.
+
+-------------------------------------------------------------------------------
+12.5 FILE LOCKING / SINGLE WRITER
+
+Where multiple processes might update same control state:
+
+define a writer policy.
+
+Example:
+
+    supervisor owns supervisor runtime state
+
+    Meta Luna owns high-level BUILD_STATE
+
+    manager updates only its workstream/checkpoint area
+
+    append-only event logs use safe append discipline
+
+Avoid two Lunas blindly rewriting same JSON.
+
+-------------------------------------------------------------------------------
+12.6 STATE VERSIONING
+
+Include:
+
+    schema_version
+
+in machine-readable state.
+
+If schema changes:
+
+provide migration.
+
+Do not make old checkpoint unreadable without fallback.
+
+-------------------------------------------------------------------------------
+12.7 BUILD_STATE EXAMPLE
+
+Conceptually:
+
+{
+  "schema_version": 1,
+  "project_id": "empirium-studio-workforce",
+  "protocol": {
+    "part_a_sha256": "...",
+    "part_b_sha256": "..."
+  },
+  "global_status": "ACTIVE",
+  "phase": "...",
+  "control_repo_sha": "...",
+  "target_integration_sha": "...",
+  "supervisor_gate": "PASS",
+  "model_preflight_gate": "PASS",
+  "requirements_gate": "ACTIVE",
+  "active_workstreams": [],
+  "blocking_human_issues": [],
+  "last_checkpoint": "...",
+  "updated_at": "..."
+}
+
+Do not copy this blindly if repo conventions require a cleaner schema.
+
+Preserve semantics.
+
+-------------------------------------------------------------------------------
+12.8 EVENT LOGS
+
+Prefer append-only logs for:
+
+- model invocations;
+- retries;
+- important state transitions;
+- supervisor directives;
+- review outcomes.
+
+Logs make recovery/audit easier than reconstructing everything from current
+snapshot only.
+
+-------------------------------------------------------------------------------
+12.9 PROVENANCE
+
+Every AI-authored implementation change later needs provenance sufficient to
+prove the FreeLLMAPI-only coding rule.
+
+Store:
+
+    task
+    worker
+    provider
+    effective model
+    worktree
+    commit
+    review
+
+Part B defines exact implementation provenance gate.
+
+-------------------------------------------------------------------------------
+12.10 EVIDENCE FRESHNESS
+
+Evidence should refer to:
+
+    Git commit
+    environment
+    test command
+    timestamp
+
+A screenshot from commit A should not automatically approve commit Z.
+
+If changed code could affect the tested behavior:
+
+rerun relevant evidence.
+
+-------------------------------------------------------------------------------
+12.11 CHECKPOINT RETENTION
+
+Do not retain only the newest checkpoint.
+
+Keep enough recent checkpoints to recover from corruption or bad transition.
+
+Example retention:
+
+    last N checkpoints
+    phase-boundary checkpoints
+    pre-deployment checkpoint
+
+-------------------------------------------------------------------------------
+12.12 CONTROL-DIRECTORY SELF-TEST
+
+Simulate:
+
+- read;
+- write;
+- restart;
+- partial stale lease;
+- previous checkpoint restore.
+
+Ensure replacement Luna can reconstruct.
+
+If not:
+
+do not trust autonomous multi-day execution yet.
+
+
+===============================================================================
+SECTION 13 — IMMUTABLE SOURCE CAPTURE, DUAL REQUIREMENTS EXTRACTION, COVERAGE, AND TRACEABILITY
+===============================================================================
+
+13.1 WHY THIS SECTION EXISTS
+
+The single most dangerous historical failure is:
+
+    giant product vision
+        -> short summary
+        -> smaller implementation
+        -> passing tests for smaller implementation
+        -> false completion.
+
+Therefore requirements extraction itself requires redundancy.
+
+-------------------------------------------------------------------------------
+13.2 ORIGINAL SOURCE SET
+
+Identify substantive source files inside:
+
+    "/home/ash/Desktop/AI Taskforce"
+
+and any existing target project specification.
+
+Copy immutable source documents into:
+
+    AI_WORKFORCE_BUILD/source/original/
+
+Do not rewrite content.
+
+Record hashes.
+
+-------------------------------------------------------------------------------
+13.3 SOURCE REGISTER
+
+Create:
+
+    PRODUCT_SOURCE_INDEX.json
+
+For each source record:
+
+    source_id
+    filename
+    original_path
+    copied_path
+    sha256
+    source_type
+    authority_type
+    date if known
+    supersedes
+    superseded_by
+    notes
+
+Authority types could include:
+
+    PRODUCT_REQUIREMENTS
+    EXECUTION_POLICY
+    REVIEW_CORRECTION
+    VISUAL_REFERENCE
+    HISTORICAL
+
+-------------------------------------------------------------------------------
+13.4 PASS A
+
+Run an exhaustive requirement extraction.
+
+This is not summarization.
+
+Extract atomic requirements from every substantive source.
+
+Categories include at minimum:
+
+    functional
+    architecture
+    persistence
+    autonomy
+    orchestration
+    visual
+    animation
+    data
+    UI
+    UX
+    accessibility
+    performance
+    security
+    privacy
+    model routing
+    spending
+    recovery
+    testing
+    evidence
+    learning
+    knowledge
+    deployment
+    negative requirement
+    "must not"
+
+-------------------------------------------------------------------------------
+13.5 PASS-A MODEL
+
+A Luna requirements sub-orchestrator may perform initial extraction.
+
+Where source ambiguity is high, use stronger subscription intelligence for
+challenge.
+
+Do not let one model's interpretation become unquestioned truth.
+
+-------------------------------------------------------------------------------
+13.6 REQUIREMENT ATOMICITY
+
+Bad requirement:
+
+    "Build the whole office system."
+
+Better:
+
+    employee visual state derives from canonical runtime state
+
+    idle employee has ambient motion
+
+    reduced-motion alternative exists
+
+    rate-limit visual is distinct from error visual
+
+    employee click opens dossier
+
+    offscreen scene throttles
+
+Atomic requirements allow real proof.
+
+-------------------------------------------------------------------------------
+13.7 REQUIREMENT RECORD
+
+Each record must contain:
+
+    id
+    statement
+    source_id
+    source_locator
+    category
+    mandatory
+    interpretation_notes
+    rationale
+    acceptance_criteria
+    dependencies
+    architecture_refs
+    implementation_refs
+    test_refs
+    runtime_evidence_refs
+    review_refs
+    release_commit
+    status
+
+-------------------------------------------------------------------------------
+13.8 PASS B INDEPENDENCE
+
+Perform a second extraction using a fresh context.
+
+PASS B must not begin by reading the completed Pass-A output.
+
+It reads original source.
+
+Purpose:
+
+    detect omissions.
+
+Only after B finishes compare A and B.
+
+-------------------------------------------------------------------------------
+13.9 OPUS RECONCILIATION
+
+Give subscription-backed Opus:
+
+- original source;
+- Pass A;
+- Pass B.
+
+Ask Opus to identify:
+
+- A-only requirements;
+- B-only requirements;
+- duplicated requirements;
+- missing requirements;
+- over-compressed requirements;
+- incorrectly optional requirements;
+- contradictory interpretations;
+- requirements that were replaced by weaker proxies.
+
+Do not ask Opus merely to merge JSON.
+
+Ask it to challenge extraction completeness.
+
+-------------------------------------------------------------------------------
+13.10 SOURCE COVERAGE
+
+Create:
+
+    SOURCE_COVERAGE.json
+
+For every substantive section or logical block of every product source:
+
+record:
+
+    source location
+    mapped requirement IDs
+
+or:
+
+    INFORMATIONAL_ONLY + explanation
+
+Allowed state:
+
+    MAPPED
+    INFORMATIONAL_ONLY
+    AMBIGUOUS
+    UNMAPPED
+
+Before architecture freeze:
+
+    substantive UNMAPPED == 0
+
+Core AMBIGUOUS must either be resolved or use the safer requirement-preserving
+interpretation.
+
+-------------------------------------------------------------------------------
+13.11 VISUAL REFERENCES ALSO CREATE REQUIREMENTS
+
+Do not ignore images because requirements extractor handles text.
+
+Reference images imply requirements about:
+
+- information density;
+- hierarchy;
+- office scale;
+- visible workers;
+- department cockpit composition;
+- status legibility;
+- premium polish;
+- modular character language;
+- animation poses.
+
+Create visual-source records.
+
+Do not literalize fake sample numbers into production requirements.
+
+-------------------------------------------------------------------------------
+13.12 NEGATIVE REQUIREMENTS
+
+Capture explicit "do not" intent.
+
+Examples:
+
+    do not embed into Empirium OS
+
+    do not use a 3D runtime
+
+    do not fabricate spend
+
+    do not animate fake work
+
+    do not let implementer self-approve
+
+    do not use leaked Capcom source
+
+    do not use paid inference
+
+Negative requirements need tests/review too.
+
+-------------------------------------------------------------------------------
+13.13 STATUS LIFECYCLE
+
+Requirements should progress through states such as:
+
+    NOT_STARTED
+    PLANNED
+    IN_PROGRESS
+    IMPLEMENTED_UNVERIFIED
+    TESTED
+    QA_REVIEW
+    VERIFIED
+    SHIPPED
+
+Failure states:
+
+    BLOCKED
+    TEST_FAILED
+    QA_FAILED
+    REGRESSION
+    SECURITY_FAILED
+
+Do not let agents skip:
+
+    NOT_STARTED -> VERIFIED
+
+-------------------------------------------------------------------------------
+13.14 PROOF MAPPING
+
+Eventually significant requirements need appropriate combinations of:
+
+    implementation proof
+    automated proof
+    live runtime proof
+    independent review proof
+
+Exact rules appear in Part B.
+
+-------------------------------------------------------------------------------
+13.15 SOURCE RECONCILIATION GATE
+
+REQUIREMENTS_GATE cannot pass until:
+
+- source inventory complete;
+- Pass A complete;
+- Pass B complete;
+- Opus reconciliation complete;
+- final traceability generated;
+- source coverage generated;
+- substantive unmapped = zero;
+- unresolved core ambiguity = zero or safely resolved;
+- no agent silently removed hard requirements.
+
+No mass implementation before this gate except bootstrap infrastructure required
+to make durable orchestration possible.
+
+
+===============================================================================
+SECTION 14 — META-LUNA WORKSTREAM ARCHITECTURE, SUB-ORCHESTRATORS, LEASES, AND PARALLELISM
+===============================================================================
+
+14.1 PURPOSE OF SECOND ORCHESTRATION LEVEL
+
+Meta Luna should not personally supervise dozens of tiny implementation cards.
+
+That creates excessive context load and weak attention.
+
+Instead use bounded Luna sub-orchestrators.
+
+Each acts as Project Manager for one coherent engineering domain.
+
+-------------------------------------------------------------------------------
+14.2 META-LUNA REMAINS GLOBAL AUTHORITY
+
+Managers do not independently become program directors.
+
+Meta Luna owns:
+
+- cross-workstream dependency;
+- global requirements;
+- architecture conflicts;
+- resource allocation;
+- model escalation;
+- phase advancement;
+- release integration decisions.
+
+-------------------------------------------------------------------------------
+14.3 INITIAL WORKSTREAM SET
+
+After repository/requirements audit, create workstreams approximately equivalent
+to the following.
+
+Do not instantiate all simultaneously merely because they are listed.
+
+Activate when dependencies allow.
+
+----------------------------------------------------------------------
+WS-01 — SOURCE / ARCHITECTURE / REQUIREMENTS
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- source coverage;
+- architecture contracts;
+- domain concepts;
+- event semantics;
+- cross-cutting interfaces;
+- architecture decision records.
+
+Default manager:
+
+    Luna
+
+Strong consultation:
+
+    Opus 5 for architecture approval
+
+    Sol for difficult architecture second opinion
+
+    Astra only for exceptional global challenge
+
+----------------------------------------------------------------------
+WS-02 — HERMES PLATFORM / RUNTIME / PERSISTENCE
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- Hermes source audit;
+- Kanban mapping;
+- persistent entities;
+- runtime adapters;
+- event flow;
+- persistence;
+- restart survival;
+- backend truth.
+
+Manager:
+
+    Luna
+
+Implementation:
+
+    FreeLLMAPI
+
+Review:
+
+    Sonnet for normal backend review
+    Opus for persistence/authority-critical changes
+
+----------------------------------------------------------------------
+WS-03 — MODEL ROUTING / EXECUTION PLATFORM
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- FreeLLMAPI audit;
+- model matrix;
+- provider health;
+- routing;
+- quota;
+- effective-model telemetry;
+- subscription-route safety;
+- zero-paid enforcement.
+
+Manager:
+
+    Luna
+
+Diagnostic consultation:
+
+    Sonnet
+    Sol when routing/runtime interaction is unusually difficult
+
+Review:
+
+    Opus for billing/security boundary
+
+----------------------------------------------------------------------
+WS-04 — ORGANIZATION / DEPARTMENT PRODUCT UI
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- organization overview;
+- department cockpit;
+- navigation;
+- dashboard composition;
+- responsive layout;
+- real-data binding.
+
+Manager:
+
+    Luna
+
+Implementation priority candidates:
+
+    Nex-N2.5-Pro free
+    other best-performing FREE_FRONTEND model
+
+Review:
+
+    Sonnet frequent
+    Opus milestone visual/product review
+
+----------------------------------------------------------------------
+WS-05 — LIVING 2D OFFICE
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- renderer;
+- state machine;
+- bot movement;
+- pathing;
+- workstations;
+- animation state;
+- event-to-visual mapping;
+- performance;
+- reduced motion.
+
+Manager:
+
+    Luna
+
+Implementation:
+
+    best benchmarked free coding model
+
+Visual analysis:
+
+    verified free vision route
+
+High-value review:
+
+    Opus
+    optional Sol/Astra challenge for hard architecture/quality issue
+
+----------------------------------------------------------------------
+WS-06 — TECHNICAL ART / ASSETS
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- asset conversion;
+- character bank;
+- office modular assets;
+- shared rig;
+- atlases;
+- provenance;
+- art pipeline.
+
+Manager:
+
+    Luna
+
+Implementation/scripts:
+
+    FreeLLMAPI only
+
+No paid image generation.
+
+----------------------------------------------------------------------
+WS-07 — KNOWLEDGE / MEMORY / LEARNING
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- knowledge scopes;
+- lessons;
+- proposals;
+- versioning;
+- rollback;
+- learning analyst workflow.
+
+Manager:
+
+    Luna
+
+Review:
+
+    Opus for critical self-modification boundaries
+
+----------------------------------------------------------------------
+WS-08 — QA / SECURITY / RESILIENCE
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- automated QA;
+- browser QA;
+- failure injection;
+- accessibility;
+- security;
+- recovery;
+- anti-fake checks.
+
+Manager:
+
+    Luna
+
+Routine review:
+
+    Sonnet
+
+High-risk review:
+
+    Opus
+
+Cross-model dispute:
+
+    Sol
+
+----------------------------------------------------------------------
+WS-09 — INTEGRATION / RELEASE
+----------------------------------------------------------------------
+
+Responsibilities:
+
+- approved merge sequencing;
+- regression;
+- build;
+- service install;
+- deployment rehearsal;
+- burn-in;
+- final evidence.
+
+Manager:
+
+    Luna
+
+Final challenge:
+
+    Opus
+    possibly Astra if verified and available
+
+-------------------------------------------------------------------------------
+14.4 NOT ALL WORKSTREAMS ACTIVE AT ONCE
+
+Initial manager concurrency:
+
+    1–2
+
+Increase to:
+
+    3
+
+only after observing:
+
+- supervisor stability;
+- subscription limits;
+- VPS capacity;
+- free provider quota;
+- worktree isolation;
+- manageable integration flow.
+
+Do not maximize agent count for spectacle.
+
+Optimize throughput and correctness.
+
+-------------------------------------------------------------------------------
+14.5 MANAGER LEASE
+
+Before starting each Luna manager create durable lease:
+
+    lease_id
+    actor_id
+    actor_type = LUNA_SUB_ORCHESTRATOR
+    workstream_id
+    requirement_ids
+    started_at
+    last_heartbeat
+    expiry
+    checkpoint_path
+    status
+    current_task_generation
+
+Statuses:
+
+    ALLOCATED
+    ACTIVE
+    WAITING
+    HANDOFF_READY
+    EXPIRED
+    FAILED
+    COMPLETED
+    REPLACED
+
+-------------------------------------------------------------------------------
+14.6 MANAGER HEARTBEAT
+
+Manager periodically reports:
+
+    workstream
+    current objective
+    last successful action
+    active implementation tasks
+    reviews pending
+    blockers
+    next action
+
+Do not treat long worker execution as manager death if manager state is still
+heartbeat-capable.
+
+-------------------------------------------------------------------------------
+14.7 MANAGER FAILURE
+
+If manager lease expires:
+
+Meta Luna performs recovery.
+
+Procedure:
+
+1. inspect manager checkpoint;
+2. inspect Kanban cards;
+3. inspect worker processes;
+4. inspect worktrees;
+5. inspect commits;
+6. inspect open reviews;
+7. preserve valid work;
+8. mark old manager expired;
+9. launch replacement manager;
+10. continue from durable state.
+
+Do not discard an entire workstream because the managing Luna vanished.
+
+-------------------------------------------------------------------------------
+14.8 MANAGER MAY NOT CODE
+
+This rule must be technically and procedurally enforced.
+
+Manager is a planner/coordinator.
+
+If manager identifies a five-line fix:
+
+it STILL creates a FreeLLMAPI implementation task.
+
+Reason:
+
+The user explicitly requires code authorship to come through free implementation
+models.
+
+Exception:
+
+Managers may edit orchestration-only metadata and project-control prose/state
+files where those are not application implementation code.
+
+They may not use this exception to smuggle implementation into generated config
+or scripts.
+
+-------------------------------------------------------------------------------
+14.9 FREE WORKER SPAWN
+
+Manager creates bounded implementation cards.
+
+Kanban dispatcher or verified equivalent launches FreeLLMAPI worker.
+
+Manager does not manually maintain hidden task queues in its chat.
+
+-------------------------------------------------------------------------------
+14.10 STRONG REVIEWER USE
+
+Manager may call:
+
+    Sonnet
+    Opus
+    Sol
+
+according to routing policy.
+
+Manager cannot turn review model into a coding worker.
+
+If reviewer supplies code snippets incidentally:
+
+do not automatically paste them into production.
+
+Convert required behavior into FreeLLMAPI repair task.
+
+-------------------------------------------------------------------------------
+14.11 CROSS-WORKSTREAM CONTRACT CHANGE
+
+If a manager discovers a required change to frozen shared contract:
+
+do not independently edit contract and continue.
+
+Raise:
+
+    ARCHITECTURE_CHANGE_REQUEST
+
+to Meta Luna.
+
+Meta Luna determines impacted workstreams.
+
+Relevant reviewers inspect.
+
+Then:
+
+- version contract;
+- identify invalidated work;
+- update dependent cards;
+- rerun affected review.
+
+-------------------------------------------------------------------------------
+14.12 FILE OWNERSHIP
+
+Maintain:
+
+    FILE_OWNERSHIP.md
+
+or machine-readable equivalent.
+
+Before dispatch, manager checks whether another active task is modifying same
+critical file.
+
+Parallel workers should not unknowingly compete over:
+
+- central router;
+- global schemas;
+- root package config;
+- shared state types;
+- migration files;
+- office state adapter;
+- theme tokens.
+
+Serialize when necessary.
+
+-------------------------------------------------------------------------------
+14.13 WORKSTREAM COMPLETION
+
+Manager does not decide global product completion.
+
+A workstream may hand off only when:
+
+- its assigned requirements have implementation evidence where due;
+- tests run;
+- required independent review exists;
+- known blocking defects resolved;
+- handoff state durable.
+
+Meta Luna validates before marking workstream complete.
+
+-------------------------------------------------------------------------------
+14.14 MANAGER PROMPT GENERATION
+
+Once full protocol is assembled, create canonical manager prompt under:
+
+    AI_WORKFORCE_BUILD/controller/prompts/
+        LUNA_SUB_ORCHESTRATOR.md
+
+It must be significantly more detailed than a generic:
+
+    "Manage this project."
+
+It must render:
+
+- identity;
+- authority;
+- exact workstream;
+- requirements;
+- dependencies;
+- frozen contracts;
+- tool permissions;
+- model-routing rules;
+- zero-paid rule;
+- free-code-only rule;
+- file ownership;
+- reviewer pairing;
+- handoff schema;
+- heartbeat obligation;
+- escalation conditions;
+- completion conditions;
+- prohibitions.
+
+The actual canonical prompt will be defined in Part B.
+
+-------------------------------------------------------------------------------
+14.15 FIRST HIERARCHICAL PIPELINE PROOF
+
+Before scaling concurrency, perform one complete real pipeline:
+
+    Meta Luna identifies bounded work.
+
+    Meta Luna launches Luna manager with lease.
+
+    Luna manager creates a precise implementation card.
+
+    Verified FreeLLMAPI worker receives it.
+
+    Free worker makes source change.
+
+    Free worker runs local test.
+
+    Result and implementation provenance are stored.
+
+    Independent reviewer examines exact change.
+
+    If rejected:
+        manager creates repair task.
+        free implementation fixes.
+        review repeats.
+
+    If approved:
+        integration path receives reviewed change.
+
+    Meta Luna observes result from durable state.
+
+Then intentionally terminate either manager or Meta Luna and prove recovery.
+
+Do not expand to high concurrency until this chain is trustworthy.
+
+-------------------------------------------------------------------------------
+14.16 PART-A EXIT CONDITION
+
+Part A has established the immutable execution substrate:
+
+- product scope;
+- source integrity;
+- environment boundaries;
+- authority model;
+- zero-paid inference;
+- model fleet;
+- model routing;
+- model-specific context strategy;
+- deterministic supervisor;
+- Luna recovery;
+- Hermes task authority;
+- durable project control state;
+- requirements integrity;
+- two-level orchestration.
+
+PART B MUST CONTINUE WITH THE DETAILED IMPLEMENTATION, REVIEW, PRODUCT,
+VISUAL, TEST, SECURITY, RELEASE AND COMPLETION CONTRACTS.
+
+DO NOT TREAT SECTION 14 AS THE END OF THE PROJECT.
+
+DO NOT MARK ANY PRODUCT REQUIREMENT COMPLETE SIMPLY BECAUSE THE
+ORCHESTRATION SYSTEM EXISTS.
+
+THE ORCHESTRATION SYSTEM EXISTS TO BUILD THE PRODUCT.
+
+###############################################################################
+# END OF PART A
+#
+# IF PART B HAS NOT YET BEEN SUPPLIED:
+#
+#     DO NOT START BUILD EXECUTION.
+#     STORE THIS DOCUMENT IMMUTABLY.
+#     WAIT FOR PART B.
+#
+# PART B WILL BEGIN WITH SECTION 15.
+###############################################################################

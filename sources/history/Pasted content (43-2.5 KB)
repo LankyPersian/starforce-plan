@@ -1,0 +1,2346 @@
+# EMPIRIUM STUDIO — INITIAL OPERATIONAL PRODUCT BUILD
+
+## EXECUTION PROMPT 2 OF 2
+
+This prompt begins only after Prompt 1 has commissioned the Empirium Autonomy Kernel.
+
+The user intends to leave the system working largely unattended.
+
+This is an **EXECUTION DIRECTIVE**.
+
+Do not merely produce a plan.
+
+Do not ask the user to type `continue`.
+
+Do not fall back to the old continuous Meta-Director architecture.
+
+Your mission is:
+
+> **USE THE COMMISSIONED AUTONOMY KERNEL TO BUILD EMPIRIUM STUDIO INTO A GENUINELY OPERATING INITIAL PRODUCT, PRESERVING THE USER'S FULL PRODUCT VISION AND DETAILED REQUIREMENTS WHILE DISTINGUISHING INITIAL PRODUCT ACCEPTANCE FROM LATER COMMERCIAL/MARKET RELEASE HARDENING.**
+
+---
+
+# 0. PRECONDITION — VERIFY THE FACTORY BEFORE TRUSTING IT
+
+Locate:
+
+```
+AUTONOMY_KERNEL_COMMISSIONING.json
+```
+
+and the associated commissioning evidence.
+
+Confirm:
+
+```
+status == PASS
+```
+
+and verify it corresponds to the currently installed controller/database/control-plane revision.
+
+Do not blindly trust a stale PASS file.
+
+Run a lightweight commissioning sanity check.
+
+If the kernel is stale or broken:
+
+* do not ask the user to re-send Prompt 1;
+* automatically enter KERNEL_REPAIR mode;
+* use the durable Prompt-1 architecture/artifacts already installed;
+* repair;
+* rerun relevant commissioning checks;
+* continue this product build when the kernel is again commissioned.
+
+Only interrupt the user if a genuine human blocker exists.
+
+---
+
+# 1. PRODUCT SOURCE AUTHORITY
+
+The full Empirium product specification is larger than this prompt.
+
+Do not interpret this prompt as permission to discard the older detailed specifications.
+
+Discover and ingest the complete source set.
+
+Search recursively, especially:
+
+```
+"/home/ash/Desktop/AI Taskforce"
+
+/home/ash/empirium-studio
+
+AI_WORKFORCE_BUILD/
+
+docs/
+
+historical build-control directories
+```
+
+Look for:
+
+* previous Master Meta-Orchestration Part A;
+* previous Part B;
+* original user requirements;
+* project transfer/handover documents;
+* visual references;
+* architecture reviews;
+* audit reports;
+* screenshots/mockups;
+* asset references;
+* previous requirement ledgers;
+* current database schema;
+* current implementation.
+
+Authority:
+
+## A. THIS PROMPT
+
+Controls the build method and the definition of **Initial Operational Product Acceptance**.
+
+## B. PRODUCT CHARTER / ORIGINAL USER SPECIFICATIONS
+
+Controls full product intent.
+
+## C. EXISTING CODE/RUNTIME
+
+Controls current implementation reality.
+
+## D. OLD EXECUTION/ORCHESTRATION RULES
+
+Are historical guidance only where not superseded by the commissioned autonomy architecture.
+
+Do not reintroduce “keep Meta-Luna continuously alive” merely because the old V4 protocol contains that rule.
+
+---
+
+# 2. NO SILENT SCOPE COLLAPSE
+
+The user has repeatedly experienced large specifications being transformed into much smaller products.
+
+Do not do this.
+
+Difficulty changes decomposition.
+
+Difficulty does not silently erase a requirement.
+
+Do not replace:
+
+```
+persistent company
+```
+
+with:
+
+```
+agent dashboard
+```
+
+Do not replace:
+
+```
+Department
+```
+
+with:
+
+```
+Crew
+```
+
+Do not replace:
+
+```
+persistent Employee
+```
+
+with:
+
+```
+one chat session
+```
+
+Do not replace:
+
+```
+Project
+```
+
+with:
+
+```
+one Kanban card
+```
+
+Do not replace:
+
+```
+Run/Attempt
+```
+
+with:
+
+```
+permanent Employee identity
+```
+
+Do not replace:
+
+```
+QA
+```
+
+with:
+
+```
+worker self-report
+```
+
+Do not replace:
+
+```
+Learning
+```
+
+with:
+
+```
+an activity log
+```
+
+Do not replace:
+
+```
+living office
+```
+
+with:
+
+```
+decorative random animation
+```
+
+Do not replace:
+
+```
+operational truth
+```
+
+with:
+
+```
+hardcoded/demo metrics
+```
+
+Do not replace:
+
+```
+real continuation
+```
+
+with:
+
+```
+keeping a conversation open.
+```
+
+All detailed mandatory requirements should remain represented in the durable requirement graph.
+
+---
+
+# 3. IMPORTANT NEW PRODUCT-BUILD DISTINCTION
+
+The old protocol used one extremely demanding release concept that eventually allowed evidence/compliance machinery to dominate development.
+
+Create two separate concepts.
+
+## 3.1 INITIAL_OPERATIONAL_PRODUCT_ACCEPTED
+
+This is the gate this prompt is trying to reach.
+
+It means:
+
+> Empirium genuinely exists as an operational product, its central architecture and defining features work end-to-end, it is usable by Ash, the workforce actually performs real work autonomously, and its important claims are demonstrated rather than mocked.
+
+This gate must be serious.
+
+It is not a toy MVP.
+
+## 3.2 MARKET_RELEASE_READY
+
+This may require additional:
+
+* prolonged burn-in;
+* commercial deployment hardening;
+* exhaustive penetration/security work;
+* every medium visual defect repaired;
+* every mobile polish detail;
+* full performance optimization;
+* extensive compatibility;
+* broader public deployment preparation;
+* commercial documentation;
+* distribution/licensing review.
+
+This prompt does not need to block the user's first genuinely operational Empirium on every later commercial hardening item.
+
+However:
+
+**No original requirement is silently deleted.**
+
+Requirements not necessary for the Initial Operational Product remain as durable backlog with explicit state.
+
+---
+
+# 4. PRODUCT DEFINITION
+
+Empirium Studio is:
+
+> **A persistent AI-company operating system built on and extending Hermes/Hermes Studio, where permanent Departments contain persistent configurable AI employees that autonomously perform genuine Projects through durable Tasks/WorkItems and Runs/Attempts; independent QA can reject and return work; knowledge and learning accumulate; model/provider/cost behavior is inspectable; and a premium 2D/isometric living office truthfully visualizes actual runtime state.**
+
+It is not merely:
+
+* Hermes Studio reskinned;
+* a multi-agent chat product;
+* Conductor;
+* a task board;
+* a set of bots;
+* an office simulation;
+* a coding agent;
+* a dashboard.
+
+---
+
+# 5. PRODUCT BOUNDARY
+
+Empirium Studio is separate from Empirium OS.
+
+Do not modify Empirium OS unless the user explicitly authorizes a separate task.
+
+Empirium Studio may eventually work on Empirium OS as a Project.
+
+Hermes/Hermes Studio is the execution substrate and donor architecture.
+
+Prefer adapting sound existing mechanisms rather than gratuitously recreating:
+
+* Agents/profiles;
+* tools;
+* MCP;
+* skills;
+* memory;
+* Crews;
+* Conductor;
+* jobs;
+* sessions;
+* operations/events;
+* terminal;
+* model routing;
+* approvals;
+* monitoring.
+
+But Hermes runtime objects do not become the sole authoritative Empirium data model.
+
+---
+
+# 6. DURABLE PRODUCT DOMAIN
+
+Preserve or implement durable entities equivalent to:
+
+```
+Organization
+    ↓
+Department
+    ↓
+Persistent Employee
+    ↓
+Project
+    ↓
+WorkItem / Task
+    ↓
+Attempt / Run
+    ↓
+Artifact / Handoff
+    ↓
+Review / QA
+    ↓
+Approval
+    ↓
+Knowledge
+    ↓
+Learning / Improvement
+```
+
+The commissioned Autonomy Kernel may use WorkItem/Attempt terminology internally.
+
+The product UI may expose Task/Run terminology where that produces the best user experience.
+
+The semantic distinction must remain.
+
+---
+
+# 7. ORGANIZATION
+
+The product supports a durable Organization.
+
+It must provide:
+
+* organization identity;
+* Departments;
+* operational state;
+* persistent employees;
+* active Projects;
+* activity;
+* approvals/attention;
+* truthful model/cost information;
+* history.
+
+Organization state must derive from real underlying state.
+
+No invented “96% healthy” metrics.
+
+---
+
+# 8. DEPARTMENTS
+
+A Department is a permanent organizational unit.
+
+It is not a Crew.
+
+Department state should support:
+
+* identity;
+* purpose;
+* status;
+* employees;
+* current Projects;
+* historical Projects;
+* WorkItems/Tasks;
+* Runs/Attempts;
+* QA;
+* approvals;
+* knowledge;
+* learning;
+* history;
+* model/cost telemetry;
+* policies;
+* tools/capabilities;
+* office/environment configuration.
+
+Architecture must support future Departments with different staff, work, knowledge and office layouts.
+
+Do not hard-code the whole system around Personal Software.
+
+---
+
+# 9. FIRST FULL DEPARTMENT — PERSONAL SOFTWARE
+
+The first genuine Department is:
+
+```
+Personal Software
+```
+
+Purpose:
+
+> Build, maintain, improve and debug Ash's software systems.
+
+It must genuinely exercise the autonomous workforce.
+
+At minimum preserve the five principal functional roles:
+
+## SOFTWARE DIRECTOR
+
+Responsible for:
+
+* receiving high-level Projects;
+* understanding objective;
+* identifying ambiguity/risk;
+* decomposition;
+* planning;
+* delegation;
+* monitoring;
+* escalation;
+* project-level coordination.
+
+This employee does not need one permanent context window.
+
+## RESEARCH / ARCHITECTURE ENGINEER
+
+Responsible for:
+
+* repository inspection;
+* external/internal research where required;
+* architecture;
+* plans;
+* reuse investigation;
+* dependencies;
+* risks;
+* rollback thinking;
+* test design.
+
+## IMPLEMENTATION ENGINEER
+
+Responsible for:
+
+* bounded implementation;
+* code changes;
+* worktree operation;
+* tests;
+* repair;
+* artifacts;
+* rework.
+
+## QA / REVIEW ENGINEER
+
+Independent of implementer.
+
+Responsible for:
+
+* functional verification;
+* browser verification;
+* runtime behavior;
+* test adequacy;
+* visual inspection;
+* recovery;
+* defect creation;
+* rejection.
+
+## LEARNING ANALYST
+
+Responsible for evidence-based improvement:
+
+* repeated failure patterns;
+* successful strategies;
+* model performance by task class;
+* prompt/skill proposals;
+* workflow proposals;
+* knowledge capture.
+
+Learning does not silently rewrite critical policies.
+
+---
+
+# 10. EMPLOYEE MODEL
+
+A permanent Employee has durable:
+
+* ID;
+* name;
+* Department;
+* role;
+* responsibilities;
+* personality;
+* communication style;
+* prompt/SOUL version;
+* skill configuration;
+* tools;
+* MCP permissions;
+* model policy;
+* fallback policy;
+* memory scope;
+* knowledge scope;
+* permissions;
+* approval policy;
+* skin/appearance;
+* workstation;
+* history;
+* performance;
+* evaluation;
+* configuration version history.
+
+Employee identity must survive:
+
+* LLM session termination;
+* provider failure;
+* model change;
+* task completion;
+* worker process crash;
+* app restart.
+
+A Hermes Profile/Bot may **back** an Employee.
+
+It is not automatically identical to the Employee.
+
+---
+
+# 11. TEMPORARY EXECUTION WORKERS
+
+The system may create temporary workers for bounded tasks.
+
+They may live minutes or hours.
+
+They must not accidentally become permanent Employees.
+
+If shown in the office/UI, distinguish them from permanent staff.
+
+Permanent Employee identity and disposable execution must remain separate.
+
+---
+
+# 12. PROJECT EXPERIENCE
+
+Ash should be able to submit a high-level instruction such as:
+
+```
+Build this.
+Fix this.
+Improve this.
+```
+
+and then largely leave the system alone.
+
+The desired real flow:
+
+```
+user request
+    ↓
+durable Project
+    ↓
+Director/planning event
+    ↓
+capabilities/WorkItems
+    ↓
+dependencies
+    ↓
+bounded execution
+    ↓
+automated checks
+    ↓
+independent QA
+   / \
+pass  reject
+ |       |
+integrate rework
+    ↓
+accepted Project work
+    ↓
+retained knowledge
+```
+
+The browser may close.
+
+Work continues.
+
+The user later returns and can inspect what occurred.
+
+---
+
+# 13. ORGANIZATION OVERVIEW UI
+
+Build a polished Organization Overview.
+
+Required logical behavior includes:
+
+* organization identity/header;
+* top-level real operational metrics;
+* Department grid/cards;
+* Department status;
+* employee count;
+* active Projects;
+* current activity;
+* attention/approval indicators;
+* model/cost information where truthful;
+* organization activity;
+* recent improvements/learning;
+* create Department;
+* intentional empty/loading/error states.
+
+Department cards should feel like operational organizational units.
+
+A miniature office representation is desirable where appropriate but must not create excessive renderer cost.
+
+Cards open real Department views.
+
+---
+
+# 14. DEPARTMENT COCKPIT
+
+Personal Software needs a meaningful operational cockpit.
+
+Logical areas include:
+
+```
+Overview
+Projects
+Tasks / Work
+Agents / Employees
+QA
+Knowledge
+Learning
+History
+Models & Cost
+Settings
+```
+
+The exact route/tab presentation may use the repository's best existing conventions.
+
+Overview should combine:
+
+* living office;
+* Department status;
+* current activity;
+* active Projects;
+* upcoming dependency-ready work;
+* completed recently;
+* QA state;
+* knowledge;
+* learning;
+* model/cost.
+
+This should feel like a working command centre, not a generic settings page.
+
+---
+
+# 15. PROJECT / TASK SURFACES
+
+Expose durable Project state.
+
+Project views should support:
+
+* objective;
+* status;
+* meaningful progress;
+* capabilities/requirements;
+* task hierarchy;
+* dependencies;
+* assignments;
+* Attempts/Runs;
+* artifacts;
+* reviews;
+* defects;
+* approvals;
+* history;
+* spend/usage where known.
+
+Progress must be derived.
+
+Do not fabricate percentages.
+
+---
+
+# 16. EMPLOYEE DOSSIER / INSPECTOR
+
+Every visible permanent Employee should be inspectable.
+
+The user has specifically wanted individual workers to remain highly visible.
+
+Clicking an Employee should expose, where available:
+
+## IDENTITY
+
+* name;
+* role;
+* Department;
+* personality;
+* appearance.
+
+## CURRENT OPERATION
+
+* current status;
+* status reason;
+* Project;
+* WorkItem/Task;
+* Run/Attempt;
+* elapsed time;
+* latest event.
+
+## EXECUTION
+
+* requested model;
+* effective model where provider reveals it;
+* provider;
+* free/subscription class;
+* tokens;
+* reported cost;
+* errors;
+* retries;
+* tool calls/logs where useful.
+
+## CONFIGURATION
+
+* personality;
+* communication style;
+* prompt/SOUL version;
+* responsibilities;
+* tools;
+* MCPs;
+* skills;
+* model policy;
+* memory scope;
+* knowledge scope;
+* permissions;
+* approvals.
+
+## QA
+
+* current QA state;
+* latest review;
+* reviewer;
+* defects;
+* rework history.
+
+## HISTORY
+
+* Projects;
+* Tasks;
+* Runs;
+* errors;
+* models used;
+* performance;
+* evaluations;
+* configuration changes.
+
+Allow appropriate configuration edits with versioning and rollback.
+
+---
+
+# 17. AGENT OBSERVATORY
+
+The product should help Ash understand and optimize his AI workforce.
+
+Make performance inspectable by meaningful dimensions such as:
+
+* employee;
+* model;
+* provider;
+* task class;
+* first-pass QA rate;
+* retries;
+* failure types;
+* latency;
+* token use;
+* cost class;
+* review outcomes.
+
+Do not create one meaningless universal “best worker/model” number.
+
+Require meaningful sample sizes before learning rules change.
+
+---
+
+# 18. LIVING 2D OFFICE — DEFINING EXPERIENCE
+
+The living office remains a defining interface.
+
+Target style:
+
+* 2D / 2.5D / isometric;
+* polished;
+* professional;
+* charming;
+* premium;
+* dark navy/blue technology environment;
+* warm local work areas;
+* clear hierarchy;
+* expressive small robotic workers;
+* readable at small scale;
+* slight late-1990s Japanese-game charm without copying protected characters/assets.
+
+Prefer an appropriate lightweight 2D solution such as PixiJS, Canvas, or the best existing implementation.
+
+Do not introduce heavyweight 3D without compelling technical evidence.
+
+---
+
+# 19. OFFICE TRUTH LAW
+
+The office is not a fake activity simulator.
+
+> **REALITY DRIVES THE VISUALIZATION.**
+
+Operational animation must derive from canonical control-plane/runtime state.
+
+Ambient personality animation may be stochastic.
+
+Productive operational animation may not.
+
+Canonical semantic states should support the practical equivalent of:
+
+```
+IDLE
+QUEUED
+PLANNING
+THINKING
+CODING
+RESEARCHING
+TOOL_USE
+TESTING
+REVIEWING
+LEARNING
+WAITING_DEPENDENCY
+WAITING_APPROVAL
+RATE_LIMITED
+HANDOFF
+BLOCKED
+ERROR
+CRASHED
+OVERLOADED
+COMPLETED
+OFFLINE
+```
+
+Define precedence.
+
+For example:
+
+```
+CRASHED > CODING
+```
+
+and:
+
+```
+WAITING_APPROVAL > generic IDLE
+```
+
+---
+
+# 20. OFFICE EVENT BINDING
+
+Use the durable event ledger from the Autonomy Kernel.
+
+Examples:
+
+```
+WORK_ITEM_LEASED
+    → task received
+
+RESEARCH_STARTED
+    → research activity
+
+CODE_CHANGED / implementation activity
+    → coding station/activity
+
+TEST_STARTED
+    → testing/QA behavior
+
+REVIEW_STARTED
+    → review activity
+
+PROVIDER_RATE_LIMITED
+    → waiting/timer/frustration state
+
+ATTEMPT_CRASHED
+    → failure/recovery state
+
+WAITING_APPROVAL
+    → strong attention indicator
+
+HANDOFF_CREATED
+    → visible transfer
+
+WORK_ITEM_ACCEPTED
+    → brief completion reaction
+```
+
+The activity rail and office should derive from the same semantic truth where possible.
+
+Do not allow:
+
+```
+activity feed = crashed
+```
+
+while:
+
+```
+robot = happily coding
+```
+
+unless there is a real newer event explaining recovery.
+
+---
+
+# 21. MOVEMENT AND STATIONS
+
+Support bounded walkable office space.
+
+Workers should be able to:
+
+* idle;
+* walk;
+* turn;
+* sit/work;
+* move to role-relevant stations;
+* hand off;
+* react;
+* wait;
+* request attention;
+* recover.
+
+Use pragmatic pathfinding.
+
+Do not build unnecessary physics.
+
+Employees may have:
+
+* home station;
+* role stations;
+* shared stations;
+* meeting/handoff locations.
+
+Urgent real state interrupts ambient wandering.
+
+---
+
+# 22. ACCESSIBLE ALTERNATIVE TO THE OFFICE
+
+The office cannot be the sole way to understand the workforce.
+
+Every important operational state must also exist textually.
+
+Support:
+
+* accessible Employee list;
+* keyboard navigation;
+* visible focus;
+* semantic controls;
+* status text/icons rather than color alone;
+* reduced motion;
+* responsive layouts.
+
+Mobile does not need the full desktop office simulation, but must expose core operational information.
+
+---
+
+# 23. CHARACTER / ASSET STRATEGY
+
+Use the extensive supplied asset/reference package.
+
+Do not behave as though visual direction is absent.
+
+Inspect it first.
+
+Current safer product direction is original Empirium worker characters inspired only by the general small-robot-worker idea.
+
+Do not ship recognizable copyrighted Servbot assets merely because they were historical inspiration.
+
+ROM/game material is optional R&D/reference.
+
+Core product must not depend on successful reverse engineering.
+
+Do not use leaked source.
+
+One reusable canonical worker rig replicated across employees is acceptable for the initial product.
+
+Identity may come from:
+
+* nameplates;
+* role;
+* behavior;
+* accessories;
+* station;
+* subtle visual variation;
+* later skins.
+
+Animation/state quality matters more than dozens of completely unique character models.
+
+---
+
+# 24. MODULAR OFFICE ASSETS
+
+Prefer reusable modular assets rather than one giant baked image.
+
+Support appropriate combinations of:
+
+* floors;
+* walls;
+* windows;
+* glass;
+* partitions;
+* doors;
+* desks;
+* seating;
+* computers;
+* servers;
+* shelves;
+* plants;
+* meeting spaces;
+* research props;
+* QA/test areas;
+* planning boards.
+
+Maintain consistent:
+
+* perspective;
+* scale;
+* line style;
+* lighting.
+
+---
+
+# 25. HERMES MAPPING
+
+Use Hermes rather than unnecessarily rebuilding its successful execution machinery.
+
+Target conceptual mapping:
+
+```
+EMPIRIUM ORGANIZATION
+    durable company abstraction
+
+EMPIRIUM DEPARTMENT
+    durable organizational unit
+
+EMPIRIUM EMPLOYEE
+    durable identity
+
+HERMES PROFILE/BOT
+    execution/config substrate for Employee
+
+EMPIRIUM PROJECT
+    durable user objective
+
+EMPIRIUM WORKITEM/TASK
+    durable bounded work
+
+EMPIRIUM ATTEMPT/RUN
+    concrete execution
+
+HERMES CREW
+    reusable execution formation
+
+CONDUCTOR
+    bounded mission/runtime control surface
+
+HERMES OPERATIONS/EVENTS
+    execution telemetry source
+
+EMPIRIUM CONTROL PLANE
+    authoritative organizational/project state
+```
+
+Do not let Conductor become the company.
+
+Do not let Crews become Departments.
+
+---
+
+# 26. CREWS
+
+Retain Crews as reusable execution formations.
+
+Examples:
+
+```
+REPOSITORY INVESTIGATION CREW
+    architecture researcher
+    code archaeologist
+    dependency investigator
+
+IMPLEMENTATION CREW
+    frontend worker
+    backend worker
+    integration worker
+
+REVIEW CREW
+    functional QA
+    security
+    visual QA
+```
+
+Crew existence should not duplicate permanent Employee identity.
+
+Use Crews only where parallelism follows dependency boundaries.
+
+Do not parallelize fifty workers merely because inference is free.
+
+---
+
+# 27. CONDUCTOR
+
+Use Conductor as:
+
+* bounded mission surface;
+* live execution surface;
+* temporary worker view;
+* pause/retry/abort surface where useful;
+* operational theatre.
+
+The Empirium control plane decides what work needs doing.
+
+Conductor answers:
+
+> What is happening right now?
+
+The durable Project controller answers:
+
+> What needs to happen next?
+
+If Conductor crashes, Project truth must survive.
+
+---
+
+# 28. MODEL / PROVIDER ECONOMICS
+
+Preserve the zero-new-PAYG rule unless explicitly changed.
+
+Use deterministic software first.
+
+Use free/no-marginal-cost execution capacity for bounded implementation.
+
+Use stronger subscription intelligence for:
+
+* architecture;
+* difficult debugging;
+* ambiguous decomposition;
+* major review;
+* cross-system reasoning;
+* milestone reconciliation.
+
+Do not waste strong models on:
+
+* PID checks;
+* lease checks;
+* ordinary queue scheduling;
+* every CSS patch;
+* routine successful tests.
+
+Route by capability and observed performance.
+
+---
+
+# 29. MODEL / TOKEN / COST TELEMETRY
+
+Every Run/Attempt should record what can genuinely be known:
+
+* requested model;
+* effective model where available;
+* provider;
+* auth/cost class;
+* input tokens;
+* output tokens;
+* cache usage where available;
+* reported cost;
+* fallback reason;
+* rate-limit events.
+
+Classify:
+
+```
+FREE_API
+SUBSCRIPTION
+UNKNOWN
+PAID
+```
+
+Do not fabricate missing values.
+
+Subscription does not mean “actual API cost £0.00”; display it as subscription where appropriate.
+
+Any unexpected paid inference during this build is a policy incident.
+
+---
+
+# 30. KNOWLEDGE
+
+Knowledge is a first-class durable concept.
+
+Support scopes:
+
+```
+GLOBAL
+DEPARTMENT
+PROJECT
+EMPLOYEE
+```
+
+Knowledge is not the same as current operational state.
+
+Human-readable notes/Obsidian-compatible information may supplement structured storage.
+
+Current task status belongs in the operational control plane.
+
+---
+
+# 31. LEARNING
+
+Learning must be evidence-based.
+
+Learning proposals may include:
+
+```
+PROMPT_CHANGE
+MODEL_ROUTING_CHANGE
+SKILL_CHANGE
+TOOL_CHANGE
+MEMORY_CHANGE
+WORKFLOW_CHANGE
+PROCESS_CHANGE
+```
+
+Use lifecycle:
+
+```
+PROPOSED
+REVIEWING
+APPROVED
+ACTIVATED
+REJECTED
+ROLLED_BACK
+```
+
+Critical rules do not self-modify without review.
+
+Track model/employee performance over meaningful samples.
+
+---
+
+# 32. APPROVALS AND SECURITY
+
+Use least privilege.
+
+Do not give every worker full VPS/home access.
+
+Implementation workers ordinarily receive:
+
+* assigned worktree;
+* required read-only contracts;
+* test environment;
+* necessary tools.
+
+Never place raw credentials into:
+
+* prompts;
+* Git;
+* screenshots;
+* evidence;
+* logs;
+* knowledge notes.
+
+Human approval may remain necessary for:
+
+* public deployment;
+* destructive user-data deletion;
+* irreversible migration without recovery;
+* firewall/DNS changes;
+* external financial action.
+
+Routine reversible code work does not require user approval.
+
+Server-side permission enforcement is mandatory for dangerous operations.
+
+---
+
+# 33. NO FAKE PRODUCTION DATA
+
+Do not fabricate:
+
+* active Projects;
+* employee activity;
+* spend;
+* progress;
+* QA;
+* health;
+* model identity;
+* task state;
+* usage;
+* company activity.
+
+Demo/test data is permitted only in isolated test/dev contexts and clearly identified.
+
+If telemetry is unknown, display:
+
+```
+Unknown
+```
+
+not an invented answer.
+
+---
+
+# 34. BASELINE THE REAL PRODUCT BEFORE MASS IMPLEMENTATION
+
+Use the current application.
+
+Do not restart product design from zero.
+
+Create:
+
+```
+BASELINE_PRODUCT_STATE.json
+```
+
+based on direct inspection.
+
+Use approximately 50–100 observable capabilities grouped by product area.
+
+For each capability record:
+
+```
+id
+title
+present
+partial
+absent
+broken
+requirement IDs
+evidence
+screenshots where applicable
+relevant files
+blockers
+priority
+```
+
+Take initial screenshots of the real current application.
+
+The point is to create an indisputable “before.”
+
+Do not represent all 710 requirements as one unreadable progress percentage.
+
+Link the detailed requirements beneath capabilities.
+
+---
+
+# 35. DO NOT TRUST CURRENT “710 VERIFIED”
+
+The previous audit found approximately:
+
+```
+710 mandatory requirements
+0 marked unverified
+710 missing four-proof references
+```
+
+Treat existing verification labels as historical state that must be reconciled.
+
+Do NOT throw away the requirements.
+
+Recalculate acceptance from actual current evidence.
+
+Preserve history showing that the previous labels existed.
+
+---
+
+# 36. KEEP / ADAPT / REPLACE / DELETE
+
+Audit existing implementation.
+
+For significant systems classify:
+
+```
+KEEP
+ADAPT
+REPLACE
+DELETE
+UNKNOWN_PENDING_INVESTIGATION
+```
+
+Do not rewrite good working Hermes/Empirium components because a new worker prefers its own design.
+
+Do not preserve wrong architecture simply because it already exists.
+
+Prefer incremental convergence.
+
+---
+
+# 37. DEVELOPMENT EXECUTION THROUGH THE AUTONOMY KERNEL
+
+All substantive product work should enter the commissioned WorkItem lifecycle.
+
+Do not bypass it by letting one Director directly rewrite half the application.
+
+Each WorkItem must have observable acceptance.
+
+Example:
+
+Bad:
+
+```
+Improve the employee inspector.
+```
+
+Good:
+
+```
+Employee inspector Model & Cost panel reads current employee/run telemetry,
+distinguishes requested/effective model,
+displays provider and cost class,
+survives reload,
+uses no mock production data,
+and passes specified browser test.
+```
+
+---
+
+# 38. PARALLELISM
+
+Parallelize independent leaves of the dependency graph.
+
+Do not parallelize the entire thought process.
+
+Good:
+
+```
+backend API
++
+independent UI shell
++
+independent asset conversion
+```
+
+when contracts are frozen.
+
+Bad:
+
+```
+four workers all rewriting the same employee-state service.
+```
+
+Respect file/worktree ownership.
+
+---
+
+# 39. RECOMMENDED DEPENDENCY PRIORITY
+
+The planner may refine the exact DAG based on actual code, but preserve approximately this dependency logic:
+
+## FOUNDATION
+
+* authoritative database/domain state;
+* current migrations;
+* Project/WorkItem/Run/Review semantics;
+* event stream;
+* model/cost telemetry;
+* auth/permissions needed by product.
+
+## OPERATIONAL VERTICAL SLICE
+
+Prove one complete real loop:
+
+```
+real Project
+→ task
+→ Employee
+→ Run
+→ implementation/work
+→ QA
+→ rework where needed
+→ accepted
+→ history
+→ UI
+→ living-office state
+```
+
+## ORGANIZATION
+
+* Organization Overview;
+* Personal Software;
+* Department status;
+* real metrics.
+
+## EMPLOYEE OBSERVABILITY
+
+* employee dossier;
+* current state;
+* model/tool/QA/history/config.
+
+## PROJECT WORKSPACES
+
+* Projects;
+* Tasks;
+* Runs;
+* artifacts;
+* QA;
+* dependencies.
+
+## LIVING OFFICE
+
+* event adapter;
+* semantic state;
+* movement;
+* workstations;
+* truthful activity.
+
+## KNOWLEDGE / LEARNING
+
+* scoped knowledge;
+* learning proposals;
+* performance.
+
+## ASSET/UX CONVERGENCE
+
+* shared worker rig;
+* modular office assets;
+* visual quality;
+* accessibility;
+* responsive states.
+
+Do not blindly execute this sequence if dependencies demonstrate a better order.
+
+---
+
+# 40. BUILD VERTICAL SLICES, NOT LAYERS OF STUBS
+
+Avoid:
+
+```
+create 20 database tables
+then 30 empty routes
+then 40 placeholder components
+then declare architecture complete
+```
+
+Prefer:
+
+```
+one capability
+    ↓
+database
+    ↓
+API
+    ↓
+UI
+    ↓
+runtime
+    ↓
+test
+    ↓
+QA
+    ↓
+accepted
+```
+
+Then expand.
+
+This reduces giant partially implemented systems.
+
+---
+
+# 41. FIRST MANDATORY REAL AUTONOMOUS PRODUCT DEMONSTRATION
+
+Before claiming the core product works, run a real bounded Personal Software Project through Empirium itself.
+
+It must use the actual system.
+
+Example task may be a safe improvement to Empirium or another disposable test repository.
+
+Flow must demonstrate:
+
+1. user-level Project exists;
+2. Director/planner creates durable WorkItems;
+3. dependency graph exists;
+4. worker is assigned;
+5. Attempt/Run occurs;
+6. actual model/provider recorded;
+7. implementation/research occurs;
+8. deterministic tests run;
+9. independent QA occurs;
+10. intentionally or naturally rejected work can re-enter rework;
+11. result integrates;
+12. Project history reflects reality;
+13. Employee dossier shows it;
+14. activity rail shows it;
+15. living office state reflects it;
+16. browser may close without killing Project;
+17. result remains visible after restart.
+
+---
+
+# 42. VISUAL QA IS FIRST-CLASS
+
+Do not repeat the previous situation where hundreds of automated tests pass but the defining product UI has not been properly examined.
+
+Create actual:
+
+```
+VISUAL_QA
+RUNTIME_QA
+```
+
+WorkItems.
+
+At meaningful milestones:
+
+* launch app;
+* create required backend states;
+* navigate real routes;
+* interact;
+* capture screenshots;
+* inspect console;
+* inspect accessibility;
+* inspect layout;
+* inspect live office;
+* record actionable defects;
+* repair.
+
+Visual feedback must be concrete.
+
+Reject vague:
+
+```
+Make it more premium.
+```
+
+Use:
+
+```
+route
+viewport
+component
+observed problem
+expected result
+severity
+screenshot/evidence
+repair criterion
+```
+
+---
+
+# 43. VISUAL QUALITY BAR
+
+The user's preferred result is:
+
+* premium;
+* polished;
+* coherent;
+* professional;
+* charming;
+* expressive;
+* not childish;
+* readable;
+* rich without becoming chaotic.
+
+The initial product does not need every final-market polish detail.
+
+It must not look like a programmer placeholder dashboard if the available assets and AI capability can reasonably make it much better.
+
+Perform several milestone visual passes rather than waiting until the end.
+
+---
+
+# 44. AUTOMATED TEST MATRIX
+
+Use repository-appropriate:
+
+* typecheck;
+* lint/static analysis where present;
+* unit;
+* database;
+* API;
+* integration;
+* E2E;
+* browser;
+* accessibility;
+* visual;
+* resilience;
+* targeted security;
+* performance smoke tests.
+
+Do not produce enormous successful logs in worker contexts.
+
+Return concise success.
+
+Expose detailed failure output on failure.
+
+---
+
+# 45. RECOVERY TESTING
+
+The initial product must prove central resilience claims.
+
+At minimum test:
+
+## BROWSER CLOSE
+
+Active Project continues.
+
+## APP RESTART
+
+Persistent entities survive.
+
+## RECONCILER RESTART
+
+Project state survives.
+
+## WORKER KILL
+
+WorkItem survives and replacement can continue.
+
+## PROVIDER 429
+
+WorkItem remains; state is RATE_LIMITED; no paid fallback.
+
+## PROVIDER OUTAGE
+
+Wait/reroute correctly.
+
+## QA REJECTION
+
+Same logical work returns for repair.
+
+## DEPENDENCY WAIT
+
+Waiting is explicit, not false completion.
+
+## EVENT STREAM RECONNECT
+
+UI catches up without inventing state.
+
+The Initial Product need not perform months of commercial burn-in, but these central architecture claims must be real.
+
+---
+
+# 46. INITIAL PRODUCT ACCEPTANCE GATE
+
+Implement a deterministic:
+
+```
+INITIAL_PRODUCT_ACCEPTANCE_GATE
+```
+
+Do not reuse a stale historical release gate result.
+
+This gate is different from later MARKET_RELEASE_READY.
+
+It should require at minimum:
+
+## SOURCE / REVISION
+
+* one exact candidate Git SHA;
+* clean or explicitly reproducible candidate boundary;
+* no unexplained dirty production source.
+
+## BUILD
+
+* typecheck/build succeeds;
+* required automated test suites green.
+
+## DOMAIN
+
+* Organization persists;
+* Personal Software persists;
+* permanent Employees persist;
+* Projects persist;
+* WorkItems/Tasks persist;
+* Runs/Attempts persist;
+* Reviews persist.
+
+## AUTONOMY
+
+* high-level Project can actually enter the autonomous system;
+* decomposition occurs;
+* bounded workers execute;
+* QA/rework operates;
+* integration occurs;
+* no routine `continue` from user.
+
+## RECOVERY
+
+* worker death recovery demonstrated;
+* browser close demonstrated;
+* service/controller restart does not lose project;
+* provider failure does not lose work.
+
+## EMPLOYEE
+
+* at least default Personal Software roles exist as persistent inspectable identities;
+* history survives;
+* backing runtime/model may change without changing identity.
+
+## ORGANIZATION UI
+
+* real Department data;
+* Personal Software card/view;
+* no fake operational metrics.
+
+## DEPARTMENT COCKPIT
+
+* core tabs/surfaces function;
+* current Projects/tasks/activity derive from truth.
+
+## EMPLOYEE DOSSIER
+
+* current state;
+* current work;
+* model/provider where available;
+* configuration;
+* QA;
+* history;
+* cost/token classification where available.
+
+## PROJECT UI
+
+* durable Project/task/run/review information inspectable.
+
+## LIVING OFFICE
+
+* renders successfully;
+* real Employees appear;
+* operational states derive from event/control state;
+* meaningful states such as working/coding/research/testing/review/waiting/rate-limit/error/crash/handoff/completion/offline have defined visual behavior or truthful visible representation;
+* no fake productive animation.
+
+## ACTIVITY
+
+* activity rail/event view corresponds to canonical events.
+
+## MODEL/COST
+
+* requested/effective model distinction where available;
+* provider;
+* free/subscription/unknown/paid classification;
+* no fabricated usage.
+
+## QA
+
+* independent QA exists;
+* at least one rejection/rework cycle demonstrated.
+
+## KNOWLEDGE / LEARNING
+
+* durable knowledge representation exists;
+* Learning Analyst capability is real enough to create evidence-backed proposal/history;
+* no uncontrolled critical self-modification.
+
+## DATA TRUTH
+
+* no production fake data for operational metrics;
+* unknown data is displayed as unknown.
+
+## VISUAL
+
+* real desktop screenshots reviewed;
+* no unresolved CRITICAL visual defect in central flows;
+* no unresolved HIGH defect that makes the defining experience misleading or seriously unusable.
+
+## ACCESSIBILITY
+
+* core information remains available without relying solely on animation;
+* basic keyboard/focus/status semantics work.
+
+## ECONOMICS
+
+* no unauthorized pay-as-you-go inference.
+
+## DEPLOYED/VIEWED BUILD
+
+Where the existing Tailscale/local service is used:
+
+* verify running bundle corresponds to candidate SHA/build;
+* do not claim a new build is live while an old bundle is served.
+
+---
+
+# 47. WHAT DOES NOT NEED TO BLOCK INITIAL ACCEPTANCE
+
+Unless it materially harms the product's core experience, Initial Product Acceptance does not require perfection in every future commercial concern.
+
+Examples of items that may remain explicit backlog:
+
+* every medium cosmetic defect;
+* every possible Department theme;
+* 75 unique character skins;
+* exhaustive game R&D;
+* every mobile visual refinement;
+* months-long burn-in;
+* full public deployment;
+* every future MCP;
+* maximum performance optimization;
+* exhaustive enterprise security hardening;
+* every future Department;
+* optional commercial packaging.
+
+Do NOT delete these from the Product Charter.
+
+Mark them accurately.
+
+Do not call MARKET_RELEASE_READY unless the later market release contract actually passes.
+
+---
+
+# 48. AFTER INITIAL ACCEPTANCE
+
+Do not immediately stop the instant the gate first becomes true if obvious high-value product work remains.
+
+Perform one final convergence cycle:
+
+1. inspect remaining capability gaps;
+2. repair unresolved CRITICAL items;
+3. repair unresolved HIGH items affecting core product;
+4. address obvious severe visual incoherence;
+5. rerun affected tests;
+6. rerun Initial Product Acceptance Gate.
+
+Do not enter an infinite perfection loop over trivial polish.
+
+---
+
+# 49. PROJECT COMPLETION MUST BE COMPUTED
+
+No model may simply state:
+
+```
+Empirium is finished.
+```
+
+Initial acceptance should be a deterministic function broadly equivalent to:
+
+```
+required_core_capabilities_accepted
+AND mandatory_core_requirements_satisfied
+AND zero_core_critical_defects
+AND zero_core_high_blockers
+AND required_tests_green
+AND required_runtime_evidence_current
+AND required_visual_evidence_current
+AND resilience_core_passed
+AND autonomous_demo_passed
+AND candidate_sha_matches_tested/deployed_candidate
+AND no unauthorized paid inference
+```
+
+Only then:
+
+```
+INITIAL_OPERATIONAL_PRODUCT_ACCEPTED
+```
+
+---
+
+# 50. PROGRESS REPORTING
+
+Do not spam the user with routine internal activity.
+
+Write durable progress to the control plane.
+
+Measure:
+
+* accepted capabilities;
+* incomplete capabilities;
+* accepted WorkItems;
+* QA rejection rate;
+* rework;
+* blockers;
+* recovery;
+* visual milestones;
+* human interventions.
+
+The user's desired interaction is not watching terminal prose.
+
+The user should eventually observe the company from Empirium itself.
+
+---
+
+# 51. HUMAN INTERRUPTION POLICY
+
+Ask the user only for genuine human-only blockers.
+
+Examples:
+
+* interactive login;
+* inaccessible sudo/password;
+* missing required user-owned source;
+* irreversible destructive decision;
+* public deployment;
+* mutually exclusive subjective product choice with no reversible safe default.
+
+Do not ask for:
+
+* implementation preference when one reversible technical default is reasonable;
+* routine debugging;
+* failed test approval;
+* worker restart;
+* provider retry;
+* permission to continue;
+* routine merge conflict;
+* QA repair.
+
+Continue independent work if one branch is blocked.
+
+---
+
+# 52. IF A MODEL/WORKER/PLANNER DIES
+
+Do not restart the whole product conversation.
+
+Use durable state.
+
+The default reaction is:
+
+```
+Attempt interrupted
+    ↓
+preserve artifacts
+    ↓
+lease reclaimed
+    ↓
+regenerate exact context packet
+    ↓
+new worker
+```
+
+If planning is affected:
+
+```
+create planner event
+    ↓
+fresh planner receives durable Project state
+```
+
+No need to resurrect an old train of thought.
+
+---
+
+# 53. IF THE PRODUCT FACTORY STALLS
+
+The reconciler should detect:
+
+```
+runnable work exists
+AND progress is not occurring
+```
+
+Then:
+
+1. identify stalled WorkItems;
+2. inspect attempts/failures;
+3. classify;
+4. recover/requeue where deterministic;
+5. wake fresh planner/diagnostic only when reasoning is needed;
+6. create revised bounded work;
+7. continue.
+
+Do not revert to permanent Meta-Director generation loops.
+
+---
+
+# 54. FINAL INDEPENDENT PRODUCT CHALLENGE
+
+Before Initial Product Acceptance:
+
+Use an appropriately strong independent reviewer on the candidate.
+
+Reviewer should be adversarial.
+
+Ask it to find:
+
+* product-specification omissions;
+* fake/demo production state;
+* runtime/UI truth disagreement;
+* employee/session identity confusion;
+* Project/Task/Run semantic collapse;
+* lost persistence;
+* unhandled restart paths;
+* false completion;
+* misleading cost/model data;
+* QA rubber stamping;
+* visual experience significantly below supplied references;
+* capabilities that exist only on paper;
+* old orchestration logic accidentally still controlling continuation.
+
+Convert valid findings into WorkItems.
+
+Repair blocking findings.
+
+Do not let reviewer directly implement and then approve its own fix.
+
+---
+
+# 55. FINAL SOURCE RECONCILIATION
+
+Once the Initial Product appears accepted:
+
+perform a fresh comparison against the original product sources.
+
+The purpose is to catch accidental scope loss.
+
+For every original major feature area answer:
+
+```
+EXISTS
+PARTIAL
+NOT YET IMPLEMENTED
+SUPERSEDED BY USER
+MARKET_RELEASE_BACKLOG
+```
+
+Do not quietly erase missing features.
+
+---
+
+# 56. FINAL OUTPUT ARTIFACTS
+
+Generate at minimum:
+
+```
+INITIAL_PRODUCT_ACCEPTANCE.json
+
+INITIAL_PRODUCT_REPORT.md
+
+BASELINE_PRODUCT_STATE.json
+
+CURRENT_CAPABILITY_STATE.json
+
+REMAINING_PRODUCT_BACKLOG.json
+
+MARKET_RELEASE_BACKLOG.md
+```
+
+The report should contain:
+
+* exact candidate Git SHA;
+* current deployment/build identity;
+* capabilities accepted;
+* capabilities partial;
+* major original requirements remaining;
+* autonomous Project demonstration;
+* QA/rework demonstration;
+* recovery demonstration;
+* living-office demonstration;
+* model/cost truth;
+* visual QA result;
+* known nonblocking limitations;
+* human blockers if any;
+* evidence locations.
+
+---
+
+# 57. USER-FACING SUCCESS MESSAGE
+
+When and only when:
+
+```
+INITIAL_PRODUCT_ACCEPTANCE_GATE == PASS
+```
+
+and final convergence/reconciliation has completed, report clearly:
+
+```
+EMPIRIUM INITIAL OPERATIONAL PRODUCT ACCEPTED
+```
+
+Then give the user a concise practical summary:
+
+* where to open Empirium;
+* exact candidate version/SHA;
+* what works;
+* what autonomous Project was demonstrated;
+* what central recovery tests passed;
+* what major non-market-ready items remain;
+* whether any further user action is required.
+
+Do not call it market-ready unless that is separately proven.
+
+---
+
+# 58. FINAL EXECUTION LAW
+
+The Product Charter remains large.
+
+The active context does not.
+
+The Project persists.
+
+Agents do not need to.
+
+Employees persist.
+
+Runs do not.
+
+WorkItems persist.
+
+Attempts do not.
+
+Requirements persist.
+
+Prompts do not.
+
+Evidence persists.
+
+Review conversations do not.
+
+Git state is exact.
+
+The control plane is authoritative.
+
+Hermes executes.
+
+Crews collaborate.
+
+Conductor visualizes bounded missions.
+
+The living office visualizes truth.
+
+The deterministic reconciler guarantees routine continuation.
+
+Strong models reason where entropy is high.
+
+Free models perform bounded implementation where constraints are clear.
+
+No implementation worker approves itself.
+
+No agent can reduce a hard product requirement merely because it is difficult.
+
+No passing unit suite alone proves the product.
+
+No animation proves runtime state.
+
+No process being alive proves progress.
+
+No process being dead proves completion.
+
+No LLM decides completion by opinion.
+
+The user must not repeatedly type:
+
+```
+continue.
+```
+
+That is the reason this architecture exists.
+
+---
+
+# 59. START NOW
+
+Verify the commissioned Autonomy Kernel.
+
+Re-baseline the real application.
+
+Compile the full source specification into capabilities and atomic requirements.
+
+Audit rather than blindly rebuild.
+
+Use the new durable WorkItem/Attempt architecture.
+
+Build vertical slices.
+
+Run real workers.
+
+Test.
+
+Reject inadequate work.
+
+Repair it.
+
+Integrate it.
+
+Drive the office from real events.
+
+Use the supplied visual direction.
+
+Demonstrate Personal Software on a real autonomous Project.
+
+Close the browser and prove work continues.
+
+Kill a worker and prove work continues.
+
+Restart services and prove identity/history survives.
+
+Inspect every central user-facing surface in a real browser.
+
+Perform independent final challenge.
+
+Reconcile against the source specification.
+
+Repair blocking gaps.
+
+Continue autonomously until:
+
+```
+INITIAL_OPERATIONAL_PRODUCT_ACCEPTED
+```
+
+or a genuine human-only blocker makes further useful autonomous progress impossible.
+
+BEGIN EXECUTION.

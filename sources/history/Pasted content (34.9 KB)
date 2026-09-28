@@ -1,0 +1,1599 @@
+# EMPIRIUM BUILD INCIDENT + SUPERVISOR FORENSIC AUDIT
+# READ-ONLY FIRST — DO NOT REPAIR UNTIL ROOT CAUSE IS PROVEN
+# INCIDENT: R3 timed out, no handoff/commit, build did not visibly recover
+# DATE: 2026-09-17
+
+You are acting as an independent senior reliability engineer, distributed
+systems investigator, and autonomous-agent orchestration auditor.
+
+A long-running Empirium Studio build encountered this observed outcome:
+
+    "R3 timed out without producing a handoff or commit.
+     The earlier legacy loop had already committed 898b7ac,
+     so that exact commit was submitted to Opus for independent review.
+
+     Opus verdict: REJECT."
+
+Opus identified blocking defects including:
+
+- insufficient PostgreSQL route-level tests;
+- broken/unwanted unconfigured-department fallback behavior;
+- wrong employee POST error semantics;
+- missing PostgreSQL entities returning successful null results instead of 404;
+- unnecessary public API / compatibility changes;
+- unnecessary getPool() widening;
+- stale evidence;
+- inadequate runtime proof.
+
+Deterministic checks on commit 898b7ac reportedly passed:
+
+    31 test files passed
+    315 tests passed
+    6 tests skipped
+    TypeScript passed
+
+The concern is:
+
+    WHY DID THE HEARTBEAT / RECOVERY SYSTEM NOT APPEAR TO RECOVER R3
+    AND CONTINUE THE WORK AUTOMATICALLY?
+
+Do NOT assume the heartbeat supervisor failed.
+
+Do NOT assume it worked.
+
+Determine exactly what happened from primary evidence.
+
+======================================================================
+0. AUDIT RULE
+======================================================================
+
+THIS IS AN AUDIT FIRST.
+
+Do NOT:
+
+- repair application code;
+- launch replacement implementation workers;
+- restart the real build merely to make it continue;
+- register projects with the supervisor;
+- rewrite supervisor configuration;
+- delete stale processes;
+- alter Git branches;
+- merge anything;
+- edit supervisor source;
+- change systemd;
+- change AppArmor;
+- change model/provider configuration;
+- mark anything complete.
+
+Preserve the scene first.
+
+Read-only inspection is preferred.
+
+If a harmless command must be run to determine current state, that is allowed.
+
+Do not destroy evidence.
+
+At the END of the audit, produce:
+
+1. exact root cause;
+2. contributing causes;
+3. whether supervisor itself malfunctioned;
+4. whether supervisor was simply not connected to this build;
+5. whether R3 was supposed to be supervised directly or through a child lease;
+6. exact repair actions required;
+7. a separate steering prompt for repair, but DO NOT execute that steering prompt.
+
+======================================================================
+1. KNOWN SUPERVISOR INSTALLATION
+======================================================================
+
+Known paths from previous installation:
+
+SUPERVISOR:
+
+    /home/ash/.local/lib/empirium-supervisor/controller/supervisor.mjs
+
+CONFIG:
+
+    /home/ash/.config/empirium-supervisor/config.json
+
+STATE ROOT:
+
+    /home/ash/.local/state/empirium-supervisor/
+
+INSTALL EVIDENCE:
+
+    /home/ash/.local/state/empirium-supervisor/install-evidence/
+
+CERTIFICATE:
+
+    /home/ash/.local/state/empirium-supervisor/
+    SUPERVISOR_INSTALLATION_CERTIFICATE.json
+
+COMMAND DOCUMENTATION:
+
+    /home/ash/.local/share/empirium-supervisor/SUPERVISOR_COMMANDS.md
+
+SYSTEMD USER SERVICE:
+
+    empirium-workforce-supervisor.service
+
+LEGACY DIRECTOR LAUNCHER:
+
+    /home/ash/.local/bin/empirium-luna-director
+
+POSSIBLE GENERALIZED LAUNCHER:
+
+    /home/ash/.local/bin/empirium-ai-director
+
+Known earlier state before the real build:
+
+    supervisor service active
+    supervisor service enabled
+    only supervisor-selftest registered
+    real Empirium Studio project NOT registered
+
+Do not assume that state remained unchanged.
+
+Verify current reality.
+
+======================================================================
+2. PRIMARY QUESTION TREE
+======================================================================
+
+Answer these questions independently.
+
+QUESTION A:
+
+Was the REAL Empirium build registered as a project in:
+
+    /home/ash/.config/empirium-supervisor/config.json
+
+at the moment R3 failed?
+
+QUESTION B:
+
+Was the active Meta-Orchestrator process actually launched BY the supervisor?
+
+Or was it launched separately through:
+
+- Hermes chat;
+- Hermes Studio;
+- Conductor;
+- Kanban;
+- shell;
+- Codex CLI;
+- another process?
+
+QUESTION C:
+
+Was R3:
+
+- the Meta-Director itself;
+- a Luna/Astra sub-orchestrator;
+- a project manager;
+- a FreeLLMAPI implementation worker;
+- a Hermes Kanban worker;
+- another execution process?
+
+QUESTION D:
+
+Did R3 possess an actual supervisor child lease?
+
+QUESTION E:
+
+If it possessed a lease:
+
+- did it heartbeat?
+- when did heartbeat stop?
+- when did lease expire?
+- did the supervisor emit LEASE_EXPIRED?
+- did it emit DIRECTOR_RECOVER_OR_REPLACE_CHILD or equivalent?
+- did the Meta-Director consume that directive?
+- did it ACK it?
+- did it launch a replacement?
+
+QUESTION F:
+
+If R3 had NO lease:
+
+why was the orchestration system expecting the supervisor to know R3 existed?
+
+QUESTION G:
+
+After Opus rejected commit 898b7ac:
+
+did the Meta-Orchestrator:
+
+- create repair work;
+- create new Kanban cards;
+- checkpoint;
+- continue;
+- exit normally;
+- crash;
+- hang;
+- hit context/session termination;
+- hit subscription limit;
+- hit provider failure?
+
+QUESTION H:
+
+If the Meta-Orchestrator stopped:
+
+did the supervisor detect it?
+
+If not, WHY NOT?
+
+======================================================================
+3. FIRST PRESERVE CURRENT STATE
+======================================================================
+
+Before interpreting anything, capture a read-only forensic snapshot.
+
+Create:
+
+    /home/ash/.local/state/empirium-supervisor/incident-audit-2026-09-17/
+
+Store command output there.
+
+Do not alter source/project state.
+
+Capture:
+
+    date --iso-8601=seconds
+    uname -a
+    uptime
+    ps -ef --forest
+    systemctl --user status empirium-workforce-supervisor.service
+    systemctl --user show empirium-workforce-supervisor.service
+    loginctl show-user ash
+
+Capture SHA-256 of:
+
+    supervisor.mjs
+    config.json
+    relevant launcher(s)
+    systemd unit
+    supervisor-state.json
+    installation certificate
+
+Copy read-only snapshots of:
+
+    config.json
+    supervisor-state.json
+    relevant directives JSONL
+    relevant events JSONL
+
+into the incident audit directory.
+
+Do not copy credential stores.
+
+======================================================================
+4. FIND THE REAL TARGET REPOSITORY
+======================================================================
+
+Do not assume its location.
+
+Discover the actual repository involved in commit:
+
+    898b7ac
+
+Search safely through likely Ash-owned development directories.
+
+Use git to positively identify the repository containing that commit.
+
+Record:
+
+    repository path
+    branch
+    HEAD
+    status
+    remote names
+    worktrees
+    commit 898b7ac metadata
+    parent SHA
+    child SHAs if any
+    current integration branch
+    current working trees
+
+Run:
+
+    git show --stat 898b7ac
+    git show --summary 898b7ac
+
+Do NOT modify checkout.
+
+Determine:
+
+- which worker produced it;
+- which task it belonged to;
+- whether it was merged;
+- whether it is still only a candidate;
+- whether newer commits exist.
+
+======================================================================
+5. RECONSTRUCT THE INCIDENT TIMELINE
+======================================================================
+
+Build one chronological timeline.
+
+Use UTC and local time if helpful.
+
+Correlate:
+
+- supervisor journal;
+- supervisor events.jsonl;
+- supervisor directives;
+- director logs;
+- launcher logs;
+- Hermes gateway logs;
+- Kanban state/history;
+- Codex logs/session records where safe;
+- FreeLLMAPI worker records;
+- R3 logs;
+- worker lease files;
+- Opus review file/output;
+- Git commits;
+- test outputs;
+- checkpoints.
+
+Find timestamps for at least:
+
+T0
+R3 created/assigned.
+
+T1
+R3 launched.
+
+T2
+last confirmed R3 activity.
+
+T3
+last R3 heartbeat, if any.
+
+T4
+R3 timeout detected by its parent/orchestrator.
+
+T5
+any supervisor lease expiry.
+
+T6
+any supervisor recovery directive.
+
+T7
+Meta-Orchestrator action after timeout.
+
+T8
+commit 898b7ac selected.
+
+T9
+Opus review started.
+
+T10
+Opus REJECT returned.
+
+T11
+repair/rework task should have been created.
+
+T12
+last meaningful project progress.
+
+T13
+last Meta-Director heartbeat.
+
+T14
+Meta-Director stopped/hung/exited, if applicable.
+
+T15
+supervisor response, if applicable.
+
+Continue timeline to current state.
+
+Do not leave unexplained gaps.
+
+======================================================================
+6. DETERMINE WHETHER REAL PROJECT WAS REGISTERED
+======================================================================
+
+Inspect current AND historical config evidence.
+
+Current:
+
+    /home/ash/.config/empirium-supervisor/config.json
+
+Historical config snapshots under:
+
+    /home/ash/.local/state/empirium-supervisor/install-evidence/
+
+Search for project IDs resembling:
+
+    empirium
+    empirium-studio
+    empirium-studio-workforce
+    workforce
+    ai-workforce
+
+Record every configured project.
+
+For each:
+
+    projectId
+    profile
+    root
+    launcher
+    heartbeat policy
+    completion checks
+    paid policy
+    paused status if stored elsewhere
+
+Determine whether the real build existed in supervisor config BEFORE the R3
+incident.
+
+Do not infer from current config only.
+
+Use config file mtimes, backups, events, journal and evidence.
+
+Return one exact answer:
+
+    REAL_PROJECT_REGISTERED_AT_INCIDENT = YES
+
+or:
+
+    REAL_PROJECT_REGISTERED_AT_INCIDENT = NO
+
+or:
+
+    CANNOT_PROVE
+
+======================================================================
+7. DETERMINE PROCESS ANCESTRY
+======================================================================
+
+This is one of the most important sections.
+
+Determine how the Meta-Orchestrator involved in this build was started.
+
+Expected supervised chain would resemble:
+
+    systemd --user
+      → supervisor.mjs
+        → empirium-ai-director / empirium-luna-director
+          → codex exec
+            → Meta-Director
+
+But the actual chain may instead have been:
+
+    Hermes gateway
+      → chat/session
+        → codex
+
+or another route.
+
+Use:
+
+- journal;
+- process records;
+- parent PID information still available;
+- launcher logs;
+- supervisor DIRECTOR_LAUNCHED events;
+- director log file naming;
+- project launchCount;
+- fingerprints;
+- Codex session timing.
+
+Determine:
+
+    WHO LAUNCHED THE META-DIRECTOR?
+
+Return:
+
+    SUPERVISOR_LAUNCHED
+    HERMES_LAUNCHED
+    MANUAL_LAUNCH
+    OTHER
+    UNKNOWN
+
+If not supervisor-launched, explain exactly why heartbeat recovery could not
+restart it.
+
+======================================================================
+8. AUDIT SUPERVISOR CURRENT HEALTH
+======================================================================
+
+Run read-only health/status.
+
+Verify:
+
+    service active
+    service enabled
+    exactly one daemon
+    daemon PID
+    state daemon PID
+    lock owner
+    config valid
+    state valid
+
+Check for duplicate supervisor processes.
+
+Check journal since incident.
+
+Look for:
+
+    supervisor errors
+    configuration rejection
+    mutex timeout
+    corrupt state
+    director launch failure
+    backoff
+    completion transition
+    stale heartbeat
+    lease expiry
+    progress stall
+    auth block
+    subscription capacity
+    process tree cleanup errors
+
+Do not assume silence means health.
+
+======================================================================
+9. AUDIT PROJECT STATE INSIDE SUPERVISOR
+======================================================================
+
+If real project exists in state, extract:
+
+    project ID
+    status
+    paused
+    profile
+    launchCount
+    restartHistory
+    director.pid
+    director start fingerprint
+    launchedAt
+    exitedAt
+    lastHeartbeatAt
+    lastProgressAt if available
+    progressSequence if available
+    backoff state
+    retryNotBefore
+    completion.all
+    completion details
+
+Compare timestamps to incident.
+
+If real project does NOT exist in supervisor state:
+
+state that prominently.
+
+======================================================================
+10. AUDIT META-DIRECTOR HEARTBEAT
+======================================================================
+
+If a supervised Meta-Director existed:
+
+determine whether it was actually calling:
+
+    supervisor heartbeat
+
+on the correct project ID.
+
+Check:
+
+- actor ID;
+- project ID;
+- frequency;
+- final heartbeat;
+- generation/launch ID if available.
+
+Possible defect:
+
+    supervisor monitors project A
+    director heartbeats project B
+
+or:
+
+    wrong actor-id
+
+or:
+
+    launcher starts Codex but prompt never instructs heartbeat.
+
+Prove actual behavior.
+
+======================================================================
+11. AUDIT PROGRESS WATCHDOG
+======================================================================
+
+Determine whether the V2 progress feature exists in the installed version.
+
+Inspect source and command help.
+
+Look for:
+
+    progress
+    lastProgressAt
+    progressSequence
+    PROJECT_PROGRESS_STALLED
+    DIRECTOR_CONTEXT_RECYCLE_REQUIRED
+    progressSoftStallSeconds
+    progressHardStallSeconds
+
+Return:
+
+    IMPLEMENTED_AND_ACTIVE
+    IMPLEMENTED_NOT_CONFIGURED
+    IMPLEMENTED_BUT_NOT_USED_BY_DIRECTOR
+    NOT_IMPLEMENTED
+
+If R3/Meta-Director stayed alive but stopped progressing, determine whether this
+feature should have fired.
+
+If it should have fired but didn't, determine exact reason.
+
+Examples:
+
+- missing progress config;
+- progress threshold too long;
+- heartbeats incorrectly counted as progress;
+- wrong project ID;
+- long-operation exemption stuck;
+- real project not supervised;
+- code bug.
+
+======================================================================
+12. IDENTIFY EXACTLY WHAT "R3" WAS
+======================================================================
+
+Search all project artifacts and logs for:
+
+    R3
+    r3
+    R-3
+    worker R3
+    retry 3
+    round 3
+
+Do not assume the label.
+
+Determine:
+
+    stable worker ID
+    task ID
+    role
+    provider
+    model
+    parent orchestrator
+    process/session ID
+    worktree
+    branch
+    lease ID
+    start time
+    timeout policy
+    final output
+
+Answer:
+
+    R3_CLASS =
+      META_DIRECTOR
+      SUB_ORCHESTRATOR
+      PROJECT_MANAGER
+      IMPLEMENTATION_WORKER
+      REVIEWER
+      OTHER
+
+This classification determines which layer should have recovered it.
+
+======================================================================
+13. CHILD LEASE AUDIT FOR R3
+======================================================================
+
+Inspect:
+
+    runtime leases
+    WORK_LEASES.json if present
+    supervisor events
+    supervisor directives
+
+Determine whether R3 had a lease.
+
+Return:
+
+    R3_LEASE = YES / NO
+
+If YES record:
+
+    leaseId
+    actorId
+    actorType
+    workstream
+    createdAt
+    heartbeatAt
+    timeout
+    expiry
+    status
+
+Then determine:
+
+    DID_LEASE_EXPIRE?
+
+    DID_SUPERVISOR_EMIT LEASE_EXPIRED?
+
+    DID_SUPERVISOR EMIT RECOVERY DIRECTIVE?
+
+    DID META-DIRECTOR READ IT?
+
+    DID META-DIRECTOR ACK IT?
+
+    WAS A REPLACEMENT CREATED?
+
+For every NO, explain why.
+
+======================================================================
+14. IMPORTANT AUTHORITY CHECK
+======================================================================
+
+Verify architectural responsibility.
+
+The deterministic supervisor should normally:
+
+- supervise the Meta-Director directly;
+- detect child lease expiry;
+- emit a recovery directive.
+
+It should NOT directly perform R3's software task.
+
+Recovery of a child worker should normally be:
+
+    R3 dies
+        ↓
+    lease expires
+        ↓
+    supervisor records expiry
+        ↓
+    supervisor issues child-recovery directive
+        ↓
+    Meta-Director receives directive
+        ↓
+    Meta-Director inspects existing work
+        ↓
+    replacement worker/task created
+        ↓
+    work continues
+
+Determine whether this chain existed.
+
+Do not wrongly classify:
+
+    "supervisor didn't personally write the missing code"
+
+as supervisor failure.
+
+======================================================================
+15. DIRECTIVE ACK AUDIT
+======================================================================
+
+Determine whether durable directive ACK support exists.
+
+Search source/CLI for:
+
+    directive-ack
+    pending directives
+    acknowledged
+    ackSequence
+
+If implemented, inspect relevant project.
+
+Determine whether any R3 recovery directive remained:
+
+    PENDING
+    ACKED
+    NEVER_CREATED
+
+Check whether director restart replayed or ignored it.
+
+If not implemented, note risk but do not invent evidence.
+
+======================================================================
+16. AUDIT META-DIRECTOR AFTER R3 FAILURE
+======================================================================
+
+This is critical.
+
+R3 timed out.
+
+Then the system apparently selected legacy commit:
+
+    898b7ac
+
+and submitted it to Opus.
+
+That implies some parent intelligence remained alive after R3 died.
+
+Identify that parent.
+
+Determine its exact sequence:
+
+    detected R3 timeout
+    → found 898b7ac
+    → ran deterministic tests
+    → requested Opus review
+    → received REJECT
+    → ???
+
+What happened at "???"?
+
+Search for:
+
+- rework task creation;
+- worker brief;
+- replacement worker;
+- new worktree;
+- new commit;
+- checkpoint;
+- final assistant output;
+- process exit;
+- session completion;
+- context exhaustion;
+- rate limit;
+- auth problem;
+- provider problem.
+
+The critical question:
+
+WHY DID THE LOOP STOP AFTER OPUS REJECT?
+
+Return one primary reason.
+
+======================================================================
+17. CHECK KANBAN / HERMES DURABLE WORK
+======================================================================
+
+Audit the actual Hermes/Kanban state involved in the build.
+
+Do not assume Studio UI tasks = native Hermes Kanban.
+
+Inspect local source/config/state enough to determine actual board.
+
+Identify:
+
+    board ID/name
+    task/card for R3
+    parent task
+    status
+    assignee/profile
+    dependencies
+    review state
+    comments
+    handoff
+    worker execution status
+
+Determine whether Opus rejection automatically created or should have created:
+
+    CHANGES_REQUESTED
+    REWORK
+    repair card
+    requeue
+
+If it remained merely a textual response inside one AI session, identify that
+as an orchestration gap.
+
+======================================================================
+18. AUDIT FAILURE-TO-REWORK TRANSITION
+======================================================================
+
+The intended cycle is:
+
+    implement
+    → test
+    → independent review
+    → REJECT
+    → defect records
+    → repair task(s)
+    → free implementation worker
+    → test
+    → review again
+
+Determine which transition failed.
+
+Classify:
+
+    REVIEW_RECORDED_BUT_NO_REWORK_TASK
+
+    REWORK_TASK_CREATED_BUT_NOT_DISPATCHED
+
+    WORKER_DISPATCHED_BUT_FAILED
+
+    PARENT_ORCHESTRATOR_EXITED
+
+    SUPERVISOR_DID_NOT_RELAUNCH_PARENT
+
+    CHILD_LEASE_RECOVERY_FAILED
+
+    PROJECT_NOT_SUPERVISED
+
+    OTHER
+
+This classification is mandatory.
+
+======================================================================
+19. AUDIT THE LEGACY COMMIT SELECTION
+======================================================================
+
+Determine why:
+
+    898b7ac
+
+was selected after R3 failed.
+
+Was this:
+
+A. legitimate salvage of the latest valid implementation candidate;
+
+B. an inappropriate fallback to stale work;
+
+C. a workaround because R3 produced nothing;
+
+D. caused by worker/worktree confusion?
+
+Check:
+
+    commit timestamp
+    author
+    task
+    branch
+    base commit
+    tests
+    evidence paths
+
+Determine whether Opus reviewed the exact commit claimed.
+
+This is separate from the heartbeat issue.
+
+======================================================================
+20. AUDIT EVIDENCE FRESHNESS
+======================================================================
+
+Opus specifically complained that evidence was stale.
+
+Inspect evidence metadata.
+
+Determine:
+
+- what commit evidence referenced;
+- what commit Opus reviewed;
+- whether test outputs corresponded to 898b7ac;
+- whether runtime evidence corresponded to it;
+- whether screenshots/runtime data were older.
+
+Identify exactly which evidence was stale.
+
+Do not simply repeat Opus's statement.
+
+======================================================================
+21. VERIFY THE SUPERVISOR ITSELF DID NOT FAIL
+======================================================================
+
+Run existing deterministic supervisor test suite.
+
+Do not alter source.
+
+Record:
+
+    total tests
+    pass
+    fail
+
+Run appropriate status/health command.
+
+Do not rerun destructive live tests unnecessarily.
+
+Inspect whether core guarantees still hold:
+
+    mutex
+    PID fingerprint
+    duplicate daemon lock
+    zero-paid config
+    environment allowlist
+    pause/resume
+    completion regression
+    stale heartbeat logic
+    child lease logic
+    progress logic if implemented
+
+If all work, explicitly state:
+
+    SUPERVISOR_CORE_HEALTHY
+
+even if project wiring was wrong.
+
+Do not call a wiring failure a supervisor-code failure.
+
+======================================================================
+22. ZERO-PAID POLICY RECHECK
+======================================================================
+
+Verify current:
+
+    paidEmergency.enabled
+    maxUsdPerProject
+    launch.env
+    adapter configuration
+
+Verify no automatic paid fallback was enabled during incident.
+
+Inspect event/model usage records if available.
+
+Return:
+
+    PAID_INFERENCE_DURING_INCIDENT =
+        NONE_OBSERVED
+        OBSERVED
+        UNKNOWN
+
+======================================================================
+23. SUBSCRIPTION ROUTE HEALTH
+======================================================================
+
+Determine whether Codex/ChatGPT subscription was available around incident.
+
+Look for:
+
+    auth error
+    account rate limit
+    subscription usage limit
+    model unavailable
+    codex launcher failure
+    sandbox failure
+    process crash
+
+Do not run an expensive new model call merely to audit old history unless needed.
+
+If a simple safe preflight exists, use it.
+
+======================================================================
+24. SYSTEMD JOURNAL TIMELINE
+======================================================================
+
+Inspect:
+
+    journalctl --user -u empirium-workforce-supervisor.service
+
+for a window spanning at least:
+
+    30 minutes before incident
+    through
+    30 minutes after the point activity stopped
+
+Search for:
+
+    DIRECTOR_LAUNCHED
+    DIRECTOR_EXIT_DETECTED
+    DIRECTOR_STALE
+    HARD_STALE
+    PROJECT_PROGRESS_STALLED
+    CONTEXT_RECYCLE
+    LEASE_EXPIRED
+    RECOVER_OR_REPLACE
+    BACKOFF
+    COMPLETION
+    CONFIG_REJECTED
+    AUTH
+    SUBSCRIPTION
+    ERROR
+
+If exact incident timestamp is not immediately known, derive it from Git/Opus
+logs first.
+
+======================================================================
+25. CHECK WHETHER BUILD RAN OUTSIDE SUPERVISOR
+======================================================================
+
+This must have an explicit finding.
+
+Search for Codex/Hermes session/process logs associated with the build.
+
+Compare against supervisor launch records.
+
+If build's Meta-Orchestrator has no matching:
+
+    DIRECTOR_LAUNCHED
+    launchCount
+    project ID
+    log file
+    fingerprint
+
+then conclude:
+
+    BUILD WAS OUTSIDE SUPERVISOR CONTROL
+
+unless contrary evidence exists.
+
+Explain exactly what that means.
+
+======================================================================
+26. CHECK PROJECT REGISTRATION QUALITY IF PRESENT
+======================================================================
+
+If the real project WAS registered, verify its config.
+
+Audit:
+
+    root
+    profile
+    launcher
+    arguments
+    checkpoint path
+    heartbeat threshold
+    hard stale threshold
+    progress soft threshold
+    progress hard threshold
+    completion checks
+    retry policy
+    paid policy
+
+Look for errors such as:
+
+    wrong project ID
+    wrong repo root
+    wrong checkpoint file
+    launcher points at selftest
+    completion files from another project
+    impossible completion gate
+    profile mismatch
+
+======================================================================
+27. CHECK META-DIRECTOR PROMPT WIRING
+======================================================================
+
+Inspect the actual prompt passed to the Meta-Director.
+
+Verify it explicitly instructs the director to:
+
+- heartbeat supervisor;
+- use correct project ID;
+- report meaningful progress separately if V2 supported;
+- read pending recovery directives;
+- ACK handled directives;
+- create leases for project managers;
+- replace expired child workers;
+- checkpoint before voluntary exit;
+- resume existing state;
+- continue after Opus rejection;
+- never treat a worker timeout as project completion;
+- never treat an Opus rejection as final termination.
+
+If these instructions were absent:
+
+identify this as a prompt/launcher integration defect.
+
+======================================================================
+28. CHECK CHILD-MANAGER / WORKER CONTRACT
+======================================================================
+
+Inspect actual worker brief used for R3.
+
+Did it contain:
+
+    worker ID
+    task ID
+    requirement IDs
+    worktree
+    lease ID
+    heartbeat command
+    timeout
+    handoff path
+    expected commit behavior
+    failure behavior
+
+If no lease/heartbeat contract was present, say so.
+
+Do not blame R3 for failing to heartbeat if it was never instructed/configured
+to do so.
+
+======================================================================
+29. DETERMINE EXPECTED RECOVERY PATH
+======================================================================
+
+Based on R3 classification, state exactly what SHOULD have happened.
+
+Example if R3 = FreeLLMAPI implementation worker:
+
+    R3 timeout
+    → lease expiry
+    → recovery directive
+    → Meta-Director receives directive
+    → inspect R3 worktree
+    → salvage commit if valid
+    → create replacement worker R4
+    → continue same repair task
+    → deterministic tests
+    → Opus review
+    → repeat until approved
+
+Example if R3 = Meta-Director:
+
+    heartbeat expires
+    → soft stale
+    → hard stale
+    → tracked process tree terminated
+    → supervisor relaunches Meta-Director
+    → checkpoint read
+    → work resumes
+
+Compare EXPECTED to ACTUAL step-by-step.
+
+======================================================================
+30. ROOT CAUSE CLASSIFICATION
+======================================================================
+
+Choose ONE primary root-cause class:
+
+RC-01
+REAL PROJECT NEVER REGISTERED WITH SUPERVISOR
+
+RC-02
+META-DIRECTOR NOT LAUNCHED BY SUPERVISOR
+
+RC-03
+WRONG PROJECT ID / HEARTBEAT TARGET
+
+RC-04
+META-DIRECTOR HEARTBEAT INTEGRATION MISSING
+
+RC-05
+CHILD WORKER HAD NO LEASE
+
+RC-06
+CHILD LEASE EXPIRED BUT RECOVERY DIRECTIVE NOT GENERATED
+
+RC-07
+RECOVERY DIRECTIVE GENERATED BUT NOT CONSUMED
+
+RC-08
+DIRECTIVE CONSUMED BUT REPLACEMENT NOT CREATED
+
+RC-09
+OPUS REJECTION DID NOT CREATE DURABLE REWORK
+
+RC-10
+META-DIRECTOR STOPPED BUT SUPERVISOR FAILED TO RELAUNCH
+
+RC-11
+META-DIRECTOR REMAINED ALIVE BUT LOGICALLY STALLED
+
+RC-12
+SUPERVISOR PROGRESS WATCHDOG NOT ACTIVE
+
+RC-13
+SUPERVISOR CODE DEFECT
+
+RC-14
+SUBSCRIPTION/AUTH FAILURE
+
+RC-15
+OTHER
+
+Select ONE PRIMARY.
+
+Then list contributing causes separately.
+
+======================================================================
+31. DETERMINE WHETHER HEARTBEAT "FAILED"
+======================================================================
+
+Return exactly one of:
+
+A.
+
+    HEARTBEAT SUPERVISOR MALFUNCTIONED
+
+B.
+
+    HEARTBEAT SUPERVISOR WORKED AS DESIGNED,
+    BUT REAL BUILD WAS NOT UNDER ITS CONTROL
+
+C.
+
+    HEARTBEAT SUPERVISOR WORKED AS DESIGNED,
+    BUT R3 WAS A CHILD WORKER OUTSIDE DIRECT PROCESS SUPERVISION
+
+D.
+
+    HEARTBEAT SUPERVISOR DETECTED FAILURE,
+    BUT RECOVERY DIRECTIVE PATH FAILED
+
+E.
+
+    META-DIRECTOR REMAINED ALIVE,
+    SO HEARTBEAT CORRECTLY DID NOT RESTART IT;
+    PROGRESS SUPERVISION FAILED/MISSING
+
+F.
+
+    INSUFFICIENT EVIDENCE
+
+This conclusion must be supported by timestamps/evidence.
+
+======================================================================
+32. SUPERVISOR CERTIFICATION RECHECK
+======================================================================
+
+Re-evaluate current supervisor readiness after incident.
+
+For each classify:
+
+PASS
+FAIL
+NOT_APPLICABLE
+NOT_PROVEN
+
+- service active;
+- service enabled;
+- single daemon;
+- config valid;
+- state valid;
+- mutex safe;
+- PID fingerprint;
+- child env stripped;
+- zero-paid enforced;
+- stale heartbeat soft stage;
+- stale heartbeat hard recovery;
+- process tree cleanup;
+- progress watchdog;
+- directive ACK;
+- lease expiry;
+- lease recovery directive;
+- generation protection;
+- subscription attestation;
+- state recovery;
+- config LKG;
+- multi-project isolation;
+- completion gate;
+- completion regression.
+
+Do not rely solely on old installation certificate.
+
+======================================================================
+33. DO NOT CONFUSE THESE FAILURES
+======================================================================
+
+Keep these distinct:
+
+PROCESS DIED
+
+versus
+
+PROCESS ALIVE BUT STALLED
+
+versus
+
+CHILD WORKER DIED
+
+versus
+
+META-DIRECTOR DIED
+
+versus
+
+TASK FAILED
+
+versus
+
+OPUS REJECTED IMPLEMENTATION
+
+versus
+
+PROVIDER FAILED
+
+versus
+
+PROJECT WAS NEVER SUPERVISED
+
+Each has a different recovery mechanism.
+
+======================================================================
+34. OUTPUT — HUMAN REPORT
+======================================================================
+
+Create:
+
+    /home/ash/.local/state/empirium-supervisor/incident-audit-2026-09-17/
+    INCIDENT_FORENSIC_AUDIT.md
+
+Use sections:
+
+1. Executive verdict
+2. Exact incident timeline
+3. What R3 actually was
+4. Was real project registered?
+5. Who launched Meta-Director?
+6. Heartbeat evidence
+7. Progress watchdog evidence
+8. Child lease evidence
+9. Recovery-directive evidence
+10. Opus rejection → rework evidence
+11. Why execution stopped
+12. Supervisor health
+13. Git/worktree state
+14. Kanban/task state
+15. Evidence freshness
+16. Zero-paid verification
+17. Root cause
+18. Contributing causes
+19. Required fixes
+20. What must NOT be changed
+21. Safe next action
+
+======================================================================
+35. OUTPUT — MACHINE REPORT
+======================================================================
+
+Create:
+
+    /home/ash/.local/state/empirium-supervisor/incident-audit-2026-09-17/
+    INCIDENT_FORENSIC_AUDIT.json
+
+Schema approximately:
+
+{
+  "incident": {
+    "commit": "898b7ac",
+    "r3Class": null,
+    "r3TaskId": null,
+    "r3LeaseId": null,
+    "r3TimedOutAt": null
+  },
+  "realProject": {
+    "projectId": null,
+    "registeredAtIncident": null,
+    "supervisorStatePresent": null
+  },
+  "metaDirector": {
+    "launchedBy": null,
+    "supervisorControlled": null,
+    "lastHeartbeatAt": null,
+    "lastProgressAt": null,
+    "exitAt": null
+  },
+  "childRecovery": {
+    "leaseExisted": null,
+    "leaseExpired": null,
+    "directiveCreated": null,
+    "directiveConsumed": null,
+    "replacementCreated": null
+  },
+  "opus": {
+    "reviewCommit": "898b7ac",
+    "verdict": "REJECT",
+    "reworkCreated": null
+  },
+  "supervisor": {
+    "serviceActive": null,
+    "coreHealthy": null,
+    "heartbeatWorked": null,
+    "progressWatchdogWorked": null
+  },
+  "rootCause": {
+    "code": null,
+    "summary": null
+  },
+  "paidInferenceObserved": null,
+  "requiredFixes": []
+}
+
+Use null where evidence is insufficient.
+
+======================================================================
+36. PRODUCE A REPAIR STEERING PROMPT — BUT DO NOT RUN IT
+======================================================================
+
+After the audit, create:
+
+    /home/ash/.local/state/empirium-supervisor/incident-audit-2026-09-17/
+    REPAIR_STEERING_PROMPT.md
+
+The repair prompt must be based ONLY on proven findings.
+
+Do not pre-decide the fix.
+
+Examples:
+
+If RC-01:
+    register real project correctly.
+
+If RC-05:
+    wire child leases into worker creation.
+
+If RC-09:
+    make Opus rejection create durable rework tasks.
+
+If RC-11/12:
+    activate/fix progress watchdog.
+
+If RC-13:
+    patch supervisor.
+
+The repair prompt must preserve all functioning supervisor protections.
+
+DO NOT execute the repair during this audit.
+
+======================================================================
+37. FINAL CONSOLE RESPONSE
+======================================================================
+
+After writing the audit files, return only a concise summary:
+
+INCIDENT ROOT CAUSE:
+<RC code + one sentence>
+
+R3 WAS:
+<class>
+
+REAL PROJECT REGISTERED:
+YES / NO / UNKNOWN
+
+META-DIRECTOR LAUNCHED BY SUPERVISOR:
+YES / NO / UNKNOWN
+
+META-DIRECTOR HEARTBEAT:
+WORKED / FAILED / NOT CONNECTED / UNKNOWN
+
+R3 LEASE:
+PRESENT / ABSENT / UNKNOWN
+
+LEASE RECOVERY:
+WORKED / FAILED / NOT APPLICABLE / UNKNOWN
+
+PROGRESS WATCHDOG:
+WORKED / FAILED / NOT ACTIVE / NOT IMPLEMENTED / UNKNOWN
+
+OPUS REJECTION CREATED DURABLE REWORK:
+YES / NO / UNKNOWN
+
+SUPERVISOR CORE:
+HEALTHY / FAULT FOUND / UNKNOWN
+
+PAID INFERENCE:
+NONE OBSERVED / OBSERVED / UNKNOWN
+
+WHY THE BUILD STOPPED:
+<one precise paragraph>
+
+REQUIRED FIXES:
+<number>
+
+AUDIT REPORT:
+<path>
+
+REPAIR STEERING PROMPT:
+<path>
+
+DO NOT FIX ANYTHING YET.
+
+======================================================================
+38. FINAL AUDITOR INSTRUCTION
+======================================================================
+
+Do not try to make the previous architecture look successful.
+
+Do not try to make it look broken.
+
+Find the truth.
+
+The key distinction to resolve is:
+
+    DID THE HEARTBEAT SUPERVISOR FAIL?
+
+or:
+
+    WAS THE FAILED EXECUTION NEVER WITHIN THE SUPERVISOR'S DIRECT
+    RESPONSIBILITY / REGISTRATION?
+
+or:
+
+    DID THE SUPERVISOR DETECT THE FAILURE BUT THE ORCHESTRATION
+    RECOVERY LOOP ABOVE IT FAIL?
+
+Only primary evidence decides.
+
+BEGIN THE FORENSIC AUDIT NOW.

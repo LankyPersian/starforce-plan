@@ -1,0 +1,112 @@
+I have now audited the actual Stage-0 pack. The result is **REVISE BEFORE LAUNCH**.
+
+It is a substantial improvement over the earlier planning and I would keep most of it, but I would **not give Hermes the autonomous-campaign launch approval yet**. There are several internal contradictions and two genuine scope-integrity problems that are exactly the kind of thing Stage 0 is supposed to catch.
+
+The strongest parts are worth preserving: the decision register correctly locks M0 as Foundation rather than SHIPPED, treats AC-001–060 as non-exhaustive, preserves reuse-first architecture, separates product employees from build workers, and correctly makes MCP, memory, calendar, model routing and truthful office state part of the real product.  The controller acceptance tests, known-bad harness calibration and explicit behavioral-predicate standard are also very good foundations.  
+
+But I found the following blocking defects.
+
+1. **The “full requirement ledger v1” is not actually in the pack.** Item 8 says that the complete ledger is a Stage-0/F0 requirement and that several hundred atomic requirements are expected, which is correct. But the purported M0 ledger literally contains a placeholder: `"... (50 requirements as listed in original Item 8) ..."`.  It then says another 70–100 requirements still need to be extracted later.  So this is not yet the “complete Stage-0 pack” it claims to be; it is effectively a **pre-F0 planning pack**. That is okay as an intermediate artifact, but it must not be frozen as the product/acceptance baseline.
+
+2. **The authoritative original Part A + Part B V4 sources appear to be missing from the source register.** The source inventory lists an 840-line “V1” master prompt and a separate V2 hardened protocol, but the original source of truth we worked from was the much larger two-part Version 4 protocol.  Before ledger freeze, Hermes must either locate those exact V4 Part A and Part B documents or machine-prove that another registered source is byte/content-equivalent. The complete consolidated brief is useful, but we explicitly decided summaries/derived material do not silently replace the original authority. This is a **HIGH-severity source-integrity issue**.
+
+3. **There is likely source contamination from unrelated material.** The pack treats `rom-rnd` as one of the master-prompt profiles and explicitly references **Tron Bonne** research; U9 even proposes creating a `tron-bonne/` input directory.   Nothing in the consolidated AI Workforce product definition we've established requires Tron Bonne ROM R&D. Hermes must trace those requirements to their exact authoritative source. If they originate from a stale/mixed prompt or another project, they must be classified as unrelated and removed from the current build requirement/profile count. Do not let a contaminated build prompt silently add another project's requirements.
+
+4. **The canonical domain model accidentally drops `Project`.** This is a major product regression. Item 7 contains Department, Employee, Workflow Definition, Schedule, Workflow Run, Task/Step, Attempt, Artifact, Handoff, Review, Approval and so on—but **no Project entity at all**.  The original product contract explicitly requires Projects as durable user intent, distinct from workflows, tasks and runs. One-off projects are a major mode of work alongside recurring/event-driven workflows. Add `Project` back as a first-class entity, with relationships to workflows/tasks/runs/artifacts/reviews/approvals. Also restore or explicitly defer other original entities such as Temporary Worker and Crew rather than accidentally losing them during workflow expansion.
+
+5. **The F7 gate contradicts the entire M0/Core separation.** The milestone table says F7 Foundation exits only when **“All CORE-REQUIRED predicates pass”**, then the very next row says CORE-REQUIRED work continues **after F7**.  Those cannot both be true. F7 should require **all M0-REQUIRED predicates**, the M0 resilience/soak evidence and independent Foundation review. The later final-release gate requires all CORE-REQUIRED predicates.
+
+6. **CORE vs EXTENDED classification is inconsistent.** The binding decision correctly says voice, learning, full MCP registry, cross-department workflows and the richer workflow builder are deferred from M0 but mandatory for Core, while finance, broad multi-tenancy and native mobile are optional/post-core.  But Item 8 puts finance, multi-tenant SaaS and native mobile under “CORE-REQUIREMENTS,” and Item 9 then places **voice receptionist** under EXTENDED.   Fix the tiers before any requirement ledger is frozen:
+
+   * **CORE-REQUIRED:** voice/realtime worker capability, controlled learning, full MCP capability management, cross-department workflows, real visual workflow builder, richer calendar/integrations, multiple departments, model-routing system.
+   * **EXTENDED unless subsequently promoted:** finance-specific module/templates, broad SaaS multi-tenancy, native mobile.
+
+7. **The benchmark is positioned too late and therefore cannot perform its intended governance function.** The agreed methodology was: Stage-0/F0 preparation → frozen harness/packet → **20-attempt benchmark** → inspect acceptance rate → decide whether autonomous campaign/concurrency has been earned. Here the phase table puts the benchmark at **F4**, after F1 durable domain, F2 workflow engine and F3 free-games implementation have already been built.  That defeats the point of benchmarking the worker contract before scaling implementation. Move the build-worker benchmark to **after F0/harness freeze and before F1 autonomous implementation**. F4 can still contain a *product* model/MCP/memory acceptance gate, but that is a different test.
+
+8. **The pack conflates “approve this pack” with “launch the autonomous campaign.”** Next Steps says the owner reviews the pack and that this is the single launch approval, after which F0 begins.  But our binding process was that the broad autonomous campaign is launched after the Stage-0/F0 material and benchmark numbers exist. Pack approval should authorize Hermes to **finish F0 and run the benchmark**, not yet unleash the full build campaign. Then one explicit launch approval can authorize F1 onward. Otherwise you're approving a campaign before you've seen the very benchmark intended to determine whether it should run.
+
+9. **The scheduler acceptance predicate is internally impossible as written.** It says the browser is closed **and the service is stopped**, then time passes and the workflow run is created and completed.  Split this into two different proofs:
+
+   * **Browser independence:** browser closed, backend running → scheduled occurrence executes normally.
+   * **Missed-run recovery:** backend stopped across the due time → backend restarts → configured missed-run policy (`run-once`, `skip`, `coalesce`, etc.) is correctly applied.
+
+   Those are materially different resilience behaviors.
+
+10. **The free-games predicate assumes that every successful run finds a free game.** It says the run must create an artifact and deliver a notification.  A legitimate run can find nothing. Add two deterministic acceptance scenarios:
+
+* fixture containing qualifying promotions → produce alert/artifact;
+* fixture containing no qualifying promotion → successful `NO_MATCH` outcome, no false alert.
+
+This directly protects the “no-result is success” requirement.
+
+11. **The build benchmark does not explicitly freeze the base SHA across all 20 attempts.** It correctly freezes task definition, predicate, fixture, packet and route policy.  But if attempt 2 starts from code produced by attempt 1, and attempt 3 starts from attempt 2, the 20 results are no longer comparable. For the experiment, all 20 independent worker attempts should start from the **same frozen base SHA/worktree state**, unless the benchmark is explicitly defined as a cumulative sequence—which it currently is not. Add `benchmark_base_sha` to the frozen experiment contract.
+
+12. **The controller “No self-decomposition” test says the opposite of its own title.** It currently says the controller “creates its own child tasks from its own analysis only.”  The deterministic controller should not semantically invent work from “its own analysis.” A planner may propose bounded decomposition; the deterministic controller should validate it against requirements/dependencies/budgets and persist/dispatch it. Rewrite this test to prevent autonomous unbounded task invention.
+
+13. **The graceful-pause rule is unsafe for hard-stop conditions.** Item 14 says the controller finishes its current attempt before pausing.  That is reasonable for a normal campaign budget threshold, but not necessarily for:
+
+* security violation;
+* unexpected paid spend;
+* destructive behavior;
+* duplicate state corruption.
+
+Define `SOFT_PAUSE` vs `HARD_STOP`. Hard-stop conditions must be allowed to terminate/cancel the current attempt safely.
+
+14. **There are two conflicting homes for the acceptance harness/build state.** Item 12 puts `verify.sh`, `checks/`, fixtures and evidence in `/home/ash/empirium-studio/`.  Item 14 puts the harness and `project.db` under `/home/ash/.hermes/autonomy/`.  Choose one explicit topology. My recommendation:
+
+* **repo-owned versioned acceptance definition:** `/home/ash/empirium-studio/verify.sh`, `checks/`, fixtures, requirement/predicate files;
+* **runtime build-control state/evidence:** `/home/ash/empirium-studio/.hermes/autonomy/` or another explicitly documented durable control directory;
+* hashes in control state point to the exact committed harness SHA.
+
+What matters is that workers cannot mutate acceptance and that the exact acceptance version is tied to the integrated SHA.
+
+15. **The risk register understates scope-collapse risk.** It marks scope collapse LOW likelihood because D3 says not to do it.  A written rule is not a mitigation strong enough to make the likelihood low—especially while the full ledger is still missing and `Project` has already disappeared from the domain model. Keep scope collapse at **HIGH severity / MEDIUM or HIGH likelihood until the complete source→requirement map is frozen and orphan count is zero**. Add separate high risks for:
+
+* missing authoritative V4 source;
+* source contamination/stale prompt material;
+* incomplete full ledger;
+* domain concept loss during reconciliation.
+
+16. **The claim “No speculative or unverified claims” is not true yet.** The pack itself contains “likely,” “pending F0,” preliminary classifications and unverified source attachments.  That's perfectly acceptable in a planning document, but don't label it verified. Change this to something like: “Unverified environmental or source conclusions are explicitly marked and have F0 resolution actions.”
+
+### My verdict
+
+This is **not a failed Stage-0 pack**. In fact, most of the governance thinking is considerably better than the systems you were using before. The pack now understands durable state, evidence, benchmark discipline, independent acceptance, scope tiers, reuse-first engineering and the difference between background autonomy and a persistent model session.
+
+But it is **not ready to be frozen or used to launch the autonomous campaign**.
+
+I would make the next status:
+
+> **STAGE-0 PACK V1 — CONDITIONAL / REVISION REQUIRED**
+> No product implementation campaign authorized.
+> Authorized work: source reconciliation, Stage-0 corrections, environment verification, acceptance-harness preparation and benchmark preparation only.
+
+Then give Hermes this instruction:
+
+> Revise `stage-0-pack-v1.md` into `stage-0-pack-v2.md` before requesting launch approval. Preserve all correct material. Do not restart the document from scratch.
+>
+> Mandatory corrections:
+>
+> 1. Locate and register the exact authoritative Empirium Studio Part A + Part B Version 4 master protocol files, or prove content-equivalence to registered sources. Do not freeze the ledger without them.
+> 2. Investigate and remove or explicitly justify apparent unrelated source contamination, especially `rom-rnd` / Tron Bonne material. No unrelated project requirement/profile may enter this build without exact authoritative provenance.
+> 3. Replace the placeholder Item-8 M0 ledger with the actual atomic entries. F0 must produce the complete product ledger from all authoritative sources before implementation scaling. The ledger must include M0-REQUIRED, CORE-REQUIRED and EXTENDED classifications and maintain zero substantive unmapped authoritative source content.
+> 4. Restore `Project` as a first-class canonical domain entity, distinct from Workflow, Task and Run. Audit the original domain contract for any other lost entities, especially Temporary Worker, Crew and their persistence/identity rules.
+> 5. Correct F7: Foundation gate requires all M0-REQUIRED predicates, not all CORE-REQUIRED predicates. Final product release requires all CORE-REQUIRED predicates.
+> 6. Correct classification contradictions: voice/realtime worker capability remains CORE-REQUIRED; finance-specific module, broad multi-tenancy and native mobile remain EXTENDED unless separately promoted. Reconcile every tier against D8/D83.
+> 7. Move the 20-attempt build-worker benchmark to after F0/harness freeze and before F1 autonomous implementation. F4 may retain a separate product-runtime model/MCP/memory gate but must not be the first worker benchmark.
+> 8. Separate Stage-0/F0 authorization from autonomous-campaign launch. Approval of V2 authorizes completion of F0 and the benchmark. The broad F1+ campaign launches only after benchmark results meet pre-registered thresholds and one explicit owner launch approval is given.
+> 9. Split the scheduler predicate into browser-closed execution and service-down missed-run recovery.
+> 10. Add both MATCH and NO_MATCH cases to the free-games workflow acceptance contract.
+> 11. Freeze one identical `benchmark_base_sha` for every attempt in a benchmark round so the 20 attempts are genuinely comparable.
+> 12. Rewrite Controller Acceptance “No self-decomposition”: semantic decomposition may come from a bounded planner, but the deterministic controller must only validate/persist/dispatch according to requirements, dependencies and budgets; it must not invent unbounded work.
+> 13. Define SOFT_PAUSE vs HARD_STOP behavior. Security/policy/spend/state-corruption hard stops may cancel the active attempt; ordinary budget/benchmark pauses may finish safely.
+> 14. Resolve harness/control-state path topology. Specify one canonical location for versioned acceptance definitions and one durable runtime-control state location. Remove conflicting paths.
+> 15. Raise scope-collapse risk until complete source→requirement coverage is frozen. Add risks for missing V4 authority, source contamination, incomplete ledger and domain concept loss.
+> 16. Replace “No speculative or unverified claims” with an honest statement distinguishing verified findings from F0-pending findings.
+> 17. Re-run the entire pack self-audit after these changes: source coverage, decision consistency, tier consistency, domain completeness, timeline consistency, predicate quality, benchmark integrity and controller semantics. Do not merely patch the listed lines; search for downstream contradictions caused by each correction.
+>
+> Output a concise V1→V2 change log at the top and a final table stating every blocking defect above as `RESOLVED` with its exact section/line reference.
+>
+> Do **not** start F1 implementation and do **not** declare the campaign launched. Return V2 for review.
+
+That is the point at which I would review it once more. If V2 genuinely fixes these items, I expect the next review to be much shorter, because the underlying structure is now largely sound.

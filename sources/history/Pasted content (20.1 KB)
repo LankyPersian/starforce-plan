@@ -1,0 +1,906 @@
+I need you to modify my current Empirium/Hermes AI execution system so that an LLM/provider failure NEVER unnecessarily ends an autonomous task.
+
+This is a real implementation task, not a design discussion.
+
+Work autonomously from the current codebase. Inspect the actual implementation before changing anything. Do not assume where the problem is.
+
+============================================================
+PROBLEM
+============================================================
+
+At the moment I can be running an autonomous coding task and the selected provider/model fails with an error such as:
+
+"The AI service rejected the request.
+freellmapi did not accept how this request was built.
+Switch provider or send diagnostics so we can look into it."
+
+The UI then stops the task and asks me to manually click "Switch provider".
+
+This is unacceptable for long-running autonomous jobs.
+
+I was expecting provider/model fallback to happen automatically.
+
+The desired behavior is:
+
+MODEL / PROVIDER FAILS
+        ↓
+failure classified
+        ↓
+current work/state preserved
+        ↓
+compatible fallback selected automatically
+        ↓
+same task/run resumes
+        ↓
+agent continues from exactly where it stopped
+
+The FAILURE of an LLM/provider must NOT automatically mean FAILURE of the task/run.
+
+============================================================
+PRIMARY OBJECTIVE
+============================================================
+
+Implement robust automatic LLM/provider failover for autonomous runs.
+
+A transient provider/model failure should become a recoverable execution event.
+
+The run should only stop when:
+
+1. every permitted compatible fallback route has been exhausted;
+2. continuing would risk corrupting state/data;
+3. a required human approval is genuinely needed;
+4. the cost/budget ceiling would be exceeded;
+5. the task itself has actually failed for a non-provider reason.
+
+Provider failure alone is NOT sufficient to stop.
+
+============================================================
+FIRST: FORENSICALLY FIND THE CURRENT FAILURE PATH
+============================================================
+
+Before modifying code, trace the real request path.
+
+Find:
+
+- where the AI request originates;
+- provider selection;
+- model selection;
+- free LLM API integration;
+- freellmapi integration;
+- provider abstraction/router;
+- any retry logic;
+- any fallback logic;
+- error normalization;
+- model capability checks;
+- tool-call request construction;
+- structured-output request construction;
+- reasoning/thinking parameters;
+- streaming;
+- conversation/session state;
+- task/run state;
+- UI error handling;
+- "Switch provider" button behavior;
+- manual provider switching behavior;
+- persistence/checkpoint behavior.
+
+Determine exactly WHY the current request stops instead of falling back.
+
+Do not merely add another catch block until you understand the existing logic.
+
+Document the root cause briefly in the final report.
+
+============================================================
+REQUIRED ARCHITECTURAL BEHAVIOR
+============================================================
+
+Introduce a clear separation between:
+
+TASK / RUN
+and
+MODEL ATTEMPT.
+
+Conceptually:
+
+RUN
+ ├── Model Attempt 1
+ │      provider A
+ │      model A
+ │      FAILED
+ │
+ ├── Model Attempt 2
+ │      provider B
+ │      model B
+ │      FAILED
+ │
+ └── Model Attempt 3
+        provider C
+        model C
+        SUCCEEDED
+
+The durable RUN remains alive throughout.
+
+A failed provider attempt must not destroy:
+
+- task state;
+- working directory;
+- Git changes;
+- files already modified;
+- current plan;
+- previous tool output;
+- run ID;
+- project ID;
+- agent identity;
+- task acceptance criteria;
+- logs;
+- handoff state;
+- cost accounting.
+
+============================================================
+ERROR CLASSIFICATION
+============================================================
+
+Create or improve a normalized failure classifier.
+
+At minimum distinguish:
+
+PROVIDER_REJECTED_REQUEST
+
+MODEL_UNAVAILABLE
+
+PROVIDER_UNAVAILABLE
+
+RATE_LIMITED
+
+AUTH_FAILED
+
+CREDIT_EXHAUSTED
+
+TIMEOUT
+
+NETWORK_ERROR
+
+SERVER_5XX
+
+BAD_GATEWAY
+
+UNSUPPORTED_PARAMETER
+
+UNSUPPORTED_TOOL_CALLS
+
+UNSUPPORTED_STRUCTURED_OUTPUT
+
+UNSUPPORTED_REASONING_PARAMETER
+
+UNSUPPORTED_STREAMING
+
+CONTEXT_TOO_LARGE
+
+CONTENT_FILTER
+
+MALFORMED_RESPONSE
+
+MODEL_INTERNAL_ERROR
+
+CANCELLED
+
+BUDGET_EXCEEDED
+
+TASK_ERROR
+
+UNKNOWN_PROVIDER_ERROR
+
+Different failure classes may have different retry/fallback behavior.
+
+============================================================
+RECOVERABLE FAILURES
+============================================================
+
+Normally attempt fallback automatically for:
+
+PROVIDER_REJECTED_REQUEST
+
+MODEL_UNAVAILABLE
+
+PROVIDER_UNAVAILABLE
+
+RATE_LIMITED
+
+TIMEOUT
+
+NETWORK_ERROR
+
+SERVER_5XX
+
+BAD_GATEWAY
+
+UNSUPPORTED_PARAMETER
+
+UNSUPPORTED_TOOL_CALLS
+
+UNSUPPORTED_STRUCTURED_OUTPUT
+
+UNSUPPORTED_REASONING_PARAMETER
+
+UNSUPPORTED_STREAMING
+
+MALFORMED_RESPONSE
+
+MODEL_INTERNAL_ERROR
+
+CONTEXT_TOO_LARGE
+where a safe compatible fallback/compaction strategy exists.
+
+============================================================
+NON-BLIND RETRIES
+============================================================
+
+Do NOT repeatedly send the exact same incompatible request.
+
+If the error means:
+
+unsupported tool calls
+→ choose a tool-capable route.
+
+unsupported structured output
+→ choose a route supporting that request mode or adapt request safely.
+
+unsupported reasoning parameter
+→ remove/translate the unsupported parameter or select compatible model.
+
+context too large
+→ compact/summarize context safely before fallback.
+
+rate limit
+→ move to another route rather than hammering the same provider.
+
+provider-level outage
+→ prefer another provider.
+
+model-level failure
+→ another model may be enough.
+
+A maximum of ONE immediate identical retry is acceptable only for genuinely transient transport errors.
+
+Otherwise change strategy.
+
+============================================================
+FALLBACK ROUTING
+============================================================
+
+Build a deterministic fallback policy.
+
+Use the currently available provider/model configuration.
+
+Do NOT hard-code stale provider names if the project already has provider configuration.
+
+Each route should expose capabilities such as:
+
+- tools/function calling;
+- structured output;
+- reasoning parameter support;
+- vision if needed;
+- context window;
+- streaming;
+- coding suitability;
+- free/subscription/paid;
+- availability;
+- provider.
+
+Select only compatible fallbacks.
+
+Example conceptual priority:
+
+1. same model on another compatible provider, if available;
+2. another free compatible model;
+3. another subscription-backed compatible model;
+4. paid fallback only when permitted by project budget;
+5. strongest emergency route if explicitly allowed.
+
+Do not downgrade to a route incapable of completing the current request.
+
+============================================================
+FREE LLM API BEHAVIOR
+============================================================
+
+Investigate specifically how freellmapi chooses models/providers.
+
+If freellmapi itself claims to provide multiple fallbacks, determine:
+
+- whether fallback occurs inside freellmapi;
+- what classes of errors trigger it;
+- what classes do NOT;
+- whether our request format prevents fallback;
+- whether our application is calling a single fixed backend rather than the aggregator;
+- whether errors are being transformed too early;
+- whether the UI aborts before fallback occurs.
+
+Do not assume freellmapi is working as advertised.
+
+Prove the actual behavior from code/logs/tests.
+
+============================================================
+PRESERVE RUN STATE
+============================================================
+
+Before switching models/providers:
+
+checkpoint the current run.
+
+Persist enough state to resume safely.
+
+At minimum preserve:
+
+run ID
+
+task ID
+
+project ID if applicable
+
+agent ID
+
+current plan
+
+current task phase
+
+last successful action
+
+working directory
+
+Git branch/worktree
+
+files changed
+
+tool results needed for continuation
+
+acceptance criteria
+
+conversation/handoff summary
+
+provider attempts already made
+
+cost already incurred
+
+next expected action
+
+============================================================
+NO DUPLICATE SIDE EFFECTS
+============================================================
+
+This is CRITICAL.
+
+Provider failover must not accidentally repeat destructive or non-idempotent actions.
+
+Examples:
+
+- applying the same migration twice;
+- creating the same file twice;
+- sending the same external message twice;
+- creating duplicate tasks;
+- committing twice;
+- launching duplicate child agents;
+- repeated API mutation.
+
+Track the last successful side effect/tool call.
+
+On resume:
+
+continue AFTER the last confirmed successful action.
+
+Do not replay it unless it is explicitly idempotent.
+
+============================================================
+MODEL ATTEMPT RECORDS
+============================================================
+
+For every attempt record:
+
+run_id
+
+attempt_number
+
+provider
+
+model
+
+started_at
+
+ended_at
+
+request capability profile
+
+status
+
+failure_class
+
+HTTP/provider error code if safe
+
+sanitized error summary
+
+retry/fallback decision
+
+fallback target
+
+input tokens
+
+output tokens
+
+cost if any
+
+latency
+
+============================================================
+FAILOVER CHAIN
+============================================================
+
+Maintain a visible failover chain.
+
+Example:
+
+Attempt 1
+freellmapi / Model A
+FAILED
+UNSUPPORTED_TOOL_CALLS
+
+↓
+
+Attempt 2
+Free Provider B / Model C
+FAILED
+RATE_LIMITED
+
+↓
+
+Attempt 3
+Claude subscription / Sonnet
+RUNNING
+
+The user should be able to inspect this later.
+
+============================================================
+UI BEHAVIOR
+============================================================
+
+Current behavior displays a large terminal error and stops.
+
+Change this.
+
+For a recoverable provider failure, show something like:
+
+"Provider failed — switching automatically"
+
+Then:
+
+"Trying Free Model B…"
+
+or
+
+"Resuming with Claude…"
+
+The run should remain visibly ACTIVE/RECOVERING.
+
+Suggested transient status:
+
+RECOVERING_PROVIDER
+
+Do NOT show the run as FAILED while a fallback is still available.
+
+============================================================
+UI CONTROLS
+============================================================
+
+Keep useful manual controls.
+
+Allow:
+
+View details
+
+Force switch provider
+
+Cancel run
+
+Pause run
+
+Retry current provider
+
+Open logs
+
+But automatic recovery should normally require no user interaction.
+
+============================================================
+FINAL FAILURE UI
+============================================================
+
+Only show a terminal failure when the fallback policy has genuinely exhausted its routes.
+
+Then say clearly:
+
+"All compatible AI routes failed."
+
+Show:
+
+providers/models attempted;
+
+failure classes;
+
+last error;
+
+whether code/work was preserved;
+
+resume/retry controls.
+
+Never imply that existing code changes have been lost if they remain on disk.
+
+============================================================
+AUTONOMOUS LONG-RUN RULE
+============================================================
+
+Implement this invariant:
+
+A provider rejection, rate limit, unsupported request feature, temporary network failure, provider 5xx, gateway error or model incompatibility is NEVER by itself a reason to terminate an autonomous mission.
+
+Instead:
+
+1. preserve progress;
+2. classify failure;
+3. record attempt;
+4. select compatible fallback;
+5. checkpoint;
+6. resume the SAME Run;
+7. continue until the actual task Definition of Done is met.
+
+============================================================
+RETRY / LOOP PROTECTION
+============================================================
+
+Prevent infinite loops.
+
+Maintain:
+
+attempted provider+model combinations;
+
+failure reasons;
+
+retry counts.
+
+Do not retry the same incompatible route endlessly.
+
+Suggested limits:
+
+same exact route + same request incompatibility:
+0 retries
+
+transient transport timeout:
+1 immediate retry
+
+rate limited:
+switch route
+
+provider 5xx:
+1 retry then switch
+
+malformed provider response:
+switch route
+
+auth/credit failure:
+disable that provider for this run and switch
+
+============================================================
+PROVIDER HEALTH
+============================================================
+
+Maintain temporary provider/model health state.
+
+For example:
+
+HEALTHY
+
+DEGRADED
+
+RATE_LIMITED
+
+UNAVAILABLE
+
+AUTH_FAILED
+
+INCOMPATIBLE_WITH_REQUEST
+
+If a provider has just failed in a way likely to affect all calls:
+
+avoid selecting it again immediately.
+
+Use a cooldown where appropriate.
+
+============================================================
+REQUEST CAPABILITY PROFILING
+============================================================
+
+Before dispatch, determine what the request requires:
+
+tools?
+
+structured output?
+
+reasoning effort?
+
+streaming?
+
+vision?
+
+large context?
+
+JSON schema?
+
+long output?
+
+Then choose only routes supporting those capabilities.
+
+This should prevent many failures BEFORE sending the request.
+
+============================================================
+BUDGET
+============================================================
+
+Automatic failover must respect the existing paid-model budget.
+
+Free → free:
+automatic.
+
+Free → already-authorized subscription:
+automatic where supported.
+
+Free/subscription → paid:
+only if allowed by the run/project policy.
+
+Never silently exceed a configured cash cap just to recover.
+
+============================================================
+LOGGING
+============================================================
+
+Add useful structured logs.
+
+Example:
+
+[run 286]
+provider attempt failed
+provider=freellmapi
+model=...
+class=UNSUPPORTED_TOOL_CALLS
+
+[run 286]
+fallback selected
+provider=...
+model=...
+reason=compatible tools + zero marginal cost
+
+[run 286]
+execution resumed
+checkpoint=step-18
+
+Never log API keys or bearer tokens.
+
+============================================================
+TESTS — REQUIRED
+============================================================
+
+Build deterministic tests that simulate failures.
+
+At minimum test:
+
+1. primary free model succeeds
+2. primary rejects request → free fallback succeeds
+3. primary rate-limited → alternate provider succeeds
+4. unsupported tool-call provider → tool-capable route selected
+5. unsupported reasoning field → compatible route used
+6. provider timeout → one retry → fallback
+7. provider 500 → fallback
+8. provider auth failure → provider disabled for run
+9. provider credit exhausted → fallback
+10. malformed response → fallback
+11. first fallback fails → second fallback succeeds
+12. every route fails → terminal failure
+13. run ID remains unchanged through fallback
+14. task remains active
+15. code/file modifications survive fallback
+16. completed tool calls are not duplicated
+17. cost records include each attempt
+18. free fallback incurs $0 cash
+19. paid fallback cannot violate project cap
+20. user cancel stops further fallback attempts
+21. browser reload during recovery preserves state if architecture supports durable runs
+22. provider health cooldown works
+23. incompatible provider is not immediately selected again
+24. error UI becomes recovery UI while fallback is available
+25. final error UI appears only after exhaustion
+
+============================================================
+LIVE REPRODUCTION
+============================================================
+
+After unit/integration tests:
+
+reproduce the current real issue safely.
+
+Use a harmless coding/test request that causes or simulates the freellmapi incompatibility.
+
+Verify:
+
+freellmapi rejects request;
+
+run does NOT terminate;
+
+fallback is selected automatically;
+
+UI shows recovery;
+
+same Run continues;
+
+existing file modifications remain;
+
+task completes through the fallback model.
+
+Capture logs/screenshots as evidence.
+
+Do not deliberately spend paid inference if a simulated provider is sufficient for deterministic testing.
+
+============================================================
+DO NOT BREAK CURRENT WORK
+============================================================
+
+Before editing:
+
+inspect Git status.
+
+Preserve existing uncommitted changes.
+
+Do not reset, stash, discard or overwrite the user's current work.
+
+The screenshot/current state already shows at least one modified file.
+
+Treat it as valuable existing work.
+
+============================================================
+CODE QUALITY
+============================================================
+
+Do not implement this as a giant pile of special cases such as:
+
+if provider == freellmapi ...
+
+Create proper abstractions.
+
+Likely concepts may include:
+
+ProviderErrorClassifier
+
+RequestCapabilityProfile
+
+ProviderCapabilityProfile
+
+FallbackPolicy
+
+ProviderHealthTracker
+
+ModelAttempt
+
+RunCheckpoint
+
+RecoveryCoordinator
+
+Use the project's existing naming/style if equivalent abstractions already exist.
+
+============================================================
+DEFINITION OF DONE
+============================================================
+
+THIS TASK IS NOT DONE UNTIL ALL OF THESE ARE TRUE:
+
+[ ] actual existing provider routing path understood
+
+[ ] reason current fallback fails identified
+
+[ ] provider errors normalized
+
+[ ] recoverable vs terminal failures distinguished
+
+[ ] request capability requirements determined
+
+[ ] provider/model capabilities represented
+
+[ ] automatic compatible fallback implemented
+
+[ ] free-provider fallback works
+
+[ ] subscription fallback works where legitimately configured
+
+[ ] paid fallback respects budget
+
+[ ] same Run survives provider failure
+
+[ ] task state survives
+
+[ ] code/file changes survive
+
+[ ] no duplicated non-idempotent side effects
+
+[ ] attempt history persisted/logged
+
+[ ] provider health/cooldown implemented where appropriate
+
+[ ] infinite retry loops prevented
+
+[ ] recovery state displayed in UI
+
+[ ] manual provider controls remain available
+
+[ ] terminal failure shown only after fallback exhaustion
+
+[ ] all automated fallback tests pass
+
+[ ] existing regression tests pass
+
+[ ] current real failure scenario reproduced/simulated and verified
+
+[ ] evidence captured
+
+============================================================
+FINAL RESPONSE
+============================================================
+
+Do not come back after merely identifying the problem.
+
+Do not stop after writing a plan.
+
+Do not stop after implementing only one fallback.
+
+Do not ask me to manually switch provider unless automatic routes are genuinely exhausted.
+
+Work through implementation and testing autonomously.
+
+When complete, give me:
+
+AUTOMATIC PROVIDER FAILOVER — COMPLETE
+
+Root cause:
+<exact cause>
+
+Files changed:
+<list>
+
+New fallback behavior:
+<summary>
+
+Fallback order:
+<actual implemented behavior>
+
+Failure classes supported:
+<list>
+
+State preservation:
+<how it works>
+
+Duplicate-side-effect protection:
+<how it works>
+
+Tests:
+<count and results>
+
+Real/simulated freellmapi failure test:
+PASS / FAIL
+
+Regression tests:
+<results>
+
+Known limitations:
+<only genuine remaining limitations>
+
+Git commit:
+<hash if committed>
+
+Then stop.
+
+The key acceptance test is simple:
+
+IF FREELLMAPI REJECTS A REQUEST WHILE AN AUTONOMOUS CODING RUN IS IN PROGRESS, THE RUN MUST AUTOMATICALLY MOVE TO ANOTHER COMPATIBLE MODEL/PROVIDER AND CONTINUE FROM THE SAME WORK STATE WITHOUT ME HAVING TO PRESS "SWITCH PROVIDER".
+
+BEGIN BY TRACING THE CURRENT FAILURE PATH, THEN IMPLEMENT THE FIX, TEST IT, AND VERIFY IT END TO END.

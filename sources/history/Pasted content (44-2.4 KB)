@@ -1,0 +1,2236 @@
+# EMPIRIUM STUDIO — AUTONOMY KERNEL REFOUNDATION & COMMISSIONING
+
+## EXECUTION PROMPT 1 OF 2
+
+You are operating on the existing Empirium Studio development machine.
+
+This is an **EXECUTION DIRECTIVE**, not a request for a plan, explanation, architecture essay, or suggested roadmap.
+
+Your task is to modify the existing Empirium development system so that it becomes a genuinely durable autonomous software-development factory capable of continuing work without relying on one long-lived orchestrator conversation.
+
+Do not begin by attempting to finish the whole Empirium product.
+
+Your mission in this prompt is:
+
+> **BUILD, MIGRATE TO, TEST, BREAK, RECOVER, AND COMMISSION THE AUTONOMY KERNEL THAT WILL LATER BE TRUSTED TO FINISH EMPIRIUM.**
+
+The user intends to step away.
+
+Routine failures must be handled autonomously.
+
+Do not require the user to repeatedly type `continue`.
+
+Do not stop because a worker, planner, model session, provider route, terminal process, browser session, or orchestration session ended.
+
+Only interrupt the user for a genuine human-only blocker as defined near the end of this directive.
+
+---
+
+# 0. FUNDAMENTAL ARCHITECTURAL CORRECTION
+
+The previous architecture attempted to preserve project continuity largely by preserving or repeatedly relaunching an intelligent Meta-Director.
+
+That architecture is now superseded.
+
+The new law is:
+
+> **KEEP THE PROJECT ALIVE, NOT THE LLM SESSION.**
+
+All intelligent execution sessions are disposable.
+
+This includes:
+
+* Project Director sessions;
+* planning sessions;
+* subplanner sessions;
+* implementation worker sessions;
+* reviewer sessions;
+* diagnostic sessions.
+
+The durable things are:
+
+* product requirements;
+* capabilities;
+* projects;
+* WorkItems;
+* dependencies;
+* Attempts/Runs;
+* leases;
+* artifacts;
+* decisions;
+* defects;
+* reviews;
+* evidence;
+* events;
+* Git revisions;
+* unresolved blockers;
+* Definition of Done;
+* project progress.
+
+No LLM conversation is allowed to become the authoritative memory of the project.
+
+No individual agent's continued existence is required for project continuity.
+
+---
+
+# 1. SOURCE AND AUTHORITY HIERARCHY
+
+The machine already contains extensive Empirium source material and previous execution machinery.
+
+Do NOT discard it.
+
+Discover it.
+
+Likely important locations include:
+
+```
+/home/ash/empirium-studio
+```
+
+and the user-owned source package:
+
+```
+"/home/ash/Desktop/AI Taskforce"
+```
+
+Search recursively rather than assuming filenames.
+
+The previous two-part V4 Master Meta-Orchestration Protocol may exist in the source package, repository, build-control directory, or another previously generated location.
+
+Treat previous source material according to this authority model:
+
+## 1.1 THIS PROMPT
+
+This prompt is authoritative for:
+
+* orchestration architecture;
+* autonomous-development control flow;
+* persistence of development state;
+* scheduling;
+* leasing;
+* context construction;
+* worker recovery;
+* progress measurement;
+* task lifecycle;
+* planner lifecycle;
+* commissioning.
+
+Where the previous V4 protocol conflicts with this prompt on those subjects, **THIS PROMPT SUPERSEDES THE OLD ORCHESTRATION RULE**.
+
+In particular, superseded concepts include any rule whose practical effect is:
+
+```
+unfinished project
+=> keep/relaunch one permanent Meta-Director continuously
+```
+
+or:
+
+```
+ordinary task scheduling
+=> requires an LLM manager
+```
+
+or:
+
+```
+every recovery
+=> reconstruct the whole project through a Director
+```
+
+or:
+
+```
+project health
+=> Director process is alive
+```
+
+Those are no longer authoritative.
+
+## 1.2 PREVIOUS USER PRODUCT SPECIFICATIONS
+
+The previous Part A, Part B, project-transfer documents, visual references, user requirements, assets, and other product-intent documents remain authoritative sources of **PRODUCT REQUIREMENTS** unless the user explicitly superseded them.
+
+Do not silently delete a feature because orchestration has changed.
+
+Do not reinterpret this refoundation as permission to reduce Empirium into:
+
+* a Kanban board;
+* a multi-agent chat interface;
+* Hermes Studio with different branding;
+* a Conductor wrapper;
+* a simple coding agent;
+* a static animated office;
+* a dashboard.
+
+The product vision remains large.
+
+The execution mechanism is what is being corrected.
+
+## 1.3 CURRENT REPOSITORY/RUNTIME
+
+Actual current code, database structure, processes, tests, services and installed Hermes functionality define implementation reality.
+
+Inspect before changing.
+
+Do not blindly trust old written claims about what exists.
+
+## 1.4 OLD ORCHESTRATION INSTRUCTIONS
+
+May be reused where they do not conflict with this architecture.
+
+Useful concepts worth retaining include:
+
+* bounded hierarchy;
+* deterministic control where possible;
+* zero-pay-as-you-go policy;
+* provider verification;
+* minimum-complete context;
+* model-specific task briefs;
+* structured handoffs;
+* isolated worktrees;
+* independent review;
+* explicit test/runtime evidence;
+* task/run separation;
+* anti-false-completion principles;
+* human-only blocker standards.
+
+---
+
+# 2. ECONOMIC POLICY
+
+Unless the user has explicitly changed it in durable project state:
+
+```
+NEW PAY-AS-YOU-GO AI INFERENCE BUDGET = $0.00
+```
+
+Preserve the existing free/subscription-first doctrine.
+
+Do not infer that the presence of an API key gives permission to spend.
+
+Use:
+
+* existing subscription-backed intelligence where correctly authenticated;
+* verified zero-price routes;
+* FreeLLMAPI;
+* deterministic software whenever intelligence is unnecessary.
+
+Never enable a paid fallback merely to finish faster.
+
+Do not hard-code old model names as permanent truths.
+
+Discover current available routes and classify them by:
+
+* provider;
+* effective model;
+* authentication type;
+* cost class;
+* capabilities;
+* privacy suitability;
+* tool support;
+* reliability;
+* latency;
+* current quota/availability.
+
+Use capability classes rather than assuming a model name remains available forever.
+
+---
+
+# 3. CURRENT BASELINE — VERIFY, DO NOT BLINDLY TRUST
+
+A September 18, 2026 audit previously observed approximately:
+
+```
+repository:
+    /home/ash/empirium-studio
+
+branch:
+    feat/empirium-studio-workforce
+
+automated tests:
+    398 passing across 38 test files
+
+typecheck:
+    passing
+
+production build:
+    passing
+
+supervisor:
+    healthy
+
+orchestration:
+    very high Director relaunch count
+    generation observed around 73
+
+release gate:
+    NOT_READY
+
+requirements:
+    710 mandatory
+    0 marked unverified
+    710 missing required four-proof references
+
+working tree:
+    dirty
+
+visual QA:
+    not adequately established
+
+deployment:
+    potential current-build/deployed-bundle mismatch
+```
+
+This is historical evidence, not permission to assume it is still exact.
+
+Re-audit live reality first.
+
+---
+
+# 4. BEGIN WITH A SAFE REFOUNDATION FREEZE
+
+Do not let the old orchestration system continue mutating the project while a second scheduler is being introduced.
+
+Create a safe transition.
+
+## 4.1 Capture
+
+Record:
+
+* current Git branch;
+* current HEAD;
+* dirty files;
+* untracked files;
+* running services;
+* running orchestrators;
+* worker processes;
+* supervisor state;
+* database/state locations;
+* old Director generation;
+* worktrees;
+* task queues;
+* active tasks;
+* provider state;
+* current test/build state;
+* deployed version identity.
+
+Preserve the existing audit/history.
+
+## 4.2 Protect unknown work
+
+Never run destructive commands such as:
+
+```
+git reset --hard
+git clean -fd
+```
+
+against uncertain user or prior-agent work.
+
+Classify dirty content.
+
+Where appropriate:
+
+* commit clearly attributable coherent AI product work;
+* preserve uncertain changes separately;
+* save patches;
+* record untracked file manifests;
+* create an explicit recovery checkpoint.
+
+Create a recovery branch/tag/checkpoint before major refoundation.
+
+## 4.3 Prevent dual schedulers
+
+Before the new reconciler becomes authoritative, stop or pause the old mechanism from launching new broad autonomous work.
+
+Do this using the safest existing pause/maintenance capability.
+
+Do not destroy historical state.
+
+Do not remove the old mechanism until the replacement is proven.
+
+There must never be two systems simultaneously claiming canonical scheduling authority over the same task graph.
+
+---
+
+# 5. CREATE THE NEW DURABLE PROJECT ARTIFACT LAYER
+
+The large product specification must stop behaving as one enormous prompt.
+
+Create a versioned hierarchy approximately equivalent to:
+
+```
+docs/
+  product/
+    PRODUCT_CHARTER.md
+    PRODUCT_ARCHITECTURE.md
+    UX_PRINCIPLES.md
+    WORKFORCE_MODEL.md
+    OFFICE_RUNTIME.md
+    MODEL_POLICY.md
+    SECURITY_AND_APPROVALS.md
+
+  decisions/
+    ADR-xxxx-*.md
+
+agent/
+  AGENTS.md
+  ORCHESTRATION_CONSTITUTION.md
+  WORKER_RULES.md
+  REVIEW_RULES.md
+  FAILURE_POLICY.md
+  CONTEXT_PACKET_SPEC.md
+```
+
+Do not blindly duplicate documents if the repository has an appropriate existing structure.
+
+Adapt cleanly.
+
+## 5.1 PRODUCT_CHARTER
+
+This holds durable product intent.
+
+It is not the everyday worker prompt.
+
+Preserve all meaningful product requirements from the original source material.
+
+## 5.2 AGENTS.md
+
+This must be a **map**, not another 10,000-line master prompt.
+
+It should tell an agent:
+
+* where product truth lives;
+* where project state lives;
+* how to obtain a WorkItem;
+* where architecture decisions live;
+* where worker/reviewer contracts live;
+* how to run tests;
+* what it must never do.
+
+## 5.3 ORCHESTRATION_CONSTITUTION
+
+This should be comparatively compact and operational.
+
+It defines:
+
+* control-plane authority;
+* WorkItem lifecycle;
+* Attempt lifecycle;
+* leasing;
+* context compilation;
+* worker ownership;
+* retries;
+* review;
+* integration;
+* planner wake conditions;
+* human blocker policy.
+
+Product features do NOT belong here.
+
+---
+
+# 6. PRESERVE THE ATOMIC REQUIREMENTS — ADD A CAPABILITY LAYER
+
+Do not delete the existing approximately 710 detailed requirements.
+
+Do not trust their current `verified` labels merely because they say verified.
+
+Preserve history.
+
+Create or normalize two levels:
+
+## LEVEL A — USER-OBSERVABLE CAPABILITY
+
+Approximately 50–100 meaningful product capabilities.
+
+Examples:
+
+```
+ORG-001
+Organization screen displays real Departments
+
+EMP-004
+Permanent employee survives runtime restart
+
+PRJ-003
+User-created Project persists and decomposes into Tasks
+
+OFF-012
+Office visual state follows canonical runtime state
+
+QA-006
+Rejected work automatically returns for rework
+```
+
+Each capability may own multiple atomic requirements.
+
+## LEVEL B — ATOMIC REQUIREMENT
+
+The detailed contractual requirements from the existing specification.
+
+Every atomic requirement must link to:
+
+* source;
+* parent capability;
+* applicable acceptance criteria;
+* current implementation references if known;
+* evidence;
+* current derived state.
+
+Do not mark a capability accepted merely because some atomic requirements pass.
+
+---
+
+# 7. REPLACE WRITABLE “VERIFIED” WITH DERIVED STATE
+
+No LLM may arbitrarily write:
+
+```
+ACCEPTED = true
+```
+
+or:
+
+```
+VERIFIED = true
+```
+
+without the deterministic evidence predicates being satisfied.
+
+Use an explicit lifecycle.
+
+For an atomic requirement, conceptually:
+
+```
+UNPLANNED
+  ↓
+PLANNED
+  ↓
+IMPLEMENTING
+  ↓
+IMPLEMENTED
+  ↓
+TESTED
+  ↓
+RUNTIME_VERIFIED      [where required]
+  ↓
+REVIEW_APPROVED       [where required]
+  ↓
+ACCEPTED
+```
+
+Not every requirement needs every evidence class.
+
+Evidence requirements depend on requirement type.
+
+Examples:
+
+### Pure deterministic function
+
+May require:
+
+* implementation;
+* unit/integration test.
+
+### User-facing functional feature
+
+May require:
+
+* implementation;
+* automated test;
+* live browser/runtime evidence.
+
+### Visual behavior
+
+May require:
+
+* implementation;
+* browser behavior;
+* screenshot/video/observation;
+* visual review.
+
+### Persistence/recovery invariant
+
+May require:
+
+* implementation;
+* failure injection;
+* state before/after;
+* restart/recovery test.
+
+### High-risk architecture/security
+
+May additionally require:
+
+* independent strong review.
+
+`ACCEPTED` must be derived by code from the applicable evidence contract.
+
+---
+
+# 8. DURABLE AUTONOMY KERNEL DOMAIN MODEL
+
+Inspect current PostgreSQL/domain implementation first.
+
+Reuse functioning structures.
+
+Do not introduce duplicate truth stores merely because this prompt names concepts differently.
+
+The autonomous development kernel must, however, have durable semantics equivalent to the following.
+
+## 8.1 PROJECT
+
+Long-lived objective.
+
+Fields conceptually include:
+
+```
+id
+title
+objective
+state
+charter_version
+priority
+created_at
+updated_at
+completion_policy
+human_blocker_state
+```
+
+## 8.2 CAPABILITY
+
+User-observable product outcome.
+
+```
+id
+project_id
+title
+acceptance
+state_derived
+priority
+requirement_ids
+```
+
+## 8.3 WORK_ITEM
+
+One bounded result to produce.
+
+This is not an LLM conversation.
+
+This is not an Attempt.
+
+Conceptual fields:
+
+```
+id
+project_id
+capability_id
+parent_id
+kind
+title
+objective
+status
+priority
+acceptance_json
+context_recipe
+assigned_employee_id nullable
+lease_owner nullable
+lease_expires_at nullable
+attempt_count
+risk_class
+created_at
+updated_at
+```
+
+Kinds should be capable of representing at least:
+
+```
+RESEARCH
+ARCHITECTURE
+IMPLEMENTATION
+TEST
+INTEGRATION
+RUNTIME_QA
+VISUAL_QA
+ACCESSIBILITY_QA
+RECOVERY_QA
+SECURITY_QA
+REVIEW
+REWORK
+MIGRATION
+ASSET
+DIAGNOSTIC
+```
+
+## 8.4 DEPENDENCY
+
+Explicit dependency edges.
+
+Do not rely on a model remembering dependency order.
+
+A WorkItem can be READY only when deterministic dependency predicates pass.
+
+## 8.5 ATTEMPT
+
+One concrete attempt to execute a WorkItem.
+
+One WorkItem can have many Attempts.
+
+Fields conceptually include:
+
+```
+id
+work_item_id
+employee/profile
+execution_route
+requested_model
+effective_model
+provider
+started_at
+ended_at
+status
+worktree
+base_sha
+result_sha
+error_class
+error
+tokens
+reported_cost
+retry_of
+handoff
+artifact refs
+```
+
+Attempt state should support at least:
+
+```
+CREATED
+RUNNING
+SUCCEEDED
+FAILED
+INTERRUPTED
+RATE_LIMITED
+TIMED_OUT
+CANCELLED
+```
+
+A failed Attempt must not destroy or reset the WorkItem.
+
+## 8.6 ARTIFACT
+
+Machine or worker output.
+
+Examples:
+
+* Git commit;
+* patch;
+* research document;
+* screenshot;
+* test log;
+* browser capture;
+* schema;
+* migration;
+* generated asset;
+* structured handoff.
+
+## 8.7 REVIEW
+
+Independent evaluation tied to exact WorkItem/Attempt/artifact/Git state.
+
+## 8.8 DEFECT
+
+Blocking or nonblocking review finding.
+
+## 8.9 DECISION
+
+Durable architecture/product decision.
+
+## 8.10 EVENT
+
+Append-only operational event.
+
+## 8.11 HUMAN BLOCKER
+
+Explicit, durable user-required intervention.
+
+---
+
+# 9. WORKITEM STATE MACHINE
+
+Implement a deterministic state machine appropriate to the existing architecture.
+
+It should be conceptually equivalent to:
+
+```
+DRAFT
+  ↓
+READY
+  ↓
+LEASED
+  ↓
+RUNNING
+  ↓
+IMPLEMENTED_UNVERIFIED
+  ↓
+TESTING
+  ↓
+REVIEW_PENDING
+  ↓
+┌───────────────┐
+│               │
+▼               ▼
+ACCEPTED       REWORK_REQUIRED
+                  ↓
+                READY
+```
+
+Additional legitimate states:
+
+```
+BLOCKED
+HUMAN_BLOCKED
+WAITING_PROVIDER
+WAITING_DEPENDENCY
+INTEGRATION_PENDING
+CANCELLED
+```
+
+State changes must be validated.
+
+No worker should be able to jump directly from RUNNING to ACCEPTED merely through textual output.
+
+---
+
+# 10. ATOMIC TASK LEASING
+
+Task leasing must be race-safe.
+
+Use the existing database transaction architecture where appropriate.
+
+Implement atomic checkout semantics.
+
+Conceptually:
+
+```
+READY
+  ↓ atomically
+LEASED
+```
+
+Only one primary implementation worker owns an implementation WorkItem at once.
+
+Store:
+
+```
+lease_owner
+lease_expires_at
+attempt_id
+```
+
+Workers renew valid leases.
+
+If:
+
+```
+lease_expires_at < current_time
+```
+
+and no authoritative evidence indicates the same active execution is healthy:
+
+```
+Attempt → INTERRUPTED
+lease released
+WorkItem → READY
+```
+
+Do not wake a Director merely to reclaim a dead worker lease.
+
+That is ordinary software.
+
+Use transactions/locking/`FOR UPDATE`/`SKIP LOCKED` or another correct mechanism appropriate to the existing database.
+
+Test concurrency.
+
+---
+
+# 11. THE DETERMINISTIC PROJECT RECONCILER
+
+This is the heart of the refoundation.
+
+Upgrade the existing deterministic supervisor or add a properly separated reconciler.
+
+Do not casually create two competing supervisors.
+
+Its authoritative function changes from:
+
+```
+“keep one intelligent manager process alive”
+```
+
+to:
+
+```
+“ensure durable project state continuously advances according to deterministic rules.”
+```
+
+The reconciler must use **zero LLM tokens** for ordinary scheduling.
+
+Conceptual loop:
+
+```
+for every ACTIVE project:
+
+    reclaim expired leases
+
+    process completed Attempts
+
+    calculate WorkItem eligibility
+
+    find READY WorkItems
+        dependencies satisfied
+        not leased
+        not human blocked
+        not accepted
+        compatible worker route available
+
+    dispatch bounded worker Attempts
+
+    when implementation Attempt finishes:
+        validate handoff
+        schedule deterministic tests
+
+    when tests fail:
+        record failure
+        route to REWORK
+
+    when tests pass:
+        decide applicable review class
+        schedule review if required
+
+    when review rejects:
+        persist defects
+        route same logical WorkItem to REWORK
+
+    when review approves:
+        schedule integration
+
+    after integration:
+        run integration/regression checks
+
+    when acceptance predicates pass:
+        derive WorkItem ACCEPTED
+
+    recalculate capability state
+
+    recalculate project progress
+
+    if no READY work exists:
+        determine deterministically:
+            project accepted?
+            dependencies waiting?
+            provider waiting?
+            human blocker?
+            review running?
+            integration running?
+            planner needed?
+
+    if planner truly needed:
+        enqueue fresh planning event
+```
+
+The reconciler must remain deterministic.
+
+It must not ask an LLM:
+
+```
+“what should I do?”
+```
+
+for normal control-flow questions.
+
+---
+
+# 12. PROJECT HEALTH MUST MEAN PROGRESS, NOT PROCESS EXISTENCE
+
+Track separately:
+
+## PROCESS LIVENESS
+
+Is a process running?
+
+## WORK LIVENESS
+
+Is an Attempt actively executing?
+
+## PROJECT PROGRESS
+
+Is measurable product distance decreasing?
+
+Project health must emphasize the third.
+
+Track metrics such as:
+
+```
+accepted WorkItems / period
+accepted capabilities
+remaining capability gaps
+READY backlog delta
+blocked WorkItems
+QA rejection rate
+rework loops
+median WorkItem latency
+stalled task minutes
+integration failures
+visual QA completions
+recovery events
+false completion incidents
+human interventions
+free model usage
+strong model usage
+cost per accepted WorkItem where meaningful
+```
+
+A Director process consuming tokens without accepted progress is not “healthy progress.”
+
+No intelligent process running while deterministic tests execute can be perfectly healthy.
+
+---
+
+# 13. STALL DETECTION
+
+Implement a deterministic stall detector.
+
+Do not use arbitrary one-size-fits-all timing.
+
+At minimum distinguish:
+
+* long-running legitimate command;
+* provider wait;
+* review;
+* deterministic test execution;
+* active coding;
+* no accepted progress despite READY work;
+* expired worker lease;
+* repeated equivalent failure.
+
+A condition approximately like:
+
+```
+READY work exists
+AND no legitimate wait
+AND no accepted progress for defined threshold
+AND active Attempts are stale or repeatedly failing
+```
+
+should trigger:
+
+```
+DIAGNOSTIC / PLANNER_NEEDED
+```
+
+not endless Director restart loops.
+
+---
+
+# 14. INTELLIGENT HIERARCHY — BOUNDED
+
+Use no more intelligent hierarchy than necessary.
+
+Default:
+
+```
+DETERMINISTIC CONTROL PLANE
+        |
+        +--> PROJECT DIRECTOR / PLANNER
+        |       wakes on planning events
+        |
+        +--> WORKSTREAM / AREA PLANNER
+        |       only where scope warrants
+        |
+        +--> BOUNDED WORKER
+        |
+        +--> INDEPENDENT REVIEWER
+```
+
+Maximum normal intelligent planning depth above a worker:
+
+```
+2
+```
+
+A Worker may use deterministic tools.
+
+A Worker may use a bounded read-only specialist/research helper if explicitly authorized.
+
+A Worker may NOT recursively create another autonomous writing/management organization.
+
+Do not reproduce:
+
+```
+CEO
+  → Director
+    → Project Manager
+      → Crew Lead
+        → Engineer
+          → Engineer Manager
+            → child engineer
+```
+
+unless measured evidence demonstrates a specific necessity.
+
+---
+
+# 15. THE PROJECT DIRECTOR SHOULD SLEEP MOST OF THE TIME
+
+The Project Director is a fresh intelligent reasoning episode.
+
+It does not run continuously merely because the project is incomplete.
+
+Wake a Director when an intelligent decision is genuinely needed, including:
+
+* new Project decomposition;
+* next milestone requires decomposition;
+* requirements conflict;
+* architecture ambiguity exists;
+* repeated worker failures indicate unclear design;
+* QA exposes a cross-cutting flaw;
+* a Workstream has exhausted obvious work but Project remains incomplete;
+* major requirements changed;
+* integration reveals architectural conflict;
+* progress stalls despite otherwise healthy infrastructure;
+* final milestone reconciliation is required.
+
+Do NOT wake it for:
+
+* worker process death;
+* lease expiry;
+* routine 429;
+* ordinary timeout;
+* known test failure;
+* READY task assignment;
+* finished deterministic test;
+* queue polling;
+* PID checks;
+* normal integration queue movement.
+
+---
+
+# 16. FRESH CONTEXT IS THE DEFAULT
+
+Do not optimize for maximum conversation survival.
+
+Optimize for maximum **task-state survival across fresh conversations**.
+
+A replacement agent assumes:
+
+```
+I REMEMBER NOTHING RELIABLY.
+```
+
+Durable state wins over model memory.
+
+Raw prior transcripts may be retained for audit, but they are not normally forwarded.
+
+---
+
+# 17. BUILD A CONTEXT COMPILER
+
+Create a deterministic or predominantly deterministic component that generates role-specific execution packets from durable state.
+
+Worker contexts must be compiled.
+
+They must not be giant copies of the project history.
+
+A typical packet contains:
+
+```
+EMPLOYEE / ROLE
+
+WORK_ITEM ID
+
+TITLE
+
+OBJECTIVE
+
+WHY THIS EXISTS
+
+PARENT CAPABILITY
+
+SOURCE REQUIREMENT IDS
+
+OBSERVABLE ACCEPTANCE CRITERIA
+
+CURRENT BEHAVIOR
+
+REQUIRED BEHAVIOR
+
+FROZEN ARCHITECTURE CONTRACTS
+
+RELEVANT ADRs
+
+DEPENDENCIES
+
+KNOWN PREVIOUS ATTEMPTS
+
+KNOWN FAILURES
+
+RELEVANT ARTIFACTS
+
+RELEVANT SOURCE FILES
+
+ALLOWED WRITE SCOPE
+
+READ-ONLY FILES
+
+PROHIBITED CHANGES
+
+TEST COMMANDS
+
+RUNTIME VERIFICATION
+
+VISUAL VERIFICATION if relevant
+
+WORKTREE
+
+BASE SHA
+
+OUTPUT CONTRACT
+```
+
+Do not inject:
+
+* every requirement;
+* every historical conversation;
+* unrelated workstreams;
+* all logs;
+* every diff;
+* irrelevant visual-history discussion.
+
+Store everything.
+
+Inject almost nothing by default.
+
+Retrieve what the current WorkItem actually requires.
+
+---
+
+# 18. REPOSITORY CONTEXT
+
+Use repository mapping/search rather than dumping the whole repository into every prompt.
+
+Where useful, generate a compact current code map using deterministic tooling.
+
+Relevant mechanisms may include:
+
+* repository path map;
+* symbol/index information;
+* dependency relationships;
+* targeted `rg`;
+* Git history;
+* package structure;
+* test references.
+
+Do not invent a large vector-search system unless demonstrably needed.
+
+---
+
+# 19. WORKER CONTRACT
+
+A coding worker:
+
+* receives one bounded WorkItem;
+* owns one Attempt;
+* operates in one isolated worktree/workspace;
+* may inspect relevant code;
+* may implement;
+* runs required tests;
+* commits bounded changes;
+* returns structured handoff;
+* does not merge;
+* does not self-approve;
+* does not redefine the Product Charter;
+* does not create another scheduler;
+* does not decide global completion;
+* does not access paid inference;
+* does not silently weaken acceptance criteria.
+
+---
+
+# 20. STRUCTURED HANDOFF
+
+Every Attempt must terminate in machine-parseable structured output.
+
+Implement a schema conceptually equivalent to:
+
+```
+{
+  "work_item_id": "...",
+  "attempt_id": "...",
+  "result": "implemented|failed|blocked|needs_architecture",
+  "summary": "...",
+  "base_sha": "...",
+  "result_sha": "...",
+  "commits": ["..."],
+  "files_changed": ["..."],
+  "tests_run": [
+    {
+      "command": "...",
+      "exit_code": 0,
+      "evidence": "..."
+    }
+  ],
+  "runtime_evidence": [],
+  "visual_evidence": [],
+  "known_issues": [],
+  "discoveries": [],
+  "proposed_followups": [],
+  "architecture_change_requests": [],
+  "provider": "...",
+  "requested_model": "...",
+  "effective_model": "...",
+  "tokens": {},
+  "reported_cost": null,
+  "ready_for_review": true
+}
+```
+
+Validate the schema.
+
+Do not trust worker prose.
+
+Cross-check:
+
+* commit exists;
+* diff matches;
+* tests exist;
+* worktree identity;
+* no prohibited file changes;
+* provider/cost policy.
+
+---
+
+# 21. WORKTREES ARE REQUIRED FOR PARALLEL IMPLEMENTATION
+
+Invariant:
+
+> **ONE IMPLEMENTATION WORKITEM → ONE LEASED WORKTREE → ONE PRIMARY WRITER.**
+
+Do not let parallel coding workers casually edit the shared integration checkout.
+
+Discover existing Git/worktree conventions.
+
+Use a predictable path such as:
+
+```
+/home/ash/worktrees/empirium/<WORK_ITEM_ID>
+```
+
+or existing equivalent.
+
+Do not hard-code if machine conventions already exist.
+
+Multiple research agents may inspect the same problem.
+
+Multiple primary writers should not concurrently mutate the same WorkItem/files without deliberate integration design.
+
+---
+
+# 22. SEPARATE CONTROL STATE FROM WORKSPACES
+
+The control plane must not live inside worker-editable paths where possible.
+
+Prefer:
+
+```
+CONTROL STATE
+    durable Postgres + stable controller code/state
+
+INTEGRATION REPOSITORY
+    /home/ash/empirium-studio
+
+WORKER WORKTREES
+    isolated per WorkItem
+```
+
+Random implementation workers must not modify:
+
+* scheduler code;
+* lease state;
+* evidence truth;
+* control database;
+* integration branch;
+
+unless specifically assigned a controlled kernel-maintenance WorkItem.
+
+---
+
+# 23. SERIALIZED INTEGRATION / MERGE QUEUE
+
+Create a deterministic integration path.
+
+Conceptually:
+
+```
+task worktree
+    ↓
+worker commit
+    ↓
+task checks
+    ↓
+independent QA where required
+    ↓
+integration queue
+    ↓
+rebase/merge preparation
+    ↓
+integration tests
+    ↓
+merge
+    ↓
+accepted revision
+```
+
+The implementation worker never merges its own work.
+
+Conflicts:
+
+### MECHANICAL
+
+May be handled by deterministic operation or bounded integration repair.
+
+### SEMANTIC
+
+Requires planner/diagnostic reasoning.
+
+### ARCHITECTURAL
+
+Requires Director/architecture decision.
+
+Never arbitrarily choose a side in a semantic conflict.
+
+---
+
+# 24. EVIDENCE MUST BE GENERATED BY DOING THE WORK
+
+Do not create another enormous manual “proof bureaucracy.”
+
+Evidence should fall naturally out of execution.
+
+Examples:
+
+```
+Git commit
+    → implementation evidence
+
+test runner
+    → automated evidence
+
+Playwright
+    → browser/runtime evidence
+
+screenshot/video
+    → visual evidence
+
+forced failure script
+    → recovery evidence
+
+review result
+    → review evidence
+
+database before/after
+    → persistence evidence
+
+deployment SHA
+    → deployment identity evidence
+```
+
+Evidence records must include enough identity to determine:
+
+* WorkItem;
+* requirement/capability;
+* candidate Git SHA;
+* command/environment;
+* timestamp;
+* artifact path.
+
+Invalidate evidence when relevant source changes materially.
+
+---
+
+# 25. INDEPENDENT REVIEW WITHOUT REVIEW EXPLOSION
+
+Retain implementer/reviewer separation.
+
+Do not send every microscopic change to the strongest model.
+
+Risk classify.
+
+### LOW
+
+Deterministic checks may be sufficient.
+
+### MEDIUM
+
+Cheap/free or capable subscription reviewer as available.
+
+### HIGH
+
+Strong independent reviewer.
+
+### CRITICAL
+
+Strong reviewer plus optional cross-family challenge.
+
+Strong intelligence should be concentrated on:
+
+* architecture;
+* persistence;
+* security;
+* billing policy;
+* control-plane logic;
+* concurrency;
+* final milestone reconciliation;
+* important UX/visual milestones;
+* repeated failure diagnosis.
+
+---
+
+# 26. FAILURE CLASSIFICATION
+
+Replace broad numerical retry rules with semantic handling.
+
+At minimum:
+
+## TRANSIENT NETWORK/TIMEOUT
+
+* bounded retry;
+* jitter/backoff;
+* preserve Attempt/WorkItem.
+
+## 429 / QUOTA
+
+* record RATE_LIMITED;
+* observe retry window;
+* switch only to verified allowed route where appropriate;
+* do not burn quota with identical requests.
+
+## PROVIDER OUTAGE
+
+* open circuit;
+* reroute to allowed provider;
+* otherwise WAITING_PROVIDER.
+
+## MALFORMED MODEL OUTPUT
+
+* one or two corrective attempts;
+* then fresh session/route.
+
+## CONTEXT DEGRADATION
+
+* fresh session;
+* regenerate context packet.
+
+## WORKER PROCESS DEATH
+
+* Attempt interrupted;
+* lease expires/reclaimed;
+* WorkItem survives;
+* replacement worker.
+
+## TEST FAILURE
+
+* WorkItem → REWORK;
+* provide exact failing evidence.
+
+## REVIEW REJECTION
+
+* preserve defects;
+* same logical WorkItem returns to REWORK.
+
+## REPEATED SIMILAR FAILURE
+
+After approximately two materially similar failures:
+
+* stop identical retries;
+* diagnose;
+* shrink WorkItem;
+* add missing context;
+* change suitable free model;
+* reconsider architecture/test assumptions.
+
+## 401/403/PERMISSION
+
+* do not blindly retry;
+* diagnose credential/authorization configuration.
+
+## MERGE CONFLICT
+
+* classify mechanical/semantic/architectural.
+
+## AMBIGUOUS REQUIREMENT
+
+* planner event.
+
+## IRREVERSIBLE USER DECISION
+
+* HUMAN_BLOCKED.
+
+---
+
+# 27. EVENT LEDGER
+
+Create one durable append-only operational event system or adapt the existing event store.
+
+It must support events equivalent to:
+
+```
+PROJECT_CREATED
+WORK_ITEM_CREATED
+DEPENDENCY_SATISFIED
+TASK_READY
+TASK_LEASED
+ATTEMPT_STARTED
+RESEARCH_STARTED
+TOOL_EXECUTED
+CODE_CHANGED
+TEST_STARTED
+TEST_FAILED
+TEST_PASSED
+REVIEW_REQUESTED
+REVIEW_STARTED
+REVIEW_REJECTED
+REVIEW_APPROVED
+REWORK_CREATED
+INTEGRATION_STARTED
+INTEGRATION_FAILED
+INTEGRATION_PASSED
+HANDOFF_CREATED
+WAITING_DEPENDENCY
+WAITING_APPROVAL
+PROVIDER_RATE_LIMITED
+PROVIDER_RECOVERED
+ATTEMPT_INTERRUPTED
+ATTEMPT_CRASHED
+WORK_ITEM_ACCEPTED
+CAPABILITY_ACCEPTED
+PROJECT_BLOCKED
+PROJECT_ACCEPTED
+HUMAN_BLOCKER_CREATED
+HUMAN_BLOCKER_RESOLVED
+```
+
+This later becomes the truthful nervous system of the living office.
+
+---
+
+# 28. OPTIONAL HERMES PROJECT SKILL
+
+Inspect the installed Hermes skill system.
+
+If project-scoped/local skills are supported appropriately, create an:
+
+```
+empirium-autonomy
+```
+
+skill.
+
+Do NOT put the entire Product Charter into the skill.
+
+The skill should be concise and contain:
+
+* how to obtain assigned WorkItem;
+* how to read task context;
+* how leases work;
+* worker boundaries;
+* worktree requirements;
+* testing expectations;
+* structured handoff;
+* no self-approval;
+* no direct merge;
+* no paid inference;
+* how to signal architecture change;
+* how to classify blockers.
+
+If Hermes does not support an appropriate scoped skill mechanism, implement the equivalent as repository worker-rule files consumed by the context compiler.
+
+Do not block commissioning merely because a “skill” feature is unavailable.
+
+---
+
+# 29. HERMES / CREW / CONDUCTOR ROLE DURING COMMISSIONING
+
+Do not make Hermes itself the source of project truth.
+
+Hermes is execution infrastructure.
+
+During this prompt:
+
+* Hermes profiles may provide worker execution identity;
+* Crews may be tested as bounded execution formations;
+* Conductor may visualize one bounded mission if useful;
+* Hermes tools may execute work;
+* Hermes sessions remain disposable.
+
+The durable Empirium control plane remains authoritative.
+
+Do not make Conductor the scheduler.
+
+Do not make Crew state the authoritative Project.
+
+Do not make a Hermes session the permanent Employee.
+
+---
+
+# 30. DIRECTOR EVENT CONTRACT
+
+When the reconciler wakes a fresh Project Director, give it only a compact planning packet containing approximately:
+
+```
+Project objective
+accepted capabilities
+incomplete capabilities
+READY frontier
+blocked frontier
+recent failures
+current architecture decisions
+current integration SHA
+current high-severity defects
+provider availability
+planner question
+```
+
+The Director produces structured decisions such as:
+
+```
+CREATE_WORK_ITEMS
+CHANGE_DEPENDENCY
+ADD_ARCHITECTURE_DECISION
+REQUEST_DIAGNOSTIC
+SPLIT_WORK_ITEM
+REPLAN_MILESTONE
+CREATE_HUMAN_BLOCKER
+NO_ACTION_NEEDED
+```
+
+Do not let the Director personally become the general implementation worker.
+
+---
+
+# 31. COMMISSIONING TEST PROJECT
+
+Do not trust the factory after merely implementing its classes.
+
+Commission it against real Empirium code.
+
+Create a dedicated commissioning project and durable record.
+
+It must process at least TEN representative WorkItems through the new system.
+
+Select safe, real, bounded tasks based on the current repository.
+
+The suite must include equivalents of the following classes:
+
+## C1 — BOUNDED USER-FACING IMPLEMENTATION
+
+Implement or repair one small real UI behavior.
+
+## C2 — BACKEND/API/PERSISTENCE
+
+Implement or repair one bounded real backend/state behavior.
+
+## C3 — REAL STATE BINDING
+
+Replace or correct one hardcoded/mock/incorrect UI state with authoritative state.
+
+## C4 — AUTOMATED TEST WORKITEM
+
+Add a meaningful test that would fail against the previous broken behavior.
+
+## C5 — INTENTIONAL WORKER DEATH
+
+Kill an implementation worker while it holds a WorkItem.
+
+Expected:
+
+* Attempt becomes interrupted;
+* partial artifacts survive where safe;
+* lease expires/reclaims;
+* WorkItem returns;
+* replacement worker eventually completes it.
+
+## C6 — QA REJECTION AND REWORK
+
+Intentionally send an incomplete but plausible implementation into independent QA.
+
+Expected:
+
+* reviewer rejects;
+* defect records created;
+* same logical WorkItem returns to rework;
+* new Attempt repairs;
+* evidence retained;
+* eventual acceptance.
+
+## C7 — PROVIDER/RATE-LIMIT RECOVERY
+
+Simulate or safely trigger provider rate-limit/unavailability.
+
+Expected:
+
+* appropriate failure class;
+* no paid fallback;
+* durable WorkItem;
+* wait/reroute policy;
+* later continuation.
+
+## C8 — VISUAL QA
+
+One user-facing WorkItem must produce:
+
+* running app;
+* browser interaction;
+* screenshot;
+* deterministic state;
+* actionable visual result/review.
+
+## C9 — INTEGRATION QUEUE
+
+Complete two nonconflicting WorkItems through isolated worktrees and serialized integration.
+
+Verify canonical integration branch remains coherent.
+
+## C10 — NO-DIRECTOR CONTINUATION
+
+With no continuously running Project Director:
+
+* leave READY WorkItems;
+* allow reconciler to dispatch;
+* tests/review/rework/integration occur;
+* next eligible WorkItem advances.
+
+No user `continue` message.
+
+---
+
+# 32. ADDITIONAL FAILURE TESTS
+
+Before commissioning PASS, also prove:
+
+## RECONCILER RESTART
+
+Restart the reconciler/supervisor.
+
+Expected:
+
+* project survives;
+* WorkItems survive;
+* no duplicate task graph;
+* leases reconcile.
+
+## DATABASE/STATE RELOAD
+
+Restart relevant app/service safely.
+
+Expected:
+
+* durable project state survives.
+
+## DUPLICATE CLAIM
+
+Attempt concurrent claim of same WorkItem.
+
+Expected:
+
+* exactly one lease succeeds.
+
+## STALE EVIDENCE
+
+Change relevant code after evidence generation in a controlled fixture.
+
+Expected:
+
+* affected evidence becomes stale;
+* requirement does not remain falsely accepted.
+
+## FALSE COMPLETION
+
+Stop all intelligent agents while incomplete READY work exists.
+
+Expected:
+
+* project remains incomplete;
+* reconciler continues.
+
+---
+
+# 33. COMMISSIONING METRICS
+
+Produce:
+
+```
+AUTONOMY_KERNEL_METRICS.json
+```
+
+At minimum:
+
+```
+WorkItems created
+WorkItems eventually accepted
+first-attempt acceptance count
+rework count
+failed Attempts
+interrupted Attempts
+lease recoveries
+duplicate claims
+merge conflicts
+human interventions
+false completion incidents
+stalled minutes
+strong-model invocations
+free-model invocations
+reported paid inference cost
+accepted WorkItems / hour
+average/median completion time
+```
+
+Do not optimize raw agent activity.
+
+Optimize accepted useful work.
+
+---
+
+# 34. COMMISSIONING PASS CONDITIONS
+
+Create a deterministic gate:
+
+```
+AUTONOMY_KERNEL_COMMISSIONING_GATE
+```
+
+It must NOT pass merely because tests are green.
+
+Minimum conditions:
+
+1. Durable Project/WorkItem/Attempt/Dependency/Artifact/Review/Event semantics exist.
+
+2. WorkItem and Attempt are distinct.
+
+3. Atomic leasing is tested.
+
+4. Expired/dead worker recovery is tested.
+
+5. Fresh worker reconstruction from durable state is tested.
+
+6. No continuously alive Director is required for routine execution.
+
+7. Context packets are task-specific rather than giant project dumps.
+
+8. Implementation workers use isolated worktrees.
+
+9. Implementers cannot approve their own work.
+
+10. Merge/integration is serialized and tested.
+
+11. QA rejection automatically produces rework.
+
+12. Machine-generated evidence attaches to exact revisions.
+
+13. Acceptance state is deterministic/derived.
+
+14. Project progress is measurable separately from process liveness.
+
+15. Event ledger is functioning.
+
+16. Semantic failure classes exist.
+
+17. A provider failure does not cause project loss or paid fallback.
+
+18. Reconciler restart does not lose the project.
+
+19. No false project completion occurs during tests.
+
+20. All ten commissioning WorkItems eventually reach their legitimate terminal result, with all required ones ACCEPTED.
+
+21. Zero routine user intervention was required during the commissioning loop.
+
+22. New pay-as-you-go inference cost remains zero unless user explicitly changed policy.
+
+23. Existing product test/build baseline has not been silently destroyed.
+
+24. Existing user-owned source material remains intact.
+
+25. Exactly one scheduling/control authority exists for the new lifecycle.
+
+---
+
+# 35. COMMISSIONING FAILURE BEHAVIOR
+
+If the gate fails:
+
+DO NOT stop and tell the user:
+
+```
+“The kernel isn't ready.”
+```
+
+Instead:
+
+1. identify the failed commissioning condition;
+2. create a bounded kernel-repair WorkItem;
+3. execute;
+4. test;
+5. review where required;
+6. integrate;
+7. rerun the failed commissioning test;
+8. rerun the gate.
+
+Repeat.
+
+Only stop for a genuine human blocker.
+
+---
+
+# 36. OLD META-DIRECTOR MIGRATION
+
+Once the new reconciler has successfully demonstrated commissioning:
+
+* remove the old requirement that an unfinished project implies one continuously running Meta-Director;
+* disable obsolete restart behavior that merely generates new Director generations;
+* preserve historical logs/state;
+* retain a fresh Project Director launcher as an **event-driven planning capability**;
+* update supervisor configuration accordingly;
+* prevent simultaneous old/new scheduling.
+
+Do not leave dormant code configured in a way that can unexpectedly reactivate duplicate orchestration.
+
+---
+
+# 37. GENERATED RUNTIME STATE MUST LEAVE THE SOURCE CHECKOUT
+
+The September audit found source, runtime artifacts, evidence and test-result material mixed in a dirty working tree.
+
+Correct this.
+
+Where appropriate, move ephemeral state to a dedicated runtime/state location, for example under:
+
+```
+~/.local/state/empirium/
+```
+
+or a superior existing project convention.
+
+Git should contain:
+
+* source;
+* migrations;
+* deterministic configuration templates;
+* documentation;
+* tests;
+* versioned contracts.
+
+Git should generally not be polluted by:
+
+* live leases;
+* transient PID data;
+* temporary screenshots not intended as fixtures;
+* runtime queue state;
+* constantly rewritten live evidence;
+* provider health cache;
+* generated process telemetry.
+
+Do not move something without understanding current consumers.
+
+Migrate safely.
+
+---
+
+# 38. HUMAN-ONLY BLOCKER STANDARD
+
+Interrupt the user only if there is genuinely no safe authorized autonomous path.
+
+Examples:
+
+* interactive subscription authentication is required;
+* sudo/password is required and unavailable;
+* a required user-owned source file truly does not exist anywhere accessible;
+* an irreversible destructive choice lacks authorization;
+* public deployment needs explicit approval;
+* two materially different product choices require subjective owner preference and neither has a safe reversible default;
+* a provider/account requires a human action that software cannot perform.
+
+Not human blockers:
+
+* model 429;
+* provider outage;
+* failed test;
+* bad implementation;
+* QA rejection;
+* merge conflict;
+* worker crash;
+* planner crash;
+* context exhaustion;
+* missing optional asset;
+* dirty AI-owned worktree;
+* transient service failure;
+* ordinary architecture debugging.
+
+If one WorkItem is human blocked, continue independent runnable work.
+
+---
+
+# 39. HUMAN BLOCKER FORMAT
+
+If absolutely necessary:
+
+```
+BLOCKER:
+<precise issue>
+
+WHY HUMAN REQUIRED:
+<why agents/software cannot resolve it>
+
+ATTEMPTS:
+<what has already been tried>
+
+EVIDENCE:
+<exact relevant paths/errors/logs>
+
+MINIMUM USER ACTION:
+<smallest exact action required>
+
+WORK CONTINUING:
+<what autonomous work remains active>
+```
+
+Do not ask vague questions.
+
+---
+
+# 40. OUTPUTS REQUIRED FROM THIS PROMPT
+
+Create durable implementation artifacts including equivalent of:
+
+```
+docs/product/...
+agent/...
+control-plane schema/migrations
+reconciler/scheduler implementation
+context compiler
+worker/reviewer contracts
+integration queue
+commissioning tests
+commissioning metrics
+commissioning report
+```
+
+Create:
+
+```
+AUTONOMY_KERNEL_COMMISSIONING.json
+```
+
+containing at minimum:
+
+```
+status
+tested_git_sha
+controller_version
+database/schema version
+commissioning WorkItems
+results
+failure injection results
+restart/recovery results
+paid inference result
+human_intervention_count
+outstanding kernel defects
+generated_at
+```
+
+---
+
+# 41. EXACT TERMINAL CONDITION FOR PROMPT 1
+
+You are NOT done because:
+
+* the architecture document exists;
+* tables exist;
+* unit tests exist;
+* the reconciler process is alive;
+* one worker ran;
+* a Director says it looks good.
+
+You are done only when the actual commissioned loop has worked.
+
+When and only when:
+
+```
+AUTONOMY_KERNEL_COMMISSIONING_GATE == PASS
+```
+
+output to the user:
+
+```
+AUTONOMY_KERNEL_COMMISSIONED
+```
+
+followed by a concise factual summary containing:
+
+* commissioned controller version;
+* exact Git SHA;
+* ten-task commissioning result;
+* forced-failure result;
+* QA/rework result;
+* worker-death recovery result;
+* reconciler restart result;
+* paid-inference result;
+* any nonblocking limitations;
+* exact location of commissioning report.
+
+Do not begin the broad Empirium product build under this prompt.
+
+The commissioning boundary is deliberate.
+
+---
+
+# 42. FINAL EXECUTION COMMAND
+
+BEGIN NOW.
+
+Do not return merely with a plan.
+
+Audit current reality.
+
+Freeze the unsafe old orchestration loop.
+
+Preserve existing work.
+
+Refactor the control architecture.
+
+Build the durable autonomy kernel.
+
+Test it on real Empirium WorkItems.
+
+Kill workers.
+
+Reject work.
+
+Recover leases.
+
+Restart the controller.
+
+Verify exact state survives.
+
+Prove that READY work advances without a permanently running Director.
+
+Repair every commissioning failure autonomously.
+
+Do not ask the user to type `continue`.
+
+Do not spend pay-as-you-go inference.
+
+Do not declare success early.
+
+Stop only after the deterministic commissioning gate passes or a genuine human-only blocker makes further autonomous progress impossible.

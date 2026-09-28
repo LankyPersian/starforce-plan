@@ -1,0 +1,1019 @@
+======================================================================
+23. ROLLBACK REQUIREMENT
+======================================================================
+
+Before modifying the installed supervisor, create a complete reversible
+snapshot of the currently certified installation.
+
+At minimum preserve:
+
+    /home/ash/.local/lib/empirium-supervisor/controller/
+    /home/ash/.config/empirium-supervisor/config.json
+    /home/ash/.config/systemd/user/empirium-workforce-supervisor.service
+    /home/ash/.local/bin/empirium-luna-director
+    /home/ash/.local/state/empirium-supervisor/
+        SUPERVISOR_INSTALLATION_CERTIFICATE.json
+
+Do NOT overwrite the original preserved starter source.
+
+Create a V1 certified backup under something similar to:
+
+    /home/ash/.local/state/empirium-supervisor/install-evidence/
+    pre-v2-backup/
+
+Record SHA-256 for every backed-up control file.
+
+Before installing V2 changes, prove that the current certified V1 can be
+restored without touching project data.
+
+If the V2 deployment causes:
+
+- service boot failure;
+- state corruption;
+- duplicate directors;
+- uncontrolled process killing;
+- subscription route failure;
+- paid-route exposure;
+- regression in completion semantics;
+- regression in concurrency safety;
+
+then:
+
+1. stop the supervisor safely;
+2. preserve V2 logs/evidence;
+3. restore the previous certified version;
+4. restart service;
+5. verify health;
+6. diagnose offline;
+7. repair V2;
+8. attempt deployment again.
+
+Never leave the VPS without a functioning known-good supervisor merely
+because a V2 enhancement failed.
+
+======================================================================
+24. STATE / CONFIG SCHEMA VERSIONING
+======================================================================
+
+The supervisor is now infrastructure.
+
+Future versions must not silently reinterpret old state.
+
+Add explicit version identifiers for:
+
+    supervisor state schema
+    config schema
+    directive schema
+    progress schema
+    attestation schema
+
+Conceptually:
+
+    stateSchemaVersion
+    configSchemaVersion
+    directiveSchemaVersion
+
+On startup:
+
+SUPPORTED VERSION
+    → continue.
+
+OLDER MIGRATABLE VERSION
+    → create backup;
+    → migrate deterministically;
+    → validate;
+    → record migration event;
+    → continue.
+
+NEWER/UNKNOWN VERSION
+    → fail closed;
+    → do not rewrite the file.
+
+Never silently discard fields that are not understood.
+
+Never reset a project merely because state schema changed.
+
+Every migration must be idempotent.
+
+Run migration twice:
+
+    second run must perform no destructive change.
+
+======================================================================
+25. PROGRESS EVENT IDEMPOTENCY
+======================================================================
+
+Progress reporting must not become another lost-update or duplicate-event
+problem.
+
+Every progress report should carry a caller-generated or supervisor-generated
+stable event ID.
+
+Conceptually:
+
+    progressEventId
+    projectId
+    directorLaunchId
+    generation
+    kind
+    summary
+
+If the exact same progressEventId is submitted twice:
+
+    accept safely
+    but increment progressSequence only once.
+
+This matters because a director may:
+
+    send progress
+    → network/process interruption
+    → not know whether acknowledgement was received
+    → retry
+
+The retry must not manufacture false progress.
+
+Add test:
+
+    same progress event submitted 10 times
+    → one logical progress transition.
+
+======================================================================
+26. DIRECTIVE IDEMPOTENCY / EFFECT IDENTIFIERS
+======================================================================
+
+Directive ACK solves replay visibility.
+
+Also protect against duplicate effects.
+
+Where a directive can cause a concrete lifecycle action, include a stable
+effect key.
+
+Example:
+
+    directiveId = abc
+    effectKey = recycle-director-generation-12
+
+Before executing a destructive lifecycle effect, determine whether that
+effect has already occurred.
+
+Examples:
+
+- director recycle;
+- child recovery;
+- project pause;
+- project resume;
+- BACKOFF transition;
+- state recovery.
+
+A replayed directive must not create:
+
+- two replacement directors;
+- two child managers;
+- duplicate retries;
+- duplicate project generations.
+
+======================================================================
+27. PROJECT GENERATION MUST BECOME AUTHORITATIVE
+======================================================================
+
+Implement the project generation/epoch feature unless source inspection proves
+an equivalent mechanism already exists.
+
+For each supervised project maintain:
+
+    projectGeneration
+
+For every director launch create:
+
+    directorLaunchId
+
+Example:
+
+    projectId = empirium-studio
+    projectGeneration = 14
+    directorLaunchId = 14-003
+
+Every lifecycle mutation from a director should identify its generation where
+practical.
+
+If generation 13 sends a late heartbeat after generation 14 is already active:
+
+    preserve it as historical/audit evidence if useful;
+    DO NOT update current heartbeat.
+
+If generation 13 sends late progress:
+
+    DO NOT advance current project progress.
+
+If generation 13 ACKs a directive issued to generation 14:
+
+    reject that ACK.
+
+This protects against delayed processes and race conditions during recycle.
+
+======================================================================
+28. CHILD LEASE GENERATIONS
+======================================================================
+
+Apply the same stale-message principle to child/project-manager leases.
+
+A reused worker ID must not inherit a previous dead worker's lifecycle.
+
+Lease identity should distinguish:
+
+    stable logical actor ID
+from:
+    concrete lease/run ID
+
+Example:
+
+    actorId = ui-project-manager
+    leaseId = ui-project-manager-0007
+
+When lease 0007 expires and replacement 0008 starts:
+
+a delayed heartbeat from 0007 must NOT make 0008 appear healthy.
+
+Keep historical lease records for audit.
+
+======================================================================
+29. SERVICE HEALTH SUMMARY
+======================================================================
+
+Add a read-only health/status command which does not mutate state.
+
+Example:
+
+    node $SUP health --config $CONF
+
+It should return machine-readable information such as:
+
+{
+  "supervisor": "HEALTHY",
+  "daemon": {
+    "pid": 1234,
+    "fingerprintValid": true
+  },
+  "config": {
+    "valid": true,
+    "schemaVersion": 2
+  },
+  "projects": {
+    "running": 2,
+    "paused": 1,
+    "backoff": 0,
+    "stalled": 0,
+    "shipped": 3
+  },
+  "billingPolicy": {
+    "paidInferenceAllowed": false
+  },
+  "storage": {
+    "stateValid": true
+  }
+}
+
+This command must NEVER:
+
+- start a director;
+- restart a project;
+- mutate progress;
+- ACK directives;
+- modify state.
+
+It is observational only.
+
+======================================================================
+30. SELF-TEST PROJECT MUST REMAIN ISOLATED
+======================================================================
+
+The current `supervisor-selftest` project is useful.
+
+Keep it logically isolated from real projects.
+
+It must:
+
+- use disposable fixture state;
+- never operate on Empirium Studio source;
+- never call paid inference;
+- never consume real project directives;
+- never alter real completion artifacts;
+- never share worktree state with production projects.
+
+If periodic self-test is enabled later:
+
+use low frequency.
+
+Do not continually spend subscription quota just to prove the supervisor is
+alive.
+
+Most health checks should remain deterministic and model-free.
+
+A real model sentinel should be:
+
+    explicit
+    scheduled sparingly
+    or run during installation/update validation.
+
+======================================================================
+31. SUBSCRIPTION QUOTA / LIMIT FAILURE IS NOT PROJECT FAILURE
+======================================================================
+
+The supervisor must distinguish:
+
+    PROCESS FAILURE
+from
+    SUBSCRIPTION TEMPORARILY UNAVAILABLE
+
+Examples:
+
+- Codex plan limit reached;
+- temporary account-side rate limit;
+- authenticated service unavailable;
+- Claude subscription session unavailable later.
+
+If the launch adapter can positively classify the issue as temporary
+subscription unavailability:
+
+set state similar to:
+
+    WAITING_SUBSCRIPTION_CAPACITY
+
+Do NOT:
+
+- burn through crash-loop restart allowance rapidly;
+- repeatedly relaunch every few seconds;
+- switch to a paid API;
+- mark the project failed;
+- mark it complete.
+
+Use bounded backoff.
+
+Example conceptual sequence:
+
+    1 minute
+    5 minutes
+    15 minutes
+    30 minutes
+    then configurable periodic probe
+
+Successful authenticated probe clears the state.
+
+The exact timing may be adjusted from evidence.
+
+======================================================================
+32. AUTHENTICATION EXPIRY HANDLING
+======================================================================
+
+Subscription authentication can expire independently of model availability.
+
+Distinguish:
+
+    AUTH_EXPIRED
+    AUTH_MISSING
+    SUBSCRIPTION_LIMIT
+    MODEL_UNAVAILABLE
+    LAUNCHER_FAILURE
+    DIRECTOR_CRASH
+
+Do not reduce all failures to:
+
+    "director exited."
+
+If authentication genuinely requires human interaction:
+
+set:
+
+    BLOCKED_HUMAN_AUTH
+
+Preserve project state.
+
+Do not repeatedly launch.
+
+Do not fall back to API-key billing.
+
+Emit one deduplicated high-priority directive/event.
+
+When authentication is restored:
+
+the project may resume without resetting its work.
+
+======================================================================
+33. NO PASSWORDS OR SUDO SECRETS IN SUPERVISOR STATE
+======================================================================
+
+During the previous installation a sudo-related configuration issue was
+encountered.
+
+Perform a targeted audit ensuring that none of the following contain a sudo
+password or other secret value:
+
+- supervisor state;
+- supervisor configuration;
+- systemd unit;
+- director logs;
+- event JSONL;
+- directives;
+- attestations;
+- installation certificate;
+- command cheat sheet;
+- progress logs;
+- test evidence.
+
+Do not print secret values while checking.
+
+Record only:
+
+    PRESENT / ABSENT
+
+The supervisor must never require a stored sudo password for normal runtime.
+
+Privileged setup should be installation-time only wherever possible.
+
+======================================================================
+34. FILE PERMISSION REGRESSION TEST
+======================================================================
+
+After V2 deployment re-check:
+
+CONFIG:
+
+    owner = ash
+    no world read/write
+
+STATE DIRECTORY:
+
+    no world write
+
+ATTESTATION:
+
+    no secrets
+    appropriate private permissions
+
+DIRECTIVE/ACK STATE:
+
+    no world write
+
+LAUNCHERS:
+
+    not writable by unrelated users
+
+SYSTEMD UNIT:
+
+    not world-writable
+
+Do not use:
+
+    chmod 777
+    chmod -R 777
+
+anywhere.
+
+======================================================================
+35. ATOMIC FILE OPERATIONS
+======================================================================
+
+Any authoritative JSON state/config/attestation snapshot should use the
+existing safe atomic pattern:
+
+    write temp
+    fsync/write complete where appropriate
+    validate
+    atomic rename
+
+Do not write authoritative JSON directly in-place if interruption could leave
+a truncated file.
+
+For JSONL:
+
+append complete records.
+
+Never partially rewrite the entire event log for one new record.
+
+======================================================================
+36. DISK-SPACE FAILURE
+======================================================================
+
+A multi-day autonomous build can fill a disk.
+
+Supervisor behavior under low disk space must remain safe.
+
+Do not implement a huge monitoring suite.
+
+At minimum:
+
+- catch ENOSPC on control-state writes;
+- never interpret failed persistence as successful persistence;
+- emit best-effort journal error;
+- avoid endless rapid retry loop;
+- do not delete project source automatically;
+- do not delete arbitrary user data.
+
+If free disk crosses a conservative configured warning threshold:
+
+emit:
+
+    STORAGE_PRESSURE
+
+If authoritative state cannot safely be persisted:
+
+pause lifecycle mutation where necessary and fail safely.
+
+The supervisor must never say:
+
+    "checkpoint saved"
+
+when the write actually failed.
+
+======================================================================
+37. CLOCK / TIME ROBUSTNESS
+======================================================================
+
+Wall-clock time can jump.
+
+Use monotonic elapsed-time measurement where appropriate for:
+
+- heartbeat timeout;
+- progress timeout;
+- process grace periods;
+- mutex wait;
+- retry/backoff.
+
+Persist wall-clock ISO timestamps for human audit.
+
+Do not rely exclusively on wall-clock subtraction for active in-process timeout
+logic if Node provides an appropriate monotonic source.
+
+A backwards system-clock adjustment must not create an immortal lease.
+
+A large forward adjustment must not automatically kill every process without
+sanity checks.
+
+======================================================================
+38. CRASH CONSISTENCY TEST
+======================================================================
+
+Add one deliberate crash-consistency test.
+
+During a state mutation:
+
+1. begin update;
+2. terminate the mutating test process at a controlled point;
+3. restart/read state.
+
+Result must be either:
+
+    previous valid state
+
+or:
+
+    complete new valid state
+
+Never:
+
+    half-written invalid authoritative state.
+
+Do the same where practical for:
+
+    config promotion
+    directive ACK state.
+
+======================================================================
+39. MULTI-PROJECT ISOLATION TEST
+======================================================================
+
+The real purpose of this supervisor is broader than one project.
+
+Create at least three disposable test projects concurrently:
+
+    project-A
+    project-B
+    project-C
+
+Exercise different states:
+
+    A = running normally
+    B = paused
+    C = hard stalled / recycled
+
+Prove:
+
+- C recycle does not touch A;
+- B remains paused;
+- A progress continues;
+- directives remain project-scoped;
+- restart counters remain project-scoped;
+- logs remain project-scoped;
+- completion of A does not alter B/C;
+- configuration error in one project does not silently complete another.
+
+This must remain true before using the supervisor across simultaneous projects.
+
+======================================================================
+40. ADAPTER CONTRACT
+======================================================================
+
+Define a minimal formal launcher-adapter contract.
+
+Do NOT build a large plugin framework.
+
+A launcher adapter needs only enough information to let the supervisor run it
+safely.
+
+Conceptual contract:
+
+    adapterId
+    command
+    arguments
+    environment policy
+    auth attestation
+    effective model identity
+    process isolation method
+    exit classification
+    optional health/preflight command
+
+Initial adapter:
+
+    codex-subscription
+
+Future:
+
+    claude-subscription
+    freellmapi
+
+The supervisor core should consume the generic contract.
+
+It must not contain provider-specific billing logic beyond enforcing:
+
+    paid = forbidden.
+
+======================================================================
+41. EXIT CLASSIFICATION
+======================================================================
+
+The launcher should return enough structured information for the supervisor to
+distinguish common outcomes.
+
+At minimum classify:
+
+    SUCCESSFUL_EXIT
+    EXPECTED_CHECKPOINT_EXIT
+    PROCESS_CRASH
+    AUTH_REQUIRED
+    SUBSCRIPTION_LIMIT
+    PROVIDER_UNAVAILABLE
+    MODEL_UNAVAILABLE
+    SANDBOX_FAILURE
+    CONFIGURATION_FAILURE
+    UNKNOWN_FAILURE
+
+Do not depend only on numeric exit code if the launcher can reliably classify
+the cause.
+
+Store:
+
+    exitCode
+    exitClass
+    timestamp
+    relevant safe diagnostic summary
+
+Never store secrets.
+
+This improves retry behavior.
+
+======================================================================
+42. BACKOFF MUST HAVE JITTER
+======================================================================
+
+Where multiple supervised projects encounter the same provider outage, they
+must not all retry at the exact same instant.
+
+Add bounded jitter to provider/subscription retry scheduling.
+
+Example:
+
+    intended backoff = 300 seconds
+    actual delay = randomized safe range around that value
+
+Persist:
+
+    retryNotBefore
+
+The supervisor must honor it across restart.
+
+Do not create an in-memory-only timer that disappears on service restart.
+
+======================================================================
+43. BACKOFF STATE MUST SURVIVE RESTART
+======================================================================
+
+If a project is in:
+
+    BACKOFF
+    WAITING_SUBSCRIPTION_CAPACITY
+    BLOCKED_AUTH_ATTESTATION
+    PROJECT_PROGRESS_STALLED
+
+a supervisor restart must not blindly reset it to RUNNING.
+
+Persist the condition.
+
+Resume according to state policy.
+
+Example:
+
+    retryNotBefore still in future
+        → wait.
+
+    auth still invalid
+        → remain blocked.
+
+    progress stall but director was recycled
+        → inspect new generation.
+
+======================================================================
+44. HUMAN BLOCKER DEDUPLICATION
+======================================================================
+
+For genuine human-only blockers, avoid producing the same warning every tick.
+
+Create one durable blocker identity.
+
+Examples:
+
+    HUMAN_AUTH_CODEX
+    HUMAN_AUTH_CLAUDE
+    PRIVILEGED_OS_ACTION
+
+Emit once when blocker begins.
+
+Record:
+
+    blockerId
+    startedAt
+    currentState
+
+When resolved:
+
+emit:
+
+    BLOCKER_RESOLVED
+
+then continue automatically.
+
+Do not require the user to manually tell the project:
+
+    "continue."
+
+======================================================================
+45. V2 CHANGE-SCOPE LIMIT
+======================================================================
+
+The purpose of this update is reliability.
+
+Do not use it as an excuse to rewrite functioning supervisor code.
+
+Before each proposed modification classify it:
+
+    REQUIRED_V2
+    HIGH_VALUE_LOW_RISK
+    DEFER
+
+Only implement:
+
+    REQUIRED_V2
+
+and genuinely:
+
+    HIGH_VALUE_LOW_RISK
+
+items.
+
+If a feature introduces more complexity/risk than the problem it solves:
+
+    DEFER it.
+
+Especially defer:
+
+- distributed consensus;
+- Redis;
+- Kafka;
+- Kubernetes;
+- external workflow engines;
+- separate databases solely for supervisor;
+- microservices;
+- web dashboards;
+- AI reasoning inside supervisor.
+
+The expected result remains a relatively small deterministic service.
+
+======================================================================
+46. FINAL LIVE SENTINEL — V2
+======================================================================
+
+After all V2 changes, run a final disposable end-to-end test.
+
+The scenario must prove:
+
+1. supervisor running;
+2. valid subscription attestation;
+3. generation N director launches;
+4. director heartbeats;
+5. director reports progress;
+6. progress is persisted;
+7. directive created;
+8. director handles + ACKs directive;
+9. director intentionally becomes logically stalled while continuing heartbeat;
+10. soft stall detected;
+11. no immediate kill;
+12. hard stall threshold reached;
+13. supervisor safely recycles tracked process tree;
+14. no orphan child process;
+15. unrelated process survives;
+16. generation N+1 launches;
+17. late generation-N heartbeat/progress cannot overwrite generation N+1;
+18. generation N+1 reads checkpoint;
+19. project resumes;
+20. project advances;
+21. completion fixture passes;
+22. project becomes SHIPPED;
+23. no further director launches;
+24. supervisor restarts;
+25. SHIPPED state persists;
+26. completion regression is introduced;
+27. project reopens;
+28. exactly one new director launches;
+29. zero paid inference observed.
+
+Then remove the disposable project cleanly.
+
+======================================================================
+47. FINAL EVIDENCE PACKAGE
+======================================================================
+
+The V2 evidence package should contain at minimum:
+
+    reliability-v2-audit.md
+
+    v2-test-report.md
+
+    v2-live-sentinel-report.md
+
+    v2-source-manifest.json
+
+    v2-config-manifest.json
+
+    subscription-attestation.json
+
+    apparmor-review.md
+
+    process-tree-test.md
+
+    state-recovery-test.md
+
+    config-reload-test.md
+
+    multi-project-isolation-test.md
+
+    storage/rotation-test.md
+
+    updated SUPERVISOR_INSTALLATION_CERTIFICATE.json
+
+Hash important evidence files.
+
+Do not store credentials.
+
+======================================================================
+48. FINAL CERTIFICATION CONDITIONS
+======================================================================
+
+Return:
+
+    SUPERVISOR_V2_READY_FOR_META_ORCHESTRATOR
+
+only when ALL are true:
+
+- current systemd user service active;
+- service enabled;
+- linger enabled;
+- exactly one supervisor daemon;
+- no real Empirium project registered;
+- original starter preserved;
+- V1 rollback snapshot exists;
+- state/config schema versioned;
+- heartbeat works;
+- progress tracking works;
+- stall detection works;
+- long-operation exemption works;
+- directive ACK works;
+- directive replay protection works;
+- process-tree cleanup works;
+- unrelated processes protected;
+- PID/start fingerprint still works;
+- project generations work;
+- stale-generation mutations rejected;
+- child lease generations safe;
+- paid inference hard-disabled;
+- credential stripping still works;
+- subscription attestation valid;
+- direct API-key billing blocked;
+- config hot-reload safe;
+- state rollback safe;
+- JSON writes atomic;
+- ENOSPC handled safely;
+- backoff survives restart;
+- retry jitter exists where appropriate;
+- human blocker dedup works;
+- multi-project isolation passes;
+- final V2 sentinel passes;
+- current certificate updated;
+- evidence complete.
+
+If one of these fails:
+
+do not falsely certify V2.
+
+Repair it where safely possible.
+
+======================================================================
+49. FINAL RESPONSE FORMAT
+======================================================================
+
+When finished, do not produce a huge narrative.
+
+Return:
+
+STATUS:
+SUPERVISOR_V2_READY_FOR_META_ORCHESTRATOR
+or
+NOT_READY
+
+SERVICE:
+<active/inactive>
+
+SUPERVISOR SHA-256:
+<hash>
+
+CONFIG SHA-256:
+<hash>
+
+CURRENT META-DIRECTOR ADAPTER:
+codex-subscription
+
+CURRENT EFFECTIVE MODEL:
+<actual observed model>
+
+AUTH:
+ChatGPT subscription / no API-key billing
+
+PAID INFERENCE:
+$0 authorized
+$0 observed
+
+TESTS:
+<passed>/<total>
+
+LIVE V2 SENTINEL:
+PASS/FAIL
+
+APPARMOR:
+<scoped exception / accepted local risk / unresolved>
+
+REAL EMPIRIUM PROJECT:
+NOT REGISTERED
+
+ROLLBACK READY:
+YES/NO
+
+EVIDENCE:
+<directory>
+
+REMAINING BLOCKERS:
+NONE
+or exact blockers
+
+Do not start the Empirium Studio build.
+
+Stop after supervisor certification.
+
+======================================================================
+50. FINAL RULE
+======================================================================
+
+This supervisor is infrastructure, not the product.
+
+Do not endlessly improve it.
+
+Once the conditions above pass:
+
+FREEZE SUPERVISOR V2.
+
+Do not perform a V3 hardening pass unless real production evidence later
+reveals a defect.
+
+The next task after successful certification is:
+
+    REGISTER THE REAL EMPIRIUM META-ORCHESTRATOR PROJECT
+    AND BEGIN THE AI WORKFORCE BUILD.
+
+Finish this update, certify it, then stop.

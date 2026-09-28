@@ -1,0 +1,411 @@
+# FINAL EXECUTION ARCHITECTURE OVERRIDE
+
+This planning session is not the build session.
+
+After the Stage-0/planning material has been written and persisted, start the actual production campaign in a **fresh Codex execution session**.
+
+## EXECUTION DIRECTOR MODEL
+
+The new execution/director session must use:
+
+**GPT-5.6 Luna through the ChatGPT/Codex subscription route.**
+
+This means the authorised route is the Codex subscription model, NOT the OpenAI metered API and NOT OpenRouter.
+
+Treat this route distinctly in logs, for example:
+
+`provider = openai-codex`
+`model = gpt-5.6-luna`
+`billing_route = subscription`
+
+The Codex/Luna session is the persistent execution director.
+
+Its job is to:
+
+* read the complete Stage-0 pack;
+* read the decision register;
+* read the requirement ledger;
+* read the current controller/database state;
+* execute the campaign;
+* create bounded WorkItems;
+* dispatch grunt-work implementation to FreeLLMAPI workers;
+* inspect evidence;
+* integrate accepted work;
+* recover failed/stalled jobs;
+* continue phase by phase;
+* maintain durable checkpoints;
+* enforce release gates;
+* keep going until the release predicate is actually satisfied or a genuine human-only blocker is reached.
+
+Do NOT restart product planning.
+
+Do NOT reopen decisions already frozen in the planning documents unless new evidence proves that a decision is technically impossible.
+
+The execution session is authorised to begin production.
+
+---
+
+# WORKER MODEL STRATEGY
+
+Use **three FreeLLMAPI worker routes** for implementation/grunt work where the controller can safely run them.
+
+These workers are disposable.
+
+Workers must NOT own campaign state.
+
+Workers must NOT decide whether the product is complete.
+
+Workers receive bounded packets containing only the context required for their WorkItem.
+
+Each worker packet must contain:
+
+* WorkItem ID;
+* requirement IDs;
+* bounded objective;
+* exact relevant source files;
+* relevant design/mockup references;
+* constraints;
+* explicit non-goals;
+* exact acceptance commands;
+* expected evidence;
+* previously attempted failed strategies where relevant;
+* branch/worktree information.
+
+Workers operate in isolated worktrees or equivalent isolated branches.
+
+The durable controller/database remains the source of truth.
+
+A worker disappearing, timing out, hitting a provider limit, exhausting context or crashing must never lose the WorkItem.
+
+---
+
+# IMPORTANT CHANGE TO THE OLD MAX_WORKERS=1 RULE
+
+The previous `MAX_WORKERS=1` decision was created because the historical worker benchmark showed a 36% pass rate and additional parallelism would simply multiply bad work.
+
+Do NOT blindly interpret “three FreeLLMAPI models available” as permission to run three coding workers simultaneously.
+
+Use three providers/routes as **resilience capacity first**.
+
+Initially:
+
+`MAX_ACTIVE_IMPLEMENTATION_WORKERS = 1`
+
+The other FreeLLMAPI routes are available for failover/retry.
+
+Only increase concurrent implementation workers after the representative visual/Android benchmark demonstrates the previously agreed ≥60% pass threshold and the tasks are demonstrably independent.
+
+At that point, up to three independent workers may run concurrently if:
+
+* their file ownership does not overlap;
+* their WorkItems do not depend on each other;
+* each has its own worktree;
+* integration remains serialized;
+* acceptance remains independent.
+
+This preserves the lessons from the previous orchestration failure while still making use of the three available worker routes.
+
+---
+
+# DO NOT USE A DUMB “ARE WE FINISHED?” CRON LOOP
+
+Do not create a cron job whose primary behaviour is simply:
+
+“Ask the LLM whether the task is finished, and if not tell it to continue.”
+
+That makes an LLM session the source of truth and recreates the failure mode where autonomous operation depends on a particular session staying alive.
+
+Instead implement a **durable watchdog/recovery loop**.
+
+The watchdog does not need intelligence for the normal case.
+
+The controller/database owns truth.
+
+---
+
+# WATCHDOG ARCHITECTURE
+
+Use a persistent system service plus a 10-minute recovery timer.
+
+Preferred implementation:
+
+**systemd service + systemd timer**
+
+rather than plain cron, because systemd provides:
+
+* process supervision;
+* restart behaviour;
+* logs;
+* boot persistence;
+* failure state;
+* environment configuration;
+* process ownership;
+* easier prevention of duplicate instances.
+
+A cron entry may be used only if systemd is genuinely unavailable.
+
+Create something equivalent to:
+
+`nailed-it-controller.service`
+
+for the deterministic controller.
+
+Configure it to restart if it crashes.
+
+Then create:
+
+`nailed-it-watchdog.service`
+
+and
+
+`nailed-it-watchdog.timer`
+
+running approximately every 10 minutes.
+
+The watchdog must inspect actual durable state.
+
+---
+
+# EVERY 10 MINUTES THE WATCHDOG SHOULD CHECK
+
+1. Is the controller process/service alive?
+
+If not:
+restart it.
+
+2. Is there a WorkItem marked RUNNING whose lease has expired?
+
+If yes:
+mark the attempt expired according to the controller state machine and return the WorkItem to recoverable state.
+
+3. Is a worker process/session gone while its WorkItem still claims to be active?
+
+If yes:
+expire the worker lease and redispatch according to policy.
+
+4. Has a worker stopped producing progress/evidence beyond its allowed lease?
+
+If yes:
+treat the attempt as stalled rather than leaving it permanently RUNNING.
+
+5. Has a FreeLLMAPI provider returned a capacity/rate/platform limit?
+
+If yes:
+record the provider failure and rotate to another authorised FreeLLMAPI route where policy allows.
+
+6. Are all FreeLLMAPI providers temporarily unavailable?
+
+If yes:
+persist the WorkItems as waiting for provider capacity.
+
+Do not lose them.
+Do not spam requests continuously.
+Retry on the next suitable watchdog/controller cycle.
+
+7. Is an Opus review waiting for subscription capacity?
+
+If yes:
+leave it as durable `WAITING_PROVIDER` state.
+
+Do not silently downgrade the required review.
+
+8. Is the queue empty?
+
+If yes:
+DO NOT assume the campaign is complete.
+
+Evaluate the actual release predicate.
+
+Check:
+
+* requirement ledger;
+* outstanding failures;
+* blocked requirements;
+* pending human gates;
+* pending reviews;
+* acceptance evidence;
+* phase completion;
+* final Android-native release gate.
+
+Only a satisfied release predicate may result in `SHIPPED`.
+
+9. Is the queue empty but requirements remain unsatisfied?
+
+If yes:
+the director/controller must create the next bounded WorkItem from the unmet requirement rather than declaring completion.
+
+10. Is progress genuinely impossible without a human action?
+
+If yes:
+persist a specific `BLOCKED_HUMAN` state containing:
+
+* what is blocked;
+* why;
+* evidence;
+* exact action required;
+* which downstream items depend on it.
+
+Continue all unrelated work.
+
+---
+
+# PROVIDER-LIMIT RECOVERY
+
+Provider throttling must be treated as an infrastructure event, not a failed implementation.
+
+Distinguish at least:
+
+`FAILED_IMPLEMENTATION`
+`FAILED_ACCEPTANCE`
+`FAILED_PROVIDER`
+`EXPIRED`
+`WAITING_PROVIDER`
+`BLOCKED_HARDWARE`
+`BLOCKED_HUMAN`
+
+Do not penalise worker-quality benchmarks for genuine provider-capacity failures.
+
+Do not repeatedly send identical requests to a provider that has already reported capacity exhaustion.
+
+Use bounded cooldown/backoff.
+
+Where multiple FreeLLMAPI routes are authorised, rotate between them rather than creating more orchestrators.
+
+---
+
+# LEASE-BASED WORKERS
+
+Every worker attempt needs a lease.
+
+The attempt record should include at least:
+
+* WorkItem ID;
+* attempt ID;
+* worker/provider/model;
+* worktree;
+* start timestamp;
+* lease expiry;
+* last heartbeat/progress timestamp;
+* status;
+* failure classification;
+* commit/evidence output where applicable.
+
+A worker does not own a WorkItem forever merely because it started it.
+
+If its lease expires, the deterministic controller can recover the task.
+
+This is the core mechanism that makes provider limits and dead sessions survivable.
+
+---
+
+# DIRECTOR SESSION RECOVERY
+
+The GPT-5.6 Luna Codex execution session must also be treated as disposable.
+
+Do NOT make successful completion depend on that particular Codex conversation surviving indefinitely.
+
+Persist enough state that a fresh Codex/Luna session can continue.
+
+Maintain a durable execution checkpoint containing at least:
+
+* current campaign phase;
+* completed requirements;
+* current WorkItems;
+* blocked WorkItems;
+* waiting reviews;
+* last accepted commits;
+* latest harness result;
+* outstanding human gates;
+* provider state;
+* next deterministic action.
+
+If the Codex execution session dies, a replacement Luna/Codex session should be able to:
+
+1. read the Stage-0 pack;
+2. read the checkpoint;
+3. read the database;
+4. inspect current Git/worktree state;
+5. reconcile inconsistencies;
+6. continue from the next unfinished bounded action.
+
+No manual reconstruction of the campaign should be necessary.
+
+---
+
+# WATCHDOG MUST NOT CREATE SUPERVISOR SPRAWL
+
+The watchdog is not another planner.
+
+It must not repeatedly create:
+
+supervisor → supervisor → supervisor → worker
+
+chains.
+
+Its job is mechanical recovery.
+
+The correct pattern is:
+
+Director dies
+→ durable state remains
+→ new director session reads state
+→ continue
+
+Worker dies
+→ lease expires
+→ controller returns task to recoverable state
+→ new worker attempts it
+
+Provider rate-limits
+→ attempt records infrastructure failure
+→ alternate provider/cooldown
+→ continue later
+
+Reviewer unavailable
+→ review remains pending
+→ capacity returns
+→ fresh reviewer consumes durable review packet
+
+This is recovery, not recursive orchestration.
+
+---
+
+# START PRODUCTION
+
+Once this fresh GPT-5.6 Luna Codex execution session begins:
+
+**START ACTUAL PRODUCTION.**
+
+Do not produce another lengthy planning questionnaire.
+
+Do not ask me to reconfirm decisions already present in the Stage-0 pack and owner decision register.
+
+Perform the required pre-dispatch sanitation automatically.
+
+Then begin P0/P1 and start making the application.
+
+Specifically:
+
+1. Inspect current disk/repo/controller/database state.
+2. Reconcile any difference between the Stage-0 snapshot and current reality.
+3. Archive/reconcile stale historical WorkItems.
+4. Eliminate the false-SHIPPED condition before enabling the controller.
+5. Freeze/import the approved requirements and acceptance contracts.
+6. Verify authorised provider routing.
+7. Pin the supported runtime.
+8. Configure Android development tooling.
+9. Establish the controller + watchdog recovery services.
+10. Run the agreed representative worker benchmark.
+11. Apply its decision rule.
+12. Begin the Android platform migration.
+13. Continue automatically through the approved phase plan.
+14. Create, dispatch, verify, review and integrate bounded WorkItems.
+15. Recover automatically from worker deaths/provider limits.
+16. Produce durable phase evidence.
+17. Continue until the Android-native release predicate is genuinely satisfied or a specifically defined human-only blocker prevents further progress.
+
+You are authorised to write code, modify the repository, add approved dependencies, run tests, create worktrees, commit accepted work, configure the local development environment and execute the campaign.
+
+Do not wait for another `GO`.
+
+**This instruction is the GO. Begin production now.**

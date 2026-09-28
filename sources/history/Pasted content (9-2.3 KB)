@@ -1,0 +1,387 @@
+You have now proved the root cause.
+
+Do NOT continue broad forensic investigation and do NOT redesign Hermes' fallback architecture yet.
+
+The immediate goal is now to make the EXISTING Hermes fallback cascade work correctly and prove it end-to-end.
+
+ROOT CAUSE ESTABLISHED:
+
+- Provider/request errors such as the freellmapi format rejection are already classified as fallback-eligible.
+- `should_fallback=True` already works.
+- Hermes already has `_try_activate_fallback()`.
+- Hermes already has `_has_pending_fallback()`.
+- Hermes already has fallback configuration machinery.
+- The live configuration has no usable fallback chain configured for the active freellmapi route.
+- Therefore the fallback chain is exhausted immediately and Hermes enters the terminal unrecovered-error path.
+- That is why Desktop displays the red "Switch provider" card.
+
+Proceed as follows.
+
+============================================================
+1. STOP EXPANDING THE INVESTIGATION
+============================================================
+
+You have enough evidence to fix the immediate problem.
+
+Do not keep repeatedly rediscovering the same fallback functions.
+
+Do not create a second recovery architecture.
+
+Do not add a RECOVERING_PROVIDER state unless testing proves the existing fallback status mechanism cannot communicate recovery adequately.
+
+Use the machinery Hermes already has wherever possible.
+
+============================================================
+2. DO NOT INSTALL PYTEST INTO THE MAIN RUNTIME VENV YET
+============================================================
+
+Before modifying the runtime environment, inspect:
+
+- pyproject.toml
+- uv.lock
+- dependency groups
+- Makefile
+- package/task scripts
+- CI configuration
+- contributor/development documentation
+
+Determine the intended test command/environment.
+
+Use the supported development/test mechanism.
+
+Do not modify the production Hermes venv merely because pytest is missing from it.
+
+============================================================
+3. VERIFY EXACT FALLBACK CONFIG SCHEMA
+============================================================
+
+Read the actual source/schema/tests for:
+
+fallback_model
+fallback_models
+fallback_provider
+fallback_providers
+
+Determine exactly:
+
+- valid field names;
+- whether they live under `model`;
+- allowed formats;
+- ordering semantics;
+- provider/model pairing;
+- whether aliases are supported;
+- how `get_fallback_chain()` constructs the final chain.
+
+Do not guess from comments alone.
+
+============================================================
+4. DISCOVER CURRENT USABLE FALLBACK ROUTES
+============================================================
+
+Inspect the currently configured providers.
+
+Never expose credentials.
+
+Determine which routes are actually authenticated and usable.
+
+For each candidate determine:
+
+provider
+model
+free/subscription/paid
+tool support
+reasoning support
+streaming support
+structured-output support where relevant
+availability
+
+The immediate fallback policy should prefer:
+
+PRIMARY
+freellmapi/current selected model
+
+↓
+
+FREE COMPATIBLE FALLBACK
+
+↓
+
+ANOTHER FREE COMPATIBLE FALLBACK if available
+
+↓
+
+AUTHORIZED SUBSCRIPTION-BACKED FALLBACK
+
+↓
+
+PAID route ONLY if an existing explicit policy allows it
+
+Do not silently introduce paid inference.
+
+============================================================
+5. CONFIGURE THE EXPLICIT FALLBACK CHAIN
+============================================================
+
+Back up the existing config safely.
+
+Then make the minimum supported change to:
+
+~/.hermes/config.yaml
+
+Configure a real fallback chain using only verified routes.
+
+Do not replace unrelated settings.
+
+Do not expose secrets.
+
+Validate the YAML/config before restarting anything.
+
+============================================================
+6. PROVE THE CHAIN IS ACTUALLY LOADED
+============================================================
+
+Before a live test, prove from runtime/config loading that:
+
+get_fallback_chain(...)
+
+returns a NON-EMPTY ordered chain.
+
+Record the effective chain using provider/model names only.
+
+Expected conceptually:
+
+[
+  freellmapi / primary,
+  free-route-B,
+  free-route-C,
+  subscription-route-D
+]
+
+The primary may or may not be represented separately depending on Hermes' implementation.
+
+Use the actual implementation's semantics.
+
+============================================================
+7. TEST THE EXISTING FALLBACK ENGINE
+============================================================
+
+Use the project's supported test environment.
+
+Run existing provider-fallback tests.
+
+Then add a regression test for this exact bug.
+
+Scenario:
+
+primary = freellmapi
+
+fallbacks = A, B
+
+primary returns a format/provider-rejected error
+
+Expected:
+
+classification.should_fallback == true
+
+_has_pending_fallback() == true
+
+_try_activate_fallback() selects A
+
+terminal `settle_unrecovered_error` path is NOT taken
+
+same turn continues
+
+If A fails with another fallback-eligible error:
+
+B activates.
+
+Only after B also fails:
+
+terminal unrecovered-error path occurs.
+
+Also test:
+
+NO fallback chain configured
+
+→ terminal path
+
+This preserves the old behavior intentionally when the user truly has no fallback.
+
+============================================================
+8. VERIFY TURN CONTINUITY
+============================================================
+
+This is the important user-facing requirement.
+
+Prove that fallback does not restart the task.
+
+The same:
+
+conversation
+session
+turn
+working directory
+files
+tool state
+
+must continue according to the existing Hermes semantics.
+
+Do not create duplicate:
+
+tool calls
+file edits
+commits
+messages
+
+as a consequence of fallback.
+
+============================================================
+9. LIVE OR CONTROLLED END-TO-END TEST
+============================================================
+
+Reload/restart Hermes using the normal supported mechanism.
+
+Use either:
+
+A. a safe real freellmapi request that reproduces the rejection;
+
+OR
+
+B. a controlled fault injection that produces the same classified error.
+
+Expected log sequence:
+
+freellmapi attempt
+→ PROVIDER_REJECTED_REQUEST / format error
+→ should_fallback=true
+→ next route activated
+→ same turn resumes
+→ response completes
+
+Expected Desktop behavior:
+
+NO terminal red "Switch provider" card while a valid fallback remains.
+
+============================================================
+10. UI RECOVERY FEEDBACK
+============================================================
+
+Only after backend fallback works:
+
+inspect whether the Desktop already receives useful fallback status.
+
+If yes:
+reuse it.
+
+If not:
+make the SMALLEST UI addition necessary so the user can see:
+
+"freellmapi failed — automatically switching…"
+
+followed by:
+
+"Continuing with <provider/model>"
+
+Do not build a duplicate provider state machine in TypeScript.
+
+Backend remains authoritative.
+
+The existing manual "Switch provider" action should remain available.
+
+============================================================
+11. THEN CONSIDER THE BROADER IMPROVEMENT
+============================================================
+
+Once explicit fallback has been proven:
+
+separately assess whether Hermes should support an implicit safe fallback policy when a provider has NO manually configured fallback chain.
+
+Do not implement it merely because it sounds convenient.
+
+Analyse:
+
+- accidental paid use;
+- tool compatibility;
+- privacy/provider boundary;
+- subscriptions;
+- reasoning support;
+- model quality;
+- user intent.
+
+If implementing an implicit default, it MUST obey:
+
+configured explicit fallbacks first
+
+→ compatible configured FREE routes
+
+→ compatible configured SUBSCRIPTION routes
+
+→ NEVER paid implicitly unless explicitly authorized
+
+and it must be visible/configurable.
+
+============================================================
+DEFINITION OF DONE
+============================================================
+
+You are not done until:
+
+[ ] exact fallback config schema proven
+[ ] supported test environment identified
+[ ] main runtime venv left untouched unless legitimately required
+[ ] usable providers discovered
+[ ] compatibility checked
+[ ] explicit fallback chain configured
+[ ] effective chain proven non-empty
+[ ] existing fallback tests pass
+[ ] freellmapi regression test added
+[ ] first fallback activates automatically
+[ ] second fallback works if first also fails
+[ ] terminal path occurs only after exhaustion
+[ ] same chat/turn continues
+[ ] existing working state survives
+[ ] live or fault-injected E2E test passes
+[ ] red terminal card does not appear prematurely
+[ ] manual provider switch remains
+[ ] no paid provider is entered without authorization
+
+When finished report:
+
+AUTOMATIC FALLBACK — WORKING
+
+Root cause:
+...
+
+Effective configured fallback chain:
+1. ...
+2. ...
+3. ...
+
+Config changed:
+...
+
+Code changed:
+...
+
+Tests:
+...
+
+End-to-end freellmapi failure:
+PASS
+
+Automatic fallback without clicking Switch Provider:
+PASS
+
+Same turn continued:
+PASS
+
+Terminal error only after chain exhaustion:
+PASS
+
+Paid fallback introduced:
+YES/NO
+
+Remaining limitation:
+...
+
+Do not return until this has been implemented and verified.

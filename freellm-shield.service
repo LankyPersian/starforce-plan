@@ -1,0 +1,16 @@
+[Unit]
+Description=FreeLLMAPI resilience shield (retry/fallback/validation proxy, :3102 -> :3101)
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/work/starforce-plan/freellm_shield.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=SHIELD_PORT=3102
+Environment=SHIELD_UPSTREAM=http://127.0.0.1:3101
+
+[Install]
+WantedBy=default.target
