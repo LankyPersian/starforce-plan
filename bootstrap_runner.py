@@ -25,13 +25,14 @@ STATE = STATE_DIR / "bootstrap.json"
 LOG = STATE_DIR / "bootstrap.log"
 FREE_URL = "http://127.0.0.1:3102"  # via freellm-shield
 LUNA_MODEL = "gpt-5.6-luna"        # Codex CLI, ChatGPT subscription (planning lane; NOT the API)
-# Owner directive 2026-09-28: maximise use of these OpenRouter free models (they fail often by
-# nature; the shield's ladder + breakers absorb that). Kept in sync with the shield ladder file.
-FREE_LADDER = ["qwen/qwen3.8-27b:free", "thinkingmachines/inkling:free",
-               "nvidia/nemotron-3-ultra-550b-a55b:free", "nvidia/nemotron-3.5-lightning:free",
-               "nvidia/nemotron-3-super-120b-a12b:free",
-               "mistral-code", "codestral-2508", "gpt-oss-120b", "mimo-v2.6-flashfree",
-               "deepseek-v4-flashfree", "nemotron-3-super-120b", "auto"]
+# Owner directive 2026-09-29: only the proven Nemotron Super route is preferred.
+# The formerly head-pinned OpenRouter free ids are retained as late fallbacks; live
+# measurements showed they are currently unreachable or too flaky to burn the hot path.
+FREE_LADDER = ["nemotron-3-super-120b", "mistral-code", "gpt-oss-120b", "codestral-2508",
+               "mimo-v2.6-flashfree", "deepseek-v4-flashfree", "qwen3.8-flashfree", "auto",
+               "qwen/qwen3.8-27b:free", "thinkingmachines/inkling:free",
+               "nvidia/nemotron-3.5-lightning:free", "nvidia/nemotron-3-ultra-550b-a55b:free",
+               "nvidia/nemotron-3-super-120b-a12b:free"]
 STEP_TIMEOUT = 90 * 60
 # Re-try the subscription lane every Nth attempt once a step is in budget backoff. Bounded so a
 # step can never be starved of Luna/Sonnet forever (see the routing fix below).
