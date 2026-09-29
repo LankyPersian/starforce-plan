@@ -23,6 +23,13 @@ def rebuild(force=True, min_age=55):
     if not force and now - LAST_BUILD["t"] < min_age:
         return True
     try:
+        # Re-import on every rebuild: editing tracker_build/lane_report must take
+        # effect on the next refresh WITHOUT restarting this long-lived server.
+        # (A stale in-memory copy silently overwrote tracker.html with old panels once.)
+        import importlib
+        import lane_report
+        importlib.reload(lane_report)
+        importlib.reload(tracker_build)
         tracker_build.NOW = now  # tracker_build stamps at import-time NOW otherwise
         tracker_build.lr.NOW = now  # same for the "x ago" / 6h-window reference
         tracker_build.main()
