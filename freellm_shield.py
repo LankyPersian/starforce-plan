@@ -33,24 +33,32 @@ STATE = pathlib.Path(os.environ.get("SHIELD_STATE", HOME / ".local/state/freellm
 STATE.mkdir(parents=True, exist_ok=True)
 DB = STATE / "shield.db"
 LADDER_FILE = STATE / "ladder.json"   # editable at runtime; controller re-ranks it
-# Owner directive 2026-09-28: maximise use of these OpenRouter free models. They fail far more
-# often than the workhorses - that is their nature - so they sit at the HEAD of the ladder
-# (the strongest coders when they do answer) and the reliable tier below is the fallback.
-STRONG_TIER = ["qwen/qwen3.8-27b:free",
-               "thinkingmachines/inkling:free",
-               "nvidia/nemotron-3-ultra-550b-a55b:free",
-               "nvidia/nemotron-3.5-lightning:free",
-               "nvidia/nemotron-3-super-120b-a12b:free"]
-RELIABLE_TIER = ["mistral-code", "codestral-2508", "gpt-oss-120b", "mimo-v2.6-flashfree",
-                 "deepseek-v4-flashfree", "auto"]
-DEFAULT_LADDER = STRONG_TIER + RELIABLE_TIER
+# Owner directive 2026-09-29: FreeLLMAPI `auto` is the adaptive default.  Named models remain
+# fallbacks, including Nemotron Super, rather than a single brittle hot-path pin. The three
+# formerly-head-pinned OpenRouter free ids were MEASURED, not assumed:
+#   qwen/qwen3.8-27b:free                54 real calls -> 53 errors (107 shield tries, 0% ok, 429)
+#   thinkingmachines/inkling:free        85 shield tries -> 0% ok, 429 in ~0.0s (instant reject)
+#   nvidia/nemotron-3.5-lightning:free   51 tries -> 27% ok, 60s median, PROVIDER_DOWN (502)
+# They were NOT bad models - they were unreachable routes that still burned ~42 min of wall clock
+# and 6% of all attempts from the head of the ladder. They now sit in FLAKY_TIER at the tail: still
+# reachable as a fallback, never preferred, and parked on the RELIABLE (longer) schedule so they
+# stop re-entering the hot path every window.
+# `STRONG_TIER` remains the legacy name used by the concurrency/picker code. It is deliberately
+# `auto`, not a named model, so new worker sessions use the healthy provider pool first.
+STRONG_TIER = ["auto"]
+RELIABLE_TIER = ["nemotron-3-super-120b", "mistral-code", "gpt-oss-120b", "codestral-2508",
+                 "mimo-v2.6-flashfree", "deepseek-v4-flashfree", "qwen3.8-flashfree"]
+FLAKY_TIER = ["qwen/qwen3.8-27b:free", "thinkingmachines/inkling:free",
+              "nvidia/nemotron-3.5-lightning:free", "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "nvidia/nemotron-3-super-120b-a12b:free"]
+DEFAULT_LADDER = STRONG_TIER + RELIABLE_TIER + FLAKY_TIER
 DENY = re.compile(r"^(claude-|gpt-6|gpt-5\.6|.*luna)", re.I)   # never route to subscription look-alikes
 REQUEST_BUDGET_S = int(os.environ.get("SHIELD_BUDGET_S", 45 * 60))
 TRY_CAP_S = int(os.environ.get("SHIELD_TRY_CAP_S", 240))
-# Owner wants the strong tier hammered as hard as it will take: allow it more in-flight requests
-# than the workhorses. The gateway's own global window is still respected via gateway_until.
-MAX_CONC_STRONG = int(os.environ.get("SHIELD_MAX_CONC_STRONG", 3))
-MAX_CONC_RELIABLE = int(os.environ.get("SHIELD_MAX_CONC_RELIABLE", 2))
+# The adaptive default gets a small extra concurrency allowance; the gateway's own global window
+# is still respected via gateway_until.
+MAX_CONC_STRONG = int(os.environ.get("SHIELD_MAX_CONC_STRONG", 12))
+MAX_CONC_RELIABLE = int(os.environ.get("SHIELD_MAX_CONC_RELIABLE", 8))
 # A model the gateway says does not exist / is disabled will never recover on its own; parking it
 # for minutes would waste one request per recovery window forever, so park it for hours and let
 # only the prober re-admit it.
@@ -121,9 +129,8 @@ def ladder():
 
 
 def _wait_for(model, detail, outcome, n):
-    """How long to park a model after a failure. The strong tier fails often BY DESIGN (owner
-    directive 2026-09-28), so it is parked SHORTER, not longer: a pinned model that is put to sleep
-    for 30 minutes on every 429 stops being used at all, which is the opposite of what was asked."""
+    """How long to park a model after a failure. The adaptive route is retried sooner than a
+    named fallback, but explicit upstream reset hints always take precedence."""
     text = detail or ""
     # The gateway tells us exactly when the route frees up; honour it instead of guessing.
     m = re.search(r'"retryAtMs"\s*:\s*(\d+)', text)
@@ -139,7 +146,7 @@ def _wait_for(model, detail, outcome, n):
         return float(DISABLED_S)          # never recovers by waiting; park for hours
     strong = model in STRONG_TIER
     if outcome == "RATE_LIMITED":
-        return 90 if strong else 300      # flaky-by-nature: retry the route soon
+        return 90 if strong else 300
     if outcome in ("GARBAGE", "EMPTY", "BAD_TOOL", "LEAKED_TOOL_XML", "TOOL_NO_BLOCK"):
         return min(30 * n, 300) if strong else min(60 * n, 900)
     if outcome in ("PROVIDER_DOWN", "TIMEOUT", "NETWORK"):
@@ -181,8 +188,7 @@ def pick(session, hint, stick=None):
             inflight[stick] = inflight.get(stick, 0) + 1
             return stick, 0
         # Coherence first: a session already talking to a model stays on it (it must read its own
-        # tool-call history). Only NEW sessions get the owner-pinned strong tier pushed to the head
-        # of the queue (directive 2026-09-28: maximise use of the OpenRouter strong models).
+        # tool-call history). Only NEW sessions get the adaptive default pushed to the head.
         if session in sticky:
             pref.append(sticky[session])
         pref.extend([m for m in order if m in STRONG_TIER])
