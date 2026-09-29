@@ -58,10 +58,40 @@ DISABLED_S = int(os.environ.get("SHIELD_DISABLED_S", 4 * 3600))
 DISABLED_RE = re.compile(r"is disabled|model_not_found|no such model|invalid model|unknown model", re.I)
 KEY = next((l.split("=", 1)[1].strip() for l in open(HOME / ".hermes/.env") if l.startswith("FREELLMAPI_API_KEY=")), "")
 
+# Owner directive 2026-09-29: the OpenRouter strong tier are the best coders but fail more —
+# the same model often just WORKS on the 5th or 6th consecutive try. The old policy tripped a
+# model's circuit breaker on the FIRST failure, which wasted them. New policy: hammer the same
+# model STRIKE_LIMIT times in a row before declaring it truly failed (trip breaker + rotate).
+# Deterministic failures do NOT strike — the same payload to the same model fails the same way:
+# disabled/unknown model, auth, context-too-long, leaked paid routes.
+STRIKE_LIMIT = int(os.environ.get("SHIELD_STRIKES", 6))             # fast failures (429/garbage/empty)
+STRIKE_LIMIT_SLOW = int(os.environ.get("SHIELD_STRIKES_SLOW", 3))   # expensive ones (240 s timeouts)
+STRIKE_WAIT_MAX_S = int(os.environ.get("SHIELD_STRIKE_WAIT_MAX_S", 120))  # long gateway hint -> rotate, don't wait-strike
+STRIKE_BUDGET_S = int(os.environ.get("SHIELD_STRIKE_BUDGET_S", 360))  # per-request cap for striking ONE model
+HAMMERABLE = {"RATE_LIMITED", "PROVIDER_DOWN", "TIMEOUT", "NETWORK", "GARBAGE", "EMPTY",
+              "BAD_TOOL", "LEAKED_TOOL_XML", "TOOL_NO_BLOCK"}
+SLOW_OUTCOMES = {"TIMEOUT", "NETWORK", "PROVIDER_DOWN"}
+
+
+def parsed_wait(detail):
+    """Seconds the gateway says its route needs ("retryAtMs" / "reset ~Nm" / "reset ~Ns"), else None."""
+    text = detail or ""
+    m = re.search(r'"retryAtMs"\s*:\s*(\d+)', text)
+    if m:
+        return max(0.0, int(m.group(1)) / 1000.0 - time.time())
+    m = re.search(r"reset\S*\s*~\s*(\d+)\s*m", text)
+    if m:
+        return int(m.group(1)) * 60
+    m = re.search(r"reset\S*\s*~\s*(\d+)\s*s", text)
+    if m:
+        return int(m.group(1))
+    return None
+
 lock = threading.Lock()
 breakers = {}      # model -> (until_epoch, consecutive_failures)
 inflight = {}      # model -> count
 sticky = {}        # session key -> model
+strikes = {}       # model -> (consecutive transient failures, epoch of last failure) — 09-29 hammer policy
 gateway_until = 0  # FreeLLMAPI's own global per-key rate limit window
 
 
@@ -132,17 +162,24 @@ def set_gateway_until(t):
 def heal(model):
     with lock:
         breakers[model] = (0, 0)
+        strikes.pop(model, None)
 
 
 def cap_for(model):
     return MAX_CONC_STRONG if model in STRONG_TIER else MAX_CONC_RELIABLE
 
 
-def pick(session, hint):
+def pick(session, hint, stick=None):
+    """Choose a model and reserve a slot. `stick` (model name) means: this caller is hammering
+    that model under the strike policy — honour it if it still has capacity, else rotate."""
     now = time.time()
     order = ladder()
     with lock:
         pref = []
+        if stick and stick in order and breakers.get(stick, (0, 0))[0] <= now \
+                and inflight.get(stick, 0) < cap_for(stick):
+            inflight[stick] = inflight.get(stick, 0) + 1
+            return stick, 0
         # Coherence first: a session already talking to a model stays on it (it must read its own
         # tool-call history). Only NEW sessions get the owner-pinned strong tier pushed to the head
         # of the queue (directive 2026-09-28: maximise use of the OpenRouter strong models).
@@ -272,18 +309,29 @@ def resilient(path, payload, headers):
     hint = payload.get("model")
     started = time.time()
     tries = 0
+    # 09-29 hammer policy: keep aiming this request at the same model through transient failures
+    # (shared per-model strike count, so concurrent requests don't each burn a fresh 6).
+    hammer = None            # model we are currently striking
+    hammer_started = 0.0     # when this request started striking it
     while time.time() - started < REQUEST_BUDGET_S:
         if gateway_until > time.time():
             log_try(req=req_id, session=session, outcome="GATEWAY_THROTTLE", detail=f"until {gateway_until}", secs=0)
             time.sleep(min(60, gateway_until - time.time()) + random.uniform(0, 2))
             continue
-        model, wait = pick(session, hint)
+        model, wait = pick(session, hint, stick=hammer)
         if not model:
+            # nothing has capacity (the hammer target may be at its cap or just tripped): let go
+            if hammer:
+                with lock:
+                    hb = breakers.get(hammer, (0, 0))
+                if hb[0] > time.time():
+                    hammer = None
             log_try(req=req_id, session=session, model=None, outcome="WAITING", detail=f"all cooling {int(wait)}s", secs=0)
             time.sleep(wait + random.uniform(0, 3))
             continue
         tries += 1
         t0 = time.time()
+        fail = None                      # (outcome, detail) when this try did not validate
         try:
             resp = upstream(path, payload, model, TRY_CAP_S)
             ok, outcome, detail = validate(resp, english(payload))
@@ -305,28 +353,69 @@ def resilient(path, payload, headers):
                 resp.setdefault("role", "assistant")
                 resp["content"] = [b for b in resp.get("content", []) if b.get("type") in ("text", "tool_use")]
                 return 200, resp, model
-            trip(model, detail, outcome)
+            fail = (outcome, detail)
         except urllib.error.HTTPError as e:
             body = e.read().decode(errors="ignore")[:1000]
             outcome = classify(e.code, body)
             log_try(req=req_id, session=session, model=model, outcome=outcome, detail=body, secs=time.time() - t0)
             if e.code == 429 and e.headers.get("X-RateLimit-Remaining") == "0":
-                set_gateway_until( int(e.headers.get("X-RateLimit-Reset") or time.time() + 30))
-            elif outcome == "CONTEXT_TOO_LONG":
-                # try models with bigger windows next; don't punish long
-                trip(model, "", "CONTEXT_TOO_LONG")
-            else:
-                trip(model, body, outcome)
+                set_gateway_until(int(e.headers.get("X-RateLimit-Reset") or time.time() + 30))
+            fail = (outcome, body)
         except Exception as e:
             outcome = "TIMEOUT" if "timed out" in str(e).lower() else "NETWORK"
             log_try(req=req_id, session=session, model=model, outcome=outcome, detail=str(e), secs=time.time() - t0)
-            trip(model, "", outcome)
+            fail = (outcome, str(e))
         finally:
             release(model)
         with lock:
             if sticky.get(session) == model:
                 sticky.pop(session, None)
-        time.sleep(min(2 + tries * 0.5, 10) + random.uniform(0, 1))
+        # ---- decide: strike the same model again, or declare it truly failed and rotate -------
+        outcome, detail = fail
+        pw = parsed_wait(detail)
+        if outcome == "CONTEXT_TOO_LONG" or DISABLED_RE.search(detail or ""):
+            trip(model, "", outcome)                        # deterministic: park, rotate next
+            hammer = None
+            time.sleep(0.2)
+            continue
+        if outcome == "AUTH":
+            trip(model, detail or "", outcome)
+            hammer = None
+            time.sleep(0.2)
+            continue
+        if outcome == "POLICY_PAID_ROUTE":
+            trip(model, detail, outcome)                    # never hammer a paid-route leak
+            hammer = None
+            time.sleep(0.2)
+            continue
+        if outcome not in HAMMERABLE:
+            trip(model, detail, outcome)
+            hammer = None
+            time.sleep(min(2 + tries * 0.5, 10) + random.uniform(0, 1))
+            continue
+        # transient failure on a strikeable outcome: count it globally for this model
+        limit = STRIKE_LIMIT_SLOW if outcome in SLOW_OUTCOMES else STRIKE_LIMIT
+        with lock:
+            c, last = strikes.get(model, (0, 0.0))
+            if time.time() - last > 900:
+                c = 0                                        # stale window: start fresh
+            c += 1
+            strikes[model] = (c, time.time())
+        if hammer != model:
+            hammer, hammer_started = model, time.time()
+        exhausted = (c >= limit
+                     or time.time() - hammer_started > STRIKE_BUDGET_S
+                     or (pw is not None and pw > STRIKE_WAIT_MAX_S))
+        if exhausted:
+            trip(model, detail, outcome)                    # truly failed after {c} strikes -> park+rotate
+            with lock:
+                strikes[model] = (0, 0.0)
+            hammer = None
+            time.sleep(0.2 + random.uniform(0, 0.5))
+            continue
+        # keep hammering the same model: honour a short gateway hint, else fast jitter
+        sleep_s = pw if (pw is not None and pw <= STRIKE_WAIT_MAX_S) else min(1.5 + c * 0.5, 8)
+        time.sleep(max(sleep_s, 0.3) + random.uniform(0, 0.7))
     return 529, {"type": "error", "error": {"type": "overloaded_error",
                  "message": f"freellm-shield: no valid reply within {REQUEST_BUDGET_S}s after {tries} tries"}}, None
 
