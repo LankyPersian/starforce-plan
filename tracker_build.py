@@ -11,6 +11,12 @@ module-level NOW at call time.
 """
 import glob, html, json, os, sqlite3, time
 import lane_report as lr
+import tracker_telemetry as tt
+
+FSTATE = os.path.expanduser("~/.local/state/empirium-build")
+SAMPLES = os.path.join(FSTATE, "tracker_agent_samples.jsonl")
+FIX_DB = os.path.expanduser("~/.local/state/empirium-fixture/build.db")
+FIX_DB = os.path.expanduser("~/.local/state/empirium-fixture/build.db")
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tracker.html")
 NOW = time.time()
@@ -129,6 +135,8 @@ def load_shield(now):
 def parse_procs(lines):
     kinds = (("bootstrap_runner", "runner"), ("controller.py run", "controller"),
              ("run_commissioning", "commissioning"), ("freellm_shield", "shield"),
+             ("fixture_claude_worker", "claude"), ("fixture_codex_worker", "codex"),
+             ("fixture_freellm_worker", "freellm"),
              ("codex exec", "codex"), ("claude -p", "claude"))
     out = []
     for ln in lines:
@@ -300,6 +308,68 @@ def render_commits(cs):
     return "".join(rows) or '<tr><td colspan="4" class="dim">git log unavailable</td></tr>'
 
 
+def merge_agents(cli_agents, db_agents, dlg_agents):
+    """One row per live sub-agent from three independent sources.
+
+    The CLI scan proves a worker process exists but not which item it owns; the
+    attempts table proves the item but is the controller's own claim; /proc is the
+    arbiter and collect_db_attempts already applied it. Hermes children (delegate_task)
+    exist in neither: their provider/model lane is invisible unless the registry is read.
+    """
+    by_pid, rows = {}, []
+    for a in list(cli_agents) + list(db_agents):
+        if a["pid"] in by_pid:
+            cur = by_pid[a["pid"]]
+            if a.get("item_id"):            # DB row wins: it carries item attribution
+                cur.update({k: v for k, v in a.items() if v})
+            continue
+        a = dict(a)
+        a.setdefault("source", "process scan")
+        a["source"] = "db attempts" if a.get("attempt_id") else "process scan"
+        by_pid[a["pid"]] = a
+        rows.append(a)
+    for a in dlg_agents:
+        a = dict(a)
+        a["source"] = "hermes registry"
+        rows.append(a)
+    rows.sort(key=lambda r: (r["kind"], -(r.get("runtime_s") or 0)))
+    return rows
+
+
+def render_agents(agents):
+    if not agents:
+        return ('<tr><td colspan="7" class="dim">no sub-agents are running right now — the process table, '
+                'the controller attempts table and the Hermes delegation registry all agree (every lane '
+                'is idle or capacity-blocked)</td></tr>', 0)
+    srcs = sorted({a["source"] for a in agents})
+    kinds = sorted({a["kind"] for a in agents})
+    out = []
+    for a in agents:
+        rt = f'<span class="num">{fdur(a["runtime_s"])}</span>' if a.get("runtime_s") else '<span class="dim">—</span>'
+        out.append(
+            f'<tr><td><span class="kind k-{esc(a["kind"])}">{esc(a["kind"])}</span></td>'
+            f'<td><span class="lane l-{esc(a["lane"])}">{esc(a["lane"])}</span></td>'
+            f'<td class="mono">{esc(a["model"])}</td>'
+            f'<td class="mono">{esc(a.get("item_id") or a.get("attempt_id") or "—")}</td>'
+            f'<td class="r">{rt}</td><td class="dim small">{esc(a["source"])}</td>'
+            f'<td class="cmd" title="{esc(a["command"])}">{esc(a["command"])}</td></tr>')
+    n = len(agents)
+    return "".join(out), (n, srcs, kinds)
+
+
+def render_progress(prog):
+    if not prog:
+        return '<div class="note dim">Overall project progress: no controller work items exist yet.</div>', "0/0"
+    done, total = prog["done"], prog["total"]
+    pct = prog["percent"]
+    eta = ("ETA ~" + fdur(prog["eta_s"])) if prog.get("eta_s") else ("ETA: " + esc(prog.get("eta_reason") or "n/a"))
+    rate = f'{prog["rate_per_hour"]:.1f}/h' if prog.get("rate_per_hour") else "—"
+    frac = f"{done}/{total}"
+    return (f'<div class="note">Overall project progress: <b class="num">{frac}</b> work items integrated '
+            f'(<b class="num">{pct:.0f}%</b>) · throughput <b class="num">{esc(rate)}</b> · {eta}'
+            f'<br><span class="dim">{esc(prog.get("eta_reason") or "")}</span></div>'), frac
+
+
 CSS = """
 :root{color-scheme:dark;
  --bg:#0b0d10;--panel:#111418;--panel2:#161a1f;--line:#22272e;--line2:#2d333b;
@@ -389,6 +459,9 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .cmd{font-size:11.5px;color:var(--fg2);max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kind{font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--fg2)}
 .k-runner,.k-controller{color:var(--pass)} .k-claude,.k-codex{color:var(--run)} .k-commissioning{color:var(--retry)}
+.k-hermes,.k-worker{color:var(--run)}
+.lane{font:600 10px var(--mono);text-transform:uppercase;padding:2px 5px;border-radius:3px;border:1px solid var(--line2)}
+.l-free{color:var(--retry)} .l-strong{color:var(--pass)} .l-cheap,.l-local{color:var(--fg2)}
 .chip{font:11px var(--mono);color:var(--fg2);border:1px solid var(--line2);border-radius:3px;padding:2px 7px}
 .chip.c-retry{color:var(--retry);border-color:rgba(210,153,34,.45)} .chip.c-fail{color:var(--fail);border-color:rgba(248,81,73,.45)}
 .trend{display:flex;align-items:flex-end;gap:2px;height:44px;padding:0 12px;margin-top:12px}
@@ -442,7 +515,7 @@ def main():
     ps = parse_procs(lr.procs())
     runner_up = any(p["kind"] == "runner" for p in ps)
     ctl_up = any(p["kind"] == "controller" for p in ps)
-    workers = sum(1 for p in ps if p["kind"] in ("claude", "codex"))
+    workers = sum(1 for p in ps if p["kind"] in ("claude", "codex", "freellm"))
 
     pipe_html, active = render_pipeline(st, runner_up)
     proofs, blocked = load_proofs()
@@ -452,6 +525,19 @@ def main():
     n_checks_ok = sum(p.get("ok", 0) for p in proofs.values() if p)
     n_checks = sum(p.get("n", 0) for p in proofs.values() if p)
 
+    cli = tt.collect_agents()
+    dba = tt.collect_db_attempts(tt.BUILD_DBS)
+    dlg = tt.collect_delegations(now)
+    agents = merge_agents(cli, dba, dlg)
+    conc = tt.record_concurrency(cli + dba + dlg, SAMPLES, now)
+    prog = tt.load_project_progress([tt.BUILD_DB, FIX_DB])
+    prog_html, prog_frac = render_progress(prog)
+    agent_rows, agent_meta = render_agents(agents)
+    if isinstance(agent_meta, tuple):
+        _n_agents, agent_srcs, agent_kinds = agent_meta
+    else:
+        agent_srcs, agent_kinds = [], []
+    agent_src_txt = esc(", ".join(agent_srcs)) if agent_srcs else "none"
     sub_rows, sub_hot, sub_n = render_sub_lanes(lr.claude_usage(), lr.codex_usage(), now)
     sh = load_shield(now)
     free_rows, trend, strong, free_hot = render_free(sh, now)
@@ -473,7 +559,8 @@ def main():
         f'steps <b>{done_n}/{len(STEPS)}</b>',
         f'proofs <b>{n_pass}/{len(PROOFS)}</b> pass <span class="dim">({n_run} run)</span>',
         f'lanes <b>{sub_hot + free_hot}</b> hot',
-        f'workers <b>{workers}</b>',
+        f'sub-agents <b>{len(agents)}</b> live <span class="dim">{agent_src_txt}</span>',
+        f'items integrated <b>{prog_frac}</b>',
         f'runner <b class="{"c-pass" if runner_up else "c-fail"}">{"up" if runner_up else "down"}</b>',
         f'controller <b class="{"c-pass" if ctl_up else "c-fail"}">{"up" if ctl_up else "down"}</b>',
     ))
@@ -517,6 +604,7 @@ def main():
   <div class="ph"><h2>Bootstrap pipeline</h2><span class="meta">bootstrap.json · {done_n} done</span>
     <div class="right">{cooldowns}</div></div>
   <ol class="pipe">{pipe_html}</ol>
+  {prog_html}
 </section>
 
 <section class="panel">
@@ -541,6 +629,13 @@ def main():
   <div class="note">strong-tier failures are expected; the ladder falls through to the next model</div>
 </section>
 </div>
+
+<section class="panel">
+  <div class="ph"><h2>Current sub-agents</h2><span class="meta">{len(agents)} live · hermes delegation registry + controller attempts + process scan</span></div>
+  <table><thead><tr><th>kind</th><th>lane</th><th>model</th><th>item</th><th class="r">running</th><th>source</th><th>goal / command</th></tr></thead>
+  <tbody>{agent_rows}</tbody></table>
+  <div class="note">FreeLLMAPI concurrency observed: <b class="num">{conc["current_free"]}</b> now · peak <b class="num">{conc["peak_free"]}</b> across <span class="num">{conc["samples"]}</span> builds (7-day retention)</div>
+</section>
 
 <section class="panel">
   <div class="ph"><h2>Processes</h2><span class="meta">{len(ps)} matching ps entries</span></div>

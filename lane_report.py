@@ -2,11 +2,6 @@
 """Report real subscription + free-lane usage from on-disk evidence (no made-up numbers)."""
 import glob, json, os, re, sqlite3, subprocess, time
 
-try:  # single source of truth for the pinned ladder lives in the shield
-    from freellm_shield import STRONG_TIER
-except Exception:
-    STRONG_TIER = []
-
 HOME = os.path.expanduser("~")
 NOW = time.time()
 
@@ -104,6 +99,18 @@ def codex_usage():
             e["last"] = max(e["last"], mtime)
             e["sessions"] += 1
     return out
+
+
+def _load_ladder():
+    """Strong tier from the shield module itself — never a copy that can drift."""
+    try:
+        import freellm_shield
+        return list(getattr(freellm_shield, "STRONG_TIER", []))
+    except Exception:
+        return []
+
+
+STRONG_TIER = _load_ladder()
 
 
 def shield_stats():
