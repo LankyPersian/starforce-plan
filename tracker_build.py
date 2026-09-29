@@ -479,6 +479,19 @@ def main():
     ))
     live = runner_up or workers > 0
     badge = '<span class="badge b-live">live</span>' if live else '<span class="badge b-idle">idle</span>'
+    # stall alerts are written by the cron heartbeat watchdog; surface them here
+    stall_txt, stall_note = "", ""
+    try:
+        import pathlib
+        lines = [l for l in pathlib.Path(os.path.expanduser(
+            "~/.local/state/empirium-build/heartbeat.log")).read_text().splitlines()
+                 if "STALL ALERT" in l and now - os.path.getmtime(
+            os.path.expanduser("~/.local/state/empirium-build/heartbeat.log")) < 3 * 3600]
+        if lines:
+            stall_txt = lines[-1]
+            stall_note = f'<div class="note warn">&#9888; {esc(stall_txt)}</div>'
+    except OSError:
+        pass
     blocked_note = ('<div class="note warn">BLOCKED.md present in evidence dir — a worker recorded a blocking '
                     'condition; see .build/evidence/commissioning/BLOCKED.md</div>') if blocked else ""
     strong_txt = (f'pinned strong tier: {strong["ok"]} ok / {strong["bad"]} fail'
@@ -491,13 +504,14 @@ def main():
 <style>{CSS}</style></head><body>
 <header>
   <div class="brand">Empirium Studio v2 <span>/ Star Force monitor</span></div>
-  {badge}
+  {'<span class="badge b-live" style="background:#f85149">STALL</span>' if stall_txt else badge}
   <div class="stamp">built <span class="num">{esc(ts)}</span> <span class="dim">{esc(date)}</span> · <span id="age" data-built="{now:.0f}"></span></div>
   <div class="spacer"></div>
   <button id="refresh" title="re-collect every stat from live evidence now">&#10227; REFRESH</button>
 </header>
 <main>
 <div class="health">{health}</div>
+{stall_note}
 
 <section class="panel">
   <div class="ph"><h2>Bootstrap pipeline</h2><span class="meta">bootstrap.json · {done_n} done</span>
