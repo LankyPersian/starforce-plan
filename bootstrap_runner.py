@@ -273,23 +273,23 @@ def run_claude(task, lane, model):
 
 
 def independent_review():
-    """Opus (fallback Sonnet) reviews commissioning evidence; verdict written by THIS runner."""
+    """Review commissioning evidence; paid lanes are preferred but never a stop condition."""
     task = ("Independently review ~/empirium-studio-v2/.build/evidence/commissioning/ and the controller code. "
             "Check every proof C1-C12 used real processes (real PIDs, real kills, real timestamps), not fixtures claiming success. "
             "Reply with ONLY a JSON object: {\"verdict\":\"APPROVED\"|\"CHANGES_REQUESTED\",\"defects\":[...]}")
-    for model in ("opus", "sonnet"):
-        status, text = run_claude(task, "sub", model)
+    for lane, model in (("sub", "opus"), ("sub", "sonnet"), ("free", "auto")):
+        status, text = run_claude(task, lane, model)
         if status == "OK":
             m = re.search(r'\{[^{}]*"verdict"[^{}]*(\[[^\]]*\])?[^{}]*\}', json.loads(text).get("result", ""))
             if m:
                 (REPO / ".build/evidence/commissioning").mkdir(parents=True, exist_ok=True)
-                v = json.loads(m.group(0)); v["reviewer_model"] = model; v["at"] = time.time()
+                v = json.loads(m.group(0)); v["reviewer_model"] = model; v["reviewer_lane"] = lane; v["at"] = time.time()
                 (REPO / ".build/evidence/commissioning/INDEPENDENT_REVIEW.json").write_text(json.dumps(v, indent=1))
                 if v.get("verdict") != "APPROVED":
                     (REPO / ".build/evidence/commissioning/REVIEW_DEFECTS.md").write_text("\n".join(map(str, v.get("defects", []))))
                 return status, text
-        if status == "LIMIT":
-            return status, text
+        # A cooling subscription lane is not a build stop.  Continue immediately
+        # through Sonnet and then a different FreeLLMAPI model via the shield.
     return "ERROR", ""
 
 
@@ -297,11 +297,13 @@ def main():
     log("bootstrap runner start")
     while True:
         s = load()
-        pending = [st for st in STEPS if st[0] not in s["done"]]
         # re-validate completed steps cheaply: never trust recorded progress blindly
         for sid, _, check in STEPS:
             if sid in s["done"] and sid in ("P0.3-controller",) and not check():
                 s["done"].remove(sid); log(f"{sid} regressed; reopening")
+        # Recompute after revalidation.  The old ordering built `pending` first, so a
+        # reopened P0.3 and the old P1.1 could both be acted on in one loop iteration.
+        pending = [st for st in STEPS if st[0] not in s["done"]]
         if not pending:
             log("BOOTSTRAP COMPLETE — controller owns the project. Runner exiting cleanly.")
             (STATE_DIR / "BOOTSTRAP_COMPLETE").write_text(str(time.time()))
@@ -325,6 +327,8 @@ def main():
             # defects found: send commissioning back for rework, then re-review
             task = "Fix the defects in .build/evidence/commissioning/REVIEW_DEFECTS.md, re-run the affected proofs, then delete REVIEW_DEFECTS.md."
             status, text = run_claude(task, "sub", "sonnet"); lane = "sub"
+            if status != "OK":
+                status, text = run_claude(task, "free", "auto"); lane = "free"
         elif sid == "P1.2-review":
             status, text = independent_review(); lane = "sub"
         else:
