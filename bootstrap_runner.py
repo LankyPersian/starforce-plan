@@ -14,7 +14,7 @@ Failure handling:
                                          with an error; systemd restarts it if it dies.
 State: ~/.local/state/empirium-build/bootstrap.json (atomic writes).
 """
-import json, os, re, subprocess, sys, time, random, datetime, pathlib, urllib.request
+import hashlib, json, os, re, subprocess, sys, time, random, datetime, pathlib, urllib.request
 
 HOME = pathlib.Path.home()
 PLAN = HOME / "work/starforce-plan"
@@ -139,6 +139,19 @@ def _review_ok():
         return json.loads(p.read_text()).get("verdict") == "APPROVED"
     except Exception:
         return False
+
+
+def controller_fingerprint():
+    """Hash P0.3 inputs so its 322-test gate reruns only after relevant changes."""
+    h = hashlib.sha256()
+    for root in (REPO / ".build/controller", REPO / ".build/systemd"):
+        if not root.exists():
+            continue
+        files = (x for x in root.rglob("*") if x.is_file() and "__pycache__" not in x.parts)
+        for p in sorted(files):
+            h.update(str(p.relative_to(REPO)).encode())
+            h.update(p.read_bytes())
+    return h.hexdigest()
 
 
 def log(msg):
@@ -297,10 +310,18 @@ def main():
     log("bootstrap runner start")
     while True:
         s = load()
-        # re-validate completed steps cheaply: never trust recorded progress blindly
+        # Revalidate P0.3 only when its source inputs change.  Running the full
+        # 322-test suite on every loop consumed ~100 seconds and made the serial
+        # bootstrap look stuck even when nothing had changed.
         for sid, _, check in STEPS:
-            if sid in s["done"] and sid in ("P0.3-controller",) and not check():
-                s["done"].remove(sid); log(f"{sid} regressed; reopening")
+            if sid in s["done"] and sid == "P0.3-controller":
+                fp = controller_fingerprint()
+                if s.get("p03_fingerprint") != fp:
+                    if not check():
+                        s["done"].remove(sid)
+                        log(f"{sid} regressed after controller inputs changed; reopening")
+                    else:
+                        s["p03_fingerprint"] = fp
         # Recompute after revalidation.  The old ordering built `pending` first, so a
         # reopened P0.3 and the old P1.1 could both be acted on in one loop iteration.
         pending = [st for st in STEPS if st[0] not in s["done"]]
@@ -310,6 +331,8 @@ def main():
             return 0
         sid, task, check = pending[0]
         if check():
+            if sid == "P0.3-controller":
+                s["p03_fingerprint"] = controller_fingerprint()
             s["done"].append(sid); save(s); log(f"{sid} PASS (check)"); continue
         if sid == "P1.1-commission":
             if ensure_commissioning_driver():
@@ -375,6 +398,8 @@ def main():
             log(f"{sid}: {status} (fail #{s['fails'][sid]})")
             time.sleep(20 + random.uniform(0, 20))
         if check():
+            if sid == "P0.3-controller":
+                s["p03_fingerprint"] = controller_fingerprint()
             s["done"].append(sid); log(f"{sid} PASS")
         elif status == "OK":
             s["fails"][sid] = s["fails"].get(sid, 0) + 1
