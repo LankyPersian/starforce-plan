@@ -10,7 +10,7 @@ time — never from a cached copy.
 
 Binds 127.0.0.1 only. No auth, no external exposure.
 """
-import json, time
+import json, time, mimetypes, os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import tracker_build
 
@@ -55,23 +55,49 @@ class H(BaseHTTPRequestHandler):
         self.wfile.write(b)
 
     def do_GET(self):
+        if self.path.startswith("/assets/office/"):
+            rel = self.path.split("?", 1)[0].removeprefix("/assets/office/")
+            if rel and os.path.basename(rel) == rel and rel in {
+                "industrial-steam-office.png", "robot-sheet.png", "robot-front.png", "robot-side.png",
+                "robot-back.png", "robot-three-quarter.png", "robot-front.svg",
+            }:
+                path = os.path.join("/home/ash/work/starforce-plan/assets/office", rel)
+                try:
+                    with open(path, "rb") as f:
+                        body = f.read()
+                    self.send_response(200)
+                    self.send_header("Content-Type", mimetypes.guess_type(path)[0] or "application/octet-stream")
+                    self.send_header("Content-Length", str(len(body)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+                except OSError:
+                    pass
+            self._send(404, "text/plain", "asset not found")
+            return
         if self.path.split("?")[0] in ("/", "/index.html", "/tracker.html"):
             rebuild(force=False)
             if not LAST_BUILD["ok"]:
                 self._send(200, "text/html; charset=utf-8",
                            f"<h1>tracker build failed</h1><pre>{LAST_BUILD['err']}</pre>")
                 return
+            # Serve visual bot-office tracker
             try:
-                with open(tracker_build.OUT) as f:
+                with open("/home/ash/work/starforce-plan/tracker.html") as f:
                     self._send(200, "text/html; charset=utf-8", f.read())
             except OSError as e:
-                self._send(500, "text/html", f"cannot read tracker: {e}")
+                try:
+                    with open(tracker_build.OUT) as f:
+                        self._send(200, "text/html; charset=utf-8", f.read())
+                except OSError:
+                    self._send(500, "text/html", f"combined tracker missing: {e}")
         else:
             self._send(404, "text/plain", "not found")
 
     def do_POST(self):
         if self.path == "/api/refresh":
-            ok = rebuild(force=True)
+            ok = rebuild(force=True)  # force rebuild
             self._send(200, "application/json", json.dumps(
                 {"ok": ok, "built_at": LAST_BUILD["t"], "error": LAST_BUILD["err"]}))
         else:
