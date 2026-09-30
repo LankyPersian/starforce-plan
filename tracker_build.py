@@ -336,6 +336,94 @@ def render_transparency(w):
 </section>'''
 
 
+def load_activity(rt, now, limit=36):
+    """Merge build-controller events and shield attempts into one honest timeline.
+
+    Shield traffic is deliberately labelled separately from product work: a busy
+    provider lane is not evidence that a product item is being implemented.
+    """
+    items = []
+    build_db = os.path.join(rt["state"], "build.db")
+    since = now - 12 * 3600
+    try:
+        con = sqlite3.connect(f"file:{build_db}?mode=ro", uri=True, timeout=1)
+        con.row_factory = sqlite3.Row
+        for row in con.execute("select at,type,entity_id,payload_json from events where at>? order by at desc limit 80", (since,)):
+            try:
+                payload = json.loads(row["payload_json"] or "{}")
+            except json.JSONDecodeError:
+                payload = {}
+            typ = row["type"] or "EVENT"
+            title = {
+                "ATTEMPT_STARTED": "Worker started", "ATTEMPT_FINISHED": "Worker finished",
+                "STATUS": "Work item changed state", "HARNESS_PASSED": "Integration passed",
+                "HARNESS_FAILED": "Integration failed", "REVIEW_STARTED": "Review started",
+            }.get(typ, typ.replace("_", " ").title())
+            detail = str(row["entity_id"] or "")
+            if payload.get("lane") or payload.get("model"):
+                detail += " · " + ":".join(str(payload.get(k)) for k in ("lane", "model") if payload.get(k))
+            if payload.get("from") or payload.get("to"):
+                detail += f' · {payload.get("from", "?")} → {payload.get("to", "?")}'
+            tone = "fail" if "FAILED" in typ else "pass" if "PASSED" in typ else "run" if "STARTED" in typ else "info"
+            items.append({"ts": row["at"], "kind": "BUILD", "tone": tone, "title": title, "detail": detail})
+        con.close()
+    except (OSError, sqlite3.Error):
+        pass
+    if os.path.exists(SHIELD_DB):
+        try:
+            con = sqlite3.connect(f"file:{SHIELD_DB}?mode=ro", uri=True, timeout=1)
+            con.row_factory = sqlite3.Row
+            cols = {r[1] for r in con.execute("pragma table_info(tries)")}
+            extra = ",logical_request,retry_fallback" if {"logical_request", "retry_fallback"} <= cols else ""
+            for row in con.execute(f"select ts,model,effective,outcome,detail{extra} from tries where ts>? order by ts desc limit 80", (since,)):
+                outcome = row["outcome"] or "UNKNOWN"
+                logical = (row["logical_request"] if "logical_request" in row.keys() else None) or "upstream_attempt"
+                detail = f'{row["model"] or "unassigned"} → {row["effective"] or "unresolved"}'
+                if row["detail"]:
+                    detail += f' · {str(row["detail"])[:110]}'
+                items.append({"ts": row["ts"], "kind": "SHIELD", "tone": "pass" if outcome in ("OK", "PROBE_OK") else "fail",
+                              "title": f'{logical.replace("_", " ").title()} · {outcome}', "detail": detail})
+            con.close()
+        except (OSError, sqlite3.Error):
+            pass
+    items.sort(key=lambda x: x["ts"], reverse=True)
+    # Keep both narratives visible even when provider traffic is much denser:
+    # the feed must not bury build events under shield retries/probes.
+    build = [x for x in items if x["kind"] == "BUILD"][:limit // 2]
+    shield = [x for x in items if x["kind"] == "SHIELD"][:limit // 2]
+    return sorted(build + shield, key=lambda x: x["ts"], reverse=True)[:limit]
+
+
+def render_activity(activity, workload, rt):
+    c = workload["counts"]
+    feed = []
+    for item in activity:
+        feed.append(f'<li class="activity-item"><span class="activity-dot a-{item["tone"]}"></span>'
+                    f'<div><b>{esc(item["title"])}</b><span>{esc(item["detail"])}</span></div>'
+                    f'<time>{esc(ago(item["ts"]))}</time></li>')
+    if not feed:
+        feed.append('<li class="activity-empty">No activity recorded in the last 12 hours.</li>')
+    build_n = sum(1 for x in activity if x["kind"] == "BUILD")
+    shield_n = sum(1 for x in activity if x["kind"] == "SHIELD")
+    return f'''<section class="panel activity-panel">
+  <div class="ph"><h2>All activity</h2><span class="meta">one timeline · last 12 hours · build work separated from provider traffic</span></div>
+  <div class="activity-layout">
+    <div class="activity-summary">
+      <div class="activity-kicker">WHAT IS ACTUALLY BUILDING</div>
+      <div class="activity-big">{c["running"]}<span> active work item</span></div>
+      <div class="activity-bar"><i style="width:{min(100, c["running"] / max(1, rt["effective"]) * 100):.1f}%"></i></div>
+      <p><b>{c["queued"]}</b> ready/queued · <b>{c["awaiting_review"]}</b> awaiting review · <b>{c["parked"]}</b> parked or dependency-blocked</p>
+      <div class="activity-callout {"callout-warn" if c["running"] < 2 and c["queued"] else ""}">
+        <b>{"Build fan-out is low" if c["running"] < 2 and c["queued"] else "Build fan-out is active"}</b>
+        <span>{"The controller is alive, but ready work is not being dispatched at the configured capacity." if c["running"] < 2 and c["queued"] else "Workers are actively consuming the ready queue."}</span>
+      </div>
+      <div class="activity-legend"><span><i class="activity-dot a-run"></i> build events <b>{build_n}</b></span><span><i class="activity-dot a-pass"></i> shield/provider events <b>{shield_n}</b></span></div>
+    </div>
+    <ol class="activity-feed">{"".join(feed)}</ol>
+  </div>
+</section>'''
+
+
 def render_product_dashboard(snapshot, status, bootstrap_complete):
     if not snapshot:
         return '<section class="panel product-truth"><div class="pb"><b class="c-fail">PRODUCT STATUS UNKNOWN</b><br><span class="dim">Production build.db could not be read. Bootstrap completion is not evidence that the product is complete.</span></div></section>'
@@ -751,10 +839,22 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .axis{display:flex;justify-content:space-between;font:10px var(--mono);color:var(--dim);padding:4px 12px 10px;border-bottom:1px solid var(--line)}
 .note{font-size:11px;color:var(--dim);padding:8px 12px;border-top:1px solid var(--line)}
 .warn{color:var(--retry)}
+/* activity and visual hierarchy */
+.activity-panel{border-color:rgba(88,166,255,.42);box-shadow:0 8px 30px rgba(0,0,0,.16)}
+.activity-layout{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.5fr);gap:0}
+.activity-summary{padding:18px;border-right:1px solid var(--line);background:linear-gradient(145deg,rgba(88,166,255,.08),transparent 65%)}
+.activity-kicker{font:600 10px var(--mono);letter-spacing:.1em;color:var(--dim)}
+.activity-big{font:600 42px/1 var(--mono);color:var(--run);margin:9px 0}.activity-big span{font:12px var(--sans);font-weight:400;color:var(--fg2)}
+.activity-summary p{font-size:12px;color:var(--fg2);line-height:1.7;margin:10px 0 16px}.activity-summary p b{color:var(--fg);font-family:var(--mono)}
+.activity-bar{height:7px;background:var(--line);border-radius:8px;overflow:hidden}.activity-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--run),#8b5cf6);border-radius:8px}
+.activity-callout{display:flex;flex-direction:column;gap:4px;padding:10px 11px;border:1px solid rgba(63,185,80,.35);border-radius:7px;background:rgba(63,185,80,.06);font-size:11px;color:var(--fg2)}
+.activity-callout b{color:var(--pass);font-family:var(--mono);font-size:11px}.activity-callout.callout-warn{border-color:rgba(210,153,34,.5);background:rgba(210,153,34,.07)}.activity-callout.callout-warn b{color:var(--retry)}
+.activity-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;color:var(--dim);font:10px var(--mono)}.activity-legend span{display:flex;align-items:center;gap:5px}.activity-legend b{color:var(--fg)}
+.activity-feed{list-style:none;margin:0;padding:10px 14px;max-height:330px;overflow:auto}.activity-item{display:grid;grid-template-columns:9px minmax(0,1fr) auto;gap:9px;align-items:start;padding:9px 3px;border-bottom:1px solid rgba(45,51,59,.7)}.activity-item:last-child{border-bottom:0}.activity-item b{display:block;font:600 11px var(--mono);color:var(--fg)}.activity-item span:not(.activity-dot){display:block;margin-top:2px;font-size:11px;color:var(--fg2);overflow-wrap:anywhere}.activity-item time{font:10px var(--mono);color:var(--dim);white-space:nowrap}.activity-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-top:4px;background:var(--dim);flex:none}.a-run{background:var(--run);box-shadow:0 0 0 3px rgba(88,166,255,.13)}.a-pass{background:var(--pass)}.a-fail{background:var(--fail)}.a-info{background:var(--retry)}.activity-empty{padding:25px;color:var(--dim);font:11px var(--mono)}
+.panel{border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.10)}.ph{padding:12px 15px}.ph h2{letter-spacing:.1em}.health{border-radius:10px;padding:11px 15px;background:linear-gradient(90deg,rgba(88,166,255,.07),rgba(139,92,246,.04))}
+@media (max-width:850px){.activity-layout{grid-template-columns:1fr}.activity-summary{border-right:0;border-bottom:1px solid var(--line)}.activity-feed{max-height:280px}}
 @media (max-width:1100px){.pipe{grid-template-columns:repeat(4,minmax(0,1fr))}.proofs{grid-template-columns:repeat(4,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
-@media (max-width:640px){header,main{padding-left:10px;padding-right:10px}
- .pipe{grid-template-columns:1fr 1fr}.proofs{grid-template-columns:1fr 1fr}
- td,th{padding:6px 8px}.hide-s{display:none}}
+@media (max-width:640px){header,main{padding-left:10px;padding-right:10px}.pipe{grid-template-columns:1fr 1fr}.proofs{grid-template-columns:1fr 1fr}td,th{padding:6px 8px}.hide-s{display:none}}
 """
 
 JS = """
@@ -820,6 +920,7 @@ def main():
     product_html = render_product_dashboard(snapshot, product_status, len(st.get("done") or []) == len(STEPS))
     workload = load_workload(free_runtime, st, proofs, prog, now, snapshot)
     transparency_html = render_transparency(workload)
+    activity_html = render_activity(load_activity(free_runtime, now), workload, free_runtime)
     agent_rows, agent_meta = render_agents(agents)
     if isinstance(agent_meta, tuple):
         _n_agents, agent_srcs, agent_kinds = agent_meta
@@ -886,6 +987,7 @@ def main():
 <main>
 <div class="health">{health}</div>
 {product_html}
+{activity_html}
 {free_runtime_html}
 {transparency_html}
 {stall_note}
