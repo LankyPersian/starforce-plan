@@ -9,7 +9,7 @@ rather than a made-up figure.
 Contract (tracker_serve.py): module globals NOW, OUT, esc(); main() stamps from the
 module-level NOW at call time.
 """
-import glob, html, json, os, sqlite3, time
+import glob, html, json, os, sqlite3, time, urllib.error, urllib.request
 import lane_report as lr
 import tracker_telemetry as tt
 
@@ -130,6 +130,83 @@ def load_shield(now):
         buckets[i]["ok" if r["outcome"] in ("OK", "PROBE_OK") else "bad"] += 1
     c.close()
     return {"models": agg, "buckets": buckets, "since": since}
+
+
+def _proc_env(pid):
+    """Read non-secret controller markers for transparent runtime reporting."""
+    try:
+        raw = open(f"/proc/{pid}/environ", "rb").read().split(b"\0")
+    except OSError:
+        return {}
+    wanted = {"EMPIRIUM_BUILD_STATE", "EMPIRIUM_MAX_FREE_WORKERS", "EMPIRIUM_SHIELD_URL",
+              "EMPIRIUM_UPSTREAM_URL", "EMPIRIUM_PLAN_LANE"}
+    out = {}
+    for item in raw:
+        key, sep, value = item.partition(b"=")
+        if sep and key.decode(errors="ignore") in wanted:
+            out[key.decode()] = value.decode(errors="replace")
+    return out
+
+
+def _endpoint_status(url):
+    if not url:
+        return "unknown"
+    try:
+        with urllib.request.urlopen(url.rstrip("/") + "/v1/models", timeout=1.5) as r:
+            return f"HTTP {r.status}"
+    except urllib.error.HTTPError as e:
+        # The real upstream commonly returns 401 without its bearer key; that still proves reachability.
+        return f"HTTP {e.code}"
+    except Exception as e:
+        return type(e).__name__
+
+
+def load_free_runtime(ps, conc):
+    """Collect the live controller's free-lane target, cap, governor and health."""
+    ctl = next((p for p in ps if p["kind"] == "controller"), None)
+    env = _proc_env(ctl["pid"]) if ctl else {}
+    state = env.get("EMPIRIUM_BUILD_STATE", FSTATE)
+    cap = int(env.get("EMPIRIUM_MAX_FREE_WORKERS", "12") or 12)
+    effective, paused, safe = cap, False, False
+    db = os.path.join(state, "build.db")
+    try:
+        con = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=1)
+        rows = dict(con.execute("select key,value from kv where key in ('eff_workers','pause_dispatch','safe_mode')"))
+        con.close()
+        effective = int(rows.get("eff_workers", cap))
+        paused = str(rows.get("pause_dispatch", "0")) not in ("", "0", "false", "False", "None")
+        safe = str(rows.get("safe_mode", "0")) not in ("", "0", "false", "False", "None")
+    except (OSError, ValueError, sqlite3.Error):
+        pass
+    shield = env.get("EMPIRIUM_SHIELD_URL", "")
+    upstream = env.get("EMPIRIUM_UPSTREAM_URL", "")
+    urls = f"{shield} {upstream}"
+    mode = "REAL FreeLLMAPI" if any(port in urls for port in (":3101", ":3102")) else "FIXTURE ROUTE" if any(port in urls for port in (":3201", ":3202")) else "UNKNOWN ROUTE"
+    running = conc["current_free"]
+    return {
+        "mode": mode, "cap": cap, "effective": effective, "running": running,
+        "util": (running / effective * 100) if effective else 0,
+        "shield": shield or "not set", "upstream": upstream or "not set",
+        "shield_status": _endpoint_status(shield), "upstream_status": _endpoint_status(upstream),
+        "state": state, "paused": paused, "safe": safe, "controller_pid": ctl["pid"] if ctl else "—",
+    }
+
+
+def render_free_runtime(rt, conc):
+    mode_cls = "c-pass" if rt["mode"] == "REAL FreeLLMAPI" else "c-retry" if rt["mode"] == "FIXTURE ROUTE" else "c-fail"
+    state = "paused" if rt["paused"] else "safe mode" if rt["safe"] else "dispatching"
+    util = min(100, rt["util"])
+    return f'''<section class="panel free-runtime {"fixture" if rt["mode"] != "REAL FreeLLMAPI" else "real"}">
+  <div class="ph"><h2>FreeLLMAPI live control plane</h2><span class="meta">this is the authoritative routing view</span>
+    <div class="right"><span class="tag t-{"pass" if rt["mode"] == "REAL FreeLLMAPI" else "retry"}">{esc(rt["mode"])}</span><span class="chip">controller PID <b>{esc(rt["controller_pid"])}</b></span></div></div>
+  <div class="runtime-grid">
+    <div class="runtime-hero"><div class="runtime-label">FREE WORKERS NOW / EFFECTIVE CAP</div><div class="runtime-number"><b>{rt["running"]}</b><span>/ {rt["effective"]}</span></div><div class="runtime-bar"><i style="width:{util:.1f}%"></i></div><div class="runtime-sub"><b>{util:.0f}% utilized</b> · configured cap {rt["cap"]} · {state}</div></div>
+    <div class="runtime-stat"><span>route mode</span><b class="{mode_cls}">{esc(rt["mode"])}</b><small>fixture means simulated upstream, not the real gateway</small></div>
+    <div class="runtime-stat"><span>shield</span><b>{esc(rt["shield_status"])}</b><small class="mono">{esc(rt["shield"])}</small></div>
+    <div class="runtime-stat"><span>upstream</span><b>{esc(rt["upstream_status"])}</b><small class="mono">{esc(rt["upstream"])}</small></div>
+  </div>
+  <div class="runtime-foot"><span>controller state <b>{esc(rt["state"])}</b></span><span>observed peak <b>{conc["peak_free"]}</b></span><span>samples <b>{conc["samples"]}</b></span><span>state DB <b class="mono">{esc(rt["state"])}</b></span></div>
+</section>'''
 
 
 def parse_procs(lines):
@@ -410,6 +487,21 @@ main{padding:14px 20px;max-width:1480px;margin:0 auto;display:grid;gap:14px}
 .ph .meta{font:11px var(--mono);color:var(--dim)}
 .ph .right{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
 .pb{padding:12px}
+.free-runtime{border-color:rgba(88,166,255,.45);box-shadow:0 0 0 1px rgba(88,166,255,.08)}
+.free-runtime.fixture{border-color:rgba(210,153,34,.65);box-shadow:0 0 0 1px rgba(210,153,34,.10)}
+.runtime-grid{display:grid;grid-template-columns:minmax(260px,1.35fr) repeat(3,minmax(150px,1fr));gap:8px;padding:12px}
+.runtime-hero,.runtime-stat{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:11px}
+.runtime-label,.runtime-stat span{font:600 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+.runtime-number{display:flex;align-items:baseline;gap:5px;margin:5px 0 4px;font-family:var(--mono)}
+.runtime-number b{font-size:32px;color:var(--run)} .runtime-number span{font-size:16px;color:var(--fg2)}
+.runtime-bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0}
+.runtime-bar i{display:block;height:100%;background:var(--run);border-radius:4px;min-width:2px}
+.runtime-sub{font:11px var(--mono);color:var(--fg2)}
+.runtime-stat{display:flex;flex-direction:column;gap:6px}.runtime-stat b{font:600 16px var(--mono);color:var(--fg)}
+.runtime-stat small{font-size:10px;color:var(--dim);overflow-wrap:anywhere}.runtime-foot{display:flex;gap:16px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);font:11px var(--mono);color:var(--dim)}
+.runtime-foot b{color:var(--fg)}
+@media (max-width:1100px){.runtime-grid{grid-template-columns:1fr 1fr}.runtime-hero{grid-column:1/-1}}
+@media (max-width:640px){.runtime-grid{grid-template-columns:1fr}.runtime-hero{grid-column:auto}}
 /* pipeline */
 .pipe{list-style:none;margin:0;padding:12px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .step{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px 10px 9px;min-width:0}
@@ -530,6 +622,8 @@ def main():
     dlg = tt.collect_delegations(now)
     agents = merge_agents(cli, dba, dlg)
     conc = tt.record_concurrency(cli + dba + dlg, SAMPLES, now)
+    free_runtime = load_free_runtime(ps, conc)
+    free_runtime_html = render_free_runtime(free_runtime, conc)
     prog = tt.load_project_progress([tt.BUILD_DB, FIX_DB])
     prog_html, prog_frac = render_progress(prog)
     agent_rows, agent_meta = render_agents(agents)
@@ -598,6 +692,7 @@ def main():
 </header>
 <main>
 <div class="health">{health}</div>
+{free_runtime_html}
 {stall_note}
 
 <section class="panel">
