@@ -25,11 +25,10 @@ STATE = STATE_DIR / "bootstrap.json"
 LOG = STATE_DIR / "bootstrap.log"
 FREE_URL = "http://127.0.0.1:3102"  # via freellm-shield
 LUNA_MODEL = "gpt-5.6-luna"        # Codex CLI, ChatGPT subscription (planning lane; NOT the API)
-# Owner directive 2026-09-29: only the proven Nemotron Super route is preferred.
-# The formerly head-pinned OpenRouter free ids are retained as late fallbacks; live
-# measurements showed they are currently unreachable or too flaky to burn the hot path.
-FREE_LADDER = ["nemotron-3-super-120b", "mistral-code", "gpt-oss-120b", "codestral-2508",
-               "mimo-v2.6-flashfree", "deepseek-v4-flashfree", "qwen3.8-flashfree", "auto",
+# Owner directive 2026-09-29: FreeLLMAPI `auto` is the default so the gateway can select
+# a healthy free provider. Named routes, including Nemotron Super, are fallback candidates.
+FREE_LADDER = ["auto", "nemotron-3-super-120b", "mistral-code", "gpt-oss-120b", "codestral-2508",
+               "mimo-v2.6-flashfree", "deepseek-v4-flashfree", "qwen3.8-flashfree",
                "qwen/qwen3.8-27b:free", "thinkingmachines/inkling:free",
                "nvidia/nemotron-3.5-lightning:free", "nvidia/nemotron-3-ultra-550b-a55b:free",
                "nvidia/nemotron-3-super-120b-a12b:free"]
@@ -50,6 +49,33 @@ def sh(cmd, cwd=None, timeout=1800):
 def fresh_heartbeat(max_age=300):
     p = STATE_DIR / "controller/heartbeat.json"
     return p.exists() and time.time() - p.stat().st_mtime < max_age
+
+
+def commissioning_driver_up():
+    """The driver, not a generic coding prompt, owns P1.1 evidence generation."""
+    rc, _ = sh("pgrep -f '[r]un_commissioning\\.py all'", timeout=10)
+    return rc == 0
+
+
+def ensure_commissioning_driver():
+    """Start the authoritative commissioning driver if it disappeared; never replace it with an LLM prompt."""
+    if commissioning_driver_up():
+        return False
+    script = REPO / ".build/commissioning/run_commissioning.py"
+    if not script.exists():
+        log("P1.1 fail-safe: commissioning driver script missing")
+        return False
+    out = STATE_DIR / "commissioning-driver.log"
+    try:
+        with out.open("a") as fh:
+            p = subprocess.Popen([sys.executable, str(script), "all"], cwd=REPO,
+                                 stdout=fh, stderr=subprocess.STDOUT,
+                                 stdin=subprocess.DEVNULL, start_new_session=True)
+        log(f"P1.1 fail-safe: relaunched authoritative commissioning driver pid={p.pid}")
+        return True
+    except OSError as e:
+        log(f"P1.1 fail-safe: could not relaunch commissioning driver: {e}")
+        return False
 
 
 # (id, instruction, deterministic check -> bool)
@@ -94,9 +120,9 @@ def acquire_lock():
 
 
 if not acquire_lock():
-    print(f"{datetime.datetime.now(datetime.UTC).isoformat()} bootstrap runner: another instance holds the lock; exiting",
+    print(f"{datetime.datetime.now(datetime.UTC).isoformat()} bootstrap runner: another instance holds the lock; retrying under systemd",
           file=sys.stderr)
-    sys.exit(0)
+    sys.exit(75)
 
 
 def _attempts_total():
@@ -283,6 +309,17 @@ def main():
         sid, task, check = pending[0]
         if check():
             s["done"].append(sid); save(s); log(f"{sid} PASS (check)"); continue
+        if sid == "P1.1-commission":
+            if ensure_commissioning_driver():
+                save(s)
+                time.sleep(5)
+                continue
+            # The authoritative driver owns the fixture lock and writes the only valid C1–C12
+            # evidence. A broad bootstrap prompt races it and has repeatedly produced theatre.
+            log("P1.1-commission: authoritative driver is active; waiting instead of dispatching a duplicate worker")
+            save(s)
+            time.sleep(30)
+            continue
         if sid == "P1.2-review" and (REPO / ".build/evidence/commissioning/REVIEW_DEFECTS.md").exists() \
                 and not _review_ok() and s["fails"].get(sid, 0) % 2 == 1:
             # defects found: send commissioning back for rework, then re-review
