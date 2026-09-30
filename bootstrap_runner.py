@@ -285,24 +285,48 @@ def run_claude(task, lane, model):
     return "OK", text
 
 
+def _first_json_object(text):
+    """Decode the first JSON object even when a model wraps it in prose/fences."""
+    dec = json.JSONDecoder()
+    for i, ch in enumerate(text):
+        if ch != "{":
+            continue
+        try:
+            value, _ = dec.raw_decode(text[i:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict):
+            return value
+    return None
+
+
 def independent_review():
-    """Review commissioning evidence; paid lanes are preferred but never a stop condition."""
+    """Review evidence through free routes first; subscription lanes are fallbacks."""
     task = ("Independently review ~/empirium-studio-v2/.build/evidence/commissioning/ and the controller code. "
             "Check every proof C1-C12 used real processes (real PIDs, real kills, real timestamps), not fixtures claiming success. "
             "Reply with ONLY a JSON object: {\"verdict\":\"APPROVED\"|\"CHANGES_REQUESTED\",\"defects\":[...]}")
-    for lane, model in (("sub", "opus"), ("sub", "sonnet"), ("free", "auto")):
+    # Independent review must not stop the build behind a subscription cooldown.
+    # Try several distinct free routes before spending/requiring a subscription lane.
+    routes = (("free", "nemotron-3-super-120b"), ("free", "auto"),
+              ("free", "mistral-code"), ("sub", "opus"), ("sub", "sonnet"))
+    for lane, model in routes:
         status, text = run_claude(task, lane, model)
         if status == "OK":
-            m = re.search(r'\{[^{}]*"verdict"[^{}]*(\[[^\]]*\])?[^{}]*\}', json.loads(text).get("result", ""))
-            if m:
+            try:
+                result = json.loads(text).get("result", "")
+            except json.JSONDecodeError:
+                result = text
+            v = _first_json_object(result)
+            if v and v.get("verdict") in ("APPROVED", "CHANGES_REQUESTED"):
                 (REPO / ".build/evidence/commissioning").mkdir(parents=True, exist_ok=True)
-                v = json.loads(m.group(0)); v["reviewer_model"] = model; v["reviewer_lane"] = lane; v["at"] = time.time()
+                v["reviewer_model"] = model; v["reviewer_lane"] = lane; v["at"] = time.time()
                 (REPO / ".build/evidence/commissioning/INDEPENDENT_REVIEW.json").write_text(json.dumps(v, indent=1))
                 if v.get("verdict") != "APPROVED":
                     (REPO / ".build/evidence/commissioning/REVIEW_DEFECTS.md").write_text("\n".join(map(str, v.get("defects", []))))
                 return status, text
-        # A cooling subscription lane is not a build stop.  Continue immediately
-        # through Sonnet and then a different FreeLLMAPI model via the shield.
+            log(f"P1.2-review: {lane}/{model} returned no parseable verdict; trying next route")
+        else:
+            log(f"P1.2-review: {lane}/{model} returned {status}; trying next route")
     return "ERROR", ""
 
 
@@ -353,7 +377,7 @@ def main():
             if status != "OK":
                 status, text = run_claude(task, "free", "auto"); lane = "free"
         elif sid == "P1.2-review":
-            status, text = independent_review(); lane = "sub"
+            status, text = independent_review(); lane = "free"
         else:
             n = s["fails"].get(sid, 0)
             now = time.time()
