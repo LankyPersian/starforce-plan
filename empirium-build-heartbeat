@@ -41,8 +41,11 @@ if ! curl -s -m 5 -o /dev/null http://127.0.0.1:3102/v1/models; then
 fi
 
 # --- 3. Bootstrap runner -----------------------------------------------------
+# Once bootstrap hands ownership to the controller, restarting the bootstrap
+# runner would only make it wake, observe completion, and exit every heartbeat.
 # Match the interpreter+script pair so this never matches its own shell or a grep.
-if ! pgrep -f "python3 .*bootstrap_runner\.py" >/dev/null 2>&1; then
+if [ ! -f "$STATE/BOOTSTRAP_COMPLETE" ] && \
+   ! pgrep -f "python3 .*bootstrap_runner\.py" >/dev/null 2>&1; then
   echo "$(ts) bootstrap_runner not running; starting detached" >> "$LOG"
   # The runner writes its own lines to $STATE/bootstrap.log AND inherits this redirect, so
   # never point the redirect at the same file: that prints every log line twice.

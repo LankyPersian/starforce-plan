@@ -14,7 +14,7 @@ Failure handling:
                                          with an error; systemd restarts it if it dies.
 State: ~/.local/state/empirium-build/bootstrap.json (atomic writes).
 """
-import hashlib, json, os, re, subprocess, sys, time, random, datetime, pathlib, urllib.request
+import hashlib, json, os, re, sqlite3, subprocess, sys, time, random, datetime, pathlib, urllib.request
 
 HOME = pathlib.Path.home()
 PLAN = HOME / "work/starforce-plan"
@@ -126,10 +126,14 @@ if not acquire_lock():
 
 
 def _attempts_total():
-    rc, out = sh("python3 .build/controller/controller.py status --json", cwd=REPO)
+    db = STATE_DIR / "build.db"
     try:
-        return int(json.loads(out[out.index("{"):]).get("attempts_total", 0)) if rc == 0 else 0
-    except Exception:
+        con = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=5)
+        try:
+            return int(con.execute("SELECT COUNT(*) FROM attempts").fetchone()[0])
+        finally:
+            con.close()
+    except (OSError, sqlite3.Error, TypeError):
         return 0
 
 
