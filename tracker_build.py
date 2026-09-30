@@ -164,7 +164,25 @@ def _endpoint_status(url):
 def load_free_runtime(ps, conc):
     """Collect the live controller's free-lane target, cap, governor and health."""
     ctl = next((p for p in ps if p["kind"] == "controller"), None)
+    commissioning = any(p["kind"] == "commissioning" for p in ps)
     env = _proc_env(ctl["pid"]) if ctl else {}
+    if not ctl and commissioning:
+        # The commissioning driver owns the fixture DB even during its short controller restart window.
+        env = {"EMPIRIUM_BUILD_STATE": FIX_DB.rsplit("/", 1)[0],
+               "EMPIRIUM_MAX_FREE_WORKERS": "12", "EMPIRIUM_SHIELD_URL": "http://127.0.0.1:3202",
+               "EMPIRIUM_UPSTREAM_URL": "http://127.0.0.1:3201"}
+    elif not ctl:
+        # Keep the completed/current fixture visible after the driver exits; production DB may be empty.
+        try:
+            con = sqlite3.connect(f"file:{FIX_DB}?mode=ro", uri=True, timeout=1)
+            has_fixture = con.execute("select count(*) from work_items").fetchone()[0] > 0
+            con.close()
+        except sqlite3.Error:
+            has_fixture = False
+        if has_fixture:
+            env = {"EMPIRIUM_BUILD_STATE": FIX_DB.rsplit("/", 1)[0],
+                   "EMPIRIUM_MAX_FREE_WORKERS": "12", "EMPIRIUM_SHIELD_URL": "http://127.0.0.1:3202",
+                   "EMPIRIUM_UPSTREAM_URL": "http://127.0.0.1:3201"}
     state = env.get("EMPIRIUM_BUILD_STATE", FSTATE)
     cap = int(env.get("EMPIRIUM_MAX_FREE_WORKERS", "12") or 12)
     effective, paused, safe = cap, False, False
@@ -206,6 +224,84 @@ def render_free_runtime(rt, conc):
     <div class="runtime-stat"><span>upstream</span><b>{esc(rt["upstream_status"])}</b><small class="mono">{esc(rt["upstream"])}</small></div>
   </div>
   <div class="runtime-foot"><span>controller state <b>{esc(rt["state"])}</b></span><span>observed peak <b>{conc["peak_free"]}</b></span><span>samples <b>{conc["samples"]}</b></span><span>state DB <b class="mono">{esc(rt["state"])}</b></span></div>
+</section>'''
+
+
+def load_workload(rt, st, proofs, prog, now):
+    """Read the active controller DB for workload, blockers and human-attention items."""
+    db = os.path.join(rt["state"], "build.db")
+    counts = {"integrated": 0, "awaiting_review": 0, "running": 0, "queued": 0,
+              "failed": 0, "parked": 0, "other": 0, "total": 0}
+    issues = []
+    try:
+        con = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=1)
+        con.row_factory = sqlite3.Row
+        rows = con.execute("select id,title,status,lane,attempt_count,fail_count,last_fail_class,park_reason from work_items").fetchall()
+        counts["total"] = len(rows)
+        for row in rows:
+            status = row["status"] or "other"
+            if status in counts: counts[status] += 1
+            elif status in ("pending", "ready", "queued", "waiting_capacity"): counts["queued"] += 1
+            else: counts["other"] += 1
+            if row["status"] in ("parked", "blocked"):
+                issues.append({"severity": "HIGH", "kind": "WORK_ITEM_BLOCKED", "detail": f'{row["id"]}: {row["park_reason"] or row["title"]}'})
+            elif row["status"] == "awaiting_review":
+                issues.append({"severity": "INFO", "kind": "AWAITING_REVIEW", "detail": f'{row["id"]}: waiting for review ({row["lane"] or "unknown"} lane)'})
+            if row["last_fail_class"]:
+                counts["failed"] += 1
+                issues.append({"severity": "WARN", "kind": row["last_fail_class"], "detail": f'{row["id"]}: {row["fail_count"] or 0} failures'})
+        for row in con.execute("select severity,kind,detail,at from incidents where resolved_at is null order by at desc limit 8"):
+            issues.append(dict(row))
+        for row in con.execute("select lane,model,classification,detail,at from provider_events order by at desc limit 8"):
+            issues.append({"severity": "WARN", "kind": f'{row["lane"]}:{row["classification"]}', "detail": f'{row["model"]}: {row["detail"]}', "at": row["at"]})
+        con.close()
+    except (OSError, sqlite3.Error):
+        issues.append({"severity": "WARN", "kind": "DB_UNAVAILABLE", "detail": f"Could not read {db}"})
+    # Deduplicate identical bulletins while keeping the newest/highest-signal entries.
+    seen, clean = set(), []
+    rank = {"HIGH": 0, "WARN": 1, "INFO": 2}
+    for item in sorted(issues, key=lambda x: (rank.get(x.get("severity"), 3), -(x.get("at") or 0))):
+        key = (item.get("kind"), item.get("detail"))
+        if key not in seen:
+            seen.add(key); clean.append(item)
+    active = next((s for s in STEPS if s not in (st.get("done") or [])), None)
+    pass_n = sum(1 for p in proofs.values() if p and p.get("passed") is True)
+    phase_total = len(PROOFS) if active == "P1.1-commission" else len(STEPS)
+    phase_done = pass_n if active == "P1.1-commission" else len(st.get("done") or [])
+    phase_label = active or "complete"
+    if counts["awaiting_review"] and not counts["running"] and not counts["queued"]:
+        eta, eta_note = "blocked", f'{counts["awaiting_review"]} item(s) awaiting review; no reviewer currently running'
+    elif prog and prog.get("eta_s") is not None:
+        eta = "~" + fdur(prog["eta_s"])
+        eta_note = prog.get("eta_reason") or "based on accepted integrations"
+    elif counts["awaiting_review"]:
+        eta, eta_note = "blocked", f'{counts["awaiting_review"]} item(s) awaiting review'
+    else:
+        eta, eta_note = "unknown", "not enough accepted-integration history"
+    return {"counts": counts, "issues": clean[:10], "active": phase_label, "phase_done": phase_done,
+            "phase_total": phase_total, "phase_pct": (phase_done / phase_total * 100 if phase_total else 100),
+            "eta": eta, "eta_note": eta_note, "db": db}
+
+
+def render_transparency(w):
+    c, pct = w["counts"], min(100, w["phase_pct"])
+    bullets = []
+    for item in w["issues"]:
+        sev = item.get("severity", "INFO")
+        cls = "c-fail" if sev == "HIGH" else "c-retry" if sev == "WARN" else "dim"
+        bullets.append(f'<li><span class="issue-sev {cls}">{esc(sev)}</span><b>{esc(item.get("kind", "ISSUE"))}</b><span>{esc(item.get("detail", ""))}</span></li>')
+    if not bullets:
+        bullets.append('<li><span class="c-pass">CLEAR</span><span>no unresolved controller incidents or provider failures reported</span></li>')
+    return f'''<section class="panel transparency">
+  <div class="ph"><h2>Progress, workload &amp; issues bulletin</h2><span class="meta">derived from the active controller DB and live proof files</span><div class="right"><span class="chip">ETA <b class="{"c-fail" if w["eta"] == "blocked" else "c-run"}">{esc(w["eta"])}</b></span></div></div>
+  <div class="overview-grid">
+    <div class="overview-hero"><div class="runtime-label">CURRENT PHASE</div><div class="overview-phase">{esc(w["active"])}</div><div class="runtime-bar"><i style="width:{pct:.1f}%"></i></div><div class="runtime-sub"><b>{w["phase_done"]}/{w["phase_total"]}</b> phase gates/proofs complete · {pct:.0f}%</div><small>{esc(w["eta_note"])}</small></div>
+    <div class="overview-stat"><span>total workload</span><b>{c["total"]}</b><small>{c["integrated"]} integrated · {c["total"] - c["integrated"]} remaining</small></div>
+    <div class="overview-stat"><span>active / waiting</span><b>{c["running"]} / {c["awaiting_review"]}</b><small>{c["queued"]} queued · {c["parked"]} parked</small></div>
+    <div class="overview-stat"><span>failure pressure</span><b class="{"c-fail" if c["failed"] else "c-pass"}">{c["failed"]}</b><small>failed or retry-classified items</small></div>
+  </div>
+  <div class="workload-strip"><span>integrated <b class="c-pass">{c["integrated"]}</b></span><span>awaiting review <b class="c-retry">{c["awaiting_review"]}</b></span><span>running <b class="c-run">{c["running"]}</b></span><span>queued <b>{c["queued"]}</b></span><span>failed <b class="c-fail">{c["failed"]}</b></span><span>parked <b>{c["parked"]}</b></span></div>
+  <div class="issues"><div class="issues-title">WHAT THE LLMs CANNOT RESOLVE ALONE / CURRENT EXCEPTIONS</div><ul>{"".join(bullets)}</ul></div>
 </section>'''
 
 
@@ -500,8 +596,17 @@ main{padding:14px 20px;max-width:1480px;margin:0 auto;display:grid;gap:14px}
 .runtime-stat{display:flex;flex-direction:column;gap:6px}.runtime-stat b{font:600 16px var(--mono);color:var(--fg)}
 .runtime-stat small{font-size:10px;color:var(--dim);overflow-wrap:anywhere}.runtime-foot{display:flex;gap:16px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);font:11px var(--mono);color:var(--dim)}
 .runtime-foot b{color:var(--fg)}
-@media (max-width:1100px){.runtime-grid{grid-template-columns:1fr 1fr}.runtime-hero{grid-column:1/-1}}
-@media (max-width:640px){.runtime-grid{grid-template-columns:1fr}.runtime-hero{grid-column:auto}}
+.transparency{border-color:rgba(63,185,80,.35)}
+.overview-grid{display:grid;grid-template-columns:minmax(280px,1.4fr) repeat(3,minmax(150px,1fr));gap:8px;padding:12px}
+.overview-hero,.overview-stat{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:11px}
+.overview-phase{font:600 21px var(--mono);color:var(--run);margin:6px 0 8px;overflow-wrap:anywhere}
+.overview-hero small{display:block;margin-top:7px;color:var(--dim);font-size:10px}
+.overview-stat{display:flex;flex-direction:column;gap:6px}.overview-stat span{font:600 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+.overview-stat>b{font:600 22px var(--mono);color:var(--fg)}.overview-stat small{font-size:10px;color:var(--dim)}
+.workload-strip{display:flex;gap:8px;flex-wrap:wrap;padding:0 12px 12px}.workload-strip span{font:11px var(--mono);padding:5px 8px;border:1px solid var(--line2);border-radius:4px;color:var(--fg2)}.workload-strip b{color:var(--fg)}
+.issues{border-top:1px solid var(--line);padding:10px 12px 12px}.issues-title{font:600 10px var(--mono);letter-spacing:.08em;color:var(--retry);margin-bottom:6px}.issues ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}.issues li{display:grid;grid-template-columns:46px 170px minmax(0,1fr);gap:8px;align-items:baseline;font-size:11px}.issues li b{font:600 10px var(--mono);color:var(--fg2);overflow-wrap:anywhere}.issues li span:last-child{color:var(--fg2);overflow-wrap:anywhere}.issue-sev{font:600 9px var(--mono)}
+@media (max-width:1100px){.runtime-grid{grid-template-columns:1fr 1fr}.runtime-hero{grid-column:1/-1}.overview-grid{grid-template-columns:1fr 1fr}.overview-hero{grid-column:1/-1}}
+@media (max-width:640px){.runtime-grid{grid-template-columns:1fr}.runtime-hero{grid-column:auto}.overview-grid{grid-template-columns:1fr}.overview-hero{grid-column:auto}.issues li{grid-template-columns:42px 1fr}.issues li span:last-child{grid-column:2}}
 /* pipeline */
 .pipe{list-style:none;margin:0;padding:12px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .step{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px 10px 9px;min-width:0}
@@ -626,6 +731,8 @@ def main():
     free_runtime_html = render_free_runtime(free_runtime, conc)
     prog = tt.load_project_progress([tt.BUILD_DB, FIX_DB])
     prog_html, prog_frac = render_progress(prog)
+    workload = load_workload(free_runtime, st, proofs, prog, now)
+    transparency_html = render_transparency(workload)
     agent_rows, agent_meta = render_agents(agents)
     if isinstance(agent_meta, tuple):
         _n_agents, agent_srcs, agent_kinds = agent_meta
@@ -693,6 +800,7 @@ def main():
 <main>
 <div class="health">{health}</div>
 {free_runtime_html}
+{transparency_html}
 {stall_note}
 
 <section class="panel">
