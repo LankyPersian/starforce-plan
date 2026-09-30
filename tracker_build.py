@@ -10,6 +10,7 @@ Contract (tracker_serve.py): module globals NOW, OUT, esc(); main() stamps from 
 module-level NOW at call time.
 """
 import glob, html, json, os, sqlite3, time, urllib.error, urllib.request
+import calendar
 import lane_report as lr
 import tracker_telemetry as tt
 
@@ -64,6 +65,30 @@ def hhmm(t):
 
 def ago(t):
     return lr.human_ago(t) if t else "unknown"
+
+
+def latest_fresh_stall(path, now, freshness_s=3 * 3600):
+    """Return the newest fresh STALL line, based on its own UTC timestamp.
+
+    The heartbeat file is continually appended to; its mtime is not evidence
+    that an old STALL condition is still active.
+    """
+    try:
+        lines = open(path).read().splitlines()
+    except OSError:
+        return None
+    newest = None
+    for line in lines:
+        if "STALL ALERT" not in line:
+            continue
+        try:
+            stamp = line.split(None, 1)[0]
+            at = calendar.timegm(time.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ"))
+        except (IndexError, ValueError, OverflowError):
+            continue
+        if 0 <= now - at <= freshness_s and (newest is None or at > newest[0]):
+            newest = (at, line)
+    return newest[1] if newest else None
 
 
 # --- collectors -------------------------------------------------------------
@@ -830,16 +855,14 @@ def main():
     ))
     live = ctl_up or runner_up or workers > 0 or bool(agents)
     badge = '<span class="badge b-live">live</span>' if live else '<span class="badge b-idle">idle</span>'
-    # stall alerts are written by the cron heartbeat watchdog; surface them here
+    # STALL freshness is tied to the timestamp inside each alert, not the
+    # heartbeat file mtime (ordinary fresh heartbeat writes must not revive it).
     stall_txt, stall_note = "", ""
     try:
-        import pathlib
-        lines = [l for l in pathlib.Path(os.path.expanduser(
-            "~/.local/state/empirium-build/heartbeat.log")).read_text().splitlines()
-                 if "STALL ALERT" in l and now - os.path.getmtime(
-            os.path.expanduser("~/.local/state/empirium-build/heartbeat.log")) < 3 * 3600]
-        if lines:
-            stall_txt = lines[-1]
+        stall_txt = latest_fresh_stall(
+            os.path.expanduser("~/.local/state/empirium-build/heartbeat.log"), now
+        ) or ""
+        if stall_txt:
             stall_note = f'<div class="note warn">&#9888; {esc(stall_txt)}</div>'
     except OSError:
         pass
