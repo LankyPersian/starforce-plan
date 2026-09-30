@@ -196,7 +196,7 @@ def collect_delegations(now: float | None = None, base: str = DELEG_LIVE,
 
 
 def load_project_progress(db_path) -> dict | None:
-    """Derive progress and ETA only from accepted integrations in the controller DB."""
+    """Derive product progress and ETA only from accepted product integrations."""
     if isinstance(db_path, (list, tuple)):
         best = None
         for fp in db_path:
@@ -209,12 +209,15 @@ def load_project_progress(db_path) -> dict | None:
     try:
         con = sqlite3.connect(f"file:{Path(db_path)}?mode=ro", uri=True, timeout=2)
         con.row_factory = sqlite3.Row
+        columns = {row[1] for row in con.execute("PRAGMA table_info(work_items)")}
+        phase_expr = "phase" if "phase" in columns else "NULL AS phase"
         rows = con.execute(
-            "SELECT status, integrated_at FROM work_items WHERE kind != 'container'"
+            f"SELECT id, {phase_expr}, kind, status, integrated_at FROM work_items"
         ).fetchall()
         con.close()
     except sqlite3.Error:
         return None
+    rows = [row for row in rows if _is_product_item(row)]
     total = len(rows)
     if not total:
         return None
@@ -236,6 +239,130 @@ def load_project_progress(db_path) -> dict | None:
             out["eta_s"] = (total - done) / rate * 3600
             out["eta_reason"] = "observed accepted-integration throughput"
     return out
+
+
+def _phase_for(row) -> str | None:
+    phase = row["phase"] if "phase" in row.keys() else None
+    if phase:
+        return str(phase)
+    match = re.match(r"^(F\d+)(?:-|$)", str(row["id"] or ""), re.I)
+    return match.group(1).upper() if match else None
+
+
+def _is_product_item(row) -> bool:
+    """Product delivery excludes controller-only planning, diagnosis and containers."""
+    return (row["kind"] or "") == "implement" and _phase_for(row) is not None
+
+
+def _json_list(value) -> list:
+    try:
+        parsed = json.loads(value or "[]")
+        return parsed if isinstance(parsed, list) else []
+    except (TypeError, json.JSONDecodeError):
+        return []
+
+
+def load_delivery_snapshot(db_path: str = BUILD_DB, now: float | None = None) -> dict | None:
+    """Return the product truth needed by the dashboard from the production DB."""
+    if not os.path.exists(db_path):
+        return None
+    now = time.time() if now is None else now
+    try:
+        con = sqlite3.connect(f"file:{Path(db_path)}?mode=ro", uri=True, timeout=2)
+        con.row_factory = sqlite3.Row
+        items = con.execute(
+            "SELECT id,title,kind,status,phase,lane,scope_json,acceptance_json,attempt_count,"
+            "fail_count,last_fail_class,active_attempt_id,integrated_at,updated_at,park_reason "
+            "FROM work_items ORDER BY id"
+        ).fetchall()
+        attempts = {r["id"]: r for r in con.execute(
+            "SELECT id,work_item_id,status,lane,requested_model,effective_model,started_at,"
+            "last_progress_at,result_sha,failure_class,detail FROM attempts WHERE status='running'"
+        ).fetchall()}
+        gate = con.execute(
+            "SELECT at,sha,exit_code,report_path,ready FROM release_gate_runs ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        con.close()
+    except sqlite3.Error:
+        return None
+
+    product = [row for row in items if _is_product_item(row)]
+    controls = [row for row in items if not _is_product_item(row)]
+    status_names = ("integrated", "running", "awaiting_review", "ready", "waiting_capacity",
+                    "waiting_dependency", "parked", "blocked", "failed", "todo")
+
+    def counts(rows):
+        out = {name: 0 for name in status_names}
+        out["total"] = len(rows)
+        for row in rows:
+            out[row["status"]] = out.get(row["status"], 0) + 1
+        out["remaining"] = out["total"] - out.get("integrated", 0)
+        return out
+
+    phase_map = {}
+    for row in product:
+        phase = _phase_for(row) or "unassigned"
+        bucket = phase_map.setdefault(phase, {"phase": phase, "total": 0, "integrated": 0, "running": 0})
+        bucket["total"] += 1
+        bucket["integrated"] += row["status"] == "integrated"
+        bucket["running"] += row["status"] == "running"
+    phases = []
+    for phase in sorted(phase_map, key=lambda value: (int(value[1:]) if re.match(r"^F\d+$", value) else 999, value)):
+        bucket = phase_map[phase]
+        bucket["remaining"] = bucket["total"] - bucket["integrated"]
+        bucket["percent"] = round(bucket["integrated"] / bucket["total"] * 100, 1) if bucket["total"] else 0
+        phases.append(bucket)
+    current_phase = next((p["phase"] for p in phases if p["remaining"]), None)
+
+    active = []
+    for row in items:
+        if row["status"] not in ("running", "awaiting_review", "waiting_capacity", "waiting_dependency", "ready"):
+            continue
+        attempt = attempts.get(row["active_attempt_id"])
+        active.append({
+            "id": row["id"], "title": row["title"] or "", "category": "product" if _is_product_item(row) else "control",
+            "phase": _phase_for(row) or "control", "status": row["status"], "lane": row["lane"] or "unknown",
+            "model": ((attempt["effective_model"] or attempt["requested_model"]) if attempt else None) or "—",
+            "runtime_s": max(0, int(now - float(attempt["started_at"]))) if attempt and attempt["started_at"] else None,
+            "last_progress_s": max(0, int(now - float(attempt["last_progress_at"]))) if attempt and attempt["last_progress_at"] else None,
+            "scope": _json_list(row["scope_json"]), "acceptance": _json_list(row["acceptance_json"]),
+            "attempts": row["attempt_count"] or 0, "failures": row["fail_count"] or 0,
+            "last_failure": row["last_fail_class"] or "", "park_reason": row["park_reason"] or "",
+        })
+    order = {"running": 0, "awaiting_review": 1, "ready": 2, "waiting_capacity": 3, "waiting_dependency": 4}
+    active.sort(key=lambda row: (order.get(row["status"], 9), row["phase"], row["id"]))
+
+    release = {"ready": False, "passed": 0, "total": 0, "failing": [], "checks": [], "at": None, "sha": None}
+    if gate:
+        release.update(ready=bool(gate["ready"]), at=gate["at"], sha=gate["sha"])
+        try:
+            report = json.loads(Path(gate["report_path"]).read_text())
+            checks = report.get("checks") or []
+            release["checks"] = checks
+            release["total"] = len(checks)
+            release["passed"] = sum(bool(check.get("ok")) for check in checks)
+            release["failing"] = [check.get("name", "unknown") for check in checks if not check.get("ok")]
+        except (OSError, TypeError, json.JSONDecodeError):
+            release["failing"] = ["release report unavailable"]
+    return {"delivery": counts(product), "control": counts(controls), "phases": phases,
+            "current_phase": current_phase, "active": active, "release": release}
+
+
+def derive_product_status(snapshot: dict | None, controller_up: bool) -> dict:
+    if not snapshot:
+        return {"label": "UNKNOWN", "complete": False, "reason": "production controller state is unavailable"}
+    delivery, release = snapshot["delivery"], snapshot["release"]
+    remaining = delivery["remaining"]
+    if remaining == 0 and release.get("ready"):
+        return {"label": "RELEASE READY", "complete": True,
+                "reason": "all product work integrated and deterministic release gate passed"}
+    gate = f'release gate {release.get("passed", 0)}/{release.get("total", 0)} checks passing'
+    reason = f"{remaining} product work items remain; {gate}"
+    if controller_up and remaining:
+        return {"label": "BUILDING", "complete": False, "reason": reason}
+    if remaining:
+        return {"label": "STOPPED / NEEDS ATTENTION", "complete": False, "reason": reason + "; controller is not running"}
+    return {"label": "AWAITING RELEASE GATE", "complete": False, "reason": gate}
 
 
 def record_concurrency(agents: list[dict], sample_path: str, now: float, retention_s: int = 7 * 86400) -> dict:

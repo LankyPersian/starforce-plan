@@ -2,6 +2,7 @@ import os
 import sqlite3
 
 import tracker_telemetry as tt
+import tracker_build as tb
 
 
 def test_collect_agents_labels_free_lane_and_duration():
@@ -64,3 +65,107 @@ def test_project_progress_returns_no_eta_without_two_integrations(tmp_path):
 
     assert progress["eta_s"] is None
     assert progress["eta_reason"] == "need at least two accepted integrations"
+
+
+def _dashboard_db(path):
+    con = sqlite3.connect(path)
+    con.executescript("""
+        CREATE TABLE work_items (
+          id TEXT, title TEXT, kind TEXT, status TEXT, phase TEXT, lane TEXT,
+          scope_json TEXT, acceptance_json TEXT, attempt_count INTEGER,
+          fail_count INTEGER, last_fail_class TEXT, active_attempt_id TEXT,
+          integrated_at REAL, updated_at REAL, park_reason TEXT
+        );
+        CREATE TABLE attempts (
+          id TEXT, work_item_id TEXT, status TEXT, lane TEXT,
+          requested_model TEXT, effective_model TEXT, started_at REAL,
+          last_progress_at REAL, result_sha TEXT, failure_class TEXT, detail TEXT
+        );
+        CREATE TABLE release_gate_runs (
+          id INTEGER, at REAL, sha TEXT, exit_code INTEGER, report_path TEXT, ready INTEGER
+        );
+    """)
+    return con
+
+
+def test_delivery_snapshot_separates_product_work_from_control_work(tmp_path):
+    db = tmp_path / "build.db"
+    con = _dashboard_db(db)
+    con.executemany(
+        "INSERT INTO work_items VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [
+            ("F0-A", "architecture", "implement", "integrated", "F0", "free", '["a.md"]', '["test -f a.md"]', 1, 0, None, None, 200, 200, None),
+            ("F0-B", "contracts", "implement", "running", "F0", "free", '["b.md"]', '["test -f b.md"]', 2, 1, "TEST_FAILED", "a2", None, 300, None),
+            ("PLAN-B", "respec contracts", "respec", "integrated", None, "luna", '[]', '[]', 1, 0, None, None, 250, 250, None),
+            ("PARENT", "container", "container", "waiting_dependency", "F0", "free", '[]', '[]', 0, 0, None, None, None, 100, None),
+        ],
+    )
+    con.execute("INSERT INTO attempts VALUES(?,?,?,?,?,?,?,?,?,?,?)", ("a2", "F0-B", "running", "free", "auto", "model-x", 290, 299, None, None, None))
+    con.commit(); con.close()
+
+    snap = tt.load_delivery_snapshot(str(db), now=310)
+
+    assert snap["delivery"]["total"] == 2
+    assert snap["delivery"]["integrated"] == 1
+    assert snap["control"]["total"] == 2
+    assert snap["current_phase"] == "F0"
+    assert snap["phases"][0]["remaining"] == 1
+    assert snap["active"][0]["id"] == "F0-B"
+    assert snap["active"][0]["model"] == "model-x"
+    assert snap["active"][0]["scope"] == ["b.md"]
+
+
+def test_product_status_never_calls_bootstrap_completion_product_done():
+    snapshot = {
+        "delivery": {"total": 8, "integrated": 2, "remaining": 6},
+        "release": {"ready": False, "passed": 4, "total": 20, "failing": ["build"]},
+        "current_phase": "F0",
+    }
+
+    status = tt.derive_product_status(snapshot, controller_up=True)
+
+    assert status["label"] == "BUILDING"
+    assert status["complete"] is False
+    assert "6 product work items remain" in status["reason"]
+    assert "release gate 4/20" in status["reason"]
+
+
+def test_product_status_requires_green_release_gate_and_zero_remaining():
+    snapshot = {
+        "delivery": {"total": 8, "integrated": 8, "remaining": 0},
+        "release": {"ready": True, "passed": 20, "total": 20, "failing": []},
+        "current_phase": None,
+    }
+
+    status = tt.derive_product_status(snapshot, controller_up=False)
+
+    assert status == {"label": "RELEASE READY", "complete": True, "reason": "all product work integrated and deterministic release gate passed"}
+
+
+def test_product_dashboard_renders_delivery_truth_and_release_failures():
+    snapshot = {
+        "delivery": {"total": 8, "integrated": 2, "remaining": 6, "running": 2,
+                     "awaiting_review": 1, "ready": 1, "waiting_capacity": 1,
+                     "waiting_dependency": 1, "parked": 0, "blocked": 0, "failed": 0, "todo": 0},
+        "control": {"total": 3, "integrated": 1, "remaining": 2},
+        "current_phase": "F0",
+        "phases": [{"phase": "F0", "total": 8, "integrated": 2, "remaining": 6, "running": 2, "percent": 25.0}],
+        "active": [{"id": "F0-B", "title": "contracts", "category": "product", "phase": "F0",
+                    "status": "running", "lane": "free", "model": "model-x", "runtime_s": 20,
+                    "last_progress_s": 4, "scope": ["b.md"], "acceptance": ["test -f b.md"],
+                    "attempts": 2, "failures": 1, "last_failure": "TEST_FAILED", "park_reason": ""}],
+        "release": {"ready": False, "passed": 4, "total": 20, "failing": ["build"],
+                    "checks": [{"name": "build", "ok": False, "detail": "no fresh evidence"}],
+                    "at": 300, "sha": "abc123"},
+    }
+    status = tt.derive_product_status(snapshot, controller_up=True)
+
+    html = tb.render_product_dashboard(snapshot, status, bootstrap_complete=True)
+
+    assert "BUILDING" in html
+    assert "Bootstrap complete is not product complete" in html
+    assert "2/8" in html
+    assert "4/20" in html
+    assert "F0-B" in html
+    assert "b.md" in html
+    assert "no fresh evidence" in html

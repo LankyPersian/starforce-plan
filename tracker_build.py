@@ -227,7 +227,7 @@ def render_free_runtime(rt, conc):
 </section>'''
 
 
-def load_workload(rt, st, proofs, prog, now):
+def load_workload(rt, st, proofs, prog, now, snapshot=None):
     """Read the active controller DB for workload, blockers and human-attention items."""
     db = os.path.join(rt["state"], "build.db")
     counts = {"integrated": 0, "awaiting_review": 0, "running": 0, "queued": 0,
@@ -264,11 +264,17 @@ def load_workload(rt, st, proofs, prog, now):
         key = (item.get("kind"), item.get("detail"))
         if key not in seen:
             seen.add(key); clean.append(item)
-    active = next((s for s in STEPS if s not in (st.get("done") or [])), None)
+    active = (snapshot or {}).get("current_phase") or next((s for s in STEPS if s not in (st.get("done") or [])), None)
     pass_n = sum(1 for p in proofs.values() if p and p.get("passed") is True)
-    phase_total = len(PROOFS) if active == "P1.1-commission" else len(STEPS)
-    phase_done = pass_n if active == "P1.1-commission" else len(st.get("done") or [])
-    phase_label = active or "complete"
+    if snapshot and active:
+        phase = next((p for p in snapshot.get("phases", []) if p["phase"] == active), None)
+        phase_total = phase["total"] if phase else 0
+        phase_done = phase["integrated"] if phase else 0
+        phase_label = active
+    else:
+        phase_total = len(PROOFS) if active == "P1.1-commission" else len(STEPS)
+        phase_done = pass_n if active == "P1.1-commission" else len(st.get("done") or [])
+        phase_label = active or "no active product phase"
     if counts["awaiting_review"] and not counts["running"] and not counts["queued"]:
         eta, eta_note = "blocked", f'{counts["awaiting_review"]} item(s) awaiting review; no reviewer currently running'
     elif prog and prog.get("eta_s") is not None:
@@ -302,6 +308,52 @@ def render_transparency(w):
   </div>
   <div class="workload-strip"><span>integrated <b class="c-pass">{c["integrated"]}</b></span><span>awaiting review <b class="c-retry">{c["awaiting_review"]}</b></span><span>running <b class="c-run">{c["running"]}</b></span><span>queued <b>{c["queued"]}</b></span><span>failed <b class="c-fail">{c["failed"]}</b></span><span>parked <b>{c["parked"]}</b></span></div>
   <div class="issues"><div class="issues-title">WHAT THE LLMs CANNOT RESOLVE ALONE / CURRENT EXCEPTIONS</div><ul>{"".join(bullets)}</ul></div>
+</section>'''
+
+
+def render_product_dashboard(snapshot, status, bootstrap_complete):
+    if not snapshot:
+        return '<section class="panel product-truth"><div class="pb"><b class="c-fail">PRODUCT STATUS UNKNOWN</b><br><span class="dim">Production build.db could not be read. Bootstrap completion is not evidence that the product is complete.</span></div></section>'
+    d, ctl, rel = snapshot["delivery"], snapshot["control"], snapshot["release"]
+    pct = d["integrated"] / d["total"] * 100 if d["total"] else 0
+    status_cls = "c-pass" if status["complete"] else "c-run" if status["label"] == "BUILDING" else "c-fail"
+    phase_cards = []
+    for phase in snapshot["phases"]:
+        phase_cards.append(
+            f'<div class="phase-card {"phase-active" if phase["phase"] == snapshot["current_phase"] else ""}">'
+            f'<div><b>{esc(phase["phase"])}</b><span>{phase["integrated"]}/{phase["total"]}</span></div>'
+            f'<div class="runtime-bar"><i style="width:{min(100, phase["percent"]):.1f}%"></i></div>'
+            f'<small>{phase["remaining"]} remaining · {phase["running"]} running</small></div>')
+    if not phase_cards:
+        phase_cards.append('<span class="dim">No product phases have been seeded yet.</span>')
+    work_rows = []
+    for item in snapshot["active"][:30]:
+        scope = ", ".join(item["scope"][:3]) or "no file scope recorded"
+        if len(item["scope"]) > 3:
+            scope += f' (+{len(item["scope"]) - 3})'
+        runtime = fdur(item["runtime_s"]) if item["runtime_s"] is not None else "—"
+        progress = fdur(item["last_progress_s"]) + " ago" if item["last_progress_s"] is not None else "—"
+        fail = f'<span class="c-retry">{esc(item["last_failure"])}</span>' if item["last_failure"] else '<span class="dim">none</span>'
+        work_rows.append(
+            f'<tr><td><b class="mono">{esc(item["id"])}</b><div class="dim small">{esc(item["title"])}</div></td>'
+            f'<td><span class="tag t-{"run" if item["status"] == "running" else "pend"}">{esc(item["status"])}</span><div class="dim small">{esc(item["category"])} · {esc(item["phase"])}</div></td>'
+            f'<td>{esc(item["lane"])}<div class="mono small">{esc(item["model"])}</div></td>'
+            f'<td class="cmd" title="{esc(scope)}">{esc(scope)}</td><td class="r num">{runtime}<div class="dim small">progress {progress}</div></td>'
+            f'<td class="r num">{item["attempts"]} / {item["failures"]}<div class="small">{fail}</div></td></tr>')
+    if not work_rows:
+        work_rows.append('<tr><td colspan="6" class="dim">No running, ready, review, capacity-blocked, or dependency-blocked work items.</td></tr>')
+    gate_rows = []
+    for check in rel.get("checks", []):
+        gate_rows.append(f'<tr><td><span class="c-{"pass" if check.get("ok") else "fail"}">{"PASS" if check.get("ok") else "FAIL"}</span></td><td class="mono">{esc(check.get("name", "unknown"))}</td><td>{esc(check.get("detail", ""))}</td></tr>')
+    if not gate_rows:
+        gate_rows.append('<tr><td colspan="3" class="dim">No release-gate report is available yet.</td></tr>')
+    bootstrap_text = "complete" if bootstrap_complete else "incomplete"
+    return f'''<section class="panel product-truth">
+  <div class="truth-head"><div><div class="runtime-label">ACTUAL PRODUCT STATUS</div><div class="truth-status {status_cls}">{esc(status["label"])}</div><div class="truth-reason">{esc(status["reason"])}</div></div><div class="truth-warning"><b>Bootstrap complete is not product complete.</b><span>Bootstrap is {bootstrap_text}; release readiness requires zero remaining product items and a green deterministic release gate.</span></div></div>
+  <div class="truth-grid"><div class="truth-stat"><span>product integration</span><b>{d["integrated"]}/{d["total"]}</b><small>{pct:.1f}% accepted · {d["remaining"]} remaining</small></div><div class="truth-stat"><span>current product phase</span><b>{esc(snapshot["current_phase"] or "none")}</b><small>derived from unfinished delivery items</small></div><div class="truth-stat"><span>release gate</span><b class="{"c-pass" if rel["ready"] else "c-fail"}">{rel["passed"]}/{rel["total"]}</b><small>{"ready" if rel["ready"] else str(len(rel["failing"])) + " checks failing"}</small></div><div class="truth-stat"><span>control/support work</span><b>{ctl["integrated"]}/{ctl["total"]}</b><small>planning, diagnosis, containers; excluded from product progress</small></div></div>
+  <div class="phase-roadmap"><div class="subhead">PHASE ROADMAP</div><div class="phase-grid">{"".join(phase_cards)}</div></div>
+  <div class="subsection"><div class="subhead">LIVE WORK QUEUE — WHAT EACH ACTIVE OR BLOCKED CALL CONTRIBUTES</div><div class="table-scroll"><table><thead><tr><th>work item</th><th>state</th><th>lane / model</th><th>expected artifact scope</th><th class="r">runtime</th><th class="r">attempts / fails</th></tr></thead><tbody>{"".join(work_rows)}</tbody></table></div></div>
+  <div class="subsection"><div class="subhead">DETERMINISTIC RELEASE GATE — THE ONLY PRODUCT-DONE AUTHORITY</div><div class="table-scroll"><table><thead><tr><th>result</th><th>check</th><th>evidence</th></tr></thead><tbody>{"".join(gate_rows)}</tbody></table></div></div>
 </section>'''
 
 
@@ -597,6 +649,13 @@ main{padding:14px 20px;max-width:1480px;margin:0 auto;display:grid;gap:14px}
 .runtime-stat small{font-size:10px;color:var(--dim);overflow-wrap:anywhere}.runtime-foot{display:flex;gap:16px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);font:11px var(--mono);color:var(--dim)}
 .runtime-foot b{color:var(--fg)}
 .transparency{border-color:rgba(63,185,80,.35)}
+.product-truth{border-color:rgba(88,166,255,.65);box-shadow:0 0 0 1px rgba(88,166,255,.10)}
+.truth-head{display:grid;grid-template-columns:minmax(280px,1.25fr) minmax(280px,1fr);gap:12px;padding:14px}
+.truth-status{font:700 30px var(--mono);margin:4px 0}.truth-reason{font:12px var(--mono);color:var(--fg2)}
+.truth-warning{border:1px solid rgba(210,153,34,.5);background:rgba(210,153,34,.07);border-radius:5px;padding:11px;display:flex;flex-direction:column;gap:4px}.truth-warning b{color:var(--retry)}.truth-warning span{color:var(--fg2);font-size:11px}
+.truth-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:8px;padding:0 14px 14px}.truth-stat{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:5px}.truth-stat span,.subhead{font:600 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}.truth-stat b{font:600 22px var(--mono)}.truth-stat small{color:var(--dim)}
+.phase-roadmap,.subsection{border-top:1px solid var(--line);padding:11px 14px}.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px;margin-top:8px}.phase-card{border:1px solid var(--line);border-radius:4px;padding:8px;background:var(--panel2)}.phase-card.phase-active{border-color:rgba(88,166,255,.65)}.phase-card>div:first-child{display:flex;justify-content:space-between}.phase-card small{color:var(--dim)}
+.table-scroll{overflow-x:auto;margin:8px -14px -11px}
 .overview-grid{display:grid;grid-template-columns:minmax(280px,1.4fr) repeat(3,minmax(150px,1fr));gap:8px;padding:12px}
 .overview-hero,.overview-stat{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:11px}
 .overview-phase{font:600 21px var(--mono);color:var(--run);margin:6px 0 8px;overflow-wrap:anywhere}
@@ -605,8 +664,8 @@ main{padding:14px 20px;max-width:1480px;margin:0 auto;display:grid;gap:14px}
 .overview-stat>b{font:600 22px var(--mono);color:var(--fg)}.overview-stat small{font-size:10px;color:var(--dim)}
 .workload-strip{display:flex;gap:8px;flex-wrap:wrap;padding:0 12px 12px}.workload-strip span{font:11px var(--mono);padding:5px 8px;border:1px solid var(--line2);border-radius:4px;color:var(--fg2)}.workload-strip b{color:var(--fg)}
 .issues{border-top:1px solid var(--line);padding:10px 12px 12px}.issues-title{font:600 10px var(--mono);letter-spacing:.08em;color:var(--retry);margin-bottom:6px}.issues ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}.issues li{display:grid;grid-template-columns:46px 170px minmax(0,1fr);gap:8px;align-items:baseline;font-size:11px}.issues li b{font:600 10px var(--mono);color:var(--fg2);overflow-wrap:anywhere}.issues li span:last-child{color:var(--fg2);overflow-wrap:anywhere}.issue-sev{font:600 9px var(--mono)}
-@media (max-width:1100px){.runtime-grid{grid-template-columns:1fr 1fr}.runtime-hero{grid-column:1/-1}.overview-grid{grid-template-columns:1fr 1fr}.overview-hero{grid-column:1/-1}}
-@media (max-width:640px){.runtime-grid{grid-template-columns:1fr}.runtime-hero{grid-column:auto}.overview-grid{grid-template-columns:1fr}.overview-hero{grid-column:auto}.issues li{grid-template-columns:42px 1fr}.issues li span:last-child{grid-column:2}}
+@media (max-width:1100px){.runtime-grid{grid-template-columns:1fr 1fr}.runtime-hero{grid-column:1/-1}.overview-grid{grid-template-columns:1fr 1fr}.overview-hero{grid-column:1/-1}.truth-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.runtime-grid{grid-template-columns:1fr}.runtime-hero{grid-column:auto}.overview-grid{grid-template-columns:1fr}.overview-hero{grid-column:auto}.issues li{grid-template-columns:42px 1fr}.issues li span:last-child{grid-column:2}.truth-head{grid-template-columns:1fr}.truth-grid{grid-template-columns:1fr}}
 /* pipeline */
 .pipe{list-style:none;margin:0;padding:12px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .step{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px 10px 9px;min-width:0}
@@ -729,9 +788,12 @@ def main():
     conc = tt.record_concurrency(cli + dba + dlg, SAMPLES, now)
     free_runtime = load_free_runtime(ps, conc)
     free_runtime_html = render_free_runtime(free_runtime, conc)
-    prog = tt.load_project_progress([tt.BUILD_DB, FIX_DB])
+    prog = tt.load_project_progress(tt.BUILD_DB)
     prog_html, prog_frac = render_progress(prog)
-    workload = load_workload(free_runtime, st, proofs, prog, now)
+    snapshot = tt.load_delivery_snapshot(tt.BUILD_DB, now)
+    product_status = tt.derive_product_status(snapshot, ctl_up)
+    product_html = render_product_dashboard(snapshot, product_status, len(st.get("done") or []) == len(STEPS))
+    workload = load_workload(free_runtime, st, proofs, prog, now, snapshot)
     transparency_html = render_transparency(workload)
     agent_rows, agent_meta = render_agents(agents)
     if isinstance(agent_meta, tuple):
@@ -756,16 +818,17 @@ def main():
         step_txt = (f'<b>{esc(active.split("-")[0])}</b> '
                     + (f'<span class="c-retry">retry {f}</span>' if f else '<span class="c-run">running</span>'))
     health = "".join(f"<span>{x}</span>" for x in (
+        f'product <b class="{"c-pass" if product_status["complete"] else "c-run"}">{esc(product_status["label"])}</b>',
         step_txt,
         f'steps <b>{done_n}/{len(STEPS)}</b>',
         f'proofs <b>{n_pass}/{len(PROOFS)}</b> pass <span class="dim">({n_run} run)</span>',
         f'lanes <b>{sub_hot + free_hot}</b> hot',
         f'sub-agents <b>{len(agents)}</b> live <span class="dim">{agent_src_txt}</span>',
         f'items integrated <b>{prog_frac}</b>',
-        f'runner <b class="{"c-pass" if runner_up else "c-fail"}">{"up" if runner_up else "down"}</b>',
+        f'bootstrap owner <b class="{"c-pass" if runner_up or active is None else "c-fail"}">{"runner active" if runner_up else "handed off" if active is None else "runner down"}</b>',
         f'controller <b class="{"c-pass" if ctl_up else "c-fail"}">{"up" if ctl_up else "down"}</b>',
     ))
-    live = runner_up or workers > 0
+    live = ctl_up or runner_up or workers > 0 or bool(agents)
     badge = '<span class="badge b-live">live</span>' if live else '<span class="badge b-idle">idle</span>'
     # stall alerts are written by the cron heartbeat watchdog; surface them here
     stall_txt, stall_note = "", ""
@@ -788,7 +851,7 @@ def main():
     doc = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="60">
-<title>{esc(active.split("-")[0] if active else "done")} · Empirium monitor</title>
+<title>{esc(product_status["label"])} · Empirium Studio v2</title>
 <style>{CSS}</style></head><body>
 <header>
   <div class="brand">Empirium Studio v2 <span>/ Star Force monitor</span></div>
@@ -799,6 +862,7 @@ def main():
 </header>
 <main>
 <div class="health">{health}</div>
+{product_html}
 {free_runtime_html}
 {transparency_html}
 {stall_note}

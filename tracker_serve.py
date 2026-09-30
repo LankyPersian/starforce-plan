@@ -28,7 +28,9 @@ def rebuild(force=True, min_age=55):
         # (A stale in-memory copy silently overwrote tracker.html with old panels once.)
         import importlib
         import lane_report
+        import tracker_telemetry
         importlib.reload(lane_report)
+        importlib.reload(tracker_telemetry)
         importlib.reload(tracker_build)
         tracker_build.NOW = now  # tracker_build stamps at import-time NOW otherwise
         tracker_build.lr.NOW = now  # same for the "x ago" / 6h-window reference
