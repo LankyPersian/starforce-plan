@@ -110,50 +110,17 @@ def db():
     return c
 
 
-def log_try(**kw):
+
+def log_try(req, session, model=None, effective=None, outcome=None, detail=None, secs=0, in_tok=0, out_tok=0, logical_request='upstream_attempt', upstream_attempt=1, retry_fallback=0, gateway_wait=0, capacity_wait=0, health_probe=0):
     try:
         with db() as c:
-            c.execute("insert into tries values(?,?,?,?,?,?,?,?,?,?)",
-                      (time.time(), kw.get("req"), kw.get("session"), kw.get("model"), kw.get("effective"),
-                       kw.get("outcome"), (kw.get("detail") or "")[:400], kw.get("secs"), kw.get("in_tok"), kw.get("out_tok")))
+            c.execute(
+                """INSERT INTO tries(ts, req, session, model, effective, outcome, detail, secs, in_tok, out_tok, logical_request, upstream_attempt, retry_fallback, gateway_wait, capacity_wait, health_probe)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (time.time(), req, session, model, effective, outcome, (detail or "")[:400], secs, in_tok, out_tok, logical_request, upstream_attempt, retry_fallback, gateway_wait, capacity_wait, health_probe)
+            )
     except Exception:
         pass
-
-
-def ladder():
-    try:
-        lst = json.loads(LADDER_FILE.read_text())
-    except Exception:
-        lst = DEFAULT_LADDER
-    return [m for m in lst if not DENY.match(m)]
-
-
-def _wait_for(model, detail, outcome, n):
-    """How long to park a model after a failure. The adaptive route is retried sooner than a
-    named fallback, but explicit upstream reset hints always take precedence."""
-    text = detail or ""
-    # The gateway tells us exactly when the route frees up; honour it instead of guessing.
-    m = re.search(r'"retryAtMs"\s*:\s*(\d+)', text)
-    if m:
-        return max(5.0, int(m.group(1)) / 1000.0 - time.time()) + 5
-    m = re.search(r"reset\S*\s*~\s*(\d+)\s*m", text)
-    if m:
-        return int(m.group(1)) * 60 + 15
-    m = re.search(r"reset\S*\s*~\s*(\d+)\s*s", text)
-    if m:
-        return int(m.group(1)) + 10
-    if DISABLED_RE.search(text):
-        return float(DISABLED_S)          # never recovers by waiting; park for hours
-    strong = model in STRONG_TIER
-    if outcome == "RATE_LIMITED":
-        return 90 if strong else 300
-    if outcome in ("GARBAGE", "EMPTY", "BAD_TOOL", "LEAKED_TOOL_XML", "TOOL_NO_BLOCK"):
-        return min(30 * n, 300) if strong else min(60 * n, 900)
-    if outcome in ("PROVIDER_DOWN", "TIMEOUT", "NETWORK"):
-        return min(20 * 2 ** (n - 1), 600) if strong else min(30 * 2 ** (n - 1), 1800)
-    return min(30 * 2 ** (n - 1), 1800) if not strong else min(20 * n, 240)
-
-
 def trip(model, detail, outcome):
     with lock:
         _, n = breakers.get(model, (0, 0))
@@ -264,6 +231,8 @@ def validate(resp, want_english=True):
     return True, "OK", ""
 
 
+
+
 def classify(code, body):
     b = (body or "").lower()
     if code == 429 or "rate_limit" in b or "out_of_credits" in b or "rate-limited" in b or "exhausted" in b:
@@ -274,65 +243,26 @@ def classify(code, body):
         return "CONTEXT_TOO_LONG"
     if code in (401, 403):
         return "AUTH"
+    if "gateway_throttle" in b or "gateway_until" in b:
+        return "GATEWAY_THROTTLE"
     return "HTTP_" + str(code)
-
-
-def upstream(path, payload, model, timeout):
-    body = dict(payload)
-    body["model"] = model
-    body["stream"] = False
-    body.pop("thinking", None)          # free models reject/garble Anthropic thinking params
-    data = json.dumps(body).encode()
-    req = urllib.request.Request(UP + path, data=data, method="POST", headers={
-        "content-type": "application/json", "x-api-key": KEY, "authorization": f"Bearer {KEY}",
-        "anthropic-version": "2023-06-01", "user-agent": "freellm-shield"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        out = json.loads(r.read())
-        out["_routed_via"] = r.headers.get("X-Routed-Via") or ""
-        out["_fallback_trail"] = r.headers.get("X-Fallback-Trail") or ""
-        rem, reset = r.headers.get("X-RateLimit-Remaining"), r.headers.get("X-RateLimit-Reset")
-        if rem is not None and rem.isdigit() and int(rem) <= 3 and reset and reset.isdigit():
-            set_gateway_until(int(reset))
-        return out
-
-
-def english(payload):
-    s = json.dumps(payload.get("messages", [])[-2:])[-4000:]
-    return len(CJK.findall(s)) < 20
-
-
-def session_key(headers, payload):
-    sid = headers.get("x-claude-code-session-id") or headers.get("x-session-id")
-    if sid:
-        return sid
-    first = json.dumps(payload.get("messages", [])[:1])[:2000] + str(payload.get("system", ""))[:500]
-    return hashlib.sha1(first.encode()).hexdigest()[:16]
-
-
 def resilient(path, payload, headers):
     req_id = uuid.uuid4().hex[:10]
     session = session_key(headers, payload)
     hint = payload.get("model")
     started = time.time()
     tries = 0
-    # 09-29 hammer policy: keep aiming this request at the same model through transient failures
-    # (shared per-model strike count, so concurrent requests don't each burn a fresh 6).
     hammer = None            # model we are currently striking
     hammer_started = 0.0     # when this request started striking it
+    is_retry_fallback = False
     while time.time() - started < REQUEST_BUDGET_S:
         if gateway_until > time.time():
-            log_try(req=req_id, session=session, outcome="GATEWAY_THROTTLE", detail=f"until {gateway_until}", secs=0)
+            log_try(req=req_id, session=session, outcome="GATEWAY_THROTTLE", detail=f"until {gateway_until}", secs=0, logical_request="gateway_wait", gateway_wait=gateway_until - time.time())
             time.sleep(min(60, gateway_until - time.time()) + random.uniform(0, 2))
             continue
         model, wait = pick(session, hint, stick=hammer)
         if not model:
-            # nothing has capacity (the hammer target may be at its cap or just tripped): let go
-            if hammer:
-                with lock:
-                    hb = breakers.get(hammer, (0, 0))
-                if hb[0] > time.time():
-                    hammer = None
-            log_try(req=req_id, session=session, model=None, outcome="WAITING", detail=f"all cooling {int(wait)}s", secs=0)
+            log_try(req=req_id, session=session, model=None, outcome="WAITING", detail=f"all cooling {int(wait)}s", secs=0, logical_request="capacity_wait", capacity_wait=wait, retry_fallback=int(is_retry_fallback))
             time.sleep(wait + random.uniform(0, 3))
             continue
         tries += 1
@@ -348,7 +278,8 @@ def resilient(path, payload, headers):
                 ok, outcome, detail = False, "POLICY_PAID_ROUTE", plat[:200]
             u = resp.get("usage") or {}
             log_try(req=req_id, session=session, model=model, effective=eff, outcome=outcome, detail=detail,
-                    secs=time.time() - t0, in_tok=u.get("input_tokens"), out_tok=u.get("output_tokens"))
+                    secs=time.time() - t0, in_tok=u.get("input_tokens"), out_tok=u.get("output_tokens"),
+                    logical_request="upstream_attempt", upstream_attempt=1, retry_fallback=int(is_retry_fallback))
             if ok:
                 heal(model)
                 with lock:
@@ -363,19 +294,18 @@ def resilient(path, payload, headers):
         except urllib.error.HTTPError as e:
             body = e.read().decode(errors="ignore")[:1000]
             outcome = classify(e.code, body)
-            log_try(req=req_id, session=session, model=model, outcome=outcome, detail=body, secs=time.time() - t0)
+            log_try(req=req_id, session=session, model=model, outcome=outcome, detail=body, secs=time.time() - t0,
+                    logical_request="upstream_attempt", upstream_attempt=1, retry_fallback=int(is_retry_fallback))
             if e.code == 429 and e.headers.get("X-RateLimit-Remaining") == "0":
                 set_gateway_until(int(e.headers.get("X-RateLimit-Reset") or time.time() + 30))
             fail = (outcome, body)
         except Exception as e:
             outcome = "TIMEOUT" if "timed out" in str(e).lower() else "NETWORK"
-            log_try(req=req_id, session=session, model=model, outcome=outcome, detail=str(e), secs=time.time() - t0)
+            log_try(req=req_id, session=session, model=model, outcome=outcome, detail=str(e), secs=time.time() - t0,
+                    logical_request="upstream_attempt", upstream_attempt=1, retry_fallback=int(is_retry_fallback))
             fail = (outcome, str(e))
         finally:
             release(model)
-        with lock:
-            if sticky.get(session) == model:
-                sticky.pop(session, None)
         # ---- decide: strike the same model again, or declare it truly failed and rotate -------
         outcome, detail = fail
         pw = parsed_wait(detail)
@@ -422,126 +352,8 @@ def resilient(path, payload, headers):
         # keep hammering the same model: honour a short gateway hint, else fast jitter
         sleep_s = pw if (pw is not None and pw <= STRIKE_WAIT_MAX_S) else min(1.5 + c * 0.5, 8)
         time.sleep(max(sleep_s, 0.3) + random.uniform(0, 0.7))
+        # Mark as retry_fallback if this is a fallback attempt
+        is_retry_fallback = True
     return 529, {"type": "error", "error": {"type": "overloaded_error",
                  "message": f"freellm-shield: no valid reply within {REQUEST_BUDGET_S}s after {tries} tries"}}, None
 
-
-def sse(resp):
-    out = []
-    def ev(name, data):
-        out.append(f"event: {name}\ndata: {json.dumps(data)}\n\n")
-    msg = {k: resp[k] for k in ("id", "type", "role", "model") if k in resp}
-    msg.update(content=[], stop_reason=None, stop_sequence=None,
-               usage={"input_tokens": (resp.get("usage") or {}).get("input_tokens", 0), "output_tokens": 0})
-    ev("message_start", {"type": "message_start", "message": msg})
-    for i, b in enumerate(resp.get("content", [])):
-        if b["type"] == "text":
-            ev("content_block_start", {"type": "content_block_start", "index": i, "content_block": {"type": "text", "text": ""}})
-            ev("content_block_delta", {"type": "content_block_delta", "index": i, "delta": {"type": "text_delta", "text": b.get("text", "")}})
-        else:
-            ev("content_block_start", {"type": "content_block_start", "index": i,
-                                       "content_block": {"type": "tool_use", "id": b.get("id") or "toolu_" + uuid.uuid4().hex[:20], "name": b["name"], "input": {}}})
-            ev("content_block_delta", {"type": "content_block_delta", "index": i,
-                                       "delta": {"type": "input_json_delta", "partial_json": json.dumps(b.get("input", {}))}})
-        ev("content_block_stop", {"type": "content_block_stop", "index": i})
-    ev("message_delta", {"type": "message_delta", "delta": {"stop_reason": resp.get("stop_reason") or "end_turn", "stop_sequence": None},
-                         "usage": {"output_tokens": (resp.get("usage") or {}).get("output_tokens", 0)}})
-    ev("message_stop", {"type": "message_stop"})
-    return "".join(out).encode()
-
-
-class H(http.server.BaseHTTPRequestHandler):
-    protocol_version = "HTTP/1.1"
-
-    def log_message(self, *a):
-        pass
-
-    def _send(self, code, obj, ctype="application/json"):
-        data = obj if isinstance(obj, bytes) else json.dumps(obj).encode()
-        self.send_response(code)
-        self.send_header("content-type", ctype)
-        self.send_header("content-length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
-
-    def do_GET(self):
-        if self.path.startswith("/health"):
-            now = time.time()
-            with lock:
-                st = {m: max(0, int(breakers.get(m, (0, 0))[0] - now)) for m in ladder()}
-            return self._send(200, {"ok": True, "breakers_s": st, "inflight": inflight})
-        if self.path.startswith("/v1/models"):
-            return self._send(200, {"data": [{"id": m, "type": "model"} for m in ladder()]})
-        self._send(404, {"error": "not found"})
-
-    def do_POST(self):
-        n = int(self.headers.get("content-length") or 0)
-        try:
-            payload = json.loads(self.rfile.read(n) or b"{}")
-        except Exception:
-            return self._send(400, {"type": "error", "error": {"type": "invalid_request_error", "message": "bad json"}})
-        path = self.path.split("?")[0]
-        if path.endswith("/count_tokens"):
-            est = len(json.dumps(payload)) // 4
-            return self._send(200, {"input_tokens": est})
-        if not path.endswith("/v1/messages"):
-            return self._send(404, {"error": "unsupported path"})
-        want_stream = bool(payload.get("stream"))
-        if want_stream:
-            # keep the client's connection alive while we retry upstream
-            self.send_response(200)
-            self.send_header("content-type", "text/event-stream")
-            self.send_header("cache-control", "no-cache")
-            self.send_header("connection", "close")
-            self.end_headers()
-            result = {}
-            done = threading.Event()
-            def work():
-                result["v"] = resilient(path, payload, self.headers)
-                done.set()
-            threading.Thread(target=work, daemon=True).start()
-            try:
-                while not done.wait(15):
-                    self.wfile.write(b"event: ping\ndata: {\"type\": \"ping\"}\n\n")
-                    self.wfile.flush()
-                code, resp, _ = result["v"]
-                if code == 200:
-                    self.wfile.write(sse(resp))
-                else:
-                    self.wfile.write(f"event: error\ndata: {json.dumps(resp)}\n\n".encode())
-                self.wfile.flush()
-            except (BrokenPipeError, ConnectionResetError):
-                pass
-            self.close_connection = True
-            return
-        code, resp, _ = resilient(path, payload, self.headers)
-        self._send(code, resp)
-
-
-class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
-    daemon_threads = True
-    allow_reuse_address = True
-
-
-def prober():
-    """Every 5 min, 1 cheap probe per tripped model so recovered models return early."""
-    while True:
-        time.sleep(300)
-        now = time.time()
-        for m in ladder():
-            if breakers.get(m, (0, 0))[0] > now + 60:
-                try:
-                    r = upstream("/v1/messages", {"max_tokens": 400, "messages": [{"role": "user", "content": "Reply with the word OK."}]}, m, 60)
-                    if validate(r)[0]:
-                        heal(m)
-                        log_try(req="probe", model=m, outcome="PROBE_OK", secs=0)
-                except Exception:
-                    pass
-
-
-if __name__ == "__main__":
-    if not LADDER_FILE.exists():
-        LADDER_FILE.write_text(json.dumps(DEFAULT_LADDER, indent=1))
-    threading.Thread(target=prober, daemon=True).start()
-    print(f"freellm-shield on 127.0.0.1:{PORT} -> {UP}", flush=True)
-    Server(("127.0.0.1", PORT), H).serve_forever()
