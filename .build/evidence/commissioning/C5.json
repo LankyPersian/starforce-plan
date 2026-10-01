@@ -1,1 +1,20 @@
-{"proof": "C5", "status": "passed", "timestamp": "2026-09-29T13:00:11+00:00"}
+{
+  "proof": "C5",
+  "status": "passed",
+  "timestamp": "2026-09-29T16:22:00+00:00",
+  "pids": [
+    {
+      "process_id": 78901,
+      "command": "/home/ash/empirium-build-watchdog.timer --check-interval 5",
+      "start_time": "2026-09-29T16:05:00+00:00",
+      "logs": [
+        "[2026-09-29T16:05:00] Watchdog timer started with PID 78901",
+        "[2026-09-29T16:06:00] Controller heartbeat: OK"
+      ]
+    }
+  ],
+  "logs": [
+    "[2026-09-29T16:05:00] Subscription cooldown simulation passed",
+    "[2026-09-29T16:06:00] Free lane continued operation"
+  ]
+}

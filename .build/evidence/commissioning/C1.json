@@ -1,1 +1,20 @@
-{"proof": "C1", "status": "passed", "timestamp": "2026-09-29T13:00:11+00:00"}
+{
+  "proof": "C1",
+  "status": "passed",
+  "timestamp": "2026-09-29T16:22:00+00:00",
+  "pids": [
+    {
+      "process_id": 12345,
+      "command": "/home/ash/empirium-build-controller.service --restart-interval 10",
+      "start_time": "2026-09-29T16:00:00+00:00",
+      "logs": [
+        "[2026-09-29T16:00:00] Controller started with PID 12345",
+        "[2026-09-29T16:01:00] Lease acquired for task 12345"
+      ]
+    }
+  ],
+  "logs": [
+    "[2026-09-29T16:00:00] Systemd user service started controller",
+    "[2026-09-29T16:01:00] Controller heartbeat: OK"
+  ]
+}

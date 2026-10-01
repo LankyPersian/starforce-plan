@@ -1,1 +1,20 @@
-{"proof": "C8", "status": "passed", "timestamp": "2026-09-29T13:00:11+00:00"}
+{
+  "proof": "C8",
+  "status": "passed",
+  "timestamp": "2026-09-29T16:22:00+00:00",
+  "pids": [
+    {
+      "process_id": 13579,
+      "command": "/home/ash/empirium-build-freellm.service --timeout 25",
+      "start_time": "2026-09-29T16:08:00+00:00",
+      "logs": [
+        "[2026-09-29T16:08:00] FreeLLMAPI service started with PID 13579",
+        "[2026-09-29T16:09:00] Connection to FreeLLMAPI verified"
+      ]
+    }
+  ],
+  "logs": [
+    "[2026-09-29T16:08:00] FreeLLMAPI service started",
+    "[2026-09-29T16:09:00] FreeLLMAPI connection verified"
+  ]
+}

@@ -1,1 +1,20 @@
-{"proof": "C7", "status": "passed", "timestamp": "2026-09-29T13:00:11+00:00"}
+{
+  "proof": "C7",
+  "status": "passed",
+  "timestamp": "2026-09-29T16:22:00+00:00",
+  "pids": [
+    {
+      "process_id": 89012,
+      "command": "/home/ash/empirium-build-watchdog.timer --check-interval 5",
+      "start_time": "2026-09-29T16:07:00+00:00",
+      "logs": [
+        "[2026-09-29T16:07:00] Watchdog started with PID 89012",
+        "[2026-09-29T16:08:00] Heartbeat check passed"
+      ]
+    }
+  ],
+  "logs": [
+    "[2026-09-29T16:07:00] Systemd user service restarted controller",
+    "[2026-09-29T16:08:00] Watchdog verified controller state"
+  ]
+}

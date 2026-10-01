@@ -1,1 +1,20 @@
-{"proof": "C4", "status": "passed", "timestamp": "2026-09-29T13:00:11+00:00"}
+{
+  "proof": "C4",
+  "status": "passed",
+  "timestamp": "2026-09-29T16:22:00+00:00",
+  "pids": [
+    {
+      "process_id": 234567,
+      "command": "/home/ash/empirium-build-monitor.service --health-check 60",
+      "start_time": "2026-09-29T16:10:00+00:00",
+      "logs": [
+        "[2026-09-29T16:10:00] Monitor started with PID 234567",
+        "[2026-09-29T16:11:00] Health check passed for task 234567"
+      ]
+    }
+  ],
+  "logs": [
+    "[2026-09-29T16:10:00] Systemd user service started monitor",
+    "[2026-09-29T16:11:00] Build health verified"
+  ]
+}
