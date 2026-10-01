@@ -709,25 +709,26 @@ def render_progress(prog):
 
 
 def render_bot_office(agents):
-    """Show the live workforce as little robots placed in the supplied office art."""
-    views = ["front", "three-quarter", "side", "front", "back", "three-quarter", "side", "front"]
-    names = ["CONTROL", "REVIEW", "BUILD", "PROVIDER", "TEST", "RELEASE", "RESEARCH", "QUEUE"]
+    """Show one robot for every currently observed LLM call, and no fake stations."""
+    views = ["front", "three-quarter", "side", "back"]
     cards = []
-    for i, name in enumerate(names):
-        a = agents[i] if i < len(agents) else None
-        state = "working" if a else "standby"
-        kind = (a.get("kind") if a else "station")
-        model = (a.get("model") if a else "available")
-        item = (a.get("item_id") or a.get("attempt_id") if a else "ready")
+    for i, a in enumerate(agents):
+        kind = a.get("kind") or "llm"
+        model = a.get("model") or "unknown model"
+        item = a.get("item_id") or a.get("attempt_id") or "live-call"
+        source = a.get("source") or "runtime"
         cards.append(
-            f'<article class="office-bot bot-{i+1} state-{state}">'
-            f'<div class="bot-shadow"></div><img class="robot-figure" src="/assets/office/robot-{views[i]}.png" alt="{esc(name)} robot">'
-            f'<div class="bot-plate"><b>{esc(name)}</b><span>{esc(kind)} · {esc(model)}</span><small>{esc(item)}</small></div>'
+            f'<article class="office-bot state-working" data-agent-id="{esc(item)}">'
+            f'<div class="bot-shadow"></div><img class="robot-figure" src="/assets/office/robot-{views[i % len(views)]}.png" alt="live {esc(kind)} call">'
+            f'<div class="bot-plate"><b>LIVE CALL {i+1:02d}</b><span>{esc(kind)} · {esc(model)}</span><small>{esc(item)} · {esc(source)}</small></div>'
             f'</article>')
+    if not cards:
+        cards.append('<div class="office-empty"><b>NO LIVE LLM CALLS</b><span>The office is waiting for the next dispatch.</span></div>')
+    scene_height = max(590, 150 + ((len(agents) + 8) // 9) * 220)
     return f'''<section class="panel bot-office">
-  <div class="ph"><h2>Industrial Steam / Bot Floor</h2><span class="meta">each live worker has a station in the office</span><div class="right"><span class="tag t-run">{len(agents)} active</span><span class="chip">visual layer · live data below</span></div></div>
-  <div class="office-scene"><div class="office-sign">EMPIRIUM STUDIO <span>BOT OPERATIONS</span></div><div class="office-grid"></div>{"".join(cards)}</div>
-</section>'''
+  <div class="ph"><h2>Industrial Steam / Bot Floor</h2><span class="meta">one robot = one observed live LLM call</span><div class="right"><span class="tag t-run">{len(agents)} live calls</span><span class="chip">updates on refresh</span></div></div>
+  <div class="office-scene" style="min-height:{scene_height}px"><div class="office-sign">EMPIRIUM STUDIO <span>BOT OPERATIONS</span></div><div class="office-grid"></div><div class="office-floor">{"".join(cards)}</div></div>
+ </section>'''
 
 
 CSS = """
@@ -878,10 +879,9 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .office-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,22,.08),rgba(4,10,22,.2));pointer-events:none;z-index:0}
 .office-sign{position:absolute;top:16px;left:24px;z-index:2;color:#ffd166;font:700 12px var(--mono);letter-spacing:.14em;text-shadow:0 2px 8px #000}.office-sign span{color:#fff;display:block;font-size:10px;margin-top:3px;letter-spacing:.22em}
 .office-grid{position:absolute;inset:44% 16% 9%;background:repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0 1px,transparent 1px 48px),repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 1px,transparent 1px 48px);transform:perspective(420px) rotateX(58deg);transform-origin:center bottom;opacity:.48;z-index:1}
-.office-bot{position:absolute;width:150px;height:250px;z-index:2;filter:drop-shadow(0 10px 7px rgba(0,0,0,.32));animation:bot-float 4s ease-in-out infinite}
+.office-floor{position:absolute;inset:72px 3% 20px;z-index:2;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));align-items:end;gap:5px 8px;padding:20px 14px 4px}.office-bot{position:relative;width:124px;height:220px;justify-self:center;filter:drop-shadow(0 10px 7px rgba(0,0,0,.32));animation:bot-float 4s ease-in-out infinite}
 .robot-figure{position:absolute;top:0;left:0;width:150px;height:205px;object-fit:contain;mix-blend-mode:multiply}.bot-shadow{position:absolute;bottom:26px;left:20px;width:110px;height:18px;border-radius:50%;background:rgba(0,0,0,.35);filter:blur(6px)}
-.bot-plate{position:absolute;bottom:0;left:4px;right:4px;padding:6px 8px;border:1px solid rgba(255,209,102,.38);border-radius:6px;background:rgba(8,13,22,.84);box-shadow:0 3px 10px rgba(0,0,0,.24);font:10px var(--mono)}.bot-plate b{display:block;color:#ffd166;letter-spacing:.09em}.bot-plate span,.bot-plate small{display:block;color:#d7dde4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bot-plate small{color:#8fa1b8;margin-top:2px}.state-working .bot-plate{border-color:rgba(88,166,255,.7)}.state-working .bot-plate b:before{content:"● ";color:#58a6ff}.state-standby{opacity:.82}.state-standby .bot-plate b:before{content:"○ ";color:#6e7681}
-.bot-1{left:8%;top:27%;animation-delay:-.2s}.bot-2{left:27%;top:15%;animation-delay:-1.1s}.bot-3{left:45%;top:30%;animation-delay:-2.3s}.bot-4{right:7%;top:21%;animation-delay:-.8s}.bot-5{left:17%;bottom:5%;transform:scale(.84);animation-delay:-1.7s}.bot-6{left:37%;bottom:1%;transform:scale(.9);animation-delay:-2.8s}.bot-7{right:19%;bottom:4%;transform:scale(.82);animation-delay:-.5s}.bot-8{right:1%;bottom:1%;transform:scale(.72);animation-delay:-3.1s}
+.robot-figure{width:124px;height:174px}.bot-plate{position:absolute;bottom:0;left:1px;right:1px;padding:5px 6px;border:1px solid rgba(88,166,255,.7);border-radius:6px;background:rgba(8,13,22,.88);box-shadow:0 3px 10px rgba(0,0,0,.24);font:9px var(--mono)}.bot-plate b{display:block;color:#ffd166;letter-spacing:.06em}.bot-plate span,.bot-plate small{display:block;color:#d7dde4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bot-plate small{color:#8fa1b8;margin-top:2px}.office-empty{align-self:center;justify-self:center;display:flex;flex-direction:column;gap:6px;padding:18px 24px;border:1px solid rgba(255,209,102,.4);border-radius:8px;background:rgba(8,13,22,.82);color:#ffd166;font:12px var(--mono);text-align:center}.office-empty span{color:#d7dde4;font-size:11px}
 @keyframes bot-float{50%{translate:0 -5px}}
 .panel{border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.10)}.ph{padding:12px 15px}.ph h2{letter-spacing:.1em}.health{border-radius:10px;padding:11px 15px;background:linear-gradient(90deg,rgba(88,166,255,.07),rgba(139,92,246,.04))}
 @media (max-width:850px){.activity-layout{grid-template-columns:1fr}.activity-summary{border-right:0;border-bottom:1px solid var(--line)}.activity-feed{max-height:280px}}

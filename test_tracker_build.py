@@ -24,3 +24,15 @@ def test_malformed_stall_timestamp_is_ignored_safely(tmp_path):
     log = tmp_path / "heartbeat.log"
     log.write_text("not-a-time STALL ALERT: invalid\n")
     assert tb.latest_fresh_stall(log, 1790781000.0, freshness_s=3 * 3600) is None
+
+
+def test_bot_office_has_one_robot_per_live_agent_and_no_standby_fakes():
+    agents = [
+        {"kind": "claude", "model": "model-a", "attempt_id": "call-a", "source": "db"},
+        {"kind": "hermes", "model": "model-b", "item_id": "call-b", "source": "registry"},
+    ]
+    html = tb.render_bot_office(agents)
+    assert html.count('class="office-bot state-working"') == 2
+    assert "2 live calls" in html
+    assert "standby" not in html
+    assert "NO LIVE LLM CALLS" not in html
