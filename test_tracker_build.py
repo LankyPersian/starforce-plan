@@ -36,3 +36,43 @@ def test_bot_office_has_one_robot_per_live_agent_and_no_standby_fakes():
     assert "2 live calls" in html
     assert "standby" not in html
     assert "NO LIVE LLM CALLS" not in html
+
+
+def test_shield_panel_distinguishes_live_calls_from_completed_history():
+    shield = {"models": {}, "buckets": [{"ok": 0, "bad": 0}], "since": 100.0}
+
+    html = tb.render_shield_panel(
+        '<tr><td colspan="5">no completed attempts</td></tr>',
+        "", "0 ok / 0 fail", 0, shield, live_free=12,
+    )
+
+    assert "Completed shield attempts" in html
+    assert "12 live now" in html
+    assert "0 completed in the last 6 h" in html
+    assert "does not mean the free lane is idle" in html
+
+
+def test_setup_history_is_collapsed_and_not_presented_as_product_progress():
+    html = tb.render_setup_history(
+        pipe_html="<li>bootstrap passed</li>", prog_html="<div>product progress</div>",
+        proofs_html="<div>C1 passed</div>", cooldowns="", done_n=7,
+        n_pass=12, n_run=12, n_checks_ok=140, n_checks=140, blocked_note="",
+    )
+
+    assert html.startswith("<details")
+    assert "Setup &amp; commissioning history" in html
+    assert "not current product progress" in html
+    assert "bootstrap passed" in html
+    assert "C1 passed" in html
+
+
+def test_cap_managed_agents_excludes_external_hermes_delegations():
+    agents = [
+        {"source": "db attempts", "lane": "free", "attempt_id": "controller-a"},
+        {"source": "hermes registry", "lane": "free", "attempt_id": "delegated-a"},
+        {"source": "db attempts", "lane": "luna", "attempt_id": "planner-a"},
+    ]
+
+    managed = tb.cap_managed_agents(agents)
+
+    assert [a["attempt_id"] for a in managed] == ["controller-a", "planner-a"]

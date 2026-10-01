@@ -186,7 +186,7 @@ def _endpoint_status(url):
         return type(e).__name__
 
 
-def load_free_runtime(ps, conc):
+def load_free_runtime(ps, conc, agents=None):
     """Collect the live controller's free-lane target, cap, governor and health."""
     ctl = next((p for p in ps if p["kind"] == "controller"), None)
     commissioning = any(p["kind"] == "commissioning" for p in ps)
@@ -223,6 +223,13 @@ def load_free_runtime(ps, conc):
         pass
     shield = env.get("EMPIRIUM_SHIELD_URL", "")
     upstream = env.get("EMPIRIUM_UPSTREAM_URL", "")
+    if not shield:
+        shield = next((a.get("route_url", "") for a in (agents or [])
+                       if a.get("lane") == "free" and a.get("route_url")), "")
+    if not upstream and ":3102" in shield:
+        upstream = shield.replace(":3102", ":3101")
+    elif not upstream and ":3202" in shield:
+        upstream = shield.replace(":3202", ":3201")
     urls = f"{shield} {upstream}"
     mode = "REAL FreeLLMAPI" if any(port in urls for port in (":3101", ":3102")) else "FIXTURE ROUTE" if any(port in urls for port in (":3201", ":3202")) else "UNKNOWN ROUTE"
     running = conc["current_free"]
@@ -239,11 +246,12 @@ def render_free_runtime(rt, conc):
     mode_cls = "c-pass" if rt["mode"] == "REAL FreeLLMAPI" else "c-retry" if rt["mode"] == "FIXTURE ROUTE" else "c-fail"
     state = "paused" if rt["paused"] else "safe mode" if rt["safe"] else "dispatching"
     util = min(100, rt["util"])
+    external = f' · {rt.get("external_free", 0)} external Hermes free call(s) shown separately' if rt.get("external_free") else ""
     return f'''<section class="panel free-runtime {"fixture" if rt["mode"] != "REAL FreeLLMAPI" else "real"}">
   <div class="ph"><h2>FreeLLMAPI live control plane</h2><span class="meta">this is the authoritative routing view</span>
     <div class="right"><span class="tag t-{"pass" if rt["mode"] == "REAL FreeLLMAPI" else "retry"}">{esc(rt["mode"])}</span><span class="chip">controller PID <b>{esc(rt["controller_pid"])}</b></span></div></div>
   <div class="runtime-grid">
-    <div class="runtime-hero"><div class="runtime-label">FREE WORKERS NOW / EFFECTIVE CAP</div><div class="runtime-number"><b>{rt["running"]}</b><span>/ {rt["effective"]}</span></div><div class="runtime-bar"><i style="width:{util:.1f}%"></i></div><div class="runtime-sub"><b>{util:.0f}% utilized</b> · configured cap {rt["cap"]} · {state}</div></div>
+    <div class="runtime-hero"><div class="runtime-label">CONTROLLER FREE WORKERS / EFFECTIVE CAP</div><div class="runtime-number"><b>{rt["running"]}</b><span>/ {rt["effective"]}</span></div><div class="runtime-bar"><i style="width:{util:.1f}%"></i></div><div class="runtime-sub"><b>{util:.0f}% utilized</b> · configured cap {rt["cap"]} · {state}{external}</div></div>
     <div class="runtime-stat"><span>route mode</span><b class="{mode_cls}">{esc(rt["mode"])}</b><small>fixture means simulated upstream, not the real gateway</small></div>
     <div class="runtime-stat"><span>shield</span><b>{esc(rt["shield_status"])}</b><small class="mono">{esc(rt["shield"])}</small></div>
     <div class="runtime-stat"><span>upstream</span><b>{esc(rt["upstream_status"])}</b><small class="mono">{esc(rt["upstream"])}</small></div>
@@ -613,6 +621,46 @@ def render_free(sh, now):
     return "".join(rows), trend, strong, hot
 
 
+def render_shield_panel(free_rows, trend, strong_txt, free_hot, sh, live_free):
+    completed = 0 if sh is None else sum(
+        bucket.get("ok", 0) + bucket.get("bad", 0) for bucket in sh.get("buckets", [])
+    )
+    if sh is None:
+        explanation = "Shield history is unavailable; live worker count comes from verified controller attempts."
+    elif completed == 0 and live_free:
+        explanation = (f"0 completed in the last {FREE_H} h; {live_free} calls are live or awaiting a final "
+                       "shield outcome. This does not mean the free lane is idle.")
+    else:
+        explanation = (f"{completed} completed in the last {FREE_H} h. Live calls are counted separately "
+                       "from completed provider outcomes.")
+    return f'''<section class="panel">
+  <div class="ph"><h2>Completed shield attempts</h2><span class="meta">last {FREE_H} h · {completed} completed · {live_free} live now · {free_hot} recently completed · {esc(strong_txt)}</span></div>
+  <div class="note">{esc(explanation)}</div>
+  {trend}
+  <table><thead><tr><th>model</th><th class="r">ok / fail</th><th class="r hide-s">avg ok</th><th>last error</th><th class="r">last completed</th></tr></thead>
+  <tbody>{free_rows}</tbody></table>
+</section>'''
+
+
+def render_setup_history(pipe_html, prog_html, proofs_html, cooldowns, done_n,
+                         n_pass, n_run, n_checks_ok, n_checks, blocked_note):
+    complete = done_n == len(STEPS) and n_pass == len(PROOFS)
+    state = "complete" if complete else "attention needed"
+    return f'''<details class="panel setup-history">
+  <summary><b>Setup &amp; commissioning history</b><span>{state} · historical checks, not current product progress</span></summary>
+  <div class="history-body">
+    <section>
+      <div class="ph"><h2>Bootstrap setup</h2><span class="meta">{done_n}/{len(STEPS)} setup steps complete</span><div class="right">{cooldowns}</div></div>
+      <ol class="pipe">{pipe_html}</ol>
+    </section>
+    <section>
+      <div class="ph"><h2>Commissioning safety proofs</h2><span class="meta">{n_pass} pass · {n_run - n_pass} not passing · {len(PROOFS) - n_run} not run · checks {n_checks_ok}/{n_checks}</span></div>
+      <div class="proofs">{proofs_html}</div>{blocked_note}
+    </section>
+  </div>
+</details>'''
+
+
 def render_cooldowns(st, now):
     out = []
     for key, label in (("sub_cooldown_until", "claude"), ("luna_cooldown_until", "luna")):
@@ -654,17 +702,19 @@ def merge_agents(cli_agents, db_agents, dlg_agents):
     arbiter and collect_db_attempts already applied it. Hermes children (delegate_task)
     exist in neither: their provider/model lane is invisible unless the registry is read.
     """
-    by_pid, rows = {}, []
+    by_key, rows = {}, []
     for a in list(cli_agents) + list(db_agents):
-        if a["pid"] in by_pid:
-            cur = by_pid[a["pid"]]
+        key = ("attempt", a.get("attempt_id")) if a.get("attempt_id") else ("pid", a["pid"])
+        if key in by_key:
+            cur = by_key[key]
             if a.get("item_id"):            # DB row wins: it carries item attribution
                 cur.update({k: v for k, v in a.items() if v})
+                cur["source"] = "db attempts"
             continue
         a = dict(a)
         a.setdefault("source", "process scan")
-        a["source"] = "db attempts" if a.get("attempt_id") else "process scan"
-        by_pid[a["pid"]] = a
+        a["source"] = "db attempts" if a.get("item_id") else "process scan"
+        by_key[key] = a
         rows.append(a)
     for a in dlg_agents:
         a = dict(a)
@@ -672,6 +722,11 @@ def merge_agents(cli_agents, db_agents, dlg_agents):
         rows.append(a)
     rows.sort(key=lambda r: (r["kind"], -(r.get("runtime_s") or 0)))
     return rows
+
+
+def cap_managed_agents(agents):
+    """Workers governed by the controller's effective free-worker cap."""
+    return [agent for agent in agents if agent.get("source") == "db attempts"]
 
 
 def render_agents(agents):
@@ -884,6 +939,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .robot-figure{width:124px;height:174px}.bot-plate{position:absolute;bottom:0;left:1px;right:1px;padding:5px 6px;border:1px solid rgba(88,166,255,.7);border-radius:6px;background:rgba(8,13,22,.88);box-shadow:0 3px 10px rgba(0,0,0,.24);font:9px var(--mono)}.bot-plate b{display:block;color:#ffd166;letter-spacing:.06em}.bot-plate span,.bot-plate small{display:block;color:#d7dde4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bot-plate small{color:#8fa1b8;margin-top:2px}.office-empty{align-self:center;justify-self:center;display:flex;flex-direction:column;gap:6px;padding:18px 24px;border:1px solid rgba(255,209,102,.4);border-radius:8px;background:rgba(8,13,22,.82);color:#ffd166;font:12px var(--mono);text-align:center}.office-empty span{color:#d7dde4;font-size:11px}
 @keyframes bot-float{50%{translate:0 -5px}}
 .panel{border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.10)}.ph{padding:12px 15px}.ph h2{letter-spacing:.1em}.health{border-radius:10px;padding:11px 15px;background:linear-gradient(90deg,rgba(88,166,255,.07),rgba(139,92,246,.04))}
+.setup-history{overflow:hidden}.setup-history>summary{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;list-style:none}.setup-history>summary::-webkit-details-marker{display:none}.setup-history>summary::before{content:"▸";color:var(--run);font:14px var(--mono)}.setup-history[open]>summary::before{content:"▾"}.setup-history>summary b{font-size:12px;letter-spacing:.05em;text-transform:uppercase}.setup-history>summary span{color:var(--dim);font:11px var(--mono)}.history-body{border-top:1px solid var(--line)}.history-body>section+section{border-top:1px solid var(--line)}
 @media (max-width:850px){.activity-layout{grid-template-columns:1fr}.activity-summary{border-right:0;border-bottom:1px solid var(--line)}.activity-feed{max-height:280px}}
 @media (max-width:1100px){.pipe{grid-template-columns:repeat(4,minmax(0,1fr))}.proofs{grid-template-columns:repeat(4,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
 @media (max-width:640px){header,main{padding-left:10px;padding-right:10px}.pipe{grid-template-columns:1fr 1fr}.proofs{grid-template-columns:1fr 1fr}td,th{padding:6px 8px}.hide-s{display:none}}
@@ -943,8 +999,12 @@ def main():
     dlg = tt.collect_delegations(now)
     agents = merge_agents(cli, dba, dlg)
     office_html = render_bot_office(agents)
-    conc = tt.record_concurrency(cli + dba + dlg, SAMPLES, now)
-    free_runtime = load_free_runtime(ps, conc)
+    managed_agents = cap_managed_agents(agents)
+    conc = tt.record_concurrency(managed_agents, SAMPLES, now)
+    free_runtime = load_free_runtime(ps, conc, agents)
+    free_runtime["external_free"] = sum(
+        a.get("lane") == "free" and a.get("source") == "hermes registry" for a in agents
+    )
     free_runtime_html = render_free_runtime(free_runtime, conc)
     prog = tt.load_project_progress(tt.BUILD_DB)
     prog_html, prog_frac = render_progress(prog)
@@ -1004,6 +1064,14 @@ def main():
                     'condition; see .build/evidence/commissioning/BLOCKED.md</div>') if blocked else ""
     strong_txt = (f'pinned strong tier: {strong["ok"]} ok / {strong["bad"]} fail'
                   if lr.STRONG_TIER else "pinned strong tier: unknown (freellm_shield not importable)")
+    shield_panel_html = render_shield_panel(
+        free_rows, trend, strong_txt, free_hot, sh,
+        sum(a.get("lane") == "free" for a in agents),
+    )
+    setup_history_html = render_setup_history(
+        pipe_html, prog_html, proofs_html, cooldowns, done_n,
+        n_pass, n_run, n_checks_ok, n_checks, blocked_note,
+    )
 
     doc = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1019,25 +1087,12 @@ def main():
 </header>
 <main>
 <div class="health">{health}</div>
-{office_html}
 {product_html}
-{activity_html}
 {free_runtime_html}
+{activity_html}
+{office_html}
 {transparency_html}
 {stall_note}
-
-<section class="panel">
-  <div class="ph"><h2>Bootstrap pipeline</h2><span class="meta">bootstrap.json · {done_n} done</span>
-    <div class="right">{cooldowns}</div></div>
-  <ol class="pipe">{pipe_html}</ol>
-  {prog_html}
-</section>
-
-<section class="panel">
-  <div class="ph"><h2>Commissioning proofs</h2>
-    <span class="meta">{n_pass} pass · {n_run - n_pass} not passing · {len(PROOFS) - n_run} not run · checks {n_checks_ok}/{n_checks}</span></div>
-  <div class="proofs">{proofs_html}</div>{blocked_note}
-</section>
 
 <div class="grid2">
 <section class="panel">
@@ -1047,14 +1102,10 @@ def main():
   <div class="note">measured from CLI session logs; vendor dashboards lag by minutes</div>
 </section>
 
-<section class="panel">
-  <div class="ph"><h2>Free lane · shield</h2><span class="meta">{FREE_H} h · {free_hot} hot · {esc(strong_txt)}</span></div>
-  {trend}
-  <table><thead><tr><th>model</th><th class="r">ok / fail</th><th class="r hide-s">avg ok</th><th>last error</th><th class="r">last</th></tr></thead>
-  <tbody>{free_rows}</tbody></table>
-  <div class="note">strong-tier failures are expected; the ladder falls through to the next model</div>
-</section>
+{shield_panel_html}
 </div>
+
+{setup_history_html}
 
 <section class="panel">
   <div class="ph"><h2>Current sub-agents</h2><span class="meta">{len(agents)} live · hermes delegation registry + controller attempts + process scan</span></div>

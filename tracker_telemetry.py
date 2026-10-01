@@ -84,6 +84,7 @@ def collect_agents(lines: list[str] | None = None, env_for_pid=_env_for_pid) -> 
             "lane": lane,
             "model": _model(kind, command),
             "attempt_id": env.get("EMPIRIUM_ATTEMPT_ID", ""),
+            "route_url": env.get("ANTHROPIC_BASE_URL") or env.get("FREELLMAPI_BASE_URL") or "",
             "command": command[:300],
         })
     return sorted(agents, key=lambda agent: int(agent["runtime_s"]), reverse=True)

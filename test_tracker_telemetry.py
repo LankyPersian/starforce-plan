@@ -28,6 +28,43 @@ def test_collect_agents_labels_free_lane_and_duration():
     assert agents[0]["model"] == "sonnet"
 
 
+def test_merge_agents_counts_one_live_call_per_attempt():
+    cli = [
+        {"pid": "101", "ppid": "1", "runtime_s": 20, "kind": "claude", "lane": "free",
+         "model": "model-a", "attempt_id": "attempt-a", "command": "wrapper"},
+        {"pid": "102", "ppid": "101", "runtime_s": 19, "kind": "claude", "lane": "free",
+         "model": "model-a", "attempt_id": "attempt-a", "command": "claude child"},
+    ]
+    db = [
+        {"pid": "101", "ppid": "", "runtime_s": 20, "kind": "implement", "lane": "free",
+         "model": "model-a", "attempt_id": "attempt-a", "item_id": "F0-A",
+         "command": "controller attempt"},
+    ]
+
+    merged = tb.merge_agents(cli, db, [])
+
+    assert len(merged) == 1
+    assert merged[0]["attempt_id"] == "attempt-a"
+    assert merged[0]["item_id"] == "F0-A"
+    assert merged[0]["source"] == "db attempts"
+
+
+def test_free_runtime_infers_real_route_from_live_worker(monkeypatch):
+    monkeypatch.setattr(tb, "_proc_env", lambda pid: {
+        "EMPIRIUM_BUILD_STATE": tb.FSTATE,
+        "EMPIRIUM_MAX_FREE_WORKERS": "12",
+    })
+    monkeypatch.setattr(tb, "_endpoint_status", lambda url: "HTTP 200" if url else "unknown")
+    ps = [{"kind": "controller", "pid": "42"}]
+    agents = [{"lane": "free", "route_url": "http://127.0.0.1:3102"}]
+
+    runtime = tb.load_free_runtime(ps, {"current_free": 1}, agents)
+
+    assert runtime["mode"] == "REAL FreeLLMAPI"
+    assert runtime["shield"] == "http://127.0.0.1:3102"
+    assert runtime["upstream"] == "http://127.0.0.1:3101"
+
+
 def test_project_progress_requires_two_integrations_for_eta(tmp_path):
     db = tmp_path / "build.db"
     con = sqlite3.connect(db)
