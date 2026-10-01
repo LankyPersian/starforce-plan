@@ -135,9 +135,31 @@ def load_shield(now):
     since = now - FREE_H * 3600
     c = sqlite3.connect(SHIELD_DB)
     c.row_factory = sqlite3.Row
+    columns = {row[1] for row in c.execute("pragma table_info(tries)")}
+    extended = {"logical_request", "health_probe"} <= columns
+    if extended:
+        latest_sql = """select max(ts) from tries where model is not null and outcome != 'PROBE_OK'
+                        and (logical_request = 'upstream_attempt' or logical_request is null)
+                        and cast(coalesce(health_probe, 0) as integer) = 0"""
+        aggregate_sql = """select model,outcome,count(*) n,max(ts) last,avg(secs) secs from tries
+                           where ts>? and model is not null and outcome != 'PROBE_OK'
+                           and (logical_request = 'upstream_attempt' or logical_request is null)
+                           and cast(coalesce(health_probe, 0) as integer) = 0
+                           group by model,outcome"""
+        bucket_sql = """select ts,outcome from tries where ts>? and model is not null
+                        and outcome != 'PROBE_OK'
+                        and (logical_request = 'upstream_attempt' or logical_request is null)
+                        and cast(coalesce(health_probe, 0) as integer) = 0"""
+    else:
+        latest_sql = "select max(ts) from tries where model is not null and outcome != 'PROBE_OK'"
+        aggregate_sql = """select model,outcome,count(*) n,max(ts) last,avg(secs) secs from tries
+                           where ts>? and model is not null and outcome != 'PROBE_OK'
+                           group by model,outcome"""
+        bucket_sql = """select ts,outcome from tries where ts>? and model is not null
+                        and outcome != 'PROBE_OK'"""
     agg = {}
-    for r in c.execute("select model,outcome,count(*) n,max(ts) last,avg(secs) secs from tries "
-                       "where ts>? group by model,outcome", (since,)):
+    latest = c.execute(latest_sql).fetchone()[0] or 0
+    for r in c.execute(aggregate_sql, (since,)):
         e = agg.setdefault(r["model"], {"ok": 0, "bad": 0, "last": 0, "lastbad": "",
                                          "lastbad_ts": 0, "secs_sum": 0.0, "secs_n": 0})
         if r["outcome"] in ("OK", "PROBE_OK"):
@@ -150,11 +172,11 @@ def load_shield(now):
                 e["lastbad"], e["lastbad_ts"] = r["outcome"], r["last"]
         e["last"] = max(e["last"], r["last"])
     buckets = [{"ok": 0, "bad": 0} for _ in range(FREE_H * 4)]   # 15-min buckets
-    for r in c.execute("select ts,outcome from tries where ts>?", (since,)):
+    for r in c.execute(bucket_sql, (since,)):
         i = min(len(buckets) - 1, int((r["ts"] - since) // 900))
         buckets[i]["ok" if r["outcome"] in ("OK", "PROBE_OK") else "bad"] += 1
     c.close()
-    return {"models": agg, "buckets": buckets, "since": since}
+    return {"models": agg, "buckets": buckets, "since": since, "latest": latest}
 
 
 def _proc_env(pid):
@@ -184,6 +206,21 @@ def _endpoint_status(url):
         return f"HTTP {e.code}"
     except Exception as e:
         return type(e).__name__
+
+
+def load_shield_health(shield_url):
+    """Read the shield's own live inflight counters rather than inferring them from workers."""
+    if not shield_url or shield_url == "not set":
+        return {"active_upstream": None, "inflight": {}, "breakers_s": {}, "ok": False}
+    try:
+        with urllib.request.urlopen(shield_url.rstrip("/") + "/health", timeout=1.5) as r:
+            payload = json.loads(r.read())
+    except Exception:
+        return {"active_upstream": None, "inflight": {}, "breakers_s": {}, "ok": False}
+    inflight = payload.get("inflight") if isinstance(payload.get("inflight"), dict) else {}
+    clean = {str(model): int(count or 0) for model, count in inflight.items()}
+    return {"active_upstream": sum(clean.values()), "inflight": clean,
+            "breakers_s": payload.get("breakers_s") or {}, "ok": bool(payload.get("ok"))}
 
 
 def load_free_runtime(ps, conc, agents=None):
@@ -621,21 +658,29 @@ def render_free(sh, now):
     return "".join(rows), trend, strong, hot
 
 
-def render_shield_panel(free_rows, trend, strong_txt, free_hot, sh, live_free):
+def render_shield_panel(free_rows, trend, strong_txt, free_hot, sh, active_upstream, now):
     completed = 0 if sh is None else sum(
         bucket.get("ok", 0) + bucket.get("bad", 0) for bucket in sh.get("buckets", [])
     )
+    latest = 0 if sh is None else float(sh.get("latest") or 0)
+    active_text = ("active upstream unavailable" if active_upstream is None
+                   else f"{active_upstream} active upstream")
+    stale = bool(active_upstream is not None and active_upstream > 0
+                 and (not latest or now - latest > HOT_S))
     if sh is None:
         explanation = "Shield history is unavailable; live worker count comes from verified controller attempts."
-    elif completed == 0 and live_free:
-        explanation = (f"0 completed in the last {FREE_H} h; {live_free} calls are live or awaiting a final "
-                       "shield outcome. This does not mean the free lane is idle.")
+    elif active_upstream is None:
+        explanation = (f"{completed} completed in the last {FREE_H} h. Live shield inflight telemetry is "
+                       "unavailable, so no active-attempt count is asserted.")
+    elif stale:
+        explanation = (f"{completed} completed in the last {FREE_H} h, but completion history is stale while "
+                       f"{active_upstream} upstream attempt(s) are active. Restart or inspect the shield telemetry writer.")
     else:
         explanation = (f"{completed} completed in the last {FREE_H} h. Live calls are counted separately "
                        "from completed provider outcomes.")
     return f'''<section class="panel">
-  <div class="ph"><h2>Completed shield attempts</h2><span class="meta">last {FREE_H} h · {completed} completed · {live_free} live now · {free_hot} recently completed · {esc(strong_txt)}</span></div>
-  <div class="note">{esc(explanation)}</div>
+  <div class="ph"><h2>Shield lane attempts</h2><span class="meta">{active_text} · {completed} completed in {FREE_H} h · {free_hot} recently completed · {esc(strong_txt)}</span></div>
+  <div class="note {"warn" if stale else ""}">{esc(explanation)}</div>
   {trend}
   <table><thead><tr><th>model</th><th class="r">ok / fail</th><th class="r hide-s">avg ok</th><th>last error</th><th class="r">last completed</th></tr></thead>
   <tbody>{free_rows}</tbody></table>
@@ -645,9 +690,10 @@ def render_shield_panel(free_rows, trend, strong_txt, free_hot, sh, live_free):
 def render_setup_history(pipe_html, prog_html, proofs_html, cooldowns, done_n,
                          n_pass, n_run, n_checks_ok, n_checks, blocked_note):
     complete = done_n == len(STEPS) and n_pass == len(PROOFS)
-    state = "complete" if complete else "attention needed"
+    if complete:
+        return ""
     return f'''<details class="panel setup-history">
-  <summary><b>Setup &amp; commissioning history</b><span>{state} · historical checks, not current product progress</span></summary>
+  <summary><b>Setup or commissioning needs attention</b><span>historical safety checks are not all passing</span></summary>
   <div class="history-body">
     <section>
       <div class="ph"><h2>Bootstrap setup</h2><span class="meta">{done_n}/{len(STEPS)} setup steps complete</span><div class="right">{cooldowns}</div></div>
@@ -1022,6 +1068,7 @@ def main():
     agent_src_txt = esc(", ".join(agent_srcs)) if agent_srcs else "none"
     sub_rows, sub_hot, sub_n = render_sub_lanes(lr.claude_usage(), lr.codex_usage(), now)
     sh = load_shield(now)
+    shield_health = load_shield_health(free_runtime["shield"])
     free_rows, trend, strong, free_hot = render_free(sh, now)
     cooldowns = render_cooldowns(st, now) if st else '<span class="chip">state <b class="dim">unknown</b></span>'
     commits = list(lr.commits())
@@ -1066,7 +1113,7 @@ def main():
                   if lr.STRONG_TIER else "pinned strong tier: unknown (freellm_shield not importable)")
     shield_panel_html = render_shield_panel(
         free_rows, trend, strong_txt, free_hot, sh,
-        sum(a.get("lane") == "free" for a in agents),
+        shield_health["active_upstream"], now,
     )
     setup_history_html = render_setup_history(
         pipe_html, prog_html, proofs_html, cooldowns, done_n,
@@ -1128,6 +1175,10 @@ def main():
 </main>
 <script>{JS}</script>
 </body></html>"""
+    import importlib
+    import tracker_operator
+    importlib.reload(tracker_operator)
+    doc = tracker_operator.apply(doc, snapshot, product_status, free_runtime, ctl_up)
     with open(OUT, "w") as f:
         f.write(doc)
     print(f"wrote {OUT} ({len(doc)} bytes) at {ts}")
